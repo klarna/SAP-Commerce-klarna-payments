@@ -1,0 +1,2 @@
+## messageSource=classpath:/klarnapayment/messages/email-orderFailed_$lang.properties
+﻿${ctx.messages.getMessage('emailSubject', ${ctx.klarnaOrderId})}

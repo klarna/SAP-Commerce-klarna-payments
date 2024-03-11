@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ [y] hybris Platform
+
+ Copyright (c) 2017 SAP SE or an SAP affiliate company.  All rights reserved.
+
+ This software is the confidential and proprietary information of SAP
+ ("Confidential Information"). You shall not disclose such Confidential
+ Information and shall use it only in accordance with the terms of the
+ license agreement you entered into with SAP.
+-->
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans.xsd
+           http://www.springframework.org/schema/aop
+           http://www.springframework.org/schema/aop/spring-aop.xsd
+           http://www.springframework.org/schema/context
+           http://www.springframework.org/schema/context/spring-context.xsd">
+           
+    <context:annotation-config/> 
+
+	<context:component-scan base-package="com.klarnapayment" scope-resolver="de.hybris.platform.spring.IgnoreTenantScopeMetadataResolver"/>
+
+	<!-- Expose /acceleratoraddon/web/webroot/WEB-INF/messages/base.js.properties  resource bundle as javascript variables -->
+	<bean id="defaultKlarnapaymentb2baddonJavaScriptMessageResourceAccessor" parent="abstractJavaScriptMessageResourceAccessor">
+		<property name="addOnName" value="klarnapaymentb2baddon"/>
+	</bean>
+
+	<bean id="defaultKlarnapaymentb2baddonBeforeViewJsPropsHandlerAdaptee" parent="abstractBeforeViewJsPropsHandlerAdaptee" class="de.hybris.platform.addonsupport.interceptors.ExportJsPropertiesBeforeViewHandler">
+		<property name="messageSource" ref="defaultKlarnapaymentb2baddonJavaScriptMessageResourceAccessor"/>
+	</bean>
+
+	<bean id="getKlarnapaymentb2baddonBeforeViewHandler" parent="beforeViewHandlerAdapter">
+		<property name="adaptee">
+			<ref bean="defaultKlarnapaymentb2baddonBeforeViewJsPropsHandlerAdaptee"/>
+		</property>
+	</bean>
+	<bean id="Klarnapaymentb2baddonBeforeViewHandlerListMergeDirective" depends-on="beforeViewHandlersList" parent="listMergeDirective">
+		<property name="add" ref="getKlarnapaymentb2baddonBeforeViewHandler"/>
+	</bean>
+	<alias name="defaultKlarnaSummaryCheckoutStep" alias="summaryCheckoutStep" />
+	<bean id="defaultKlarnaSummaryCheckoutStep"  parent="checkoutStep">
+		<property name="checkoutGroup" ref="defaultCheckoutGroup"/>
+		<property name="checkoutStepValidator" ref="klarnaSummaryCheckoutValidator"/>
+		<property name="transitions">
+			<map merge="true">
+				<entry key="previous" value-ref="REDIRECT_TO_PAYMENT_METHOD"/>
+				<entry key="current" value-ref="REDIRECT_TO_SUMMARY"/>
+				<entry key="next" value="redirect:/checkout/orderConfirmation/%s"/>
+			</map>
+		</property>
+		<property name="progressBarId" value="confirmOrder"/>
+	</bean>
+	<alias name="defaultKlarnaResponsiveSummaryCheckoutStep" alias="responsiveSummaryCheckoutStep" />
+	<bean id="defaultKlarnaResponsiveSummaryCheckoutStep"  parent="checkoutStep">
+		<property name="checkoutGroup" ref="responsiveCheckoutGroup"/>
+		<property name="checkoutStepValidator" ref="klarnaResponsiveSummaryCheckoutValidator"/>
+		<property name="transitions">
+			<map merge="true">
+				<entry key="previous" value-ref="REDIRECT_TO_PAYMENT_METHOD"/>
+				<entry key="current" value-ref="REDIRECT_TO_SUMMARY"/>
+				<entry key="next" value="redirect:/checkout/orderConfirmation/%s"/>
+			</map>
+		</property>
+		<property name="progressBarId" value="confirmOrder"/>
+	</bean>
+	
+	<bean id="REDIRECT_TO_PAYMENT_METHOD" class="java.lang.String">
+		<constructor-arg value="redirect:/checkout/multi/klarna-payment-method/payments"/>
+	</bean> 
+	<bean id="REDIRECT_TO_SUMMARY" class="java.lang.String">
+		<constructor-arg value="redirect:/checkout/multi/summary/klarna/view"/>
+	</bean>
+	<bean id="REDIRECT_TO_PAYMENT_TYPE" class="java.lang.String">
+		<constructor-arg value="redirect:/checkout/multi/klarna-payment-type/choose"/>
+	</bean>
+	
+	<bean id="netPriceForNorthAmericanFilter" class="com.klarnapayment.filters.NetPriceForNorthAmericanFilter"></bean>
+    <bean id="netPriceForNorthAmericanBeforeViewHandlersList" depends-on="storefrontTenantDefaultFilterChainList"
+          parent="listMergeDirective">
+        <property name="add" ref="netPriceForNorthAmericanFilter"/>
+    </bean>
+	<bean id="klarnaSummaryCheckoutValidator" class="com.klarnapayment.controllers.pages.checkout.steps.valdiation.impl.KlarnaSummaryCheckoutStepValidator" parent="abstractCheckoutStepValidator" >
+		<property name="kpPaymentCheckoutFacade" ref="kpPaymentCheckoutFacade"/>
+	</bean>
+	<bean id="klarnaResponsiveSummaryCheckoutValidator" class="com.klarnapayment.controllers.pages.checkout.steps.valdiation.impl.KlarnaResponsiveSummaryCheckoutStepValidator" parent="abstractCheckoutStepValidator" >
+	<property name="kpPaymentCheckoutFacade" ref="kpPaymentCheckoutFacade"/>
+	</bean>
+	<bean id="klarnaPaymentActiveFilter" class="com.klarnapayment.filters.KlarnaPaymentActiveFilter"></bean>
+    <bean id="klarnaDefaultBeforeViewHandlersList" depends-on="storefrontTenantDefaultFilterChainList"
+          parent="listMergeDirective">
+        <property name="add" ref="klarnaPaymentActiveFilter"/>
+    </bean>
+    <bean id="klarnaPaymentHelper" class="com.klarnapayment.utils.KlarnaPaymentHelper"/>
+</beans>

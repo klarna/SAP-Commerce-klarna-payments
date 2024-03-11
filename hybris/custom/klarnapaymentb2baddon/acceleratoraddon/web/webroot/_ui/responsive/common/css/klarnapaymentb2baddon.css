@@ -1,0 +1,27 @@
+.kppayment-container {
+    display: inline-block;
+    position: relative;
+  	padding-right: 15px;
+    padding-left: 15px;
+    white-space:nowrap;
+    color: #153a59;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 13px;
+}
+
+/* Hide the browser's default checkbox */
+.kppayment-container input {
+    position: relative;
+
+}
+@media (min-width: 1024px) {
+  .form-element-icon.datepicker.date_of_birth .glyphicon {
+    
+  }
+}
+@media (min-width: 640px) and (max-width: 1023px) {
+  .form-element-icon.datepicker.date_of_birth .glyphicon {
+    top: 30px;
+  }
+}

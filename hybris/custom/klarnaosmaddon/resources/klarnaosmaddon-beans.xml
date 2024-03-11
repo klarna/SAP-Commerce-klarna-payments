@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+ [y] hybris Platform
+
+ Copyright (c) 2018 SAP SE or an SAP affiliate company.  All rights reserved.
+
+ This software is the confidential and proprietary information of SAP
+ ("Confidential Information"). You shall not disclose such Confidential
+ Information and shall use it only in accordance with the terms of the
+ license agreement you entered into with SAP.
+-->
+<!--
+	ATTENTION: This is just an example file. You have to edit it according to your needs.
+-->
+
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="beans.xsd">
+
+	<!--
+		Example Data POJO
+	
+	<bean class="yemptypackage.data.MyPojo">
+		<property name="id" type="String"/>
+		<property name="flag" type="boolean"/>
+	</bean>
+	-->
+	<bean class="com.klarna.data.KlarnaOSMConfigData">
+		<description>Data object of KlarnaConfig which has no equivalent on the type system</description>
+		<property name="code" type="String"/>
+		<property name="pdpEnabled" type="Boolean"/>
+		<property name="cartEnabled" type="Boolean"/>
+		<property name="dataInlineEnabled" type="Boolean"/>
+		<property name="country" type="String"/>
+		<property name="scriptUrl" type="String"/>
+		<property name="productPlacementTagID" type="String"/>
+		<property name="cartPlacementTagID" type="String"/>
+		<property name="uci" type="String"/>
+		<property name="cartTheme" type="String"/>
+		<property name="pdpTheme" type="String"/>
+		<property name="customStyle" type="String"/>
+	</bean>
+</beans>

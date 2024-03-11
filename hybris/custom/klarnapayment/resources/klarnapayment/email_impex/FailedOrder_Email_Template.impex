@@ -1,0 +1,72 @@
+$contentCatalog=electronicsContentCatalog
+$contentCV=catalogVersion(CatalogVersion.catalog(Catalog.id[default=$contentCatalog]),CatalogVersion.version[default=Online])[default=$contentCatalog:Online]
+$wideContent=CMSImageComponent,BannerComponent,SimpleBannerComponent,CMSLinkComponent,CMSParagraphComponent
+
+UPDATE GenericItem[processor=de.hybris.platform.commerceservices.impex.impl.ConfigPropertyImportProcessor];pk[unique=true]
+$emailResource=$config-kpemailResourceValue
+
+$lang=en
+
+# Import modulegen config properties into impex macros
+UPDATE GenericItem[processor=de.hybris.platform.commerceservices.impex.impl.ConfigPropertyImportProcessor];pk[unique=true]
+$jarResourceCms=$config-jarResourceCmsValue
+
+# Email page Template
+INSERT_UPDATE EmailPageTemplate;$contentCV[unique=true];uid[unique=true]          ;name                       ;active;frontendTemplateName  ;subject(code)          ;htmlTemplate(code)  ;restrictedPageTypes(code)
+							   ;                       ;KPFailedOrderEmailTemplate;Failed Order Email Template;true  ;kPOrderFailedEmail    ;KP_Order_Failed_Subject;KP_Order_Failed_Body;EmailPage
+
+UPDATE EmailPageTemplate;$contentCV[unique=true];uid[unique=true]          ;velocityTemplate[translator=de.hybris.platform.commerceservices.impex.impl.FileLoaderValueTranslator]
+					    ;                       ;KPFailedOrderEmailTemplate;$jarResourceCms/structure-view/structure_orderConfirmationEmailTemplate.vm
+
+INSERT_UPDATE ContentSlotName;name[unique=true];template(uid,$contentCV)[unique=true][default='KPFailedOrderEmailTemplate'];validComponentTypes(code);compTypeGroup(code)
+							 ;SiteLogo         ;                                                                               ;$wideContent             ;email
+							 ;TopContent;;$wideContent;email
+                             ;BottomContent;;$wideContent;email
+
+INSERT_UPDATE ContentSlot;$contentCV[unique=true];uid[unique=true];name;active
+						;						 ;OrderFailedEmailTopSlot;Default Order Failed Email Top Slot;true
+							 
+#Define Renderer Template
+# Email velocity templates
+INSERT_UPDATE RendererTemplate;code[unique=true];contextClass;rendererType(code)[default='velocity']
+;KP_Order_Failed_Body;com.klarna.payment.facades.process.email.context.OrderFailedEmailContext
+;KP_Order_Failed_Subject;com.klarna.payment.facades.process.email.context.OrderFailedEmailContext
+
+# Email velocity templates
+UPDATE RendererTemplate;code[unique=true];description[lang=$lang];templateScript[lang=$lang,translator=de.hybris.platform.commerceservices.impex.impl.FileLoaderValueTranslator]
+;KP_Order_Failed_Body;Order Failed Email Body;$emailResource/email-orderFailedBody.vm
+;KP_Order_Failed_Subject;Order Failed Email Subject;$emailResource/email-orderFailedSubject.vm
+
+INSERT_UPDATE ContentSlotForTemplate;$contentCV[unique=true];uid[unique=true]               ;position[unique=true];pageTemplate(uid,$contentCV)[unique=true][default='KPFailedOrderEmailTemplate'];contentSlot(uid,$contentCV)[unique=true];allowOverwrite
+									;                       ;SiteLogo-OrderFailedEmail		;SiteLogo             ;                                                                               ;EmailSiteLogoSlot                       ;true
+									;						;TopContent-OrderFailedEmail	;TopContent			  ;																				  ;OrderFailedEmailTopSlot				   ;true
+									;						;BottomContent-OrderFailedEmail	;BottomContent        ;																				  ;EmailBottomSlot						   ;true
+		
+INSERT_UPDATE EmailPage;$contentCV[unique=true];uid[unique=true]  ;name                      ;masterTemplate(uid,$contentCV);defaultPage;approvalStatus(code)[default='approved'];fromEmail[lang=en];fromName[lang=en]
+					   ;					   ;kPOrderFailedEmail; Klarna Order Failed Email;KPFailedOrderEmailTemplate    ;true  		;										 ;noreply@mySite.com;Klarna Team
+
+
+		
+INSERT_UPDATE CMSParagraphComponent;$contentCV[unique=true];uid[unique=true]    ;content[lang=$lang]
+								   ;                       ;OrderFailedEmailBody;"
+
+<html>
+<head>
+</head>
+<body>
+
+    <p><font color='#666666' size='2' face='Arial, Helvetica, sans-serif'>${ctx.messages.getMessage('kpStorefrontCountry', ${ctx.countryName})}.</font></p> <br>
+    <p><font color='#666666' size='2' face='Arial, Helvetica, sans-serif'>${ctx.messages.getMessage('errorDateTime', ${ctx.currDate})}.</font></p> <br>
+    <p><font color='#666666' size='2' face='Arial, Helvetica, sans-serif'>${ctx.messages.getMessage('kpOrderId', ${ctx.klarnaOrderId})}.</font></p> <br>
+    <p><font color='#666666' size='2' face='Arial, Helvetica, sans-serif'>${ctx.messages.getMessage('kpGuest', ${ctx.guest})}.</font></p><br>
+	<p><font color='#666666' size='2' face='Arial, Helvetica, sans-serif'>${ctx.messages.getMessage('hyOrderId', ${ctx.cartId})}.</font></p><br>
+    <p><font color='#666666' size='2' face='Arial, Helvetica, sans-serif'>${ctx.messages.getMessage('hyError', ${ctx.errorMessage})}.</font></p><br>
+	<p><font color='#666666' size='2' face='Arial, Helvetica, sans-serif'>${ctx.messages.reviewOrderMessage}.</font></p><br>
+    <p><font color='#666666' size='2' face='Arial, Helvetica, sans-serif'>${ctx.messages.complimentaryClosing}</font></p>
+    
+	
+</body>
+</html>"
+
+UPDATE ContentSlot;$contentCV[unique=true];uid[unique=true]		  ;cmsComponents(uid,$contentCV)
+				  ;                       ;OrderFailedEmailTopSlot;OrderFailedEmailBody

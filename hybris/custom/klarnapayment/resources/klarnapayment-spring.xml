@@ -1,0 +1,471 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ [y] hybris Platform
+
+ Copyright (c) 2017 SAP SE or an SAP affiliate company.  All rights reserved.
+
+ This software is the confidential and proprietary information of SAP
+ ("Confidential Information"). You shall not disclose such Confidential
+ Information and shall use it only in accordance with the terms of the
+ license agreement you entered into with SAP.
+-->
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans.xsd
+           http://www.springframework.org/schema/aop
+           http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+	<!--
+	The hybris platform provides one single Spring application context for beans located at the jalo layer.
+	Each extension can add beans to this context by specifying them at this configuration file.
+	 
+	You can use and/or redefine beans defined at configuration files of other extensions as well as
+	adding new one.
+		
+	If you want to locate this file at a different location or want to use several files for better,
+	structuring, please use the '<yourextension>.application-context' property at your project.properties file.
+	There you can specify a comma separated list of files where first is tried to find a file per classpath and
+	then per file system.
+
+	
+	If you want to configure beans for your web module please have a look at
+	your web/webroot/WEB-INF/<extname>-web-spring.xml.
+	-->
+	
+	<!--  Example how to override a manager -->
+	<!--
+	<bean id="core.productManager"   class="com.klarna.payment.jalo.KlarnapaymentProductManager" 	init-method="init"	destroy-method="destroy" />
+	-->
+	
+	
+ 	<!--  Example how to configure the class to use for jalo session creation -->
+	<!--
+	<bean id="jalosession"   class="de.hybris.platform.jalo.JaloSessionFactory">
+		<property name="targetClassName" value="com.klarna.payment.jalo.KlarnapaymentJaloSession"/>
+	</bean>
+	-->
+
+	
+	<!--  Example how to override an item  -->
+	<!-- 
+	<bean id="de.hybris.platform.jalo.product.Product" class="com.klarna.payment.jalo.KlarnapaymentProduct" scope="prototype" />		
+ 	-->
+
+	<!--  
+	 Example how to register and use an AOP aspect 
+     Also see http://static.springframework.org/spring/docs/2.5.x/reference/aop.html	
+     -->
+	
+	<!-- 
+	<bean id="klarnapaymentProfBean" class="com.klarna.payment.aop.KlarnapaymentProfilingAspect"/>
+	<aop:config proxy-target-class="true">
+  		<aop:aspect id="klarnapaymentProfAspect" ref="klarnapaymentProfBean" >
+    	  <aop:pointcut id="profiledMethods" 
+	      	expression="execution(* getModificationTime(..))" />  	            
+	   		<aop:around pointcut-ref="profiledMethods" method="profile" />
+  		</aop:aspect>
+	</aop:config>
+	 -->
+
+	
+	<!-- some other examples of a pointcut that matches everything:
+
+    	  <aop:pointcut id="profiledMethods" 
+	      	expression="bean(de.hybris.platform.jalo.user.Customer) &amp;&amp; 
+	      	            !execution(* getPK(..))" />  	            
+	       <aop:pointcut id="profiledMethods" expression="execution(* *(..))" />	
+	  -->
+	
+    <bean id="klarnapaymentSystemSetup" class="com.klarna.payment.setup.KlarnapaymentSystemSetup">
+        <!-- constructor arg injection example -->
+        <constructor-arg ref="klarnapaymentService"/>
+    </bean>
+    <alias name="defaultKlarnaPaymentConfigConverter" alias="klarnaPaymentConfigConverter"/>
+     <bean id="defaultKlarnaPaymentConfigConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.klarna.payment.data.KlarnaConfigData"/>
+        <property name="populators">
+            <list>
+                <ref bean="klarnaPaymentConfigPopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <alias name="defaultKlarnaPaymentConfigPopulator" alias="klarnaPaymentConfigPopulator"/>
+    <bean id="defaultKlarnaPaymentConfigPopulator" class="com.klarna.payment.converter.populator.KPConfigPopulator">
+        <property name="siteConfigService" ref="siteConfigService"/>
+    </bean>
+    
+    <bean id="hexValueOfRBGAttributeHandler" class="com.klarna.payment.attributehandlers.HexValueOfRBGAttributeHandler"/>
+    
+     <alias name="defaultKlarnaCreditSessionConverter" alias="klarnaCreditSessionConverter"/>
+    <bean id="defaultKlarnaCreditSessionConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.klarna.api.payments.model.PaymentsSession"/>
+        <property name="populators">
+            <list>
+                <ref bean="kpCreditSessionPopulator"/>
+            </list>
+        </property>
+    </bean>
+    <alias name="defaultKlarnaCreditSessionAttConverter" alias="klarnaCreditSessionAttConverter"/>
+    <bean id="defaultKlarnaCreditSessionAttConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.klarna.api.payments.model.PaymentsSession"/>
+        <property name="populators">
+            <list>
+                <ref bean="kpCreditSessionAttPopulator"/>
+            </list>
+        </property>
+    </bean>
+     <alias name="defaultKlarnaCreditSessionInitialConverter" alias="klarnaCreditSessionInitialConverter"/>
+    <bean id="defaultKlarnaCreditSessionInitialConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.klarna.api.payments.model.PaymentsSession"/>
+        <property name="populators">
+            <list>
+                <ref bean="kpCreditSessionInitialPopulator"/>
+            </list>
+        </property>
+    </bean>
+    <alias name="defaultKpOrderPopulator" alias="kpOrderPopulator"/>
+    <bean id="defaultKpOrderPopulator" class="com.klarna.payment.converter.populator.KPOrderPopulator" parent="baseOrderPopulator">
+        <property name="kpPaymentInfoConverter" ref="kpPaymentInfoConverter" />
+    </bean>
+    <alias name="defaultKPInfoPopulatorConverter" alias="kpPaymentInfoConverter"/>
+    <bean id="defaultKPInfoPopulatorConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.klarna.payment.data.KPPaymentInfoData"/>
+        <property name="populators">
+            <list>
+                <ref bean="kpPaymentInfoPopulator"/>
+            </list>
+        </property>
+    </bean>
+    <!--Klarna Order Converter Populator-->
+    <bean id="defaultOrderConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="de.hybris.platform.commercefacades.order.data.OrderData"/>
+        <property name="populators">
+            <list>
+                <ref bean="orderPopulator"/>
+                <ref bean="orderAppliedVouchersPopulator"/>
+                <ref bean="pickupOrderEntryGroupPopulator"/>
+                <ref bean="deliveryOrderEntryGroupPopulator"/>
+                <ref bean="kpOrderPopulator"/>
+            </list>
+        </property>
+    </bean>
+    <alias name="defaultKpPaymentInfoPopulator" alias="kpPaymentInfoPopulator"/>
+    <bean id="defaultKpPaymentInfoPopulator"
+          class="com.klarna.payment.converter.populator.KPPaymentInfoPopulator">
+        <property name="addressConverter" ref="addressConverter"/>
+    </bean>
+    <alias name="defaultKPCreditSessionPopulator" alias="kpCreditSessionPopulator"/>
+    <bean id="defaultKPCreditSessionPopulator" class="com.klarna.payment.converter.populator.KPCreditSessionPopulator">
+        <property name="userService" ref="userService"/>
+        <property name="modelService" ref="modelService"/>
+        <property name="customerFacade" ref="customerFacade"/>
+        <property name="customerAccountService" ref="customerAccountService"/>
+        <property name="addressConverter" ref="addressConverter" />
+        <property name="kpCustomerFacade" ref="kpCustomerFacade"/>
+        <property name="kpConfigFacade" ref="kpConfigFacade"/>
+        <property name="kpCreditSessionInitialPopulator" ref="kpCreditSessionInitialPopulator"/>
+    </bean>
+    <alias name="defaultKPCreditSessionAttPopulator" alias="kpCreditSessionAttPopulator"/>
+    <bean id="defaultKPCreditSessionAttPopulator" class="com.klarna.payment.converter.populator.KPCreditSessionAttPopulator">
+        <property name="userService" ref="userService"/>
+        <property name="customerFacade" ref="customerFacade"/>
+        <property name="kpCustomerFacade" ref="kpCustomerFacade"/>
+        <property name="kpConfigFacade" ref="kpConfigFacade"/>
+        <property name="kpCreditSessionPopulator" ref="kpCreditSessionPopulator"/>
+    </bean>
+    <alias name="defaultKPCreditSessionInitialPopulator" alias="kpCreditSessionInitialPopulator"/>
+    <bean id="defaultKPCreditSessionInitialPopulator" class="com.klarna.payment.converter.populator.KPCreditSessionInitialPopulator">
+        <property name="kpConfigFacade" ref="kpConfigFacade"/>
+        <property name="productModelUrlResolver" ref="productModelUrlResolver" />
+        <property name="pageTitleResolver" ref="pageTitleResolver" />
+        <property name="baseSiteService" ref="baseSiteService" />
+        <property name="siteBaseUrlResolutionService" ref="siteBaseUrlResolutionService" />
+        <property name="productPrimaryImagePopulator" ref="productPrimaryImagePopulator" />
+        <property name="kpCurrencyConversionService" ref="kpCurrencyConversionService" />
+        <property name="commonI18NService" ref="commonI18NService" />
+        <property name="customerEmailResolutionService" ref="customerEmailResolutionService"/>
+        <property name="cartService" ref="cartService"/>
+        <property name="modelService" ref="modelService"/>
+    </bean>
+    <alias name="defaultKPCurrencyConversionService" alias="kpCurrencyConversionService"/>
+    <bean id="defaultKPCurrencyConversionService" class="com.klarna.payment.services.impl.DefaultKPCurrencyConversionService">
+        <property name="commonI18NService" ref="commonI18NService"/>
+        <property name="kpConfigFacade" ref="kpConfigFacade"/>
+    </bean>
+    <bean id="pageTitleResolver" class="de.hybris.platform.acceleratorservices.storefront.util.PageTitleResolver" >
+		<property name="cmsSiteService" ref="cmsSiteService"/>
+		<property name="commerceCategoryService" ref="commerceCategoryService"/>
+		<property name="productService" ref="productService"/>
+		<property name="productAndCategoryHelper" ref="productAndCategoryHelper"/>
+	</bean>
+    
+    
+    <alias name="defaultKlarnapaymentService" alias="klarnapaymentService"/>
+	<bean id="defaultKlarnapaymentService" class="com.klarna.payment.services.impl.DefaultKlarnapaymentService">
+        <!-- setter injection example -->
+        <property name="modelService" ref="modelService"/>
+        <property name="mediaService" ref="mediaService"/>
+        <property name="flexibleSearchService" ref="flexibleSearchService"/>
+        
+
+    </bean>
+    <alias name="defaultKPPaymentFacade" alias="kpPaymentFacade"/>
+    <bean id="defaultKPPaymentFacade" class="com.klarna.payment.facades.impl.DefaultKPPaymentFacade">
+        <property name="cartService" ref="cartService"/>
+        <property name="modelService" ref="modelService"/>
+        <property name="kpConfigFacade" ref="kpConfigFacade"/>
+        <property name="klarnaCreditSessionConverter" ref="klarnaCreditSessionConverter"/>
+        <property name="klarnaCreditSessionAttConverter" ref="klarnaCreditSessionAttConverter"/>
+        <property name="klarnaCreditSessionInitialConverter" ref="klarnaCreditSessionInitialConverter"/>
+        <property name="kpAddressReverseConverter" ref="kpAddressReverseConverter"/>
+        <property name="klarnaPaymentOrderConverter" ref="klarnaPaymentOrderConverter"/>
+        <property name="userService" ref="userService"/>
+        <property name="commerceCartCalculationStrategy" ref="commerceCartCalculationStrategy"/>
+        <property name="commerceCartService" ref="commerceCartService"/>
+    </bean>
+    <alias name="defaultKPAddressReverseConverter" alias="kpAddressReverseConverter"/>
+	<bean id="defaultKPAddressReverseConverter" parent="abstractPopulatingConverter">
+		<property name="targetClass" value="de.hybris.platform.core.model.user.AddressModel"/>
+		<property name="populators">
+			<list>
+				<ref bean="kpAddressReversePopulator"/>
+			</list>
+		</property>
+	</bean>
+	<alias name="defaultKPAddressReversePopulator" alias="kpAddressReversePopulator"/>
+	<bean id="defaultKPAddressReversePopulator"
+			class="com.klarna.payment.converter.populator.KPAddressReversePopulator">
+		<property name="addressReversePopulator" ref="addressReversePopulator"/>
+	</bean>
+	
+    <alias name="defaultKPPaymentCheckoutFacade" alias="kpPaymentCheckoutFacade"/>
+    <bean id="defaultKPPaymentCheckoutFacade" class="com.klarna.payment.facades.impl.DefaultKPPaymentCheckoutFacade">
+        <property name="userService" ref="userService"/>
+        <property name="commerceCheckoutService" ref="commerceCheckoutService"/>
+        <property name="kpAddressReverseConverter" ref="kpAddressReverseConverter"/>
+        <property name="cartService" ref="cartService"/>
+        <property name="modelService" ref="modelService"/>
+        <property name="kpConfigFacade" ref="kpConfigFacade"/>
+        <property name="kpPaymentFacade" ref="kpPaymentFacade"/>
+        <property name="paymentModeService" ref="paymentModeService"/>
+        <property name="kpCurrencyConversionService" ref="kpCurrencyConversionService" />
+        <property name="commonI18NService" ref="commonI18NService"/>
+        <property name="deliveryService" ref="deliveryService"/>
+        <property name="kpTitleService" ref="kpTitleService"/>
+        <property name="kpPaymentInfoService" ref="kpPaymentInfoService"/>
+        <property name="kpPaymentInfoConverter" ref="kpPaymentInfoConverter"/>
+        <property name="businessProcessService" ref="businessProcessService"/>
+        <property name="baseSiteService" ref="baseSiteService"/>
+        <property name="kpOrderFacade" ref="kpOrderFacade"/>
+        <property name="kpOrderService" ref="kpOrderService"/>
+        
+        
+    </bean>
+    <alias name="defaultKpOrderFacade" alias="kpOrderFacade"/>
+    <bean id="defaultKpOrderFacade" class="com.klarna.payment.facades.impl.DefaultKPOrderFacade">
+        <property name="kpOrderService" ref="kpOrderService"/>
+        <property name="eventPublishingSubmitOrderStrategy" ref="eventPublishingSubmitOrderStrategy"/>
+        <property name="modelService" ref="modelService"/>
+        <property name="userService" ref="userService"/>
+        <property name="cartService" ref="cartService"/>
+        <property name="businessProcessService" ref="businessProcessService"/>
+        <property name="kpConfigFacade" ref="kpConfigFacade"/>
+        <property name="kpPaymentFacade" ref="kpPaymentFacade"/>
+   		<property name="baseStoreService" ref="baseStoreService"/>
+   		<property name="customerAccountService" ref="customerAccountService"/>
+   		<property name="kpCurrencyConversionService" ref="kpCurrencyConversionService" />
+   		<property name="kpPaymentInfoService" ref="kpPaymentInfoService"/>
+       
+    </bean>
+    <alias name="defaultKPCustomerFacade" alias="kpCustomerFacade"/>
+    <bean id="defaultKPCustomerFacade" class="com.klarna.payment.facades.impl.DefaultKPCustomerFacade">
+        <!-- setter injection example -->
+        <property name="userService" ref="userService"/>
+        <property name="cartService" ref="cartService"/>
+        <property name="customerEmailResolutionService" ref="customerEmailResolutionService"/>
+    </bean>
+	<alias name="defaultKPConfigFacade" alias="kpConfigFacade"/>
+    <bean id="defaultKPConfigFacade" class="com.klarna.payment.facades.impl.DefaultKPConfigFacade">
+        <!-- setter injection example -->
+        <property name="baseStoreService" ref="baseStoreService"/>
+        <property name="klarnaPaymentConfigConverter" ref="klarnaPaymentConfigConverter"/>
+    </bean>	
+    
+    <alias name="eventPublishingSubmitOrderStrategy" alias="eventPublishingSubmitOrderStrategy"/>
+	<bean id="eventPublishingSubmitOrderStrategy"
+			class="com.klarna.payment.strategy.impl.KlarnaEventPublishingSubmitOrderStrategy">
+		<property name="eventService" ref="eventService"/>
+	</bean>
+    
+    <alias name="defaultKPOrderDAO" alias="kpOrderDAO"/>
+    <bean id="defaultKPOrderDAO" class="com.klarna.payment.daos.impl.DefaultKPOrderDAO">
+        <property name="flexibleSearchService" ref="flexibleSearchService"/>
+    </bean>
+    <alias name="defaultKPPaymentInfoDAO" alias="kpPaymentInfoDAO"/>
+    <bean id="defaultKPPaymentInfoDAO" class="com.klarna.payment.daos.impl.DefaultKPPaymentInfoDAO">
+        <property name="flexibleSearchService" ref="flexibleSearchService"/>
+    </bean>
+    <alias name="defaultKPTitleDAO" alias="kpTitleDAO"/>
+    <bean id="defaultKPTitleDAO" class="com.klarna.payment.daos.impl.DefaultKPTitleDAO">
+        <property name="flexibleSearchService" ref="flexibleSearchService"/>
+    </bean>
+    <alias name="defaultKPOrderService" alias="kpOrderService"/>
+    <bean id="defaultKPOrderService" class="com.klarna.payment.services.impl.DefaultKPOrderService">
+        <property name="kpOrderDAO" ref="kpOrderDAO"/>
+    </bean>
+    <alias name="defaultKPPaymentInfoService" alias="kpPaymentInfoService"/>
+    <bean id="defaultKPPaymentInfoService" class="com.klarna.payment.services.impl.DefaultKPPaymentInfoService">
+        <property name="kpPaymentInfoDAO" ref="kpPaymentInfoDAO"/>
+    </bean>
+      <alias name="defaultKPTitleService" alias="kpTitleService"/>
+    <bean id="defaultKPTitleService" class="com.klarna.payment.services.impl.DefaultKPTitleService">
+        <property name="kpTitleDAO" ref="kpTitleDAO"/>
+    </bean>
+    
+    
+     <!-- Populator for address model -->
+    <alias name="defaultKPAddressPopulator" alias="addressPopulator"/>
+    <bean id="defaultKPAddressPopulator" class="com.klarna.payment.converter.populator.KPAddressPopulator">
+        <property name="addressFormatConverterMap">
+            <map>
+                <entry key="US" value-ref="usSingleLineAddressFormatConverter"/>
+                <entry key="GB" value-ref="ukSingleLineAddressFormatConverter"/>
+                <entry key="DE" value-ref="deSingleLineAddressFormatConverter"/>
+                <entry key="JP" value-ref="jpSingleLineAddressFormatConverter"/>
+            </map>
+        </property>
+        <property name="defaultAddressFormatConverter" ref="usSingleLineAddressFormatConverter"/>
+    </bean>
+    
+    <!-- Populator for Payment order request after sdk upgrade -->
+    <alias name="defaultKlarnaPaymentOrderPopulator" alias="kpPaymentOrderPopulator"/>
+    <bean id="defaultKlarnaPaymentOrderPopulator" class="com.klarna.payment.converter.populator.KlarnaPaymentOrderPopulator">
+    <property name="kpConfigFacade" ref="kpConfigFacade"/>
+    </bean>
+     <alias name="defaultKlarnaPaymentOrderConverter" alias="klarnaPaymentOrderConverter"/>
+    <bean id="defaultKlarnaPaymentOrderConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.klarna.api.payments.model.PaymentsCreateOrderRequest"/>
+        <property name="populators">
+            <list>
+                <ref bean="kpPaymentOrderPopulator"/>
+            </list>
+        </property>
+    </bean>
+    
+    <!-- <alias name="klarnaTakePaymentAction" alias="takePaymentAction"/>
+	<bean id="klarnaTakePaymentAction" class="com.klarna.api.payments.action.order.KlarnaTakePaymentAction" parent="abstractAction">
+	<property name="paymentService" ref="paymentService"/>
+	<property name="kpOrderFacade" ref="kpOrderFacade"/>
+	<property name="kpPaymentFacade" ref="kpPaymentFacade"/>
+	<property name="klarnaOrderCaptureConverter" ref="klarnaOrderCaptureConverter"/>
+	<property name="kpConfigFacade" ref="kpConfigFacade"/>
+	</bean> -->
+	
+	<alias name="defaultKlarnaOrderCaptureConverter" alias="klarnaOrderCaptureConverter"/>
+    <bean id="defaultKlarnaOrderCaptureConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.klarna.api.order_management.model.OrderManagementCaptureObject"/>
+        <property name="populators">
+            <list>
+                <ref bean="kpOrderCapturePopulator"/>
+            </list>
+        </property>
+    </bean>
+    
+    <alias name="defaultKlarnaOrderCapturePopulator" alias="kpOrderCapturePopulator"/>
+    <bean id="defaultKlarnaOrderCapturePopulator" class="com.klarna.payment.converter.populator.KlarnaOrderCapturePopulator">
+    <property name="klarnaCaptureShippingInfoConverter" ref="klarnaCaptureShippingInfoConverter"/>
+	<property name="commonI18NService" ref="commonI18NService"/>
+    </bean>
+    
+    
+    <alias name="defaultklarnaCaptureShippingInfoConverter" alias="klarnaCaptureShippingInfoConverter"/>
+    <bean id="defaultklarnaCaptureShippingInfoConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="java.util.ArrayList"/>
+        <property name="populators">
+            <list>
+                <ref bean="kpCaptureShippingInfoPopulator"/>
+            </list>
+        </property>
+    </bean>
+    
+    <alias name="defaultKlarnaCaptureShippingInfoPopulator" alias="kpCaptureShippingInfoPopulator"/>
+    <bean id="defaultKlarnaCaptureShippingInfoPopulator" class="com.klarna.payment.converter.populator.KlarnaCaptureShippingInfoPopulator">
+    </bean>
+    
+    <bean id="orderFailedEmailProcessDefinitionResource"
+	      class="de.hybris.platform.processengine.definition.ProcessDefinitionResource" >
+		<property name="resource" value="classpath:/klarnapayment/processes/orderFailedEmailProcess.xml"/>
+	</bean>
+	
+	<bean id="orderFailedEmail" parent="abstractGenerateEmailAction">
+		<property name="frontendTemplateName" value="KPFailedOrderEmailTemplate"/>
+	</bean>
+	
+	<bean id="orderFailedEmailContext" class="com.klarna.payment.facades.process.email.context.OrderFailedEmailContext" parent="abstractEmailContext" scope="prototype" >
+	</bean>
+	
+	
+	<alias name="defaultKlarnaExpCheckoutConfigConverter" alias="klarnaExpCheckoutConfigConverter"/>
+    <bean id="defaultKlarnaExpCheckoutConfigConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.klarna.payment.data.KlarnaExpCheckoutConfigData"/>
+        <property name="populators">
+            <list>
+                <ref bean="klarnaExpCheckoutConfigPopulator"/>
+            </list>
+        </property>
+    </bean>
+    
+    <alias name="defaultKlarnaExpCheckoutConfigPopulator" alias="klarnaExpCheckoutConfigPopulator"/>
+    <bean id="defaultKlarnaExpCheckoutConfigPopulator" class="com.klarna.payment.converter.populator.KlarnaExpCheckoutConfigPopulator">
+    </bean>
+    
+	<alias name="defaultKlarnaExpCheckoutFacade" alias="klarnaExpCheckoutFacade"/>
+    <bean id="defaultKlarnaExpCheckoutFacade" class="com.klarna.payment.facades.impl.DefaultKlarnaExpCheckoutFacade">
+    </bean>	
+    
+    <alias name="defaultKlarnaExpCheckoutAuthPayloadConverter" alias="klarnaExpCheckoutAuthPayloadConverter"/>
+    <bean id="defaultKlarnaExpCheckoutAuthPayloadConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.klarna.api.payments.model.PaymentsSession"/>
+        <property name="populators">
+            <list>
+                <ref bean="klarnaExpCheckoutAuthPayloadPopulator"/>
+            </list>
+        </property>
+    </bean>
+    
+    <alias name="defaultKlarnaExpCheckoutAuthPayloadPopulator" alias="klarnaExpCheckoutAuthPayloadPopulator"/>
+    <bean id="defaultKlarnaExpCheckoutAuthPayloadPopulator" class="com.klarna.payment.converter.populator.KlarnaExpCheckoutAuthPayloadPopulator">
+    </bean>
+    
+    <alias name="defaultKlarnaPaymentsAddressReverseConverter" alias="klarnaPaymentsAddressReverseConverter"/>
+    <bean id="defaultKlarnaPaymentsAddressReverseConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="de.hybris.platform.commercefacades.user.data.AddressData"/>
+        <property name="populators">
+            <list>
+                <ref bean="klarnaPaymentsAddressReversePopulator"/>
+            </list>
+        </property>
+    </bean>
+    
+    <alias name="defaultKlarnaPaymentsAddressReversePopulator" alias="klarnaPaymentsAddressReversePopulator"/>
+    <bean id="defaultKlarnaPaymentsAddressReversePopulator" class="com.klarna.payment.converter.populator.KlarnaPaymentsAddressReversePopulator">
+    </bean>
+    
+    <alias name="defaultKlarnaPaymentsAddressConverter" alias="klarnaPaymentsAddressConverter"/>
+    <bean id="defaultKlarnaPaymentsAddressConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.klarna.api.payments.model.PaymentsAddress"/>
+        <property name="populators">
+            <list>
+                <ref bean="klarnaPaymentsAddressPopulator"/>
+            </list>
+        </property>
+    </bean>
+    
+    <alias name="defaultKlarnaPaymentsAddressPopulator" alias="klarnaPaymentsAddressPopulator"/>
+    <bean id="defaultKlarnaPaymentsAddressPopulator" class="com.klarna.payment.converter.populator.KlarnaPaymentsAddressPopulator">
+    </bean>
+    
+</beans>

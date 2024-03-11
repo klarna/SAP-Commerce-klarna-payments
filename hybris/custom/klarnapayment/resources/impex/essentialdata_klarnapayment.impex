@@ -1,0 +1,3 @@
+# Klarna payment info
+INSERT_UPDATE StandardPaymentMode;code[unique=true];name[lang=en];description[lang=en];active;paymentinfotype(code)
+;klarnapayment;Klarna payment mode;payment with Klarna;true;KPPaymentInfo
