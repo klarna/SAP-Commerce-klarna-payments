@@ -1,0 +1,9 @@
+#Ant properties
+#Wed Dec 13 14:22:07 CET 2017
+builddate=20171213 1419
+description=klarnapaymentb2baddon
+name=klarnapaymentb2baddon
+releasedate=20161216 2030
+vendor=hybris
+version=6.3.0.12
+version.api=6.3.0

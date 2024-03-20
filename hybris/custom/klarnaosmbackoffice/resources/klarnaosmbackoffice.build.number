@@ -1,0 +1,9 @@
+#Ant properties
+#Tue May 07 23:16:42 CEST 2019
+builddate=20190507 2315
+description=klarnaosmbackoffice
+name=klarnaosmbackoffice
+releasedate=20181129 1417
+vendor=hybris
+version=1811.6
+version.api=1811

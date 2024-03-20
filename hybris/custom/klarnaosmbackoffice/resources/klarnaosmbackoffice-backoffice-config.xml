@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+ [y] hybris Platform
+
+ Copyright (c) 2018 SAP SE or an SAP affiliate company.  All rights reserved.
+
+ This software is the confidential and proprietary information of SAP
+ ("Confidential Information"). You shall not disclose such Confidential
+ Information and shall use it only in accordance with the terms of the
+ license agreement you entered into with SAP.
+-->
+<config xmlns="http://www.hybris.com/cockpit/config">
+
+	<!-- klarnaosmbackoffice UI configuration should be provided here -->
+
+	<!--<context component="component-code" module="klarnaosmbackoffice">-->
+		<!--Please check documentation for code snippets for specific components-->
+	<!--</context>-->
+
+<context component="explorer-tree" merge-by="module">
+      <n:explorer-tree xmlns:n="http://www.hybris.com/cockpitng/config/explorertree">
+            <n:navigation-node id="Klarna">
+                <n:type-node id="KlarnaOSMConfig" code="KlarnaOSMConfig" />
+            </n:navigation-node>
+        </n:explorer-tree>
+	</context>
+	<context type="KlarnaOSMConfig" component="listview">
+	    <list:list-view xmlns:list="http://www.hybris.com/cockpitng/component/listView">
+	        <list:column qualifier="code"/>
+	        <list:column qualifier="productPlacementTagID"/>
+	        <list:column qualifier="cartPlacementTagID"/>
+	    </list:list-view>
+	</context>
+	<context type="KlarnaOSMConfig" component="simple-search">
+	    <yss:simple-search xmlns:yss="http://www.hybris.com/cockpitng/config/simplesearch">
+	        <yss:field name="code"/>
+	    </yss:simple-search>
+	</context>
+	<context type="KlarnaOSMConfig" component="advanced-search">
+	    <as:advanced-search xmlns:as="http://www.hybris.com/cockpitng/config/advancedsearch" connection-operator="AND">
+	        <as:field-list>
+	            <as:field name="code" operator="contains" selected="true"/>
+	            <as:field name="productPlacementTagID" selected="true" sortable="true"/>
+	            <as:field name="pdpEnabled" operator="equal" selected="false" sortable="false"/>
+	            <as:field name="cartEnabled" operator="equal" selected="false" sortable="false"/>
+	            <as:field name="dataInlineEnabled" operator="equal" selected="false" sortable="false"/>
+	            <as:field name="cartPlacementTagID" operator="equal" selected="false" sortable="false"/>
+	           </as:field-list>
+	        <as:sort-field name="code" asc="true" />     
+	    </as:advanced-search>
+	</context>
+	<context merge-by="module" component="editor-area" type="KlarnaOSMConfig" module="commerceservicesbackoffice">
+	    <editorArea:editorArea xmlns:editorArea="http://www.hybris.com/cockpitng/component/editorArea">
+	        <editorArea:tab name="klarna.general">
+	            <editorArea:section name="klarna.essentials">
+	                <editorArea:attribute qualifier="code"/>
+	                <editorArea:attribute qualifier="pdpEnabled"/>
+	                <editorArea:attribute qualifier="cartEnabled"/>
+	                <editorArea:attribute qualifier="dataInlineEnabled"/>
+	            </editorArea:section>
+	            <editorArea:section name="klarna.main">
+	                <editorArea:attribute qualifier="scriptUrl"/>
+	                <editorArea:attribute qualifier="country"/>
+	                <editorArea:attribute qualifier="uci"/>
+	                <editorArea:attribute qualifier="productPlacementTagID"/>
+	                <editorArea:attribute qualifier="cartPlacementTagID"/>
+	                <editorArea:attribute qualifier="cartTheme"/>
+	                <editorArea:attribute qualifier="pdpTheme"/>
+	                <editorArea:attribute qualifier="customStyle"/>
+	            </editorArea:section>
+	        </editorArea:tab>
+	    </editorArea:editorArea>
+	</context>
+	<context component="create-wizard" type="KlarnaOSMConfig" merge-by="module">
+	    <wz:flow xmlns:wz="http://www.hybris.com/cockpitng/config/wizard-config" id="KlarnaOSMConfigWizard" title="create.title(ctx.TYPE_CODE)">
+	        <wz:prepare id="klarnaOSMConfigPrepare">
+	             <wz:initialize property="newKlarnaOSMConfig" type="ctx.TYPE_CODE"/>	            
+	        </wz:prepare>
+	        <wz:step id="step1" label="create.klarnaosmconfig.maininfo.label" sublabel="create.klarnaosmconfig.maininfo.sublabel">
+	            <wz:content id="step1.content">
+	                <wz:property-list root="newKlarnaOSMConfig">
+	                    <wz:property qualifier="code" type="java.lang.String"/>
+	                    <wz:property qualifier="uci" type="java.lang.String"/>
+	                    <wz:property qualifier="pdpEnabled" type="java.lang.Boolean"/>
+	                    <wz:property qualifier="cartEnabled" type="java.lang.Boolean"/>
+	                    <wz:property qualifier="dataInlineEnabled" type="java.lang.Boolean"/>
+	                    <wz:property qualifier="scriptUrl" type="java.lang.String"/>
+	                    <wz:property qualifier="country" type="java.lang.String"/>
+	                    <wz:property qualifier="productPlacementTagID" type="java.lang.String"/>
+	                    <wz:property qualifier="cartPlacementTagID" type="java.lang.String"/>
+	                    <wz:property qualifier="cartTheme"/>
+	                    <wz:property qualifier="pdpTheme"/>
+	                    <wz:property qualifier="customStyle"/>
+	                </wz:property-list>
+	            </wz:content>
+	            <wz:navigation id="step1.navigation">
+	                <wz:cancel/>
+			
+					<wz:done visible="!#empty(newKlarnaOSMConfig.code) and 
+					!#empty(newKlarnaOSMConfig.productPlacementTagID) and 
+					!#empty(newKlarnaOSMConfig.cartPlacementTagID) and 
+					!#empty(newKlarnaOSMConfig.uci) and 
+					!#empty(newKlarnaOSMConfig.scriptUrl) and 
+					(newKlarnaOSMConfig.country != null)">
+	                    <wz:save property="newKlarnaOSMConfig"/>
+	                </wz:done>      
+	            </wz:navigation>
+	        </wz:step>
+			
+	    </wz:flow>
+	</context>
+	<context type="KlarnaOSMConfig" component="base" merge-by="type" parent="GenericItem">
+	        <y:base xmlns:y="http://www.hybris.com/cockpit/config/hybris">
+	            <y:labels>
+	                <y:label>code</y:label>
+	            </y:labels>
+	        </y:base>
+	</context>
+	<context merge-by="type" parent="GenericItem" type="BaseStore" component="editor-area">
+	        <editorArea:editorArea xmlns:editorArea="http://www.hybris.com/cockpitng/component/editorArea">
+	            <editorArea:tab name="hmc.properties">
+	                <editorArea:section name="klarna.basestore.osmconfig">
+	                    <editorArea:attribute xmlns="http://www.hybris.com/cockpitng/component/editorArea" qualifier="klarnaOSMConfig"/>
+	                </editorArea:section>
+	            </editorArea:tab>
+	        </editorArea:editorArea>
+     </context>
+     
+</config>

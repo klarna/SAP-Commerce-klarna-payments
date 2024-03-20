@@ -1,0 +1,3 @@
+EndpointUrl:https://api-na.playground.klarna.com
+MerchantID:PN00036_45e31ed37cf1
+Password:kJRuG6KfDubVPSAD
