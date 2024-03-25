@@ -41,10 +41,10 @@
 		<property name="add" ref="getKlarnaosmaddonBeforeViewHandler"/>
 	</bean>
 
-<!-- 	<bean id="klarnaOSMUiThemeResourceBeforeViewHandlerAdaptee"
+	<bean id="klarnaOSMUiThemeResourceBeforeViewHandlerAdaptee"
           class="com.klarna.osm.interceptor.KlarnaOSMUiThemeResourceBeforeViewHandlerAdaptee">
           <property name="klarnaOSMConfigFacade" ref="klarnaOSMConfigFacade"/>
-     </bean> -->
+     </bean>
     <bean id="getKlarnaOSMUiThemeResourceBeforeViewHandler" parent="beforeViewHandlerAdapter">
         <property name="adaptee">
             <ref bean="klarnaOSMUiThemeResourceBeforeViewHandlerAdaptee"/>

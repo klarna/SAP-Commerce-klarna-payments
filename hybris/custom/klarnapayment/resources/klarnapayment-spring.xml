@@ -468,35 +468,4 @@
     <bean id="defaultKlarnaPaymentsAddressPopulator" class="com.klarna.payment.converter.populator.KlarnaPaymentsAddressPopulator">
     </bean>
     
-    <alias name="defaultKlarnaSignInConfigPopulator" alias="klarnaSignInConfigPopulator"/>
-    <bean id="defaultKlarnaSignInConfigPopulator" class="com.klarna.payment.converter.populator.KlarnaSignInConfigPopulator">
-    </bean>
-    
-    <alias name="defaultKlarnaSignInConfigConverter" alias="klarnaSignInConfigConverter"/>
-    <bean id="defaultKlarnaSignInConfigConverter" parent="abstractPopulatingConverter">
-        <property name="targetClass" value="com.klarna.payment.data.KlarnaSignInConfigData"/>
-        <property name="populators">
-            <list>
-                <ref bean="klarnaSignInConfigPopulator"/>
-            </list>
-        </property>
-    </bean>
-    
-    <alias name="defaultKlarnaCustomerProfileReverseConverter" alias="klarnaCustomerProfileReverseConverter"/>
-    <bean id="defaultKlarnaCustomerProfileReverseConverter" parent="abstractPopulatingConverter">
-        <property name="targetClass" value="com.klarna.payment.model.KlarnaCustomerProfileModel"/>
-        <property name="populators">
-            <list>
-                <ref bean="klarnaCustomerProfileReversePopulator"/>
-            </list>
-        </property>
-    </bean>   
-    <alias name="defaultKlarnaCustomerProfileReversePopulator" alias="klarnaCustomerProfileReversePopulator"/>
-    <bean id="defaultKlarnaCustomerProfileReversePopulator" class="com.klarna.payment.converter.populator.KlarnaCustomerProfileReversePopulator">
-    </bean>
-    
-	<alias name="defaultKlarnaSignInFacade" alias="klarnaSignInFacade"/>
-    <bean id="defaultKlarnaSignInFacade" class="com.klarna.payment.facades.impl.DefaultKlarnaSignInFacade">
-    </bean>	
-    
 </beans>
