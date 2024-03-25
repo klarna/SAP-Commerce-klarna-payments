@@ -29,14 +29,20 @@ window.onload = async function() {
 	siwkButton.mount("#klarna-signin-container");
 
 	//klarna.Identity.handleRedirect();
-	
-	klarna.Identity.on("signin", (data) => {
+	var signInSuccess = false;
+	klarna.Identity.on("signin", 
+		(data) => {
 		// implement logic
 		console.log("signin " + JSON.stringify(data));
-	});
-	klarna.Identity.on("error", (data) => {
+		},
+		(error) =>{
+		console.log("signin " + JSON.stringify(error));
+		});
+	if(!signInSuccess){
+		klarna.Identity.on("error", (data) => {
 		// implement logic
 		console.log("error " + JSON.stringify(data));
-	});
+		});
+	}
 }
 
