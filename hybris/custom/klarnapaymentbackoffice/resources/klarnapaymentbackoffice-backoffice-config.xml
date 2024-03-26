@@ -203,6 +203,18 @@
 	                <editorArea:section name="klarnaexpcheckoutconfig.basestore.config">
 	                    <editorArea:attribute xmlns="http://www.hybris.com/cockpitng/component/editorArea" qualifier="klarnaExpCheckoutConfig"/>
 	                </editorArea:section>
+	                <editorArea:section name="klarnasigninconfig.basestore.config">
+	                    <editorArea:attribute xmlns="http://www.hybris.com/cockpitng/component/editorArea" qualifier="klarnaSignInConfig"/>
+	                </editorArea:section>
+	            </editorArea:tab>
+	        </editorArea:editorArea>
+     </context>
+     	<context merge-by="type" parent="User" type="Customer" component="editor-area">
+	        <editorArea:editorArea xmlns:editorArea="http://www.hybris.com/cockpitng/component/editorArea">
+	            <editorArea:tab name="hmc.properties">
+	                <editorArea:section name="klarnasigninconfi.customer.config">
+	                    <editorArea:attribute xmlns="http://www.hybris.com/cockpitng/component/editorArea" qualifier="klarnaCustomerProfile"/>
+	                </editorArea:section>
 	            </editorArea:tab>
 	        </editorArea:editorArea>
      </context>
@@ -315,5 +327,114 @@
 	                <y:label>code</y:label>
 	            </y:labels>
 	        </y:base>
-	</context> 
+	</context>
+	
+	<!-- Klarna SignIn Config - starts -->
+	<context component="explorer-tree" merge-by="module">
+      <n:explorer-tree xmlns:n="http://www.hybris.com/cockpitng/config/explorertree">
+            <n:navigation-node id="Klarna">
+                <n:type-node id="KlarnaSignInConfig" code="KlarnaSignInConfig" />
+            </n:navigation-node>
+        </n:explorer-tree>
+	</context>
+	<context type="KlarnaSignInConfig" component="listview">
+	    <list:list-view xmlns:list="http://www.hybris.com/cockpitng/component/listView">
+	        <list:column qualifier="code"/>
+	        <list:column qualifier="clientId"/>
+	    </list:list-view>
+	</context>
+	<context type="KlarnaSignInConfig" component="simple-search">
+	    <yss:simple-search xmlns:yss="http://www.hybris.com/cockpitng/config/simplesearch">
+	        <yss:field name="code"/>
+	    </yss:simple-search>
+	</context>
+	<context type="KlarnaSignInConfig" component="advanced-search">
+	    <as:advanced-search xmlns:as="http://www.hybris.com/cockpitng/config/advancedsearch" connection-operator="AND">
+	        <as:field-list>
+	            <as:field name="code"		operator="contains"	selected="true"/>
+	            <as:field name="active"		operator="equal"	selected="false" sortable="false"/>
+	            <as:field name="clientId"	operator="equal" 	selected="true" sortable="false"/>
+	            <as:field name="scriptUrl" 	operator="equal" 	selected="false" sortable="false"/> 
+	            <as:field name="country" 	operator="equal" 	selected="false" sortable="false"/>
+	        </as:field-list>
+	        <as:sort-field name="code" asc="true" />     
+	    </as:advanced-search>
+	</context>
+	<context merge-by="module" component="editor-area" type="KlarnaSignInConfig" module="commerceservicesbackoffice">
+	    <editorArea:editorArea xmlns:editorArea="http://www.hybris.com/cockpitng/component/editorArea">
+	        <editorArea:tab name="klarna.general">
+	            <editorArea:section name="klarna.essentials">
+	                <editorArea:attribute qualifier="code"/>
+	                <editorArea:attribute qualifier="active"/>
+	            </editorArea:section>
+	            <editorArea:section name="klarna.main">
+	                <editorArea:attribute qualifier="clientId"/>
+	                <editorArea:attribute qualifier="environment"/>
+	                <editorArea:attribute qualifier="scriptUrl"/>
+	                <editorArea:attribute qualifier="country"/>
+	                <editorArea:attribute qualifier="scopeData"/>
+	            </editorArea:section>
+	            <editorArea:section name="klarna.sub">
+	                <editorArea:attribute qualifier="autoMergeAccounts"/>
+	                <editorArea:attribute qualifier="redirectUri"/>
+	                <editorArea:attribute qualifier="hideOverlay"/>
+	                <editorArea:attribute qualifier="buttonTheme"/>
+	                <editorArea:attribute qualifier="buttonShape"/>
+	                <editorArea:attribute qualifier="buttonLogoAlignment"/>
+	            </editorArea:section>
+	        </editorArea:tab>
+	    </editorArea:editorArea>
+	</context>
+	<context component="create-wizard" type="KlarnaSignInConfig" merge-by="module">
+	    <wz:flow xmlns:wz="http://www.hybris.com/cockpitng/config/wizard-config" id="KlarnaSignInConfigWizard" title="create.title(ctx.TYPE_CODE)">
+	        <wz:prepare id="KlarnaSignInConfigPrepare">
+	             <wz:initialize property="newKlarnaSignInConfig" type="ctx.TYPE_CODE"/>	            
+	        </wz:prepare>
+	        <wz:step id="step1" label="create.klarnasigninconfig.maininfo.label" sublabel="create.klarnasigninconfig.maininfo.sublabel">
+	            <wz:content id="step1.content">
+	                <wz:property-list root="newKlarnaSignInConfig">
+	                    <wz:property qualifier="code" type="java.lang.String"/>
+	                    <wz:property qualifier="clientId" type="java.lang.String"/>
+	                    <wz:property qualifier="active" type="java.lang.Boolean"/>
+	                    <wz:property qualifier="environment" type="java.lang.String"/>
+	                    <wz:property qualifier="scriptUrl" type="java.lang.String"/>
+	                    <wz:property qualifier="country"/>
+	                    <wz:property qualifier="scopeData"/>
+	                </wz:property-list>
+	            </wz:content>
+	            <wz:navigation id="step1.navigation">
+					<wz:cancel/>
+					<wz:next visible="!#empty(newKlarnaSignInConfig.code) and !#empty(newKlarnaSignInConfig.clientId) and !#empty(newKlarnaSignInConfig.scriptUrl) and  (newKlarnaSignInConfig.country!=null) and  (newKlarnaSignInConfig.scopeData!=null)"/>
+	               	<wz:done visible="false">
+	               </wz:done>
+	            </wz:navigation>
+	        </wz:step>
+			<wz:step id="step2" label="create.klarnasigninconfig.subinfo.label" sublabel="create.klarnasigninconfig.subinfo.sublabel">
+	            <wz:content id="step2.content">
+	                <wz:property-list root="newKlarnaSignInConfig">
+	                    <wz:property qualifier="redirectUri" type="java.lang.String"/>
+	                    <wz:property qualifier="hideOverlay"/>
+	                    <wz:property qualifier="buttonTheme"/>
+	                    <wz:property qualifier="buttonShape"/>
+	                    <wz:property qualifier="buttonLogoAlignment"/>
+	                </wz:property-list>
+	            </wz:content>
+	            <wz:navigation id="step2.navigation">
+		            <wz:cancel />
+					<wz:back />
+	                <wz:done>
+	                    <wz:save property="newKlarnaSignInConfig"/>
+	                </wz:done>   
+	            </wz:navigation>
+	        </wz:step>
+	    </wz:flow>
+	</context>
+	<context type="KlarnaSignInConfig" component="base" merge-by="type" parent="GenericItem">
+	        <y:base xmlns:y="http://www.hybris.com/cockpit/config/hybris">
+	            <y:labels>
+	                <y:label>code</y:label>
+	            </y:labels>
+	        </y:base>
+	</context>
+	<!-- Klarna SignIn Config - ends   -->
 </config>

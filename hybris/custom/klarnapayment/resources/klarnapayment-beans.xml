@@ -110,4 +110,20 @@
 		<property name="buttonShape" type="String"/>
 		<property name="country" type="String"/>
 	</bean>
+	
+	<bean class="com.klarna.payment.data.KlarnaSignInConfigData">
+		<property name="code" type="String"/>
+		<property name="active" type="Boolean"/>
+		<property name="autoMergeAccounts" type="Boolean"/>
+		<property name="clientId" type="String"/>
+		<property name="environment" type="String"/>
+		<property name="scriptUrl" type="String"/>
+		<property name="country" type="String"/>
+		<property name="scopeData" type="String"/>
+		<property name="redirectUri" type="String"/>
+		<property name="hideOverlay" type="Boolean"/>
+		<property name="buttonTheme" type="String"/>
+		<property name="buttonShape" type="String"/>
+		<property name="buttonLogoAlignment" type="String"/>
+	</bean>
 </beans>
