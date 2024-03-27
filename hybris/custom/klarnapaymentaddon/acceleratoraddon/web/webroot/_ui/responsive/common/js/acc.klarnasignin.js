@@ -18,7 +18,7 @@ window.onload = async function() {
 	var buttonLogoAlignment	= $("#buttonLogoAlignment").val();
 	
 	const siwkButton = klarna.Identity.button({
-		scope:				scopeData,
+		scope:				"openid offline_access",
 		redirectUri:		redirectUri,
 		interactionMode:	"DEVICE_BEST",
 		hideOverlay:		hideOverlay,

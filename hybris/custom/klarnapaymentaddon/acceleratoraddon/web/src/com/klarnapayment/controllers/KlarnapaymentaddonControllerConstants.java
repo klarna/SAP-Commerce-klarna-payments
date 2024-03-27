@@ -38,6 +38,11 @@ public interface KlarnapaymentaddonControllerConstants
 			{
 				String KP_REDIRECT_CART = "/cart";
 			}
+
+			interface Signin
+			{
+				String KlarnaSigninRegisterPage = "pages/klarnaSigninRegister";
+			}
 		}
 
 		interface Fragments

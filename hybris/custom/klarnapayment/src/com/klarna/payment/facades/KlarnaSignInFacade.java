@@ -13,6 +13,7 @@ package com.klarna.payment.facades;
 
 import com.klarna.api.signin.model.KlarnaSigninResponse;
 import com.klarna.payment.data.KlarnaSignInConfigData;
+import com.klarna.payment.enums.KlarnaSigninProfileStatus;
 
 
 /**
@@ -22,5 +23,11 @@ public interface KlarnaSignInFacade
 {
 	KlarnaSignInConfigData getKlarnaSignInConfigData();
 
-	boolean processCustomer(final KlarnaSigninResponse klarnaSigninResponse);
+	boolean processCustomer(final String profileStatus, final KlarnaSigninResponse klarnaSigninResponse);
+
+	KlarnaSigninProfileStatus checkUserProfileStatus(final KlarnaSigninResponse klarnaSigninResponse);
+
+	boolean isMergeEnabled();
+
+	String getRedirectURI();
 }

@@ -1082,10 +1082,8 @@
 	</bean>
 	
 	<bean class="com.klarna.api.expcheckout.model.KlarnaExpCheckoutAuthCallbackRequest">
-	
 		<import type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
 	    <import type="com.fasterxml.jackson.annotation.JsonProperty" />
-	    
     	<property name="authorizationToken" type="String">
     	    	<annotations>@JsonProperty("authorization_token")</annotations>
     	</property>
@@ -1095,7 +1093,45 @@
     	<property name="merchantReference1" type="String">
     			<annotations>@JsonProperty("merchant_reference1")</annotations>
     	</property>
-	
 	</bean>
 	
+	<bean class="com.klarna.api.signin.model.KlarnaSigninResponse">
+		<import type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
+	    <import type="com.fasterxml.jackson.annotation.JsonProperty" />
+    	<property name="userAccountProfile" type="com.klarna.api.signin.model.KlarnaSigninUserAccountProfile">
+    	    	<annotations>@JsonProperty("user_account_profile")</annotations>
+    	</property>
+    	<property name="userAccountLinking" type="com.klarna.api.signin.model.KlarnaSigninUserAccountLinking">
+    			<annotations>@JsonProperty("user_account_linking")</annotations>
+    	</property>
+	</bean>
+	<bean class="com.klarna.api.signin.model.KlarnaSigninUserAccountProfile">
+		<import type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
+	    <import type="com.fasterxml.jackson.annotation.JsonProperty" />
+    	<property name="userId" type="String">
+    	    	<annotations>@JsonProperty("user_id")</annotations>
+    	</property>
+    	<property name="givenName" type="String">
+    			<annotations>@JsonProperty("given_name")</annotations>
+    	</property>
+    	<property name="familyName" type="String">
+    	    	<annotations>@JsonProperty("family_name")</annotations>
+    	</property>
+    	<property name="email" type="String">
+    			<annotations>@JsonProperty("email")</annotations>
+    	</property>
+    	<property name="phone" type="String">
+    			<annotations>@JsonProperty("phone")</annotations>
+    	</property>
+	</bean>
+	<bean class="com.klarna.api.signin.model.KlarnaSigninUserAccountLinking">
+		<import type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
+	    <import type="com.fasterxml.jackson.annotation.JsonProperty" />
+    	<property name="userAccountLinkingRefreshToken" type="String">
+    	    	<annotations>@JsonProperty("user_account_linking_refresh_token")</annotations>
+    	</property>
+    	<property name="userAccountLinkingIdToken" type="String">
+    			<annotations>@JsonProperty("user_account_linking_id_token")</annotations>
+    	</property>
+	</bean>
 </beans>

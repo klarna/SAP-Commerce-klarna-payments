@@ -16,19 +16,19 @@ package com.klarna.payment.enums;
  */
 public enum KlarnaSigninProfileStatus
 {
-
-	ACCOUNTLINKED("ACCOUNTLINKED"), ACCOUNTNOTLINKED("ACCOUNTNOTLINKED"), LOGINFAILED("LOGINFAILED"), USERNOTFOUND("USERNOTFOUND");
-
+	ACCOUNT_NEEDS_UPDATE("ACCOUNT_NEEDS_UPDATE"),
+	ACCOUNT_NOT_LINKED("ACCOUNT_NOT_LINKED"), 
+	ACCOUNT_UP_TO_DATE("ACCOUNT_UP_TO_DATE"),
+	ACCOUNT_TO_BE_CREATED("ACCOUNT_TO_BE_CREATED"),
+	PROFILE_NOT_FOUND("PROFILE_NOT_FOUND");
 
 	private String value;
 
-	private KlarnaSigninProfileStatus(final String value)
-	{
+	private KlarnaSigninProfileStatus(final String value){
 		this.value = value.intern();
 	}
 
-	public String getValue()
-	{
+	public String getValue(){
 		return value;
 	}
 }
