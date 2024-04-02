@@ -16,6 +16,7 @@ import de.hybris.platform.commerceservices.customer.CustomerAccountService;
 import de.hybris.platform.commerceservices.strategies.CustomerNameStrategy;
 import de.hybris.platform.core.model.user.AddressModel;
 import de.hybris.platform.core.model.user.CustomerModel;
+import de.hybris.platform.core.model.user.UserGroupModel;
 import de.hybris.platform.core.model.user.UserModel;
 import de.hybris.platform.order.CartService;
 import de.hybris.platform.servicelayer.dto.converter.Converter;
@@ -33,6 +34,7 @@ import javax.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
+import com.google.common.collect.Sets;
 import com.klarna.api.signin.model.KlarnaSigninResponse;
 import com.klarna.api.signin.model.KlarnaSigninUserAccountProfile;
 import com.klarna.payment.data.KlarnaSignInConfigData;
@@ -79,6 +81,8 @@ public class DefaultKlarnaSignInFacade implements KlarnaSignInFacade
 
 	private static final Logger LOG = Logger.getLogger(DefaultKlarnaSignInFacade.class);
 
+	private static final String CUSTOMER_GROUP = "customergroup";
+
 	@Override
 	public KlarnaSignInConfigData getKlarnaSignInConfigData()
 	{
@@ -114,7 +118,7 @@ public class DefaultKlarnaSignInFacade implements KlarnaSignInFacade
 
 				if (user == null)
 				{
-					return KlarnaSigninProfileStatus.ACCOUNT_TO_BE_CREATED;
+					return KlarnaSigninProfileStatus.CREATE_AFTER_CONSENT;
 				}
 				else if (user instanceof CustomerModel)
 				{
@@ -122,7 +126,7 @@ public class DefaultKlarnaSignInFacade implements KlarnaSignInFacade
 				}
 			}
 		}
-		return KlarnaSigninProfileStatus.PROFILE_NOT_FOUND;
+		return KlarnaSigninProfileStatus.LOGIN_FAILED;
 	}
 
 	private KlarnaSigninProfileStatus compareCustomerData(final CustomerModel customer,
@@ -134,21 +138,18 @@ public class DefaultKlarnaSignInFacade implements KlarnaSignInFacade
 
 			if (klarnaCustomerProfileModel == null)
 			{
-				return KlarnaSigninProfileStatus.ACCOUNT_NOT_LINKED;
+				return isMergeEnabled() ? KlarnaSigninProfileStatus.MERGE_AUTO : KlarnaSigninProfileStatus.MERGE_AFTER_CONSENT;
 			}
-			else
+			else if (updateRequired(klarnaSigninUserAccountProfile, klarnaCustomerProfileModel))
 			{
-				if (updateRequired(klarnaSigninUserAccountProfile, klarnaCustomerProfileModel))
-				{
-					return KlarnaSigninProfileStatus.ACCOUNT_NEEDS_UPDATE;
-				}
+				return KlarnaSigninProfileStatus.MERGE_AUTO;
 			}
 		}
 		catch (final Exception e)
 		{
 			LOG.error("Error updating customer account for email id " + klarnaSigninUserAccountProfile.getEmail() + " :: ", e);
 		}
-		return KlarnaSigninProfileStatus.ACCOUNT_UP_TO_DATE;
+		return KlarnaSigninProfileStatus.MERGE_NOT_NEEDED;
 	}
 
 	/**
@@ -203,12 +204,12 @@ public class DefaultKlarnaSignInFacade implements KlarnaSignInFacade
 		final KlarnaSigninUserAccountProfile klarnaSigninUserAccountProfile = klarnaSigninResponse.getUserAccountProfile();
 		if (StringUtils.isNotEmpty(profileStatus) && klarnaSigninUserAccountProfile != null)
 		{
-			if (profileStatus.equalsIgnoreCase(KlarnaSigninProfileStatus.ACCOUNT_TO_BE_CREATED.getValue()))
+			if (profileStatus.equalsIgnoreCase(KlarnaSigninProfileStatus.CREATE_AFTER_CONSENT.getValue()))
 			{
 				return createNewCustomer(klarnaSigninUserAccountProfile);
 			}
-			else if (isMergeEnabled() && (profileStatus.equalsIgnoreCase(KlarnaSigninProfileStatus.ACCOUNT_NEEDS_UPDATE.getValue())
-					|| profileStatus.equalsIgnoreCase(KlarnaSigninProfileStatus.ACCOUNT_NOT_LINKED.getValue())))
+			else if (profileStatus.equalsIgnoreCase(KlarnaSigninProfileStatus.MERGE_AUTO.getValue())
+					|| profileStatus.equalsIgnoreCase(KlarnaSigninProfileStatus.MERGE_AFTER_CONSENT.getValue()))
 			{
 				updateCustomer(klarnaSigninUserAccountProfile);
 				return true;
@@ -234,6 +235,15 @@ public class DefaultKlarnaSignInFacade implements KlarnaSignInFacade
 			customer.setSessionLanguage(commonI18NService.getCurrentLanguage());
 			customer.setSessionCurrency(commonI18NService.getCurrentCurrency());
 			customer.setCustomerID(UUID.randomUUID().toString());
+			try
+			{
+				final UserGroupModel group = userService.getUserGroupForUID(CUSTOMER_GROUP);
+				customer.setGroups(Sets.newHashSet(group));
+			}
+			catch (final Exception e)
+			{
+				LOG.error(e.getMessage(), e);
+			}
 			customerAccountService.register(customer, null);
 			return true;
 		}

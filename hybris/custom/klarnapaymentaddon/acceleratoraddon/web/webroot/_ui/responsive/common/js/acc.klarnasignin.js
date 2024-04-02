@@ -34,6 +34,7 @@ window.onload = async function() {
 		(data) => {
 		// implement logic
 		console.log("signin " + JSON.stringify(data));
+		window.location = ACC.config.encodedContextPath + data;
 		},
 		(error) =>{
 		console.log("signin " + JSON.stringify(error));

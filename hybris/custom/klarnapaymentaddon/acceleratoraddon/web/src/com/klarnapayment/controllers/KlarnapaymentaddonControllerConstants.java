@@ -41,7 +41,7 @@ public interface KlarnapaymentaddonControllerConstants
 
 			interface Signin
 			{
-				String KlarnaSigninRegisterPage = "pages/klarnaSigninRegister";
+				String KlarnaSigninRegisterPage = ADDON_PREFIX + "pages/klarnaSigninRegister";
 			}
 		}
 
