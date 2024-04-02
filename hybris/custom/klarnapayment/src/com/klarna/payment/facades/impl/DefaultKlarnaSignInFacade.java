@@ -244,6 +244,7 @@ public class DefaultKlarnaSignInFacade implements KlarnaSignInFacade
 			{
 				LOG.error(e.getMessage(), e);
 			}
+			updateCustomer(klarnaSigninUserAccountProfile);
 			customerAccountService.register(customer, null);
 			return true;
 		}
