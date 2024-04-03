@@ -53,10 +53,10 @@ ACC.signin = {
 		var processSigninURL = $("#processSigninResponseUrl").val();
 		var authResponse = {
 			"user_account_profile": 
-			{	"user_id": "aloshni-rrrrrrr@tryzens.com"	,
+			{	"user_id": "aloshni1@tryzens.com"	,
 				"given_name": "Aloshni",
 				"family_name": "Kruba",
-				"email": "aloshni-rrrrrrr@tryzens.com",
+				"email": "aloshni1@tryzens.com",
 				"phone": "9646962364"
 			},
 			"user_account_linking":
@@ -75,7 +75,7 @@ ACC.signin = {
 		console.log("Profile status "+data);
 			if(data=='CREATE_AFTER_CONSENT' || data=='MERGE_AFTER_CONSENT' ){
 				document.getElementById("profileStatus").value = data;
-				showRegisterPage(data);
+				ACC.signinRegister.showRegisterPage(data);
 			}
 		}
 		else{
@@ -85,19 +85,10 @@ ACC.signin = {
 		console.log("Authorize reponse error:", JSON.stringify(error));
 		});
 	},
+};
+ACC.signinRegister = {
 	showRegisterPage:function(){
 		var signinRegisterPageURL	=	$("#signinRegisterPageURL").val();
-		$.ajax({
-		  url: signinRegisterPageURL,
-		  type: "get",
-		  data: { 
-			profileStatus: profileStatus, 
-		  },
-		success: function(response) {
-		    console.log("response "+response);
-		},
-		error: function(xhr) {
-		}
-		});
+		window.location = signinRegisterPageURL+"?profileStatus="+document.getElementById("profileStatus").value;
 	},
 };

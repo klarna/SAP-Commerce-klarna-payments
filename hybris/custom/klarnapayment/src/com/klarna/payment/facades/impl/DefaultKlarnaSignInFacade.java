@@ -244,8 +244,9 @@ public class DefaultKlarnaSignInFacade implements KlarnaSignInFacade
 			{
 				LOG.error(e.getMessage(), e);
 			}
-			updateCustomer(klarnaSigninUserAccountProfile);
 			customerAccountService.register(customer, null);
+			modelService.save(customer);
+			updateCustomer(klarnaSigninUserAccountProfile);
 			return true;
 		}
 		catch (final Exception e)
@@ -259,9 +260,18 @@ public class DefaultKlarnaSignInFacade implements KlarnaSignInFacade
 	{
 		try
 		{
-			final UserModel user = userService.getUserForUID(klarnaSigninUserAccountProfile.getEmail());
+			UserModel user = null;
+			try
+			{
+				user = userService.getUserForUID(klarnaSigninUserAccountProfile.getEmail());
+			}
+			catch (final UnknownIdentifierException uie)
+			{
+				LOG.error("Error finsing user with email id /uid  " + klarnaSigninUserAccountProfile.getEmail() + " :: ", uie);
+			}
+
 			CustomerModel customer = null;
-			if (user instanceof CustomerModel)
+			if (user != null && user instanceof CustomerModel)
 			{
 				customer = (CustomerModel) user;
 			}

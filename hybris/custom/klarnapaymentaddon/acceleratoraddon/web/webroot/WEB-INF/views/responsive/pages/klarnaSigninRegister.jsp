@@ -1,3 +1,6 @@
+<%@ page trimDirectiveWhitespaces="true"%>
+<%@ taglib prefix="template" tagdir="/WEB-INF/tags/responsive/template"%>
+<%@ taglib prefix="cms" uri="http://hybris.com/tld/cmstags"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
@@ -6,45 +9,59 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 <%@ taglib prefix="klarnapayment" tagdir="/WEB-INF/tags/addons/klarnapaymentaddon/responsive/" %>
 
-<spring:url value="/klarna/signin/process-signin" var="processSigninURL"/>
-<input type="hidden" id="processSigninURL" name="processSigninURL"  value="${processSigninURL}"/>
-<form:form id="syncAccountForm" action="${processSigninURL}" >
-	<div class="signin-container">
-		<input type="hidden" id="profileStatus" name="profileStatus" value=""/>
-		<table class="signin-table-50">
-		    <tr>
-		        <td><label>User Id</label></td>
-		        <td><input class="signin-input" id="userId" type="text" value="${klarnaSigninResponse.userAccountProfile.userId}" disabled="disabled"/></td>
-		    </tr>
-		    <tr>
-		        <td><label>First Name</label></td>
-		        <td><input class="signin-input" id="givenName" type="text" value="${klarnaSigninResponse.userAccountProfile.givenName}" disabled="disabled"/></td>
-		    </tr>
-		    <tr>
-		        <td><label>Last Name</label></td>
-		        <td><input class="signin-input" id="familyName" type="text" value="${klarnaSigninResponse.userAccountProfile.familyName}" disabled="disabled"/></td>
-		    </tr>
-		    <tr>
-		        <td><label>Email</label></td>
-		        <td><input class="signin-input" id="email" type="text" value="${klarnaSigninResponse.userAccountProfile.email}" disabled="disabled"/></td>
-		    </tr>
-		    <tr>
-		        <td><label>Phone</label></td>
-		        <td><input class="signin-input" id="phone" type="text" value="${klarnaSigninResponse.userAccountProfile.phone}" disabled="disabled"/></td>
-		    </tr>
-		    <tr>
-		    	<td>
-		    	<input id="mergeAccountsCheck" type="checkbox"/>
-		    	<label>Would you like to Sync the details?</label>
-		    	</td>
-		    </tr>                                            
-		</table>
-		<div class="btn-ctr">
-		<button id="syncDetails" class="signin-submit not-allowed" type="button" class="btn btn-primary btn-block" disabled="disabled" onclick="syncData();" >Merge Accounts</button>
+<template:page pageTitle="${pageTitle}">
+	<div class="row">
+		<div class="col-md-6">
+			<cms:pageSlot position="BodyContent-klarna-signin" var="feature" element="div" class="login-left-content-slot">
+				<cms:component component="${feature}"  element="div" class="login-left-content-component"/>
+			</cms:pageSlot>
 		</div>
 	</div>
-</form:form>
-
+	
+	<spring:url value="/klarna/signin/process-signin" var="processSigninURL"/>
+	<input type="hidden" id="processSigninURL" name="processSigninURL"  value="${processSigninURL}"/>
+	
+	<form:form id="syncAccountForm" action="${processSigninURL}" method="get">
+		<div class="signin-container">
+		
+			<input type="hidden" id="profileStatus" name="profileStatus" value=""/>
+			
+			<div class="form-group display-flex">
+				<label class="control-label">User Id</label>
+				<input class="form-control signin-input" id="userId" type="text" value="${klarnaSigninResponse.userAccountProfile.userId}" disabled="disabled"/>
+			</div>
+			
+			<div class="form-group display-flex">
+				<label class="control-label">First Name</label>
+				<input class="form-control signin-input" id="userId" type="text" value="${klarnaSigninResponse.userAccountProfile.givenName}" disabled="disabled"/>
+			</div>
+			
+			<div class="form-group display-flex">
+				<label class="control-label">Last Name</label>
+				<input class="form-control signin-input" id="userId" type="text" value="${klarnaSigninResponse.userAccountProfile.familyName}" disabled="disabled"/>
+			</div>
+			
+			<div class="form-group display-flex">
+				<label class="control-label">Email</label>
+				<input class="form-control signin-input" id="userId" type="text" value="${klarnaSigninResponse.userAccountProfile.email}" disabled="disabled"/>
+			</div>
+			
+			<div class="form-group display-flex">
+				<label class="control-label">Phone</label>
+				<input class="form-control signin-input" id="userId" type="text" value="${klarnaSigninResponse.userAccountProfile.phone}" disabled="disabled"/>
+			</div>
+			
+			<div class="form-group">
+				<input id="mergeAccountsCheck" type="checkbox"/>
+				<label>Would you like to Sync the details?</label>
+			</div>
+			
+			<div class="btn-ctr">
+			<button id="syncDetails" class="signin-submit not-allowed" type="button" class="btn btn-primary btn-block" disabled="disabled" onclick="syncData();" >Merge Accounts</button>
+			</div>
+		</div>
+	</form:form>
+</template:page>
 <script>
 window.onload = async function() {
 	var mergeAccountsCheck		= document.getElementById('mergeAccountsCheck');
@@ -75,12 +92,13 @@ function syncData(){
 </script>
 <style>
 .signin-input{width:100%;padding:12px 20px;margin:8px 0;display:inline-block;
-border:1px solid #ccc;border-radius:4px;box-sizing:border-box;}
-.signin-submit{width:50%;background-color:#000000;color:white;padding:14px 20px;
-margin:8px 0;border:none;border-radius:4px;cursor:pointer;}
-.signin-container{border-radius:5px;background-color:#f2f2f2;padding:20px;}
+border:1px solid #ccc;box-sizing:border-box;}
+.signin-submit{width:50%;background-color:#47b6b1;color:white;padding:14px 20px;
+margin:8px 0;border:none;cursor:pointer;}
+.signin-container{padding:20px 0 0 32px;margin:auto;width:50%;}
 .signin-table-50{width:50%;margin-left:auto;margin-right:auto;}
 .signin-table-100{width:100%;margin-left:auto;margin-right:auto;}
 .not-allowed{cursor:not-allowed !important;}
 .btn-ctr{display:flex;justify-content:center;align-items:center;}
+.display-flex{display:flex;flex-direction:column;}
 </style>

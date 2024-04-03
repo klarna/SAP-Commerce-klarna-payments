@@ -85,7 +85,8 @@ public class KlarnaSigninController extends AbstractPageController
 		if (klarnaSigninResponse != null)
 		{
 			profileStatus = klarnaSignInFacade.checkUserProfileStatus(klarnaSigninResponse);
-			if(profileStatus.equals(KlarnaSigninProfileStatus.MERGE_AUTO)) {
+			if (profileStatus.equals(KlarnaSigninProfileStatus.MERGE_AUTO))
+			{
 				klarnaSignInFacade.processCustomer(profileStatus.getValue(), klarnaSigninResponse);
 			}
 		}
@@ -116,9 +117,10 @@ public class KlarnaSigninController extends AbstractPageController
 		}
 		return new ModelAndView(KlarnapaymentaddonControllerConstants.Views.Pages.Signin.KlarnaSigninRegisterPage,
 				"klarnaSigninResponse", klarnaSigninResponse);
+		//return getViewForPage(model);
 	}
 
-	@RequestMapping(value = "/process-signin", method = RequestMethod.POST)
+	@RequestMapping(value = "/process-signin", method = RequestMethod.GET)
 	public String processSignin(@RequestParam(name = "profileStatus")
 	final String profileStatus, final Model model, final HttpServletRequest request, final HttpServletResponse response)
 	{
