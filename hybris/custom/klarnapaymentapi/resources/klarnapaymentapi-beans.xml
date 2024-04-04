@@ -460,6 +460,9 @@
     	<property name="nationalIdentificationNumber" type="String">
     			<annotations>@JsonProperty("national_identification_number")</annotations>
     	</property>
+    	<property name="klarnaAccessToken" type="String">
+    			<annotations>@JsonProperty("klarna_access_token")</annotations>
+    	</property>
     
     </bean>
     
@@ -1166,6 +1169,38 @@
     	</property>
     	<property name="country" type="String">
     			<annotations>@JsonProperty("country")</annotations>
+    	</property>
+	</bean>
+	<bean class="com.klarna.api.signin.model.KlarnaSigninTokenRequest">
+		<import type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
+	    <import type="com.fasterxml.jackson.annotation.JsonProperty" />
+    	<property name="refreshToken" type="String">
+    	    	<annotations>@JsonProperty("refresh_token")</annotations>
+    	</property>
+    	<property name="clientId" type="String">
+    			<annotations>@JsonProperty("client_id")</annotations>
+    	</property>
+		<property name="grantType" type="String">
+    	    	<annotations>@JsonProperty("grant_type")</annotations>
+    	</property>
+	</bean>
+	<bean class="com.klarna.api.signin.model.KlarnaSigninTokenResponse">
+		<import type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
+	    <import type="com.fasterxml.jackson.annotation.JsonProperty" />
+    	<property name="refreshToken" type="String">
+    	    	<annotations>@JsonProperty("refresh_token")</annotations>
+    	</property>
+    	<property name="accessToken" type="String">
+    	    	<annotations>@JsonProperty("access_token")</annotations>
+    	</property>
+    	<property name="idToken" type="String">
+    	    	<annotations>@JsonProperty("id_token")</annotations>
+    	</property>
+    	<property name="tokenType" type="String">
+    			<annotations>@JsonProperty("token_type")</annotations>
+    	</property>
+		<property name="expiresIn" type="Long">
+    	    	<annotations>@JsonProperty("expires_in")</annotations>
     	</property>
 	</bean>
 </beans>
