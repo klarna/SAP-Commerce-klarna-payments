@@ -43,20 +43,20 @@ window.onload = async function() {
 		klarna.Identity.on("error", (data) => {
 		// implement logic
 		console.log("error " + JSON.stringify(data));
-		ACC.signin.processSignInResponse();
+		ACC.signin.initiateSignInResponse();
 		});
 	}
 };
 ACC.signin = {
-	processSignInResponse: function (){
-		console.log("processSignInResponse");
-		var processSigninURL = $("#processSigninResponseUrl").val();
+	initiateSignInResponse: function (){
+		console.log("initiateSignInResponse");
+		var initiateSignInResponseUrl = $("#initiateSignInResponseUrl").val();
 		var authResponse = {
 			"user_account_profile": 
-			{	"user_id": "aloshni1@tryzens.com"	,
+			{	"user_id": "aloshni2@tryzens.com"	,
 				"given_name": "Aloshni",
 				"family_name": "Kruba",
-				"email": "aloshni1@tryzens.com",
+				"email": "aloshni2@tryzens.com",
 				"phone": "9646962364"
 			},
 			"user_account_linking":
@@ -64,7 +64,7 @@ ACC.signin = {
 				"user_account_linking_id_token": "sssss33333333333333"
 			}
 		};
-		$.ajax(processSigninURL, {
+		$.ajax(initiateSignInResponseUrl, {
 		        data: JSON.stringify(authResponse),
 		        dataType: "json",
 				contentType: 'application/json',
@@ -75,7 +75,7 @@ ACC.signin = {
 		console.log("Profile status "+data);
 			if(data=='CREATE_AFTER_CONSENT' || data=='MERGE_AFTER_CONSENT' ){
 				document.getElementById("profileStatus").value = data;
-				ACC.signinRegister.showRegisterPage(data);
+				ACC.signinConsent.showUserConsentPage(data);
 			}
 		}
 		else{
@@ -86,9 +86,9 @@ ACC.signin = {
 		});
 	},
 };
-ACC.signinRegister = {
-	showRegisterPage:function(){
-		var signinRegisterPageURL	=	$("#signinRegisterPageURL").val();
-		window.location = signinRegisterPageURL+"?profileStatus="+document.getElementById("profileStatus").value;
+ACC.signinConsent = {
+	showUserConsentPage:function(){
+		var userConsentPageURL	=	$("#userConsentPageURL").val();
+		window.location = userConsentPageURL+"?profileStatus="+document.getElementById("profileStatus").value;
 	},
 };

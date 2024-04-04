@@ -17,48 +17,63 @@
 			</cms:pageSlot>
 		</div>
 	</div>
-	
-	<spring:url value="/klarna/signin/process-signin" var="processSigninURL"/>
 	<input type="hidden" id="processSigninURL" name="processSigninURL"  value="${processSigninURL}"/>
 	
-	<form:form id="syncAccountForm" action="${processSigninURL}" method="get">
+	<form:form id="syncAccountForm" action="${processSigninURL}" method="post" modelAttribute="klarnaSigninResponse">
 		<div class="signin-container">
 		
 			<input type="hidden" id="profileStatus" name="profileStatus" value=""/>
 			
 			<div class="form-group display-flex">
+			<spring:theme code="klarna.signin.userid" />
+			<spring:theme code="address.phone" />
+			<!-- address.surname address.firstName address.phone -->
 				<label class="control-label">User Id</label>
-				<input class="form-control signin-input" id="userId" type="text" value="${klarnaSigninResponse.userAccountProfile.userId}" disabled="disabled"/>
+				<form:input class="form-control signin-input" id="userId" type="text" path="${klarnaSigninResponse.userAccountProfile.userId}" disabled="disabled"/>
 			</div>
 			
 			<div class="form-group display-flex">
 				<label class="control-label">First Name</label>
-				<input class="form-control signin-input" id="userId" type="text" value="${klarnaSigninResponse.userAccountProfile.givenName}" disabled="disabled"/>
+				<form:input class="form-control signin-input" id="userId" type="text" path="${klarnaSigninResponse.userAccountProfile.givenName}" disabled="disabled"/>
 			</div>
 			
 			<div class="form-group display-flex">
 				<label class="control-label">Last Name</label>
-				<input class="form-control signin-input" id="userId" type="text" value="${klarnaSigninResponse.userAccountProfile.familyName}" disabled="disabled"/>
+				<form:input class="form-control signin-input" id="userId" type="text" path="${klarnaSigninResponse.userAccountProfile.familyName}" disabled="disabled"/>
 			</div>
 			
 			<div class="form-group display-flex">
 				<label class="control-label">Email</label>
-				<input class="form-control signin-input" id="userId" type="text" value="${klarnaSigninResponse.userAccountProfile.email}" disabled="disabled"/>
+				<form:input class="form-control signin-input" id="userId" type="text" path="${klarnaSigninResponse.userAccountProfile.email}" disabled="disabled"/>
 			</div>
 			
 			<div class="form-group display-flex">
 				<label class="control-label">Phone</label>
-				<input class="form-control signin-input" id="userId" type="text" value="${klarnaSigninResponse.userAccountProfile.phone}" disabled="disabled"/>
+				<form:input class="form-control signin-input" id="userId" type="text" path="${klarnaSigninResponse.userAccountProfile.phone}" disabled="disabled"/>
 			</div>
+			<c:if test="${profileStatus eq 'CREATE_AFTER_CONSENT' }">
+				<spring:url value="/klarna/signin/createNewCustomer" var="processSigninURL"/>
+				<div class="form-group">
+					<input id="mergeAccountsCheck" type="checkbox"/>
+					<label>Would you like to Create a New Account?</label>
+				</div>
+				<div class="btn-ctr">
+					<button id="syncDetails" class="signin-submit not-allowed" type="button" disabled="disabled" onclick="syncData();" >
+					Register
+					</button>
+				</div>
+			</c:if>
+			<c:if test="${profileStatus eq 'MERGE_AFTER_CONSENT' }">
+				<spring:url value="/klarna/signin/updateCustomer" var="processSigninURL"/>
+				<div class="form-group">
+					<input id="mergeAccountsCheck" type="checkbox"/>
+					<label>Would you like to Sync the details?</label>
+				</div>
+				<button id="syncDetails" class="signin-submit not-allowed" type="button" disabled="disabled" onclick="syncData();" >
+				Merge Accounts
+				</button>
+			</c:if>
 			
-			<div class="form-group">
-				<input id="mergeAccountsCheck" type="checkbox"/>
-				<label>Would you like to Sync the details?</label>
-			</div>
-			
-			<div class="btn-ctr">
-			<button id="syncDetails" class="signin-submit not-allowed" type="button" class="btn btn-primary btn-block" disabled="disabled" onclick="syncData();" >Merge Accounts</button>
-			</div>
 		</div>
 	</form:form>
 </template:page>

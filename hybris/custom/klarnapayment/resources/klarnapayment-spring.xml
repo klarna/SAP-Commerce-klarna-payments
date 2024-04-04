@@ -491,8 +491,23 @@
             </list>
         </property>
     </bean>   
+    
     <alias name="defaultKlarnaCustomerProfileReversePopulator" alias="klarnaCustomerProfileReversePopulator"/>
     <bean id="defaultKlarnaCustomerProfileReversePopulator" class="com.klarna.payment.converter.populator.KlarnaCustomerProfileReversePopulator">
+    </bean>
+    
+    <alias name="defaultKlarnaSignInAddressConverter" alias="klarnaSignInAddressConverter"/>
+    <bean id="defaultKlarnaSignInAddressConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="de.hybris.platform.core.model.user.AddressModel"/>
+        <property name="populators">
+            <list>
+                <ref bean="klarnaSignInAddressPopulator"/>
+            </list>
+        </property>
+    </bean>
+	
+	<alias name="defaultKlarnaSignInAddressPopulator" alias="klarnaSignInAddressPopulator"/>
+    <bean id="defaultKlarnaSignInAddressPopulator" class="com.klarna.payment.converter.populator.KlarnaSignInAddressPopulator">
     </bean>
     
 	<alias name="defaultKlarnaSignInFacade" alias="klarnaSignInFacade"/>

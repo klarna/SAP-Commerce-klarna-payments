@@ -884,11 +884,7 @@
 							optional="true" />
 						<persistence type="property" />
 					</attribute>
-					<attribute qualifier="linkingRefreshToken" type="java.lang.String">
-						<modifiers read="true" write="true" />
-						<persistence type="property" />
-					</attribute>
-					<attribute qualifier="linkingIdToken" type="java.lang.String">
+					<attribute qualifier="refreshToken" type="java.lang.String">
 						<modifiers read="true" write="true" />
 						<persistence type="property" />
 					</attribute>

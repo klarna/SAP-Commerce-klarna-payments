@@ -14,6 +14,7 @@ package com.klarna.payment.facades.impl;
 import de.hybris.platform.commercefacades.user.data.AddressData;
 import de.hybris.platform.commerceservices.customer.CustomerAccountService;
 import de.hybris.platform.commerceservices.strategies.CustomerNameStrategy;
+import de.hybris.platform.core.GenericSearchConstants.LOG;
 import de.hybris.platform.core.model.user.AddressModel;
 import de.hybris.platform.core.model.user.CustomerModel;
 import de.hybris.platform.core.model.user.UserGroupModel;
@@ -36,6 +37,7 @@ import org.apache.log4j.Logger;
 
 import com.google.common.collect.Sets;
 import com.klarna.api.signin.model.KlarnaSigninResponse;
+import com.klarna.api.signin.model.KlarnaSigninUserAccountLinking;
 import com.klarna.api.signin.model.KlarnaSigninUserAccountProfile;
 import com.klarna.payment.data.KlarnaSignInConfigData;
 import com.klarna.payment.enums.KlarnaSigninProfileStatus;
@@ -96,7 +98,7 @@ public class DefaultKlarnaSignInFacade implements KlarnaSignInFacade
 	}
 
 	@Override
-	public KlarnaSigninProfileStatus checkUserProfileStatus(final KlarnaSigninResponse klarnaSigninResponse)
+	public KlarnaSigninProfileStatus checkAndUpdateProfile(final KlarnaSigninResponse klarnaSigninResponse)
 	{
 		final KlarnaSigninUserAccountProfile klarnaSigninUserAccountProfile = klarnaSigninResponse.getUserAccountProfile();
 		if (klarnaSigninUserAccountProfile != null)
@@ -122,159 +124,68 @@ public class DefaultKlarnaSignInFacade implements KlarnaSignInFacade
 				}
 				else if (user instanceof CustomerModel)
 				{
-					return compareCustomerData((CustomerModel) user, klarnaSigninUserAccountProfile);
+					CustomerModel customer = (CustomerModel) user;
+					if (customer.getKlarnaCustomerProfile() == null && !isAutoMergeEnabled())
+					{
+						return KlarnaSigninProfileStatus.MERGE_AFTER_CONSENT;
+					}
+					else
+					{
+						updateCustomer(customer, klarnaSigninUserAccountProfile, klarnaSigninResponse.getUserAccountLinking());
+						return KlarnaSigninProfileStatus.ACCOUNT_UPDATED;
+					}
 				}
 			}
 		}
 		return KlarnaSigninProfileStatus.LOGIN_FAILED;
 	}
 
-	private KlarnaSigninProfileStatus compareCustomerData(final CustomerModel customer,
-			final KlarnaSigninUserAccountProfile klarnaSigninUserAccountProfile)
-	{
-		try
-		{
-			final KlarnaCustomerProfileModel klarnaCustomerProfileModel = customer.getKlarnaCustomerProfile();
-
-			if (klarnaCustomerProfileModel == null)
-			{
-				return isMergeEnabled() ? KlarnaSigninProfileStatus.MERGE_AUTO : KlarnaSigninProfileStatus.MERGE_AFTER_CONSENT;
-			}
-			else if (updateRequired(klarnaSigninUserAccountProfile, klarnaCustomerProfileModel))
-			{
-				return KlarnaSigninProfileStatus.MERGE_AUTO;
-			}
-		}
-		catch (final Exception e)
-		{
-			LOG.error("Error updating customer account for email id " + klarnaSigninUserAccountProfile.getEmail() + " :: ", e);
-		}
-		return KlarnaSigninProfileStatus.MERGE_NOT_NEEDED;
-	}
-
-	/**
-	 * @param klarnaSigninUserAccountProfile
-	 * @param customer
-	 *
-	 */
-	private boolean updateRequired(final KlarnaSigninUserAccountProfile klarnaSigninUserAccountProfile,
-			final KlarnaCustomerProfileModel klarnaCustomerProfileModel)
-	{
-		if (stringsDontMatch(klarnaSigninUserAccountProfile.getEmail(), klarnaCustomerProfileModel.getEmail()))
-		{
-			return true;
-		}
-		if (stringsDontMatch(klarnaSigninUserAccountProfile.getUserId(), klarnaCustomerProfileModel.getEmail()))
-		{
-			return true;
-		}
-		if (stringsDontMatch(klarnaSigninUserAccountProfile.getGivenName(), klarnaCustomerProfileModel.getGivenName()))
-		{
-			return true;
-		}
-		if (stringsDontMatch(klarnaSigninUserAccountProfile.getFamilyName(), klarnaCustomerProfileModel.getFamilyName()))
-		{
-			return true;
-		}
-		if (stringsDontMatch(klarnaSigninUserAccountProfile.getPhone(), klarnaCustomerProfileModel.getPhone()))
-		{
-			return true;
-		}
-		return false;
-	}
-
-	private boolean stringsDontMatch(final String str1, final String str2)
-	{
-		if ((StringUtils.isEmpty(str1) && StringUtils.isEmpty(str2))
-				|| (StringUtils.isNotEmpty(str1) && str1.equalsIgnoreCase(str2)))
-		{
-			// Strings are same
-			return false;
-		}
-		else
-		{
-			// Strings are not same
-			return true;
-		}
-	}
-
 	@Override
-	public boolean processCustomer(final String profileStatus, final KlarnaSigninResponse klarnaSigninResponse)
+	public boolean createNewCustomer(final KlarnaSigninResponse klarnaSigninResponse)
 	{
 		final KlarnaSigninUserAccountProfile klarnaSigninUserAccountProfile = klarnaSigninResponse.getUserAccountProfile();
-		if (StringUtils.isNotEmpty(profileStatus) && klarnaSigninUserAccountProfile != null)
+		if (klarnaSigninUserAccountProfile != null)
 		{
-			if (profileStatus.equalsIgnoreCase(KlarnaSigninProfileStatus.CREATE_AFTER_CONSENT.getValue()))
-			{
-				return createNewCustomer(klarnaSigninUserAccountProfile);
-			}
-			else if (profileStatus.equalsIgnoreCase(KlarnaSigninProfileStatus.MERGE_AUTO.getValue())
-					|| profileStatus.equalsIgnoreCase(KlarnaSigninProfileStatus.MERGE_AFTER_CONSENT.getValue()))
-			{
-				updateCustomer(klarnaSigninUserAccountProfile);
-				return true;
-			}
-			else
-			{
-				LOG.error("Cannot create customer account. Another user exists with same UID :: "
-						+ klarnaSigninUserAccountProfile.getEmail());
-			}
-		}
-		return false;
-	}
-
-	private boolean createNewCustomer(final KlarnaSigninUserAccountProfile klarnaSigninUserAccountProfile)
-	{
-		try
-		{
-			final CustomerModel customer = modelService.create(CustomerModel.class);
-			customer.setUid(klarnaSigninUserAccountProfile.getEmail());
-			customer.setName(customerNameStrategy.getName(klarnaSigninUserAccountProfile.getGivenName(),
-					klarnaSigninUserAccountProfile.getFamilyName()));
-			customer.setOriginalUid(klarnaSigninUserAccountProfile.getEmail());
-			customer.setSessionLanguage(commonI18NService.getCurrentLanguage());
-			customer.setSessionCurrency(commonI18NService.getCurrentCurrency());
-			customer.setCustomerID(UUID.randomUUID().toString());
 			try
 			{
-				final UserGroupModel group = userService.getUserGroupForUID(CUSTOMER_GROUP);
-				customer.setGroups(Sets.newHashSet(group));
+				final CustomerModel customer = modelService.create(CustomerModel.class);
+				customer.setUid(klarnaSigninUserAccountProfile.getEmail());
+				customer.setName(customerNameStrategy.getName(klarnaSigninUserAccountProfile.getGivenName(),
+						klarnaSigninUserAccountProfile.getFamilyName()));
+				customer.setOriginalUid(klarnaSigninUserAccountProfile.getEmail());
+				customer.setSessionLanguage(commonI18NService.getCurrentLanguage());
+				customer.setSessionCurrency(commonI18NService.getCurrentCurrency());
+				customer.setCustomerID(UUID.randomUUID().toString());
+				try
+				{
+					final UserGroupModel group = userService.getUserGroupForUID(CUSTOMER_GROUP);
+					customer.setGroups(Sets.newHashSet(group));
+				}
+				catch (final Exception e)
+				{
+					LOG.error(e.getMessage(), e);
+				}
+				customerAccountService.register(customer, null);
+				modelService.save(customer);
+				updateCustomer(customer, klarnaSigninUserAccountProfile, klarnaSigninResponse.getUserAccountLinking());
+				return true;
 			}
 			catch (final Exception e)
 			{
-				LOG.error(e.getMessage(), e);
+				LOG.error("Error creating new customer account for email id " + klarnaSigninUserAccountProfile.getEmail() + " :: ",
+						e);
+				return false;
 			}
-			customerAccountService.register(customer, null);
-			modelService.save(customer);
-			updateCustomer(klarnaSigninUserAccountProfile);
-			return true;
 		}
-		catch (final Exception e)
-		{
-			LOG.error("Error creating new customer account for email id " + klarnaSigninUserAccountProfile.getEmail() + " :: ", e);
-			return false;
-		}
+		return false;
 	}
 
-	private void updateCustomer(final KlarnaSigninUserAccountProfile klarnaSigninUserAccountProfile)
+	@Override
+	public void updateCustomer(CustomerModel customer, final KlarnaSigninUserAccountProfile klarnaSigninUserAccountProfile,
+			final KlarnaSigninUserAccountLinking klarnaSigninUserAccountLinking)
 	{
 		try
 		{
-			UserModel user = null;
-			try
-			{
-				user = userService.getUserForUID(klarnaSigninUserAccountProfile.getEmail());
-			}
-			catch (final UnknownIdentifierException uie)
-			{
-				LOG.error("Error finsing user with email id /uid  " + klarnaSigninUserAccountProfile.getEmail() + " :: ", uie);
-			}
-
-			CustomerModel customer = null;
-			if (user != null && user instanceof CustomerModel)
-			{
-				customer = (CustomerModel) user;
-			}
 			if (customer != null)
 			{
 				KlarnaCustomerProfileModel klarnaCustomerProfileModel = customer.getKlarnaCustomerProfile();
@@ -282,23 +193,12 @@ public class DefaultKlarnaSignInFacade implements KlarnaSignInFacade
 				{
 					klarnaCustomerProfileModel = modelService.create(KlarnaCustomerProfileModel.class);
 				}
-				// Modify account info in customer model only if the current value matches that of Klarna customer profile
-				// If it doesn't match, it means customer has created or updated account info within the site
-				// In such cases, the account info shouldn't be overridden with the values from Klarna
-				if (!StringUtils.equals(klarnaCustomerProfileModel.getFamilyName(), klarnaSigninUserAccountProfile.getFamilyName())
-						|| !StringUtils.equals(klarnaCustomerProfileModel.getGivenName(),
-								klarnaSigninUserAccountProfile.getGivenName()))
-				{
-					final String currentCustomerNameInKlarna = customerNameStrategy.getName(klarnaCustomerProfileModel.getGivenName(),
-							klarnaCustomerProfileModel.getFamilyName());
-					if (StringUtils.equals(currentCustomerNameInKlarna, customer.getName()))
-					{
-						// Set new name
-						customer.setName(customerNameStrategy.getName(klarnaSigninUserAccountProfile.getGivenName(),
-								klarnaSigninUserAccountProfile.getFamilyName()));
-					}
-				}
+				updateCustomerName(klarnaCustomerProfileModel, klarnaSigninUserAccountProfile, customer);
 				klarnaCustomerProfileReverseConverter.convert(klarnaSigninUserAccountProfile, klarnaCustomerProfileModel);
+				if (klarnaSigninUserAccountLinking != null)
+				{
+					//klarnaCustomerProfileModel.setRefreshToken(klarnaSigninUserAccountLinking.getUserAccountLinkingRefreshToken());
+				}
 				customer.setKlarnaCustomerProfile(klarnaCustomerProfileModel);
 				modelService.saveAll(klarnaCustomerProfileModel, customer);
 			}
@@ -309,8 +209,28 @@ public class DefaultKlarnaSignInFacade implements KlarnaSignInFacade
 		}
 	}
 
+	void updateCustomerName(KlarnaCustomerProfileModel klarnaCustomerProfileModel,
+			KlarnaSigninUserAccountProfile klarnaSigninUserAccountProfile, CustomerModel customer)
+	{
+		// Modify account info in customer model only if the current value matches that of Klarna customer profile
+		// If it doesn't match, it means customer has created or updated account info within the site
+		// In such cases, the account info shouldn't be overridden with the values from Klarna
+		if (!StringUtils.equals(klarnaCustomerProfileModel.getFamilyName(), klarnaSigninUserAccountProfile.getFamilyName())
+				|| !StringUtils.equals(klarnaCustomerProfileModel.getGivenName(), klarnaSigninUserAccountProfile.getGivenName()))
+		{
+			final String currentCustomerNameInKlarna = customerNameStrategy.getName(klarnaCustomerProfileModel.getGivenName(),
+					klarnaCustomerProfileModel.getFamilyName());
+			if (StringUtils.equals(currentCustomerNameInKlarna, customer.getName()))
+			{
+				// Set new name
+				customer.setName(customerNameStrategy.getName(klarnaSigninUserAccountProfile.getGivenName(),
+						klarnaSigninUserAccountProfile.getFamilyName()));
+			}
+		}
+	}
+
 	@Override
-	public boolean isMergeEnabled()
+	public boolean isAutoMergeEnabled()
 	{
 		final KlarnaSignInConfigData signinConfig = getKlarnaSignInConfigData();
 		boolean mergeEnabled = false;
