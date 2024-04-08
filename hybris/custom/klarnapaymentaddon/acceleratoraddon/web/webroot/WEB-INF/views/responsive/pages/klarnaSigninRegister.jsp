@@ -17,60 +17,62 @@
 			</cms:pageSlot>
 		</div>
 	</div>
+	<c:if test="${profileStatus eq 'CREATE_AFTER_CONSENT' }">
+		<spring:url value="/klarna/signin/create-customer" var="processSigninURL"/>
+	</c:if>
+	<c:if test="${profileStatus eq 'MERGE_AFTER_CONSENT' }">
+		<spring:url value="/klarna/signin/merge-account" var="processSigninURL"/>
+	</c:if>
 	<input type="hidden" id="processSigninURL" name="processSigninURL"  value="${processSigninURL}"/>
 	
 	<form:form id="syncAccountForm" action="${processSigninURL}" method="post" modelAttribute="klarnaSigninResponse">
 		<div class="signin-container">
-		
-			<input type="hidden" id="profileStatus" name="profileStatus" value=""/>
 			
 			<div class="form-group display-flex">
-			<spring:theme code="klarna.signin.userid" />
-			<spring:theme code="address.phone" />
-			<!-- address.surname address.firstName address.phone -->
-				<label class="control-label">User Id</label>
-				<form:input class="form-control signin-input" id="userId" type="text" path="${klarnaSigninResponse.userAccountProfile.userId}" disabled="disabled"/>
+				<label class="control-label"><spring:theme code="klarna.signin.userid" /></label>
+				<input class="form-control signin-input" id="userId" type="text" value="${klarnaSigninResponse.userAccountProfile.userId}" disabled="disabled"/>
 			</div>
 			
 			<div class="form-group display-flex">
-				<label class="control-label">First Name</label>
-				<form:input class="form-control signin-input" id="userId" type="text" path="${klarnaSigninResponse.userAccountProfile.givenName}" disabled="disabled"/>
+				<label class="control-label"><spring:theme code="address.firstName"/></label>
+				<input class="form-control signin-input" id="givenName" type="text" value="${klarnaSigninResponse.userAccountProfile.givenName}" disabled="disabled"/>
 			</div>
 			
 			<div class="form-group display-flex">
-				<label class="control-label">Last Name</label>
-				<form:input class="form-control signin-input" id="userId" type="text" path="${klarnaSigninResponse.userAccountProfile.familyName}" disabled="disabled"/>
+				<label class="control-label"><spring:theme code="address.surname"/></label>
+				<input class="form-control signin-input" id="familyName" type="text" value="${klarnaSigninResponse.userAccountProfile.familyName}" disabled="disabled"/>
 			</div>
 			
 			<div class="form-group display-flex">
-				<label class="control-label">Email</label>
-				<form:input class="form-control signin-input" id="userId" type="text" path="${klarnaSigninResponse.userAccountProfile.email}" disabled="disabled"/>
+				<label class="control-label"><spring:theme code="guest.email"/></label>
+				<input class="form-control signin-input" id="email" type="text" value="${klarnaSigninResponse.userAccountProfile.email}" disabled="disabled"/>
 			</div>
 			
 			<div class="form-group display-flex">
-				<label class="control-label">Phone</label>
-				<form:input class="form-control signin-input" id="userId" type="text" path="${klarnaSigninResponse.userAccountProfile.phone}" disabled="disabled"/>
+				<label class="control-label"><spring:theme code="address.phone" /></label>
+				<input class="form-control signin-input" id="phone" type="text" value="${klarnaSigninResponse.userAccountProfile.phone}" disabled="disabled"/>
 			</div>
+			
 			<c:if test="${profileStatus eq 'CREATE_AFTER_CONSENT' }">
-				<spring:url value="/klarna/signin/createNewCustomer" var="processSigninURL"/>
+				<spring:url value="/klarna/signin/create-customer" var="processSigninURL"/>
 				<div class="form-group">
-					<input id="mergeAccountsCheck" type="checkbox"/>
-					<label>Would you like to Create a New Account?</label>
+					<input id="klarnaSignInAutoMerge" type="checkbox"/>
+					<label><spring:theme code="klarna.signin.create.consent"/></label>
 				</div>
 				<div class="btn-ctr">
-					<button id="syncDetails" class="signin-submit not-allowed" type="button" disabled="disabled" onclick="syncData();" >
-					Register
+					<button id="klarnaSignInSubmit" class="signin-submit not-allowed" type="submit" disabled="disabled">
+					<spring:theme code="klarna.signin.register"/>
 					</button>
 				</div>
 			</c:if>
 			<c:if test="${profileStatus eq 'MERGE_AFTER_CONSENT' }">
-				<spring:url value="/klarna/signin/updateCustomer" var="processSigninURL"/>
+				<spring:url value="/klarna/signin/merge-account" var="processSigninURL"/>
 				<div class="form-group">
-					<input id="mergeAccountsCheck" type="checkbox"/>
-					<label>Would you like to Sync the details?</label>
+					<input id="klarnaSignInAutoMerge" type="checkbox"/>
+					<label><spring:theme code="klarna.signin.merge.consent"/></label>
 				</div>
-				<button id="syncDetails" class="signin-submit not-allowed" type="button" disabled="disabled" onclick="syncData();" >
-				Merge Accounts
+				<button id="klarnaSignInSubmit" class="signin-submit not-allowed" type="submit" disabled="disabled">
+				<spring:theme code="klarna.signin.merge"/>
 				</button>
 			</c:if>
 			
@@ -79,30 +81,18 @@
 </template:page>
 <script>
 window.onload = async function() {
-	var mergeAccountsCheck		= document.getElementById('mergeAccountsCheck');
-	mergeAccountsCheck.checked	= false;
-	var syncDetail				= document.getElementById('syncDetails');
-	mergeAccountsCheck.onchange = function() {
+  	var klarnaSignInAutoMerge		= document.getElementById('klarnaSignInAutoMerge');
+	klarnaSignInAutoMerge.checked	= false;
+	var klarnaSignInSubmit				= document.getElementById('klarnaSignInSubmit');
+	klarnaSignInAutoMerge.onchange = function() {
 		if(this.checked){
-			syncDetails.disabled = false;
-			syncDetails.classList.remove("not-allowed");
+			klarnaSignInSubmit.disabled = false;
+			klarnaSignInSubmit.classList.remove("not-allowed");
 		}else{
-			syncDetails.disabled = true;
-			syncDetails.classList.add("not-allowed");
+			klarnaSignInSubmit.disabled = true;
+			klarnaSignInSubmit.classList.add("not-allowed");
 		}
 	};
-}
-function syncData(){
-	let urlString 	= window.location.href;
-	let paramString = urlString.split('?')[1];
-	let queryString = new URLSearchParams(paramString);
-	for (let keyValue of queryString.entries()) {
-	   console.log("Key is: " + keyValue[0]);
-	   console.log("Value is: " + keyValue[1]);
-	   document.getElementById("profileStatus").value  = keyValue[1];
-	}
-	var syncAccountForm				= document.getElementById('syncAccountForm');
-	syncAccountForm.submit();
 }
 </script>
 <style>

@@ -42,12 +42,12 @@
 		</enumtype>
 		<enumtype code="KlarnaSigninDataScope" generate="true" autocreate="true" dynamic="false">
 			<description>This enumeration denotes the scope</description>
-			<value code="profile__name__read" />
-			<value code="profile__email__read" />
-			<value code="profile__phone__read" />
-			<value code="profile__billing_address__read" />
-			<value code="profile__national_id__read" />
-			<value code="profile__country__read" />
+			<value code="profile__name" />
+			<value code="profile__email" />
+			<value code="profile__phone" />
+			<value code="profile__billing_address" />
+			<value code="profile__national_id" />
+			<value code="profile__country" />
 			<value code="payments__create_session" />
 			<value code="openid" />
 			<value code="offline_access" />

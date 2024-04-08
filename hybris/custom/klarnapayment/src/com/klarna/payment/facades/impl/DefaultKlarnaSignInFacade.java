@@ -14,7 +14,6 @@ package com.klarna.payment.facades.impl;
 import de.hybris.platform.commercefacades.user.data.AddressData;
 import de.hybris.platform.commerceservices.customer.CustomerAccountService;
 import de.hybris.platform.commerceservices.strategies.CustomerNameStrategy;
-import de.hybris.platform.core.GenericSearchConstants.LOG;
 import de.hybris.platform.core.model.user.AddressModel;
 import de.hybris.platform.core.model.user.CustomerModel;
 import de.hybris.platform.core.model.user.UserGroupModel;
@@ -124,7 +123,7 @@ public class DefaultKlarnaSignInFacade implements KlarnaSignInFacade
 				}
 				else if (user instanceof CustomerModel)
 				{
-					CustomerModel customer = (CustomerModel) user;
+					final CustomerModel customer = (CustomerModel) user;
 					if (customer.getKlarnaCustomerProfile() == null && !isAutoMergeEnabled())
 					{
 						return KlarnaSigninProfileStatus.MERGE_AFTER_CONSENT;
@@ -181,7 +180,7 @@ public class DefaultKlarnaSignInFacade implements KlarnaSignInFacade
 	}
 
 	@Override
-	public void updateCustomer(CustomerModel customer, final KlarnaSigninUserAccountProfile klarnaSigninUserAccountProfile,
+	public void updateCustomer(final CustomerModel customer, final KlarnaSigninUserAccountProfile klarnaSigninUserAccountProfile,
 			final KlarnaSigninUserAccountLinking klarnaSigninUserAccountLinking)
 	{
 		try
@@ -197,7 +196,7 @@ public class DefaultKlarnaSignInFacade implements KlarnaSignInFacade
 				klarnaCustomerProfileReverseConverter.convert(klarnaSigninUserAccountProfile, klarnaCustomerProfileModel);
 				if (klarnaSigninUserAccountLinking != null)
 				{
-					//klarnaCustomerProfileModel.setRefreshToken(klarnaSigninUserAccountLinking.getUserAccountLinkingRefreshToken());
+					klarnaCustomerProfileModel.setRefreshToken(klarnaSigninUserAccountLinking.getUserAccountLinkingRefreshToken());
 				}
 				customer.setKlarnaCustomerProfile(klarnaCustomerProfileModel);
 				modelService.saveAll(klarnaCustomerProfileModel, customer);
@@ -209,8 +208,8 @@ public class DefaultKlarnaSignInFacade implements KlarnaSignInFacade
 		}
 	}
 
-	void updateCustomerName(KlarnaCustomerProfileModel klarnaCustomerProfileModel,
-			KlarnaSigninUserAccountProfile klarnaSigninUserAccountProfile, CustomerModel customer)
+	void updateCustomerName(final KlarnaCustomerProfileModel klarnaCustomerProfileModel,
+			final KlarnaSigninUserAccountProfile klarnaSigninUserAccountProfile, final CustomerModel customer)
 	{
 		// Modify account info in customer model only if the current value matches that of Klarna customer profile
 		// If it doesn't match, it means customer has created or updated account info within the site

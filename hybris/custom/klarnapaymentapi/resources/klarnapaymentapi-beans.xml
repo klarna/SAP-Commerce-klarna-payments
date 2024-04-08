@@ -1123,19 +1123,19 @@
     	<property name="email" type="String">
     			<annotations>@JsonProperty("email")</annotations>
     	</property>
-    	<property name="emailVerified" type="String">
+    	<property name="emailVerified" type="Boolean">
     			<annotations>@JsonProperty("email_verified")</annotations>
     	</property>
     	<property name="phone" type="String">
     			<annotations>@JsonProperty("phone")</annotations>
     	</property>
-    	<property name="phoneVerified" type="String">
+    	<property name="phoneVerified" type="Boolean">
     			<annotations>@JsonProperty("phone_verified")</annotations>
     	</property>
     	<property name="nationalId" type="String">
     			<annotations>@JsonProperty("national_id")</annotations>
     	</property>
-    	<property name="billingAddress" type="com.klarna.api.signin.model.KlarnaSigninBillingAddress">
+    	<property name="billingAddress" type="com.klarna.api.payments.model.PaymentsAddress">
     			<annotations>@JsonProperty("billing_address")</annotations>
     	</property>
 	</bean>
@@ -1147,28 +1147,6 @@
     	</property>
     	<property name="userAccountLinkingIdToken" type="String">
     			<annotations>@JsonProperty("user_account_linking_id_token")</annotations>
-    	</property>
-	</bean>
-	<bean class="com.klarna.api.signin.model.KlarnaSigninBillingAddress">
-		<import type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
-	    <import type="com.fasterxml.jackson.annotation.JsonProperty" />
-    	<property name="streetAddress" type="String">
-    	    	<annotations>@JsonProperty("street_address")</annotations>
-    	</property>
-    	<property name="streetAddress2" type="String">
-    			<annotations>@JsonProperty("street_address2")</annotations>
-    	</property>
-		<property name="postalCode" type="String">
-    	    	<annotations>@JsonProperty("postal_code")</annotations>
-    	</property>
-    	<property name="city" type="String">
-    			<annotations>@JsonProperty("city")</annotations>
-    	</property>
-    	<property name="region" type="String">
-    	    	<annotations>@JsonProperty("region")</annotations>
-    	</property>
-    	<property name="country" type="String">
-    			<annotations>@JsonProperty("country")</annotations>
     	</property>
 	</bean>
 	<bean class="com.klarna.api.signin.model.KlarnaSigninTokenRequest">

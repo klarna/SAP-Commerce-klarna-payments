@@ -1,5 +1,5 @@
 window.onload = async function() {
-
+	
 	var clientId			= $("#clientId").val();
 	var environment			= $("#environment").val();
 	var currentLocale		= $("#currentLocale").val();
@@ -16,54 +16,54 @@ window.onload = async function() {
 	var buttonTheme			= $("#buttonTheme").val();
 	var buttonShape			= $("#buttonShape").val();
 	var buttonLogoAlignment	= $("#buttonLogoAlignment").val();
+	var country 			= $("#country").val();
+	
+	//scopeData = "offline_access openid profile:name profile:email profile:phone profile:billing_address";
+	console.log("clientId "+clientId);
+	console.log("environment "+environment);
+	console.log("currentLocale "+currentLocale);
+	console.log("scopeData "+scopeData);
+	console.log("redirectUri "+redirectUri);
+	console.log("hideOverlay "+hideOverlay);
+	console.log("buttonTheme "+buttonTheme);
+	console.log("buttonShape "+buttonShape);
+	console.log("buttonLogoAlignment "+buttonLogoAlignment);
+	console.log("market "+country);
 	
 	const siwkButton = klarna.Identity.button({
-		scope:				"openid offline_access",
+		scope:				scopeData,
 		redirectUri:		redirectUri,
 		interactionMode:	"DEVICE_BEST",
 		hideOverlay:		hideOverlay,
 		shape:				buttonShape,
 		theme:				buttonTheme,
-		logoAlignment:		buttonLogoAlignment
+		logoAlignment:		buttonLogoAlignment,
+		market:				country
 	})
 	siwkButton.mount("#klarna-signin-container");
 
 	//klarna.Identity.handleRedirect();
-	var signInSuccess = false;
+	
 	klarna.Identity.on("signin", 
 		(data) => {
-		// implement logic
-		console.log("signin " + JSON.stringify(data));
-		window.location = ACC.config.encodedContextPath + data;
+		ACC.signin.initiateSignInResponse(data);
 		},
 		(error) =>{
-		console.log("signin " + JSON.stringify(error));
+		var message = $('#signinErrHidden').val();
+		ACC.signin.showErrorMessage(message);
+		console.log("signin error" + JSON.stringify(error));
 		});
-	if(!signInSuccess){
-		klarna.Identity.on("error", (data) => {
-		// implement logic
+		
+	klarna.Identity.on("error", (data) => {
+		var message = $('#signinErrHidden').val();
+		ACC.signin.showErrorMessage(message);
 		console.log("error " + JSON.stringify(data));
-		ACC.signin.initiateSignInResponse();
 		});
-	}
 };
 ACC.signin = {
-	initiateSignInResponse: function (){
-		console.log("initiateSignInResponse");
-		var initiateSignInResponseUrl = $("#initiateSignInResponseUrl").val();
-		var authResponse = {
-			"user_account_profile": 
-			{	"user_id": "aloshni2@tryzens.com"	,
-				"given_name": "Aloshni",
-				"family_name": "Kruba",
-				"email": "aloshni2@tryzens.com",
-				"phone": "9646962364"
-			},
-			"user_account_linking":
-			{	"user_account_linking_refresh_token": "2222222223333333",
-				"user_account_linking_id_token": "sssss33333333333333"
-			}
-		};
+	initiateSignInResponse: function (authResponse){
+	console.log("initiateSignInResponse"+authResponse);
+	var initiateSignInResponseUrl = $("#initiateSignInResponseUrl").val();
 		$.ajax(initiateSignInResponseUrl, {
 		        data: JSON.stringify(authResponse),
 		        dataType: "json",
@@ -71,7 +71,6 @@ ACC.signin = {
 		        type: "post"
 		}).done(function(data, textStatus, jqXHR) {
 		if(data != null){
-		//window.location = ACC.config.encodedContextPath + data;
 		console.log("Profile status "+data);
 			if(data=='CREATE_AFTER_CONSENT' || data=='MERGE_AFTER_CONSENT' ){
 				document.getElementById("profileStatus").value = data;
@@ -85,6 +84,16 @@ ACC.signin = {
 		console.log("Authorize reponse error:", JSON.stringify(error));
 		});
 	},
+	showErrorMessage: function(message) {
+		console.log(message);
+		ACC.colorbox.open(message,{
+	        html : $(document).find("#klarna-signin-err").html(),
+	        maxWidth:"100%",
+	        width:"420px",
+	        initialWidth :"420px",
+	        height:"300px"
+	  	});
+	},
 };
 ACC.signinConsent = {
 	showUserConsentPage:function(){
@@ -92,3 +101,5 @@ ACC.signinConsent = {
 		window.location = userConsentPageURL+"?profileStatus="+document.getElementById("profileStatus").value;
 	},
 };
+
+

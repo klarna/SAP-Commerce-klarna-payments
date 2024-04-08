@@ -11,12 +11,27 @@
  */
 package com.klarna.payment.converter.populator;
 
+import de.hybris.platform.commercefacades.user.data.AddressData;
 import de.hybris.platform.converters.Populator;
+import de.hybris.platform.core.model.user.AddressModel;
+import de.hybris.platform.core.model.user.CustomerModel;
 import de.hybris.platform.servicelayer.dto.converter.ConversionException;
+import de.hybris.platform.servicelayer.dto.converter.Converter;
+import de.hybris.platform.servicelayer.exceptions.ModelSavingException;
+import de.hybris.platform.servicelayer.i18n.CommonI18NService;
 import de.hybris.platform.servicelayer.model.ModelService;
+import de.hybris.platform.servicelayer.user.AddressService;
+import de.hybris.platform.servicelayer.user.UserService;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.annotation.Resource;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.log4j.Logger;
+
+import com.klarna.api.payments.model.PaymentsAddress;
 import com.klarna.api.signin.model.KlarnaSigninUserAccountProfile;
 import com.klarna.payment.model.KlarnaCustomerProfileModel;
 
@@ -27,39 +42,65 @@ import com.klarna.payment.model.KlarnaCustomerProfileModel;
 public class KlarnaCustomerProfileReversePopulator
 		implements Populator<KlarnaSigninUserAccountProfile, KlarnaCustomerProfileModel>
 {
-	//@Resource(name = "klarnaPaymentsAddressReverseConverter")
-	//private Converter klarnaPaymentsAddressReverseConverter;
+	public static Logger LOG = Logger.getLogger(KlarnaCustomerProfileReversePopulator.class);
+
+	@Resource(name = "klarnaPaymentsAddressReverseConverter")
+	private Converter<PaymentsAddress, AddressData> klarnaPaymentsAddressReverseConverter;
+
+	@Resource(name = "addressReverseConverter")
+	private Converter<AddressData, AddressModel> addressReverseConverter;
 
 	@Resource(name = "modelService")
 	private ModelService modelService;
+
+	@Resource(name = "userService")
+	private UserService userService;
+
+	@Resource(name = "addressService")
+	private AddressService addressService;
+
+	@Resource(name = "commonI18NService")
+	private CommonI18NService commonI18NService;
 
 	@Override
 	public void populate(final KlarnaSigninUserAccountProfile source, final KlarnaCustomerProfileModel target)
 			throws ConversionException
 	{
 		target.setEmail(source.getEmail());
+		target.setEmailVerified(source.getEmailVerified());
 		target.setFamilyName(source.getFamilyName());
 		target.setGivenName(source.getGivenName());
 		target.setPhone(source.getPhone());
-		//		target.setDateOfBirth(
-		//				KlarnaDateFormatterUtil.getFormattedDate(source.getDateOfBirth(), KlarnaDateFormatterUtil.DATE_FORMAT_YEAR_PATTERN));
-		//		target.setNationalIdentificationNumber(source.getNationalIdentificationNumber());
-		//		target.setNationalIdentificationNumberCountry(source.getNationalIdentificationNumberCountry());
-		//		target.setLocale(source.getLocale());
-		//		target.setEmailVerified(source.getEmailVerified());
-		//		target.setPhoneVerified(source.getPhoneVerified());
-		//		if (source.getBillingAddress() != null)
-		//		{
-		//			if (target.getBillingAddress() == null)
-		//			{
-		//				target.setBillingAddress(modelService.create(KlarnaCustomerProfileModel.class));
-		//			}
-		//			klarnaPaymentsAddressReverseConverter.convert(source.getBillingAddress(), target.getBillingAddress());
-		//		}
-		//		else
-		//		{
-		//			target.setBillingAddress(null);
-		//		}
+		target.setPhoneVerified(source.getPhoneVerified());
+		target.setNationalId(source.getNationalId());
+		if (source.getBillingAddress() != null)
+		{
+			try
+			{
+				final PaymentsAddress billingAddress = source.getBillingAddress();
+				final AddressData addressData = new AddressData();
+				klarnaPaymentsAddressReverseConverter.convert(billingAddress, addressData);
+
+				final CustomerModel customer = (CustomerModel) userService.getUserForUID(source.getEmail());
+				final List<AddressModel> customerAddressList = new ArrayList<AddressModel>();
+				if (CollectionUtils.isNotEmpty(customerAddressList))
+				{
+					customerAddressList.addAll(customer.getAddresses());
+				}
+				final AddressModel address = addressService.createAddressForOwner(customer);
+				address.setBillingAddress(Boolean.TRUE);
+
+				addressReverseConverter.convert(addressData, address);
+				modelService.save(address);
+			}
+			catch (final ModelSavingException mse)
+			{
+				LOG.error("Model saving Exception while creating billing adrress for " + target.getEmail() + " Error "
+						+ mse.getMessage());
+			}
+
+		}
+
 	}
 
 }
