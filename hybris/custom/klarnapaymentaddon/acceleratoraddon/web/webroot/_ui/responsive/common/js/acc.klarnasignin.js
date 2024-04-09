@@ -73,7 +73,6 @@ ACC.signin = {
 		if(data != null){
 		console.log("Profile status "+data);
 			if(data=='CREATE_AFTER_CONSENT' || data=='MERGE_AFTER_CONSENT' ){
-				document.getElementById("profileStatus").value = data;
 				ACC.signinConsent.showUserConsentPage(data);
 			}
 		}
@@ -96,9 +95,9 @@ ACC.signin = {
 	},
 };
 ACC.signinConsent = {
-	showUserConsentPage:function(){
+	showUserConsentPage:function(data){
 		var userConsentPageURL	=	$("#userConsentPageURL").val();
-		window.location = userConsentPageURL+"?profileStatus="+document.getElementById("profileStatus").value;
+		window.location = userConsentPageURL+"?profileStatus="+data;
 	},
 };
 
