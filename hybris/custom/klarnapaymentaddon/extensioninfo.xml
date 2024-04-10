@@ -21,6 +21,7 @@
 		<requires-extension name="acceleratorcms"/>
 		<requires-extension name="klarnapayment"/>
 		<requires-extension name="klarnapaymentapi"/>
+		<requires-extension name="commercefacades"/>
 		<coremodule generated="true" manager="com.klarnapayment.jalo.KlarnapaymentaddonManager" packageroot="com.klarnapayment"/>
 
 		

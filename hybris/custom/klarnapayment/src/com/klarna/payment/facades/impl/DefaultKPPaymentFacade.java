@@ -649,30 +649,32 @@ public class DefaultKPPaymentFacade implements KPPaymentFacade
 		final KlarnaSignInConfigData klarnaSignInConfigData = klarnaSignInFacade.getKlarnaSignInConfigData();
 
 		// TODO Check if Autologin is enabled
-		//if(klarnaSignInConfigData.getAutoLogin())
-
-		if (getUserService().getCurrentUser() != null && getUserService().getCurrentUser() instanceof CustomerModel)
+		if (klarnaSignInConfigData.getAutoLoginToKP() != null && klarnaSignInConfigData.getAutoLoginToKP().booleanValue())
 		{
-			final CustomerModel customerModel = (CustomerModel) getUserService().getCurrentUser();
-			if (customerModel.getKlarnaCustomerProfile() != null
-					&& customerModel.getKlarnaCustomerProfile().getRefreshToken() != null)
+
+			if (getUserService().getCurrentUser() != null && getUserService().getCurrentUser() instanceof CustomerModel)
 			{
-				// Klarna Sign In Customer. Get Access Token
-				try
+				final CustomerModel customerModel = (CustomerModel) getUserService().getCurrentUser();
+				if (customerModel.getKlarnaCustomerProfile() != null
+						&& customerModel.getKlarnaCustomerProfile().getRefreshToken() != null)
 				{
-					final KlarnaSigninTokenResponse klarnaSigninTokenResponse = getKlarnaSignInTokens(klarnaSignInConfigData,
-							customerModel.getKlarnaCustomerProfile().getRefreshToken());
-					customerModel.getKlarnaCustomerProfile().setRefreshToken(klarnaSigninTokenResponse.getRefreshToken());
-					getModelService().save(customerModel.getKlarnaCustomerProfile());
-					if (paymentsSession.getCustomer() == null)
+					// Klarna Sign In Customer. Get Access Token
+					try
 					{
-						paymentsSession.setCustomer(new PaymentsCustomer());
+						final KlarnaSigninTokenResponse klarnaSigninTokenResponse = getKlarnaSignInTokens(klarnaSignInConfigData,
+								customerModel.getKlarnaCustomerProfile().getRefreshToken());
+						customerModel.getKlarnaCustomerProfile().setRefreshToken(klarnaSigninTokenResponse.getRefreshToken());
+						getModelService().save(customerModel.getKlarnaCustomerProfile());
+						if (paymentsSession.getCustomer() == null)
+						{
+							paymentsSession.setCustomer(new PaymentsCustomer());
+						}
+						paymentsSession.getCustomer().setKlarnaAccessToken(klarnaSigninTokenResponse.getAccessToken());
 					}
-					paymentsSession.getCustomer().setKlarnaAccessToken(klarnaSigninTokenResponse.getAccessToken());
-				}
-				catch (final Exception e)
-				{
-					LOG.error("Exception getting access token for customer uid " + customerModel.getUid() + "... ", e);
+					catch (final Exception e)
+					{
+						LOG.error("Exception getting access token for customer uid " + customerModel.getUid() + "... ", e);
+					}
 				}
 			}
 		}
@@ -727,10 +729,12 @@ public class DefaultKPPaymentFacade implements KPPaymentFacade
 	{
 		LogHelper.debugLog(LOG, "Entering getKlarnaLoginEndpoint.. ");
 		final StringBuilder uriBuilder = new StringBuilder(StringUtils.EMPTY);
-		if(StringUtils.equalsIgnoreCase(klarnaSignInConfigData.getEnvironment(), KlarnaEnv.PRODUCTION.getCode())) {
+		if (StringUtils.equalsIgnoreCase(klarnaSignInConfigData.getEnvironment(), KlarnaEnv.PRODUCTION.getCode()))
+		{
 			uriBuilder.append(KLARNA_LOGIN_BASE_URL);
 		}
-		else {
+		else
+		{
 			uriBuilder.append(KLARNA_LOGIN_TEST_BASE_URL);
 		}
 		// TODO set region

@@ -11,6 +11,10 @@
  */
 package com.klarna.payment.facades.impl;
 
+//import de.hybris.platform.acceleratorstorefrontcommons.security.GUIDCookieStrategy;
+//import de.hybris.platform.acceleratorstorefrontcommons.strategy.CartRestorationStrategy;
+//import de.hybris.platform.commercefacades.consent.CustomerConsentDataStrategy;
+import de.hybris.platform.commercefacades.customer.CustomerFacade;
 import de.hybris.platform.commercefacades.user.data.AddressData;
 import de.hybris.platform.commerceservices.customer.CustomerAccountService;
 import de.hybris.platform.commerceservices.strategies.CustomerNameStrategy;
@@ -18,21 +22,36 @@ import de.hybris.platform.core.model.user.AddressModel;
 import de.hybris.platform.core.model.user.CustomerModel;
 import de.hybris.platform.core.model.user.UserGroupModel;
 import de.hybris.platform.core.model.user.UserModel;
+import de.hybris.platform.jalo.JaloSession;
+import de.hybris.platform.jalo.user.UserManager;
 import de.hybris.platform.order.CartService;
 import de.hybris.platform.servicelayer.dto.converter.Converter;
 import de.hybris.platform.servicelayer.exceptions.UnknownIdentifierException;
 import de.hybris.platform.servicelayer.i18n.CommonI18NService;
 import de.hybris.platform.servicelayer.model.ModelService;
+//import de.hybris.platform.servicelayer.security.spring.HybrisSessionFixationProtectionStrategy;
 import de.hybris.platform.servicelayer.user.UserService;
+import de.hybris.platform.site.BaseSiteService;
 import de.hybris.platform.store.BaseStoreModel;
 import de.hybris.platform.store.services.BaseStoreService;
 
+import java.util.Collections;
 import java.util.UUID;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+//import org.springframework.security.web.authentication.RememberMeServices;
+import org.springframework.security.web.authentication.WebAuthenticationDetails;
+//import org.springframework.web.util.CookieGenerator;
 
 import com.google.common.collect.Sets;
 import com.klarna.api.signin.model.KlarnaSigninResponse;
@@ -43,6 +62,7 @@ import com.klarna.payment.enums.KlarnaSigninProfileStatus;
 import com.klarna.payment.facades.KlarnaSignInFacade;
 import com.klarna.payment.model.KlarnaCustomerProfileModel;
 import com.klarna.payment.model.KlarnaSignInConfigModel;
+
 
 
 /**
@@ -79,6 +99,33 @@ public class DefaultKlarnaSignInFacade implements KlarnaSignInFacade
 
 	@Resource(name = "commonI18NService")
 	private CommonI18NService commonI18NService;
+
+	@Resource(name = "customerFacade")
+	private CustomerFacade customerFacade;
+
+	//	@Resource(name = "guidCookieStrategy")
+	//	private GUIDCookieStrategy guidCookieStrategy;
+
+	//	@Resource(name = "cartRestorationStrategy")
+	//	private CartRestorationStrategy cartRestorationStrategy;
+
+	//	@Resource(name = "rememberMeServices")
+	//	private RememberMeServices rememberMeServices;
+
+	@Resource(name = "baseSiteService")
+	private BaseSiteService baseSiteService;
+
+	//@Resource(name = "cookieGenerator")
+	//private CookieGenerator cookieGenerator;
+
+	//@Resource(name = "userDetailsService")
+	//private UserDetailsService userDetailsService;
+
+	//@Resource(name = "sessionFixationStrategy")
+	//private HybrisSessionFixationProtectionStrategy sessionFixationStrategy;
+
+	//@Resource(name = "customerConsentDataStrategy")
+	//private CustomerConsentDataStrategy customerConsentDataStrategy;
 
 	private static final Logger LOG = Logger.getLogger(DefaultKlarnaSignInFacade.class);
 
@@ -250,6 +297,40 @@ public class DefaultKlarnaSignInFacade implements KlarnaSignInFacade
 			redirectURI = signinConfig.getRedirectUri();
 		}
 		return redirectURI;
+	}
+
+	@Override
+	public boolean authenticateAndLogin(final String userName, final HttpServletRequest request,
+			final HttpServletResponse response)
+	{
+		final UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(userName, null);
+		final WebAuthenticationDetails webAuthenticationDetails = new WebAuthenticationDetails(request);
+		token.setDetails(webAuthenticationDetails);
+		try
+		{
+			//final UserDetails loadedUser = userDetailsService.loadUserByUsername(userName);
+			final GrantedAuthority customerAuthority = new SimpleGrantedAuthority("ROLE_" + CUSTOMER_GROUP);
+			final Authentication authentication = new UsernamePasswordAuthenticationToken(userName, null,
+					Collections.singletonList(customerAuthority));
+			SecurityContextHolder.getContext().setAuthentication(authentication);
+			JaloSession.getCurrentSession().setUser(UserManager.getInstance().getUserByLogin(userName));
+			customerFacade.loginSuccess();
+
+			// trigger cart restoration strategy
+			//cartRestorationStrategy.restoreCart(request);
+
+			//guidCookieStrategy.setCookie(request, response);
+			//rememberMeServices.loginSuccess(request, response, token);
+			//sessionFixationStrategy.onAuthentication(authentication, request, response);
+			//customerConsentDataStrategy.populateCustomerConsentDataInSession();
+			return true;
+		}
+		catch (final Exception e)
+		{
+			SecurityContextHolder.getContext().setAuthentication(null);
+			LOG.error("Failure during login", e);
+		}
+		return false;
 	}
 
 }

@@ -3,6 +3,12 @@
  */
 package com.klarnapayment.controllers.pages.signin;
 
+import de.hybris.platform.acceleratorstorefrontcommons.breadcrumb.ResourceBreadcrumbBuilder;
+import de.hybris.platform.acceleratorstorefrontcommons.constants.WebConstants;
+import de.hybris.platform.acceleratorstorefrontcommons.controllers.pages.AbstractPageController;
+import de.hybris.platform.acceleratorstorefrontcommons.controllers.util.GlobalMessages;
+import de.hybris.platform.acceleratorstorefrontcommons.security.GUIDCookieStrategy;
+import de.hybris.platform.acceleratorstorefrontcommons.strategy.CartRestorationStrategy;
 import de.hybris.platform.cms2.exceptions.CMSItemNotFoundException;
 import de.hybris.platform.cms2.model.pages.ContentPageModel;
 import de.hybris.platform.cms2.servicelayer.services.CMSPageService;
@@ -33,12 +39,6 @@ import com.klarna.payment.enums.KlarnaSigninProfileStatus;
 import com.klarna.payment.facades.KlarnaSignInFacade;
 import com.klarnapayment.controllers.KlarnapaymentaddonControllerConstants;
 
-import de.hybris.platform.acceleratorstorefrontcommons.controllers.pages.AbstractPageController;
-import de.hybris.platform.acceleratorstorefrontcommons.constants.WebConstants;
-import de.hybris.platform.acceleratorstorefrontcommons.breadcrumb.ResourceBreadcrumbBuilder;
-import de.hybris.platform.acceleratorstorefrontcommons.security.AutoLoginStrategy;
-import de.hybris.platform.acceleratorstorefrontcommons.controllers.util.GlobalMessages;
-
 
 /**
  * @author aloshni.kruba
@@ -66,47 +66,44 @@ public class KlarnaSigninController extends AbstractPageController
 	@Resource(name = "userService")
 	private UserService userService;
 
-	@Resource(name = "autoLoginStrategy")
-	private AutoLoginStrategy autoLoginStrategy;
+	@Resource(name = "guidCookieStrategy")
+	private GUIDCookieStrategy guidCookieStrategy;
+
+	@Resource(name = "cartRestorationStrategy")
+	private CartRestorationStrategy cartRestorationStrategy;
 
 	private static final String SIGN_IN_ERROR_MSG = "Login failed! Please check the Klarna user id or password is valid.";
 	private static final String KLARNA_SIGNIN_CONSENT_PAGE = "KlarnaSigninRegisterPage";
 	private static final String KLARNA_SIGNIN_REGISTER = "/klarna/signin/register";
+	private static final String REDIRECT_PREFIX = "redirect:";
 
 	@RequestMapping(value = "/initiate", method = RequestMethod.POST)
 	@ResponseBody
 	public String initiateSignIn(@RequestBody
 	final KlarnaSigninResponse klarnaSigninResponse, final HttpSession httpSession, final HttpServletRequest request,
-			final HttpServletResponse response, final Model model)
+			final HttpServletResponse response, final Model model, final RedirectAttributes redirectAttr)
 	{
 		StringBuffer requestUrl = request.getRequestURL();
-		String regHeader = request.getHeader("Referer");
-		sessionService.setAttribute("signInRefererPage", regHeader);
+		String prevPage = request.getHeader("Referer");
+		sessionService.setAttribute("signInRefererPage", prevPage);
 		sessionService.setAttribute("klarnaSigninResponse", klarnaSigninResponse);
 		KlarnaSigninProfileStatus profileStatus = KlarnaSigninProfileStatus.LOGIN_FAILED;
 		if (klarnaSigninResponse != null)
 		{
+			String redirectURL = "";
 			profileStatus = klarnaSignInFacade.checkAndUpdateProfile(klarnaSigninResponse);
 			if (profileStatus.equals(KlarnaSigninProfileStatus.ACCOUNT_UPDATED)
 					&& klarnaSigninResponse.getUserAccountProfile() != null)
 			{
-				// login the user
-				try
-				{
-					autoLoginStrategy.login(klarnaSigninResponse.getUserAccountProfile().getUserId(), "", request, response);
-				}
-				catch (Exception e)
-				{
-					LOG.error("Error while logging in user " + klarnaSigninResponse.getUserAccountProfile().getUserId());
-				}
-				try
-				{
-					userService.setCurrentUser(userService.getUserForUID(klarnaSigninResponse.getUserAccountProfile().getUserId()));
-				}
-				catch (Exception e)
-				{
-					LOG.error("Error while setting CurrentUser " + klarnaSigninResponse.getUserAccountProfile().getUserId());
-				}
+				redirectURL = authenticateAndLogin(klarnaSigninResponse.getUserAccountProfile().getEmail(), request, response,
+						redirectAttr, prevPage);
+				return redirectURL;
+			}
+			else if (profileStatus.equals(KlarnaSigninProfileStatus.LOGIN_FAILED))
+			{
+				redirectURL = getRedirectURlOnError(prevPage);
+				GlobalMessages.addFlashMessage(redirectAttr, GlobalMessages.ERROR_MESSAGES_HOLDER, "klarna.signin.error");
+				return redirectURL;
 			}
 		}
 		return profileStatus.getValue();
@@ -143,33 +140,28 @@ public class KlarnaSigninController extends AbstractPageController
 	KlarnaSigninResponse klarnaSigninResponse, final Model model, final HttpServletRequest request,
 			final HttpServletResponse response, final RedirectAttributes redirectAttr)
 	{
-		String prevPage = "";
-		LOG.info("klarnaSigninResponse " + klarnaSigninResponse);
+		String prevPage = sessionService.getAttribute("signInRefererPage");
+		String reqMapping = "";
+		LOG.info(" createCustomer - klarnaSigninResponse " + klarnaSigninResponse);
+		LOG.info(" createCustomer - signInRefererPage " + prevPage);
+
 		klarnaSigninResponse = (KlarnaSigninResponse) sessionService.getAttribute("klarnaSigninResponse");
 		try
 		{
 			klarnaSignInFacade.createNewCustomer(klarnaSigninResponse);
 			GlobalMessages.addFlashMessage(redirectAttr, GlobalMessages.INFO_MESSAGES_HOLDER,
 					"klarna.signin.create.customer.success");
+			reqMapping = authenticateAndLogin(klarnaSigninResponse.getUserAccountProfile().getEmail(), request, response,
+					redirectAttr, prevPage);
 		}
 		catch (Exception e)
 		{
 			LOG.error(e);
+			reqMapping = getRedirectURlOnError(prevPage);
 			GlobalMessages.addFlashMessage(redirectAttr, GlobalMessages.ERROR_MESSAGES_HOLDER,
 					"klarna.signin.create.customer.failure");
 		}
-		prevPage = sessionService.getAttribute("signInRefererPage");
-		LOG.info("signInRefererPage " + prevPage);
-		String redirectURL = "redirect:" + prevPage;
-		if (StringUtils.isNotEmpty(prevPage) && (prevPage.contains("/login/") || prevPage.endsWith("/login")))
-		{
-			redirectURL = "redirect:" + "/";
-		}
-		else if (StringUtils.isNotEmpty(prevPage) && (prevPage.contains("/checkout/") || prevPage.endsWith("/checkout")))
-		{
-			redirectURL = "redirect:" + "/checkout";
-		}
-		return redirectURL;
+		return REDIRECT_PREFIX + reqMapping;
 	}
 
 	@RequestMapping(value = "/merge-account", method = RequestMethod.POST)
@@ -177,8 +169,10 @@ public class KlarnaSigninController extends AbstractPageController
 	KlarnaSigninResponse klarnaSigninResponse, final Model model, final HttpServletRequest request,
 			final HttpServletResponse response, final RedirectAttributes redirectAttr)
 	{
-		String prevPage = "";
-		LOG.info("klarnaSigninResponse " + klarnaSigninResponse);
+		String prevPage = sessionService.getAttribute("signInRefererPage");
+		String reqMapping = "";
+		LOG.info(" mergeAccount - klarnaSigninResponse " + klarnaSigninResponse);
+		LOG.info(" mergeAccount - signInRefererPage " + prevPage);
 
 		klarnaSigninResponse = (KlarnaSigninResponse) sessionService.getAttribute("klarnaSigninResponse");
 		if (klarnaSigninResponse != null && klarnaSigninResponse.getUserAccountProfile() != null
@@ -190,30 +184,100 @@ public class KlarnaSigninController extends AbstractPageController
 						.getUserForUID(klarnaSigninResponse.getUserAccountProfile().getEmail());
 				klarnaSignInFacade.updateCustomer(customer, klarnaSigninResponse.getUserAccountProfile(),
 						klarnaSigninResponse.getUserAccountLinking());
-				prevPage = sessionService.getCurrentSession().getAttribute("signInRefererPage");
 				GlobalMessages.addFlashMessage(redirectAttr, GlobalMessages.INFO_MESSAGES_HOLDER,
 						"klarna.signin.merge.account.success");
+				reqMapping = authenticateAndLogin(klarnaSigninResponse.getUserAccountProfile().getEmail(), request, response,
+						redirectAttr, prevPage);
 			}
 			catch (Exception e)
 			{
 				LOG.error(e);
+				reqMapping = getRedirectURlOnError(prevPage);
 				GlobalMessages.addFlashMessage(redirectAttr, GlobalMessages.ERROR_MESSAGES_HOLDER,
 						"klarna.signin.merge.account.failure");
 			}
 		}
+		return REDIRECT_PREFIX + reqMapping;
+	}
 
-		prevPage = sessionService.getAttribute("signInRefererPage");
-		LOG.info("signInRefererPage " + prevPage);
-		String redirectURL = "redirect:" + prevPage;
-		if (StringUtils.isNotEmpty(prevPage) && (prevPage.contains("/login/") || prevPage.endsWith("/login")))
+	String authenticateAndLogin(final String emailId, final HttpServletRequest request, final HttpServletResponse response,
+			final RedirectAttributes redirectAttr, final String prevPage)
+	{
+		String redirectURL = "";
+		boolean loginSuccessful = true;
+		// login the user
+		try
 		{
-			redirectURL = "redirect:" + "/";
+			klarnaSignInFacade.authenticateAndLogin(emailId, request, response);
 		}
-		else if (StringUtils.isNotEmpty(prevPage) && (prevPage.contains("/checkout/") || prevPage.endsWith("/checkout")))
+		catch (Exception e)
 		{
-			redirectURL = "redirect:" + "/checkout";
+			LOG.error("Error while logging in user " + emailId);
+			loginSuccessful = false;
+		}
+
+		// restore the cart
+		try
+		{
+			cartRestorationStrategy.restoreCart(request);
+		}
+		catch (Exception e)
+		{
+			LOG.error("Error while restoreCart for user " + emailId);
+			loginSuccessful = false;
+		}
+
+		// set GUID
+		try
+		{
+			guidCookieStrategy.setCookie(request, response);
+		}
+		catch (Exception e)
+		{
+			LOG.error("Error while setCookie for user " + emailId);
+			loginSuccessful = false;
+		}
+
+		try
+		{
+			userService.setCurrentUser(userService.getUserForUID(emailId));
+		}
+		catch (Exception e)
+		{
+			LOG.error("Error while setting CurrentUser " + emailId);
+			loginSuccessful = false;
+		}
+		if (loginSuccessful)
+		{
+			if (StringUtils.isNotEmpty(prevPage) && (prevPage.contains("/login/") || prevPage.endsWith("/login")))
+			{
+				redirectURL = "/";
+			}
+			else if (StringUtils.isNotEmpty(prevPage) && (prevPage.contains("/checkout/") || prevPage.endsWith("/checkout")))
+			{
+				redirectURL = "/checkout";
+			}
+			GlobalMessages.addFlashMessage(redirectAttr, GlobalMessages.INFO_MESSAGES_HOLDER, "klarna.signin.success");
+		}
+		else
+		{
+			redirectURL = getRedirectURlOnError(prevPage);
+			GlobalMessages.addFlashMessage(redirectAttr, GlobalMessages.ERROR_MESSAGES_HOLDER, "klarna.signin.failure");
 		}
 		return redirectURL;
 	}
 
+	String getRedirectURlOnError(final String prevPage)
+	{
+		String redirectURL = "";
+		if (StringUtils.isNotEmpty(prevPage) && (prevPage.contains("/login/") || prevPage.endsWith("/login")))
+		{
+			redirectURL = "/login";
+		}
+		else if (StringUtils.isNotEmpty(prevPage) && (prevPage.contains("/checkout/") || prevPage.endsWith("/checkout")))
+		{
+			redirectURL = "/checkout/login";
+		}
+		return redirectURL;
+	}
 }

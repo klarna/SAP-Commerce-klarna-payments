@@ -373,11 +373,13 @@
 	                <editorArea:attribute qualifier="scriptUrl"/>
 	                <editorArea:attribute qualifier="country"/>
 	                <editorArea:attribute qualifier="scopeData"/>
-	            </editorArea:section>
-	            <editorArea:section name="klarna.sub">
 	                <editorArea:attribute qualifier="autoMergeAccounts"/>
 	                <editorArea:attribute qualifier="redirectUri"/>
 	                <editorArea:attribute qualifier="hideOverlay"/>
+	                <editorArea:attribute qualifier="autoLoginToKP"/>
+	            </editorArea:section>
+	            <editorArea:section name="klarna.sub">
+	                
 	                <editorArea:attribute qualifier="buttonTheme"/>
 	                <editorArea:attribute qualifier="buttonShape"/>
 	                <editorArea:attribute qualifier="buttonLogoAlignment"/>
@@ -400,6 +402,10 @@
 	                    <wz:property qualifier="scriptUrl" type="java.lang.String"/>
 	                    <wz:property qualifier="country"/>
 	                    <wz:property qualifier="scopeData"/>
+	                    <wz:property qualifier="redirectUri" type="java.lang.String"/>
+	                    <wz:property qualifier="hideOverlay"/>
+	                    <wz:property qualifier="autoLoginToKP" type="java.lang.Boolean"/>
+	                    <wz:property qualifier="autoMergeAccounts" type="java.lang.Boolean"/>
 	                </wz:property-list>
 	            </wz:content>
 	            <wz:navigation id="step1.navigation">
@@ -412,8 +418,6 @@
 			<wz:step id="step2" label="create.klarnasigninconfig.subinfo.label" sublabel="create.klarnasigninconfig.subinfo.sublabel">
 	            <wz:content id="step2.content">
 	                <wz:property-list root="newKlarnaSignInConfig">
-	                    <wz:property qualifier="redirectUri" type="java.lang.String"/>
-	                    <wz:property qualifier="hideOverlay"/>
 	                    <wz:property qualifier="buttonTheme"/>
 	                    <wz:property qualifier="buttonShape"/>
 	                    <wz:property qualifier="buttonLogoAlignment"/>

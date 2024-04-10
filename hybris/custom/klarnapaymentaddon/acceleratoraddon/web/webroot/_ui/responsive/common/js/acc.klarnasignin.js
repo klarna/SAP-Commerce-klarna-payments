@@ -75,6 +75,9 @@ ACC.signin = {
 			if(data=='CREATE_AFTER_CONSENT' || data=='MERGE_AFTER_CONSENT' ){
 				ACC.signinConsent.showUserConsentPage(data);
 			}
+			else{
+				window.location = ACC.config.encodedContextPath + data;
+			}
 		}
 		else{
 			console.log(" no data ",data);

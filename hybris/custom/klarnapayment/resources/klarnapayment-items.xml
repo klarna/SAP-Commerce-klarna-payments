@@ -765,6 +765,12 @@
 						<modifiers write="true" read="true" />
 						<persistence type="property" />
 					</attribute>
+					<attribute qualifier="autoLoginToKP" type="java.lang.Boolean">
+						<defaultvalue>Boolean.TRUE</defaultvalue>
+						<description>Auto Login to Klarna Payment </description>
+						<modifiers write="true" read="true" />
+						<persistence type="property" />
+					</attribute>
 					<attribute qualifier="clientId" type="java.lang.String">
 						<description>Merchant ID or Client ID</description>
 						<modifiers write="true" read="true" optional="false" initial="true" />

@@ -115,6 +115,7 @@
 		<property name="code" type="String"/>
 		<property name="active" type="Boolean"/>
 		<property name="autoMergeAccounts" type="Boolean"/>
+		<property name="autoLoginToKP" type="Boolean"/>
 		<property name="clientId" type="String"/>
 		<property name="environment" type="String"/>
 		<property name="scriptUrl" type="String"/>

@@ -13,6 +13,9 @@ package com.klarna.payment.facades;
 
 import de.hybris.platform.core.model.user.CustomerModel;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import com.klarna.api.signin.model.KlarnaSigninResponse;
 import com.klarna.api.signin.model.KlarnaSigninUserAccountLinking;
 import com.klarna.api.signin.model.KlarnaSigninUserAccountProfile;
@@ -37,4 +40,6 @@ public interface KlarnaSignInFacade
 
 	void updateCustomer(CustomerModel customer, final KlarnaSigninUserAccountProfile klarnaSigninUserAccountProfile,
 			final KlarnaSigninUserAccountLinking klarnaSigninUserAccountLinking);
+
+	boolean authenticateAndLogin(String userName, HttpServletRequest request, HttpServletResponse response);
 }

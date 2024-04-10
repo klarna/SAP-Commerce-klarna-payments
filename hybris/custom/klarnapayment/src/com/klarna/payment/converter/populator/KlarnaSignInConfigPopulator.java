@@ -38,6 +38,7 @@ public class KlarnaSignInConfigPopulator implements Populator<KlarnaSignInConfig
 		target.setCode(source.getCode());
 		target.setActive(source.getActive());
 		target.setAutoMergeAccounts(source.getAutoMergeAccounts());
+		target.setAutoLoginToKP(source.getAutoLoginToKP());
 
 		target.setClientId(source.getClientId());
 		target.setEnvironment(source.getEnvironment().getCode());
