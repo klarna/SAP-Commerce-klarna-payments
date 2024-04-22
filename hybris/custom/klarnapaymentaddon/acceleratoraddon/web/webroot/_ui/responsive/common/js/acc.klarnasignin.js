@@ -69,18 +69,13 @@ ACC.signin = {
 		        dataType: "json",
 				contentType: 'application/json',
 		        type: "post"
-		}).done(function(data, textStatus, jqXHR) {
-		if(data != null){
-		console.log("Profile status "+data);
-			if(data=='CREATE_AFTER_CONSENT' || data=='MERGE_AFTER_CONSENT' ){
-				ACC.signinConsent.showUserConsentPage(data);
-			}
-			else{
-				window.location = ACC.config.encodedContextPath + data;
-			}
+		}).done(function(url) {
+		if(url != null){
+		//alert("redirecting now  "+url);
+		ACC.signinInitiate.loginRedirect(url);
 		}
 		else{
-			console.log(" no data ",data);
+			console.log(" no data ",url);
 		} 
 		}).fail(function (error) {
 		console.log("Authorize reponse error:", JSON.stringify(error));
@@ -97,11 +92,8 @@ ACC.signin = {
 	  	});
 	},
 };
-ACC.signinConsent = {
-	showUserConsentPage:function(data){
-		var userConsentPageURL	=	$("#userConsentPageURL").val();
-		window.location = userConsentPageURL+"?profileStatus="+data;
+ACC.signinInitiate = {
+	loginRedirect:function(data){
+			window.location = ACC.config.encodedContextPath + data;
 	},
 };
-
-

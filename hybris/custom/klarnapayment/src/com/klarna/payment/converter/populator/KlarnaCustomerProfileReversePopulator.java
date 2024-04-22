@@ -23,12 +23,8 @@ import de.hybris.platform.servicelayer.model.ModelService;
 import de.hybris.platform.servicelayer.user.AddressService;
 import de.hybris.platform.servicelayer.user.UserService;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.annotation.Resource;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.log4j.Logger;
 
 import com.klarna.api.payments.model.PaymentsAddress;
@@ -79,19 +75,27 @@ public class KlarnaCustomerProfileReversePopulator
 			{
 				final PaymentsAddress billingAddress = source.getBillingAddress();
 				final AddressData addressData = new AddressData();
+				// Converting the JSON response to addressData
 				klarnaPaymentsAddressReverseConverter.convert(billingAddress, addressData);
-
 				final CustomerModel customer = (CustomerModel) userService.getUserForUID(source.getEmail());
-				final List<AddressModel> customerAddressList = new ArrayList<AddressModel>();
-				if (CollectionUtils.isNotEmpty(customerAddressList))
+				AddressModel addressModel = null;
+				// updating address for the first time
+				if (target.getBillingAddress() == null)
 				{
-					customerAddressList.addAll(customer.getAddresses());
+					addressModel = addressService.createAddressForOwner(customer);
+					addressModel.setBillingAddress(Boolean.TRUE);
 				}
-				final AddressModel address = addressService.createAddressForOwner(customer);
-				address.setBillingAddress(Boolean.TRUE);
-
-				addressReverseConverter.convert(addressData, address);
-				modelService.save(address);
+				// address already linked
+				else
+				{
+					addressModel = target.getBillingAddress();
+				}
+				// Reverse converting Address Data to Address Model
+				addressReverseConverter.convert(addressData, addressModel);
+				modelService.save(addressModel);
+				// Setting the Address to Klarna Customer Profile
+				target.setBillingAddress(addressModel);
+				modelService.save(target);
 			}
 			catch (final ModelSavingException mse)
 			{

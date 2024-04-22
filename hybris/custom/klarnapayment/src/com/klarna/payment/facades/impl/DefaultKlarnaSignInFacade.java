@@ -22,8 +22,6 @@ import de.hybris.platform.core.model.user.AddressModel;
 import de.hybris.platform.core.model.user.CustomerModel;
 import de.hybris.platform.core.model.user.UserGroupModel;
 import de.hybris.platform.core.model.user.UserModel;
-import de.hybris.platform.jalo.JaloSession;
-import de.hybris.platform.jalo.user.UserManager;
 import de.hybris.platform.order.CartService;
 import de.hybris.platform.servicelayer.dto.converter.Converter;
 import de.hybris.platform.servicelayer.exceptions.UnknownIdentifierException;
@@ -35,23 +33,12 @@ import de.hybris.platform.site.BaseSiteService;
 import de.hybris.platform.store.BaseStoreModel;
 import de.hybris.platform.store.services.BaseStoreService;
 
-import java.util.Collections;
 import java.util.UUID;
 
 import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
-//import org.springframework.security.web.authentication.RememberMeServices;
-import org.springframework.security.web.authentication.WebAuthenticationDetails;
-//import org.springframework.web.util.CookieGenerator;
 
 import com.google.common.collect.Sets;
 import com.klarna.api.signin.model.KlarnaSigninResponse;
@@ -240,13 +227,16 @@ public class DefaultKlarnaSignInFacade implements KlarnaSignInFacade
 					klarnaCustomerProfileModel = modelService.create(KlarnaCustomerProfileModel.class);
 				}
 				updateCustomerName(klarnaCustomerProfileModel, klarnaSigninUserAccountProfile, customer);
+
 				klarnaCustomerProfileReverseConverter.convert(klarnaSigninUserAccountProfile, klarnaCustomerProfileModel);
 				if (klarnaSigninUserAccountLinking != null)
 				{
 					klarnaCustomerProfileModel.setRefreshToken(klarnaSigninUserAccountLinking.getUserAccountLinkingRefreshToken());
 				}
+				modelService.save(klarnaCustomerProfileModel);
 				customer.setKlarnaCustomerProfile(klarnaCustomerProfileModel);
-				modelService.saveAll(klarnaCustomerProfileModel, customer);
+				customer.setDefaultPaymentAddress(klarnaCustomerProfileModel.getBillingAddress());
+				modelService.save(customer);
 			}
 		}
 		catch (final Exception e)
@@ -297,40 +287,6 @@ public class DefaultKlarnaSignInFacade implements KlarnaSignInFacade
 			redirectURI = signinConfig.getRedirectUri();
 		}
 		return redirectURI;
-	}
-
-	@Override
-	public boolean authenticateAndLogin(final String userName, final HttpServletRequest request,
-			final HttpServletResponse response)
-	{
-		final UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(userName, null);
-		final WebAuthenticationDetails webAuthenticationDetails = new WebAuthenticationDetails(request);
-		token.setDetails(webAuthenticationDetails);
-		try
-		{
-			//final UserDetails loadedUser = userDetailsService.loadUserByUsername(userName);
-			final GrantedAuthority customerAuthority = new SimpleGrantedAuthority("ROLE_" + CUSTOMER_GROUP);
-			final Authentication authentication = new UsernamePasswordAuthenticationToken(userName, null,
-					Collections.singletonList(customerAuthority));
-			SecurityContextHolder.getContext().setAuthentication(authentication);
-			JaloSession.getCurrentSession().setUser(UserManager.getInstance().getUserByLogin(userName));
-			customerFacade.loginSuccess();
-
-			// trigger cart restoration strategy
-			//cartRestorationStrategy.restoreCart(request);
-
-			//guidCookieStrategy.setCookie(request, response);
-			//rememberMeServices.loginSuccess(request, response, token);
-			//sessionFixationStrategy.onAuthentication(authentication, request, response);
-			//customerConsentDataStrategy.populateCustomerConsentDataInSession();
-			return true;
-		}
-		catch (final Exception e)
-		{
-			SecurityContextHolder.getContext().setAuthentication(null);
-			LOG.error("Failure during login", e);
-		}
-		return false;
 	}
 
 }

@@ -55,7 +55,7 @@
 			
 			<c:if test="${profileStatus eq 'CREATE_AFTER_CONSENT' }">
 				<spring:url value="/klarna/signin/create-customer" var="processSigninURL"/>
-				<div class="form-group">
+				<div class="form-group display-flex-plain">
 					<input id="klarnaSignInAutoMerge" type="checkbox"/>
 					<label><spring:theme code="klarna.signin.create.consent"/></label>
 				</div>
@@ -67,13 +67,15 @@
 			</c:if>
 			<c:if test="${profileStatus eq 'MERGE_AFTER_CONSENT' }">
 				<spring:url value="/klarna/signin/merge-account" var="processSigninURL"/>
-				<div class="form-group">
+				<div class="form-group display-flex-plain">
 					<input id="klarnaSignInAutoMerge" type="checkbox"/>
 					<label><spring:theme code="klarna.signin.merge.consent"/></label>
 				</div>
-				<button id="klarnaSignInSubmit" class="signin-submit not-allowed" type="submit" disabled="disabled">
-				<spring:theme code="klarna.signin.merge"/>
-				</button>
+				<div class="btn-ctr">
+					<button id="klarnaSignInSubmit" class="signin-submit not-allowed" type="submit" disabled="disabled">
+					<spring:theme code="klarna.signin.merge"/>
+					</button>
+				</div>
 			</c:if>
 			
 		</div>
@@ -98,7 +100,7 @@ window.onload = async function() {
 <style>
 .signin-input{width:100%;padding:12px 20px;margin:8px 0;display:inline-block;
 border:1px solid #ccc;box-sizing:border-box;}
-.signin-submit{width:50%;background-color:#47b6b1;color:white;padding:14px 20px;
+.signin-submit{background-color:#47b6b1;color:white;padding:14px 20px;
 margin:8px 0;border:none;cursor:pointer;}
 .signin-container{padding:20px 0 0 32px;margin:auto;width:50%;}
 .signin-table-50{width:50%;margin-left:auto;margin-right:auto;}
@@ -106,4 +108,5 @@ margin:8px 0;border:none;cursor:pointer;}
 .not-allowed{cursor:not-allowed !important;}
 .btn-ctr{display:flex;justify-content:center;align-items:center;}
 .display-flex{display:flex;flex-direction:column;}
+.display-flex-plain{display:flex;}
 </style>

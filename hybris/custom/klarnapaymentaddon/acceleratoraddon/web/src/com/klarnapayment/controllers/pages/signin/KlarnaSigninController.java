@@ -38,6 +38,7 @@ import com.klarna.api.signin.model.KlarnaSigninResponse;
 import com.klarna.payment.enums.KlarnaSigninProfileStatus;
 import com.klarna.payment.facades.KlarnaSignInFacade;
 import com.klarnapayment.controllers.KlarnapaymentaddonControllerConstants;
+import com.klarnapayment.strategy.impl.DefaultKlarnaSignInLoginStrategy;
 
 
 /**
@@ -72,10 +73,17 @@ public class KlarnaSigninController extends AbstractPageController
 	@Resource(name = "cartRestorationStrategy")
 	private CartRestorationStrategy cartRestorationStrategy;
 
+	@Resource(name = "klarnaAutoLoginStrategy")
+	private DefaultKlarnaSignInLoginStrategy klarnaAutoLoginStrategy;
+
 	private static final String SIGN_IN_ERROR_MSG = "Login failed! Please check the Klarna user id or password is valid.";
 	private static final String KLARNA_SIGNIN_CONSENT_PAGE = "KlarnaSigninRegisterPage";
-	private static final String KLARNA_SIGNIN_REGISTER = "/klarna/signin/register";
-	private static final String REDIRECT_PREFIX = "redirect:";
+	private static final String KLARNA_SIGNIN_CONSENT_URL = "/klarna/signin/consent";
+	private static final String REQ_PARAM_PROFILE_STATUS = "?profileStatus=";
+	private static final String LOGIN_URL = "/login";
+	private static final String CHECKOUT_URL = "/checkout/multi/delivery-address/add";
+	private static final String CHECKOUT_LOGIN_URL = "/checkout/login";
+	private static final String FORWARD_SLASH = "/";
 
 	@RequestMapping(value = "/initiate", method = RequestMethod.POST)
 	@ResponseBody
@@ -105,8 +113,12 @@ public class KlarnaSigninController extends AbstractPageController
 				GlobalMessages.addFlashMessage(redirectAttr, GlobalMessages.ERROR_MESSAGES_HOLDER, "klarna.signin.error");
 				return redirectURL;
 			}
+			else
+			{
+				return KLARNA_SIGNIN_CONSENT_URL + REQ_PARAM_PROFILE_STATUS + profileStatus;
+			}
 		}
-		return profileStatus.getValue();
+		return LOGIN_URL;
 	}
 
 	@RequestMapping(value = "/consent", method = RequestMethod.GET)
@@ -141,7 +153,7 @@ public class KlarnaSigninController extends AbstractPageController
 			final HttpServletResponse response, final RedirectAttributes redirectAttr)
 	{
 		String prevPage = sessionService.getAttribute("signInRefererPage");
-		String reqMapping = "";
+		String reqMapping = LOGIN_URL;
 		LOG.info(" createCustomer - klarnaSigninResponse " + klarnaSigninResponse);
 		LOG.info(" createCustomer - signInRefererPage " + prevPage);
 
@@ -151,8 +163,6 @@ public class KlarnaSigninController extends AbstractPageController
 			klarnaSignInFacade.createNewCustomer(klarnaSigninResponse);
 			GlobalMessages.addFlashMessage(redirectAttr, GlobalMessages.INFO_MESSAGES_HOLDER,
 					"klarna.signin.create.customer.success");
-			reqMapping = authenticateAndLogin(klarnaSigninResponse.getUserAccountProfile().getEmail(), request, response,
-					redirectAttr, prevPage);
 		}
 		catch (Exception e)
 		{
@@ -170,7 +180,7 @@ public class KlarnaSigninController extends AbstractPageController
 			final HttpServletResponse response, final RedirectAttributes redirectAttr)
 	{
 		String prevPage = sessionService.getAttribute("signInRefererPage");
-		String reqMapping = "";
+		String reqMapping = LOGIN_URL;
 		LOG.info(" mergeAccount - klarnaSigninResponse " + klarnaSigninResponse);
 		LOG.info(" mergeAccount - signInRefererPage " + prevPage);
 
@@ -186,8 +196,6 @@ public class KlarnaSigninController extends AbstractPageController
 						klarnaSigninResponse.getUserAccountLinking());
 				GlobalMessages.addFlashMessage(redirectAttr, GlobalMessages.INFO_MESSAGES_HOLDER,
 						"klarna.signin.merge.account.success");
-				reqMapping = authenticateAndLogin(klarnaSigninResponse.getUserAccountProfile().getEmail(), request, response,
-						redirectAttr, prevPage);
 			}
 			catch (Exception e)
 			{
@@ -208,54 +216,22 @@ public class KlarnaSigninController extends AbstractPageController
 		// login the user
 		try
 		{
-			klarnaSignInFacade.authenticateAndLogin(emailId, request, response);
+			klarnaAutoLoginStrategy.login(emailId, null, request, response);
 		}
 		catch (Exception e)
 		{
-			LOG.error("Error while logging in user " + emailId);
-			loginSuccessful = false;
-		}
-
-		// restore the cart
-		try
-		{
-			cartRestorationStrategy.restoreCart(request);
-		}
-		catch (Exception e)
-		{
-			LOG.error("Error while restoreCart for user " + emailId);
-			loginSuccessful = false;
-		}
-
-		// set GUID
-		try
-		{
-			guidCookieStrategy.setCookie(request, response);
-		}
-		catch (Exception e)
-		{
-			LOG.error("Error while setCookie for user " + emailId);
-			loginSuccessful = false;
-		}
-
-		try
-		{
-			userService.setCurrentUser(userService.getUserForUID(emailId));
-		}
-		catch (Exception e)
-		{
-			LOG.error("Error while setting CurrentUser " + emailId);
+			LOG.error("Error while loggin in the USER " + emailId + e.getMessage(), e);
 			loginSuccessful = false;
 		}
 		if (loginSuccessful)
 		{
-			if (StringUtils.isNotEmpty(prevPage) && (prevPage.contains("/login/") || prevPage.endsWith("/login")))
+			if (StringUtils.isNotEmpty(prevPage) && prevPage.endsWith(CHECKOUT_LOGIN_URL))
 			{
-				redirectURL = "/";
+				redirectURL = CHECKOUT_URL;
 			}
-			else if (StringUtils.isNotEmpty(prevPage) && (prevPage.contains("/checkout/") || prevPage.endsWith("/checkout")))
+			else if (StringUtils.isNotEmpty(prevPage) && prevPage.endsWith(LOGIN_URL))
 			{
-				redirectURL = "/checkout";
+				redirectURL = FORWARD_SLASH;
 			}
 			GlobalMessages.addFlashMessage(redirectAttr, GlobalMessages.INFO_MESSAGES_HOLDER, "klarna.signin.success");
 		}
@@ -270,13 +246,15 @@ public class KlarnaSigninController extends AbstractPageController
 	String getRedirectURlOnError(final String prevPage)
 	{
 		String redirectURL = "";
-		if (StringUtils.isNotEmpty(prevPage) && (prevPage.contains("/login/") || prevPage.endsWith("/login")))
+
+		if (StringUtils.isNotEmpty(prevPage) && (prevPage.contains(LOGIN_URL + FORWARD_SLASH) || prevPage.endsWith(LOGIN_URL)))
 		{
-			redirectURL = "/login";
+			redirectURL = LOGIN_URL;
 		}
-		else if (StringUtils.isNotEmpty(prevPage) && (prevPage.contains("/checkout/") || prevPage.endsWith("/checkout")))
+		else if (StringUtils.isNotEmpty(prevPage)
+				&& (prevPage.contains(CHECKOUT_URL + FORWARD_SLASH) || prevPage.endsWith(CHECKOUT_LOGIN_URL)))
 		{
-			redirectURL = "/checkout/login";
+			redirectURL = CHECKOUT_LOGIN_URL;
 		}
 		return redirectURL;
 	}
