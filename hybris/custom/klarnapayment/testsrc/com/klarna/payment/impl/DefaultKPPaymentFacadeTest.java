@@ -42,7 +42,9 @@ import com.klarna.api.payments.PaymentsSessionsApi;
 import com.klarna.api.payments.model.PaymentsCreateOrderRequest;
 import com.klarna.api.payments.model.PaymentsMerchantSession;
 import com.klarna.api.payments.model.PaymentsSession;
-import com.klarna.payment.data.KlarnaConfigData;
+import com.klarna.data.KlarnaConfigData;
+import com.klarna.payment.constants.KlarnapaymentConstants;
+import com.klarna.payment.enums.KlarnaEnv;
 import com.klarna.payment.facades.KPConfigFacade;
 import com.klarna.payment.facades.impl.DefaultKPPaymentFacade;
 import com.klarna.payment.model.KPPaymentInfoModel;
@@ -115,10 +117,10 @@ public class DefaultKPPaymentFacadeTest
 		cartmodel.setPaymentInfo(paymentInfoModel);
 
 		final KlarnaConfigData klarnConfig = new KlarnaConfigData();
-		klarnConfig.setMerchantID("ABCD");
-		klarnConfig.setSharedSecret("1234");
-		klarnConfig.setEndpointMode("LIVE");
-		klarnConfig.setEndpointType("KPEndpointType.NORTH_AMERICA");
+		klarnConfig.getCredential().setApiUserName(("ABCD"));
+		klarnConfig.getCredential().setApiPassword(("ABCD"));
+		klarnConfig.setEnvironment(KlarnaEnv.PRODUCTION.getCode());
+		klarnConfig.getCredential().setMarketRegion(KlarnapaymentConstants.KLARNA_MARKET_REGION_EUROPE);
 
 		final PaymentsSession result = new PaymentsSession();
 		result.setClientToken("1234");
@@ -149,10 +151,10 @@ public class DefaultKPPaymentFacadeTest
 		cartmodel.setPaymentInfo(paymentInfoModel);
 
 		final KlarnaConfigData klarnConfig = new KlarnaConfigData();
-		klarnConfig.setMerchantID("ABCD");
-		klarnConfig.setSharedSecret("1234");
-		klarnConfig.setEndpointMode("LIVE");
-		klarnConfig.setEndpointType("KPEndpointType.NORTH_AMERICA");
+		klarnConfig.getCredential().setApiUserName(("ABCD"));
+		klarnConfig.getCredential().setApiPassword(("ABCD"));
+		klarnConfig.setEnvironment(KlarnaEnv.PRODUCTION.getCode());
+		klarnConfig.getCredential().setMarketRegion(KlarnapaymentConstants.KLARNA_MARKET_REGION_EUROPE);
 
 		final PaymentsSession result = new PaymentsSession();
 		result.setClientToken("1234");
@@ -183,10 +185,10 @@ public class DefaultKPPaymentFacadeTest
 		cartmodel.setPaymentInfo(paymentInfoModel);
 
 		final KlarnaConfigData klarnConfig = new KlarnaConfigData();
-		klarnConfig.setMerchantID("ABCD");
-		klarnConfig.setSharedSecret("1234");
-		klarnConfig.setEndpointMode("LIVE");
-		klarnConfig.setEndpointType("KPEndpointType.EUROPE");
+		klarnConfig.getCredential().setApiUserName(("ABCD"));
+		klarnConfig.getCredential().setApiPassword(("ABCD"));
+		klarnConfig.setEnvironment(KlarnaEnv.PRODUCTION.getCode());
+		klarnConfig.getCredential().setMarketRegion(KlarnapaymentConstants.KLARNA_MARKET_REGION_EUROPE);
 
 		final PaymentsSession result = new PaymentsSession();
 		result.setClientToken("1234");
@@ -218,11 +220,11 @@ public class DefaultKPPaymentFacadeTest
 		cartmodel.setPaymentInfo(paymentInfoModel);
 
 		final KlarnaConfigData klarnConfig = new KlarnaConfigData();
-		klarnConfig.setMerchantID("ABCD");
-		klarnConfig.setSharedSecret("1234");
-		klarnConfig.setEndpointMode("LIVE");
-		klarnConfig.setEndpointType("KPEndpointType.EUROPE");
-		klarnConfig.setMerchantReference2("guid");
+		klarnConfig.getCredential().setApiUserName(("ABCD"));
+		klarnConfig.getCredential().setApiPassword(("ABCD"));
+		klarnConfig.setEnvironment(KlarnaEnv.PRODUCTION.getCode());
+		klarnConfig.getCredential().setMarketRegion(KlarnapaymentConstants.KLARNA_MARKET_REGION_EUROPE);
+		klarnConfig.getKpConfig().setMerchantReference2("guid");
 
 		Mockito.doReturn(klarnConfig).when(kpConfigFacade).getKlarnaConfig();
 		Mockito.doReturn(cartmodel).when(kpOrderService).getOderForKlarnaOrderId(Mockito.anyString());

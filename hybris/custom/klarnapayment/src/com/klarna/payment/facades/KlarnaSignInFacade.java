@@ -16,7 +16,6 @@ import de.hybris.platform.core.model.user.CustomerModel;
 import com.klarna.api.signin.model.KlarnaSigninResponse;
 import com.klarna.api.signin.model.KlarnaSigninUserAccountLinking;
 import com.klarna.api.signin.model.KlarnaSigninUserAccountProfile;
-import com.klarna.payment.data.KlarnaSignInConfigData;
 import com.klarna.payment.enums.KlarnaSigninProfileStatus;
 
 
@@ -25,13 +24,7 @@ import com.klarna.payment.enums.KlarnaSigninProfileStatus;
  */
 public interface KlarnaSignInFacade
 {
-	KlarnaSignInConfigData getKlarnaSignInConfigData();
-
 	KlarnaSigninProfileStatus checkAndUpdateProfile(final KlarnaSigninResponse klarnaSigninResponse);
-
-	boolean isAutoMergeEnabled();
-
-	String getRedirectURI();
 
 	boolean createNewCustomer(final KlarnaSigninResponse klarnaSigninResponse);
 

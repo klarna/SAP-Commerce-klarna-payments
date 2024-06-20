@@ -13,7 +13,7 @@ import org.apache.commons.lang.BooleanUtils;
 import org.apache.log4j.Logger;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.klarna.payment.data.KlarnaConfigData;
+import com.klarna.data.KlarnaConfigData;
 import com.klarna.payment.facades.KPConfigFacade;
 import com.klarna.payment.facades.KPPaymentCheckoutFacade;
 import com.klarna.payment.util.LogHelper;
@@ -99,9 +99,9 @@ public class KlarnaPaymentActiveFilter extends OncePerRequestFilter
 			if (klarnaConfig != null && klarnaConfig.getActive().booleanValue())
 			{
 				LogHelper.debugLog(LOG, "setting klarna parameters");
-				request.setAttribute(PAYMENT_OPTION, kpConfigFacade.getPaymentOption());
-				request.setAttribute(KLARNA_LOGO, kpConfigFacade.getLogo());
-				request.setAttribute(KLARNA_DISPLAYNAME, kpConfigFacade.getDisplayName());
+				//request.setAttribute(PAYMENT_OPTION, kpConfigFacade.getPaymentOption());
+				//request.setAttribute(KLARNA_LOGO, kpConfigFacade.getLogo());
+				//request.setAttribute(KLARNA_DISPLAYNAME, kpConfigFacade.getDisplayName());
 				request.setAttribute(IS_KLARNA_ACTIVE, kpConfigFacade.getKlarnaConfig().getActive());
 			}
 			else

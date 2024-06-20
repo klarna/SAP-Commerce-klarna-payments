@@ -5,7 +5,6 @@ package com.klarna.payment.services.impl;
 
 import de.hybris.platform.servicelayer.i18n.CommonI18NService;
 
-import com.klarna.payment.data.KlarnaConfigData;
 import com.klarna.payment.facades.KPConfigFacade;
 import com.klarna.payment.services.KPCurrencyConversionService;
 
@@ -47,8 +46,9 @@ public class DefaultKPCurrencyConversionService implements KPCurrencyConversionS
 	{
 
 		final Double currentCurrConversion = commonI18NService.getCurrentCurrency().getConversion();
-		final KlarnaConfigData klarnaConfig = kpConfigFacade.getKlarnaConfig();
-		final Double purchCurrConversion = commonI18NService.getCurrency(klarnaConfig.getPurchaseCurrency()).getConversion();
+		//final KlarnaConfigData klarnaConfig = kpConfigFacade.getKlarnaConfig();
+		//final Double purchCurrConversion = commonI18NService.getCurrency(klarnaConfig.getPurchaseCurrency()).getConversion();
+		final Double purchCurrConversion = commonI18NService.getCurrentCurrency().getConversion();
 		if (currentCurrConversion == purchCurrConversion)
 		{
 			return value;
@@ -58,5 +58,4 @@ public class DefaultKPCurrencyConversionService implements KPCurrencyConversionS
 				purchCurrConversion.doubleValue(), 4, value.doubleValue()));
 
 	}
-
 }

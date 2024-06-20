@@ -59,8 +59,9 @@ import com.klarna.api.order_management.model.OrderManagementCaptureObject;
 import com.klarna.api.order_management.model.OrderManagementOrder;
 import com.klarna.api.order_management.model.OrderManagementOrderLine;
 import com.klarna.api.payments.model.PaymentsOrder;
+import com.klarna.data.KlarnaConfigData;
+import com.klarna.model.KlarnaConfigModel;
 import com.klarna.payment.data.KPPaymentInfoData;
-import com.klarna.payment.data.KlarnaConfigData;
 import com.klarna.payment.enums.KlarnaFraudStatusEnum;
 import com.klarna.payment.enums.KlarnaOrderTypeEnum;
 import com.klarna.payment.facades.KPConfigFacade;
@@ -68,7 +69,6 @@ import com.klarna.payment.facades.KPOrderFacade;
 import com.klarna.payment.facades.KPPaymentCheckoutFacade;
 import com.klarna.payment.facades.KPPaymentFacade;
 import com.klarna.payment.model.KPPaymentInfoModel;
-import com.klarna.payment.model.KlarnaPayConfigModel;
 import com.klarna.payment.model.OrderFailedEmailProcessModel;
 import com.klarna.payment.services.KPCurrencyConversionService;
 import com.klarna.payment.services.KPOrderService;
@@ -454,9 +454,9 @@ public class DefaultKPPaymentCheckoutFacade implements KPPaymentCheckoutFacade
 					|| fraudStatus.equals(KlarnaFraudStatusEnum.FRAUD_RISK_ACCEPTED.getValue()))
 			{
 
-				if (BooleanUtils.isTrue(klarnaConfig.getIsVCNEnabled()))
+				if (klarnaConfig.getCredential() != null && BooleanUtils.isTrue(klarnaConfig.getCredential().getVcnEnabled()))
 				{
-					final String vcnKey = klarnaConfig.getVcnKeyID();
+					final String vcnKey = klarnaConfig.getCredential().getVcnKey();
 					LogHelper.debugLog(LOG, "Going for handle settlement");
 					handleSettlement(cartModel, vcnKey);
 
@@ -476,7 +476,8 @@ public class DefaultKPPaymentCheckoutFacade implements KPPaymentCheckoutFacade
 	public void doAutoCapture(final String kpOrderId) throws ApiException, IOException
 	{
 		final KlarnaConfigData klarnaConfig = getKpConfigFacade().getKlarnaConfig();
-		if (BooleanUtils.isFalse(klarnaConfig.getIsVCNEnabled()) && BooleanUtils.isTrue(klarnaConfig.getAutoCapture()))
+		if (klarnaConfig.getCredential() != null && BooleanUtils.isFalse(klarnaConfig.getCredential().getVcnEnabled())
+				&& (klarnaConfig.getKpConfig() != null && BooleanUtils.isTrue(klarnaConfig.getKpConfig().getAutoCapture())))
 		{
 			final OrderModel orderModel = kpOrderService.getOderForKlarnaOrderId(kpOrderId);
 			final String fraudStatus = orderModel.getKpFraudStatus();
@@ -798,8 +799,8 @@ public class DefaultKPPaymentCheckoutFacade implements KPPaymentCheckoutFacade
 	{
 
 		final CartModel cart = cartService.getSessionCart();
-		final KlarnaPayConfigModel config = cart.getStore().getKlarnaPayConfig();
-		if (config != null && StringUtils.isNotEmpty(config.getMerchantEmail()))
+		final KlarnaConfigModel config = cart.getStore().getConfig();
+		if (config != null && config.getKpConfig() != null && StringUtils.isNotEmpty(config.getKpConfig().getMerchantEmail()))
 		{
 			final OrderFailedEmailProcessModel orderFailedEmailProcessModel = (OrderFailedEmailProcessModel) getBusinessProcessService()
 					.createProcess("OrderFailedEmailProcess-" + cart.getCode() + "-" + System.currentTimeMillis(),

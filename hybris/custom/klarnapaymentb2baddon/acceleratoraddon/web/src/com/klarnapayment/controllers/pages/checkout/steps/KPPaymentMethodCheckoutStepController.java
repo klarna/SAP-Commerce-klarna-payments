@@ -49,7 +49,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.klarna.api.model.ApiException;
 import com.klarna.api.payments.model.PaymentsSession;
-import com.klarna.payment.data.KlarnaConfigData;
+import com.klarna.data.KlarnaConfigData;
 import com.klarna.payment.facades.KPConfigFacade;
 import com.klarna.payment.facades.KPCustomerFacade;
 import com.klarna.payment.facades.KPPaymentCheckoutFacade;

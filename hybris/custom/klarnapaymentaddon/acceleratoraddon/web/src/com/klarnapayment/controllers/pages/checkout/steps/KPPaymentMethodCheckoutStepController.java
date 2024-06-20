@@ -50,7 +50,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.klarna.api.model.ApiException;
 import com.klarna.api.payments.model.PaymentsSession;
-import com.klarna.payment.data.KlarnaConfigData;
+import com.klarna.data.KlarnaConfigData;
 import com.klarna.payment.facades.KPConfigFacade;
 import com.klarna.payment.facades.KPCustomerFacade;
 import com.klarna.payment.facades.KPPaymentCheckoutFacade;
@@ -310,7 +310,8 @@ public class KPPaymentMethodCheckoutStepController extends PaymentMethodCheckout
 				model.addAttribute(IS_KLARNA_EXP_CHECKOUT, Boolean.TRUE);
 				LogHelper.debugLog(LOG, "This is a Klarna Express Checkout Session.");
 			}
-			if(!isKlarnaExpCheckout) {
+			if (!isKlarnaExpCheckout)
+			{
 				LogHelper.debugLog(LOG, "setting klarna parameters");
 				try
 				{
@@ -373,9 +374,9 @@ public class KPPaymentMethodCheckoutStepController extends PaymentMethodCheckout
 		model.addAttribute(CART_DATA_ATTR, cartData);
 		model.addAttribute("deliveryAddress", cartData.getDeliveryAddress());
 
-		model.addAttribute(PAYMENT_OPTION, kpConfigFacade.getPaymentOption());
-		model.addAttribute(KLARNA_LOGO, kpConfigFacade.getLogo());
-		model.addAttribute(KLARNA_DISPLAYNAME, kpConfigFacade.getDisplayName());
+		//model.addAttribute(PAYMENT_OPTION, kpConfigFacade.getPaymentOption());
+		//model.addAttribute(KLARNA_LOGO, kpConfigFacade.getLogo());
+		//model.addAttribute(KLARNA_DISPLAYNAME, kpConfigFacade.getDisplayName());
 		model.addAttribute(IS_KLARNA_ACTIVE, kpConfigFacade.getKlarnaConfig().getActive());
 
 		model.addAttribute(KLARNA_FORM, klarnaPaymentDetailsForm);

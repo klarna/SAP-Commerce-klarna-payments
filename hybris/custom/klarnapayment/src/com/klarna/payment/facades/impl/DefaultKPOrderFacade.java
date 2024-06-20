@@ -45,15 +45,15 @@ import com.klarna.api.order_management.OrderManagementRefundsApi;
 import com.klarna.api.order_management.model.OrderManagementCaptureObject;
 import com.klarna.api.order_management.model.OrderManagementOrder;
 import com.klarna.api.order_management.model.OrderManagementRefundObject;
-import com.klarna.payment.data.KlarnaConfigData;
-import com.klarna.payment.enums.KPEndpointMode;
-import com.klarna.payment.enums.KPEndpointType;
+import com.klarna.data.KlarnaConfigData;
+import com.klarna.data.KlarnaCredentialData;
+import com.klarna.payment.constants.GeneratedKlarnapaymentConstants.Enumerations.KlarnaEnv;
+import com.klarna.payment.constants.KlarnapaymentConstants;
 import com.klarna.payment.enums.KlarnaFraudStatusEnum;
 import com.klarna.payment.facades.KPConfigFacade;
 import com.klarna.payment.facades.KPOrderFacade;
 import com.klarna.payment.facades.KPPaymentFacade;
 import com.klarna.payment.model.KPPaymentInfoModel;
-import com.klarna.payment.model.KlarnaPayConfigModel;
 import com.klarna.payment.services.KPCurrencyConversionService;
 import com.klarna.payment.services.KPOrderService;
 import com.klarna.payment.services.KPPaymentInfoService;
@@ -328,21 +328,22 @@ public class DefaultKPOrderFacade implements KPOrderFacade
 
 			/**************** KLARNAPII-952 *******************/
 			final KlarnaConfigData klarnaConfig = getKpConfigFacade().getKlarnaConfig();
-
-			if (status.equals(KlarnaFraudStatusEnum.ACCEPTED.getValue())
-					|| status.equals(KlarnaFraudStatusEnum.FRAUD_RISK_ACCEPTED.getValue()))
+			final KlarnaCredentialData credential = klarnaConfig.getCredential();
+			if (credential != null)
 			{
-				String captureId = null;
-				boolean capture = false;
-				final KPPaymentInfoModel paymentInfo = (KPPaymentInfoModel) orderModel.getPaymentInfo();
+				if (status.equals(KlarnaFraudStatusEnum.ACCEPTED.getValue())
+						|| status.equals(KlarnaFraudStatusEnum.FRAUD_RISK_ACCEPTED.getValue()))
+				{
+					String captureId = null;
+					boolean capture = false;
+					final KPPaymentInfoModel paymentInfo = (KPPaymentInfoModel) orderModel.getPaymentInfo();
 
-				if (BooleanUtils.isTrue(klarnaConfig.getIsVCNEnabled()))
-				{
-					handleSettlement(orderModel);
-				}
-				else
-				{
-					if (BooleanUtils.isTrue(klarnaConfig.getAutoCapture()) && orderModel.getStatus() != OrderStatus.PAYMENT_CAPTURED)
+					if (BooleanUtils.isTrue(credential.getVcnEnabled()))
+					{
+						handleSettlement(orderModel);
+					}
+					else if (klarnaConfig.getKpConfig() != null && BooleanUtils.isTrue(klarnaConfig.getKpConfig().getAutoCapture())
+							&& orderModel.getStatus() != OrderStatus.PAYMENT_CAPTURED)
 					{
 						final OrderManagementCapturesApi captureApi = captureKlarnaOrder(orderModel.getKpOrderId(),
 								orderModel.getStore());
@@ -353,20 +354,21 @@ public class DefaultKPOrderFacade implements KPOrderFacade
 						capture = true;
 
 					}
-				}
-				LogHelper.debugLog(LOG, " Updated transaction entry to Authorization for transaction " + transaction.getCode());
+					LogHelper.debugLog(LOG, " Updated transaction entry to Authorization for transaction " + transaction.getCode());
 
-				kpPaymentFacade.createTransactionEntry(klarnaOrderId, (KPPaymentInfoModel) orderModel.getPaymentInfo(), transaction,
-						PaymentTransactionType.KLARNA_ORDER_PLACED, status, KLARNA_ORDER_REVIEW_ACCEPTED);
-				if (capture)
-				{
-					kpPaymentFacade.createTransactionEntry(captureId, (KPPaymentInfoModel) orderModel.getPaymentInfo(), transaction,
-							PaymentTransactionType.CAPTURE, TransactionStatus.ACCEPTED.name(),
-							TransactionStatusDetails.SUCCESFULL.name());
-				}
-				eventPublishingSubmitOrderStrategy.submitOrder(orderModel);
+					kpPaymentFacade.createTransactionEntry(klarnaOrderId, (KPPaymentInfoModel) orderModel.getPaymentInfo(),
+							transaction, PaymentTransactionType.KLARNA_ORDER_PLACED, status, KLARNA_ORDER_REVIEW_ACCEPTED);
+					if (capture)
+					{
+						kpPaymentFacade.createTransactionEntry(captureId, (KPPaymentInfoModel) orderModel.getPaymentInfo(), transaction,
+								PaymentTransactionType.CAPTURE, TransactionStatus.ACCEPTED.name(),
+								TransactionStatusDetails.SUCCESFULL.name());
+					}
+					eventPublishingSubmitOrderStrategy.submitOrder(orderModel);
 
+				}
 			}
+
 		}
 
 	}
@@ -379,7 +381,8 @@ public class DefaultKPOrderFacade implements KPOrderFacade
 			{
 				orderModel.setIsKpFraudRiskStopped(Boolean.TRUE);
 				orderModel.setStatus(OrderStatus.SUSPENDED);
-				if (kpConfigFacade.getKlarnaConfig().getEndpointMode().equalsIgnoreCase(ENDMODE_TEST))
+				final String env = kpConfigFacade.getKlarnaConfig().getEnvironment();
+				if (StringUtils.isNotBlank(env) && env.equalsIgnoreCase(KlarnaEnv.PLAYGROUND))
 				{
 					getBusinessProcessService().triggerEvent(orderModel.getCode() + EVENT); //NOSONAR
 				}
@@ -400,42 +403,38 @@ public class DefaultKPOrderFacade implements KPOrderFacade
 	 */
 	private void handleSettlement(final OrderModel orderModel) throws ApiException, IOException
 	{
-
 		LogHelper.debugLog(LOG, "Entering handleSettlement");
 		final KPPaymentInfoModel klarnaPaymentInfo = (KPPaymentInfoModel) orderModel.getPaymentInfo();
-
 		final KlarnaConfigData klarnaConfig = kpConfigFacade.getKlarnaConfig();
-		if (BooleanUtils.isTrue(klarnaConfig.getIsVCNEnabled()))
+		final KlarnaCredentialData credentialData = klarnaConfig.getCredential();
+		if (credentialData != null)
 		{
-			LogHelper.debugLog(LOG, "VCN Eanabled");
-			klarnaPaymentInfo.setIsVCNUsed(Boolean.TRUE);
-			final CardServiceSettlementRequest settlementData = new CardServiceSettlementRequest();
-			settlementData.setOrderId(orderModel.getKpOrderId());
-			settlementData.setKeyId(klarnaConfig.getVcnKeyID());
-			final CardServiceSettlementResponse sdata = kpPaymentFacade.createSettlement(settlementData);
-			final CardServiceCard cardData = sdata.getCards().get(0);
-
-			try
+			if (BooleanUtils.isTrue(credentialData.getVcnEnabled()))
 			{
-				klarnaPaymentInfo.setVcnBrand(cardData.getBrand());
-				klarnaPaymentInfo.setVcnHolder(cardData.getHolder());
-
-				klarnaPaymentInfo.setKpVCNPCIData(cardData.getPciData());
-				klarnaPaymentInfo.setKpVCNIV(cardData.getIv());
-				klarnaPaymentInfo.setKpVCNAESKey(cardData.getAesKey());
-				klarnaPaymentInfo.setKpVCNCardID(cardData.getCardId());
-
-
-				modelService.saveAll();
-				LogHelper.debugLog(LOG, "VCN data Saved");
+				LogHelper.debugLog(LOG, "VCN Eanabled");
+				klarnaPaymentInfo.setIsVCNUsed(Boolean.TRUE);
+				final CardServiceSettlementRequest settlementData = new CardServiceSettlementRequest();
+				settlementData.setOrderId(orderModel.getKpOrderId());
+				settlementData.setKeyId(credentialData.getVcnKey());
+				final CardServiceSettlementResponse sdata = kpPaymentFacade.createSettlement(settlementData);
+				final CardServiceCard cardData = sdata.getCards().get(0);
+				try
+				{
+					klarnaPaymentInfo.setVcnBrand(cardData.getBrand());
+					klarnaPaymentInfo.setVcnHolder(cardData.getHolder());
+					klarnaPaymentInfo.setKpVCNPCIData(cardData.getPciData());
+					klarnaPaymentInfo.setKpVCNIV(cardData.getIv());
+					klarnaPaymentInfo.setKpVCNAESKey(cardData.getAesKey());
+					klarnaPaymentInfo.setKpVCNCardID(cardData.getCardId());
+					modelService.saveAll();
+					LogHelper.debugLog(LOG, "VCN data Saved");
+				}
+				catch (final Exception e)
+				{
+					LOG.error("Encryption Error occured :: " + e.getMessage());
+				}
 			}
-			catch (final Exception e)
-			{
-				LOG.error("Encryption Error occured :: " + e.getMessage());
-			}
-
 		}
-
 	}
 
 	private JsonObject parsePCI(final String parsePCI)
@@ -493,59 +492,69 @@ public class DefaultKPOrderFacade implements KPOrderFacade
 	public Client getKlarnaClient(final BaseStoreModel store)
 	{
 		LogHelper.debugLog(LOG, "Getting klarna client.. ");
-		final KlarnaPayConfigModel klarnConfig = kpConfigFacade.getKlarnaConfigForStore(store);
-		final String merchanId = klarnConfig.getMerchantID();
-		final String sharedSecret = klarnConfig.getSharedSecret();
-		final URI endpoint = getKlarnaEnpoint(klarnConfig);
+		final KlarnaConfigData klarnConfigData = kpConfigFacade.getKlarnaConfig();
 
-		final String shoporplatform = Config.getParameter("shoporplatform") != null ? Config.getParameter("shoporplatform")
-				: "Hybris_SAPCom";
-		final String platformversion = Config.getParameter("platformversion") != null ? Config.getParameter("platformversion")
-				: "1905";
-		final String modulename = Config.getParameter("modulename") != null ? Config.getParameter("modulename") : "KP";
-		final String moduleversion = Config.getParameter("moduleversion") != null ? Config.getParameter("moduleversion") : "6.0";
-		//final String sdkVesrion = Config.getParameter("sdkversion") != null ? Config.getParameter("sdkversion") : "4.0.1";
+		if (klarnConfigData != null)
+		{
+			final KlarnaCredentialData credentialData = klarnConfigData.getCredential();
+			if (credentialData != null)
+			{
+				final String merchanId = credentialData.getApiUserName();
+				final String sharedSecret = credentialData.getApiPassword();
+				final URI endpoint = getKlarnaEnpoint(klarnConfigData, credentialData);
 
-		final String USER_AGENT = String.format(
-				"Language/Java_%s (Vendor/%s; VM/%s) Module-name-and-version/%s OS/%s Shop-name-and-version/%s",
-				getProperty("java.version"), getProperty("java.vendor"), getProperty("java.vm.name"),
-				modulename + "_" + moduleversion, getProperty("os.name") + "_" + getProperty("os.version"),
-				shoporplatform + "_" + platformversion);
+				final String shoporplatform = Config.getParameter("shoporplatform") != null ? Config.getParameter("shoporplatform")
+						: "Hybris_SAPCom";
+				final String platformversion = Config.getParameter("platformversion") != null ? Config.getParameter("platformversion")
+						: "1905";
+				final String modulename = Config.getParameter("modulename") != null ? Config.getParameter("modulename") : "KP";
+				final String moduleversion = Config.getParameter("moduleversion") != null ? Config.getParameter("moduleversion")
+						: "6.0";
+				//final String sdkVesrion = Config.getParameter("sdkversion") != null ? Config.getParameter("sdkversion") : "4.0.1";
 
-		LOG.warn(USER_AGENT.toString());
-		return (new Client(merchanId, sharedSecret, endpoint, USER_AGENT.toString()));
+				final String USER_AGENT = String.format(
+						"Language/Java_%s (Vendor/%s; VM/%s) Module-name-and-version/%s OS/%s Shop-name-and-version/%s",
+						getProperty("java.version"), getProperty("java.vendor"), getProperty("java.vm.name"),
+						modulename + "_" + moduleversion, getProperty("os.name") + "_" + getProperty("os.version"),
+						shoporplatform + "_" + platformversion);
 
+				LOG.warn(USER_AGENT.toString());
+				return (new Client(merchanId, sharedSecret, endpoint, USER_AGENT.toString()));
+			}
+		}
+		return null;
 	}
 
-	private URI getKlarnaEnpoint(final KlarnaPayConfigModel klarnConfig)
+	private URI getKlarnaEnpoint(final KlarnaConfigData klarnConfigData, final KlarnaCredentialData credentialData)
 	{
 		LogHelper.debugLog(LOG, "Entering getKlarnaEnpoint.. ");
-		if (klarnConfig.getEndpointMode().equals(KPEndpointMode.LIVE.toString()))
+		final String marketRegion = credentialData.getMarketRegion();
+		if (klarnConfigData.getEnvironment().equals(KlarnaEnv.PRODUCTION))
 		{
-			if (klarnConfig.getEndpointType().getCode().equals(KPEndpointType.EUROPE.toString()))
+			if (marketRegion.equals(KlarnapaymentConstants.KLARNA_MARKET_REGION_EUROPE))
 			{
 				return HttpTransport.EU_BASE_URL;
 			}
-			if (klarnConfig.getEndpointType().getCode().equals(KPEndpointType.NORTH_AMERICA.toString()))
+			if (marketRegion.equals(KlarnapaymentConstants.KLARNA_MARKET_REGION_AMERICAS))
 			{
 				return HttpTransport.NA_BASE_URL;
 			}
-			if (klarnConfig.getEndpointType().getCode().equals(KPEndpointType.OCEANIA.toString()))
+			if (marketRegion.equals(KlarnapaymentConstants.KLARNA_MARKET_REGION_ASIA_AND_OCEANIA))
 			{
 				return URI.create(OC_LIVE_ENDPOINT);
 			}
 		}
 		else
 		{
-			if (klarnConfig.getEndpointType().getCode().equals(KPEndpointType.EUROPE.toString()))
+			if (marketRegion.equals(KlarnapaymentConstants.KLARNA_MARKET_REGION_EUROPE))
 			{
 				return HttpTransport.EU_TEST_BASE_URL;
 			}
-			if (klarnConfig.getEndpointType().getCode().equals(KPEndpointType.NORTH_AMERICA.toString()))
+			if (marketRegion.equals(KlarnapaymentConstants.KLARNA_MARKET_REGION_AMERICAS))
 			{
 				return HttpTransport.NA_TEST_BASE_URL;
 			}
-			if (klarnConfig.getEndpointType().getCode().equals(KPEndpointType.OCEANIA.toString()))
+			if (marketRegion.equals(KlarnapaymentConstants.KLARNA_MARKET_REGION_ASIA_AND_OCEANIA))
 			{
 				return URI.create(OC_TEST_ENDPOINT);
 			}
@@ -634,8 +643,5 @@ public class DefaultKPOrderFacade implements KPOrderFacade
 	{
 		return kpPaymentFacade.getKlarnaClient().newOrderManagementRefundsApi(orderId);
 	}
-
-
-
 
 }

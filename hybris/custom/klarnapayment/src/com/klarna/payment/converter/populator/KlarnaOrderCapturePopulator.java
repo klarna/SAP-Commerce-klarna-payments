@@ -21,8 +21,8 @@ import java.util.List;
 
 import com.klarna.api.order_management.model.OrderManagementCaptureObject;
 import com.klarna.api.order_management.model.OrderManagementShippingInfo;
-import com.klarna.payment.enums.KPEndpointType;
-import com.klarna.payment.model.KlarnaPayConfigModel;
+import com.klarna.model.KlarnaConfigModel;
+import com.klarna.payment.facades.KPConfigFacade;
 import com.klarna.payment.util.KlarnaConversionUtils;
 
 
@@ -33,6 +33,7 @@ public class KlarnaOrderCapturePopulator implements Populator<AbstractOrderModel
 {
 	Converter<AbstractOrderModel, List<OrderManagementShippingInfo>> klarnaCaptureShippingInfoConverter;
 	CommonI18NService commonI18NService;
+	KPConfigFacade kpConfigFacade;
 
 	/**
 	 * @return the commonI18NService
@@ -81,8 +82,8 @@ public class KlarnaOrderCapturePopulator implements Populator<AbstractOrderModel
 	public void populate(final AbstractOrderModel source, final OrderManagementCaptureObject target) throws ConversionException
 	{
 		double grandTotalPrice;
-		final KlarnaPayConfigModel config = source.getStore().getKlarnaPayConfig();
-		if (config.getEndpointType().equals(KPEndpointType.NORTH_AMERICA))
+		final KlarnaConfigModel config = source.getStore().getConfig();
+		if (getKpConfigFacade().isNorthAmerianKlarnaPayment())
 		{
 			grandTotalPrice = convertToPurchaseCurrencyPrice(source.getCurrency().getIsocode(), config, source.getTotalPrice())
 					.doubleValue()
@@ -105,12 +106,15 @@ public class KlarnaOrderCapturePopulator implements Populator<AbstractOrderModel
 
 	}
 
-	public Double convertToPurchaseCurrencyPrice(final String currency, final KlarnaPayConfigModel config, final Double value)
+	public Double convertToPurchaseCurrencyPrice(final String currency, final KlarnaConfigModel config, final Double value)
 	{
 
 		final Double currentCurrConversion = commonI18NService.getCurrency(currency).getConversion();
 
-		final Double purchCurrConversion = commonI18NService.getCurrency(config.getPurchaseCurrency().getIsocode()).getConversion();
+		final Double purchCurrConversion = commonI18NService
+				.getCurrency(
+						commonI18NService.getCurrentCurrency() != null ? commonI18NService.getCurrentCurrency().getIsocode() : currency)
+				.getConversion();
 		if (currentCurrConversion == purchCurrConversion)
 		{
 			return value;
@@ -119,6 +123,27 @@ public class KlarnaOrderCapturePopulator implements Populator<AbstractOrderModel
 		return Double.valueOf(commonI18NService.convertAndRoundCurrency(currentCurrConversion.doubleValue(),
 				purchCurrConversion.doubleValue(), 4, value.doubleValue()));
 
+	}
+
+
+
+	/**
+	 * @return the kpConfigFacade
+	 */
+	public KPConfigFacade getKpConfigFacade()
+	{
+		return kpConfigFacade;
+	}
+
+
+
+	/**
+	 * @param kpConfigFacade
+	 *           the kpConfigFacade to set
+	 */
+	public void setKpConfigFacade(final KPConfigFacade kpConfigFacade)
+	{
+		this.kpConfigFacade = kpConfigFacade;
 	}
 
 

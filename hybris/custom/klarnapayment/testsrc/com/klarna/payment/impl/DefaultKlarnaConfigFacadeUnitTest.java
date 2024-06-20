@@ -12,9 +12,11 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import com.klarna.payment.data.KlarnaConfigData;
+import com.klarna.data.KlarnaConfigData;
+import com.klarna.model.KlarnaConfigModel;
+import com.klarna.payment.constants.KlarnapaymentConstants;
+import com.klarna.payment.enums.KlarnaEnv;
 import com.klarna.payment.facades.impl.DefaultKPConfigFacade;
-import com.klarna.payment.model.KlarnaPayConfigModel;
 
 
 
@@ -27,10 +29,10 @@ public class DefaultKlarnaConfigFacadeUnitTest
 	private BaseStoreService baseStoreService;
 
 	@Mock
-	private Converter klarnaPaymentConfigConverter;
+	private Converter klarnaConfigConverter;
 
 	@Mock
-	private KlarnaPayConfigModel KlarnaPayConfigModel;
+	private KlarnaConfigModel KlarnaPayConfigModel;
 
 	@Mock
 	BaseStoreModel baseStoreModel;
@@ -43,9 +45,11 @@ public class DefaultKlarnaConfigFacadeUnitTest
 		MockitoAnnotations.initMocks(this);
 		config.setActive(true);
 		config.setCode("KLARNA_UK");
-		config.setMerchantEmail("rrr@ttt.com");
-		config.setMerchantID("KK11");
-		config.setSharedSecret("Test");
+		config.getCredential().setApiUserName(("ABCD"));
+		config.getCredential().setApiPassword(("ABCD"));
+		config.setEnvironment(KlarnaEnv.PRODUCTION.getCode());
+		config.getCredential().setMarketRegion(KlarnapaymentConstants.KLARNA_MARKET_REGION_EUROPE);
+		config.getKpConfig().setMerchantReference2("guid");
 	}
 
 
@@ -54,9 +58,9 @@ public class DefaultKlarnaConfigFacadeUnitTest
 	{
 		defaultKPConfigFacade = Mockito.spy(new DefaultKPConfigFacade());
 		Mockito.doReturn(baseStoreService).when(defaultKPConfigFacade).getBaseStoreService();
-		Mockito.doReturn(klarnaPaymentConfigConverter).when(defaultKPConfigFacade).getKlarnaPaymentConfigConverter();
+		Mockito.doReturn(klarnaConfigConverter).when(defaultKPConfigFacade).getKlarnaConfigConverter();
 		Mockito.doReturn(baseStoreModel).when(baseStoreService).getCurrentBaseStore();
-		Mockito.when(baseStoreModel.getKlarnaPayConfig()).thenReturn(null);
+		Mockito.when(baseStoreModel.getConfig()).thenReturn(null);
 
 
 		Assert.assertNull(defaultKPConfigFacade.getKlarnaConfig());
@@ -68,11 +72,11 @@ public class DefaultKlarnaConfigFacadeUnitTest
 	{
 		defaultKPConfigFacade = Mockito.spy(new DefaultKPConfigFacade());
 		Mockito.doReturn(baseStoreService).when(defaultKPConfigFacade).getBaseStoreService();
-		Mockito.doReturn(klarnaPaymentConfigConverter).when(defaultKPConfigFacade).getKlarnaPaymentConfigConverter();
+		Mockito.doReturn(klarnaConfigConverter).when(defaultKPConfigFacade).getKlarnaConfigConverter();
 		Mockito.doReturn(baseStoreModel).when(baseStoreService).getCurrentBaseStore();
-		Mockito.when(baseStoreModel.getKlarnaPayConfig()).thenReturn(KlarnaPayConfigModel);
+		Mockito.when(baseStoreModel.getConfig()).thenReturn(KlarnaPayConfigModel);
 
-		Mockito.doReturn(config).when(klarnaPaymentConfigConverter).convert(Mockito.any(KlarnaPayConfigModel.class));
+		Mockito.doReturn(config).when(klarnaConfigConverter).convert(Mockito.any(KlarnaConfigModel.class));
 		defaultKPConfigFacade.getKlarnaConfig();
 		Assert.assertNotNull(config);
 	}

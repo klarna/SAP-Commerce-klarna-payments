@@ -11,9 +11,14 @@
 	xsi:noNamespaceSchemaLocation="items.xsd">
 
 	<collectiontypes>
-		<collectiontype code="KlarnaDataScopeList"
-			elementtype="KlarnaSigninDataScope" type="list" autocreate="true"
-			generate="false" />
+		<collectiontype code="KlarnaDataScopeList"		elementtype="KlarnaSigninDataScope" 
+						type="list" autocreate="true"	generate="true" />
+		<collectiontype code="KlarnaMarketCountryList"	elementtype="KlarnaMarketCountry" 
+						type="list" autocreate="true"	generate="true" />
+		<collectiontype code="KlarnaKECPlacementList"	elementtype="KlarnaKECPlacement" 
+						type="list" autocreate="true"	generate="true" />
+		<collectiontype code="KlarnaSIWKPlacementList"	elementtype="KlarnaSIWKPlacement" 
+						type="list" autocreate="true"	generate="true" />
 	</collectiontypes>
 
 	<enumtypes>
@@ -79,25 +84,51 @@
 			<value code="right" />
 			<value code="center" />
 		</enumtype>
+		<enumtype code="KlarnaKECPlacement" generate="true"
+			autocreate="true" dynamic="false">
+			<description>This enumeration denotes the alignment of Klarna button - left and right</description>
+			<value code="Cart_Page" />
+			<value code="Product_Details_Page" />
+			<value code="Mini_Cart_Popup" />
+		</enumtype>
+		<enumtype code="KlarnaSIWKPlacement" generate="true"
+			autocreate="true" dynamic="false">
+			<description>This enumeration denotes the alignment of Klarna button - left and right</description>
+			<value code="Login_Page" />
+			<value code="Register_Page" />
+			<value code="Checkout_Login_Page" />
+		</enumtype>
 	</enumtypes>
 
-	<maptypes>
-		<maptype code="KlarnaDataScopeMap"
-			argumenttype="java.lang.String" returntype="java.lang.String"
-			autocreate="true" generate="false" />
-	</maptypes>
-
+	<relations>
+		<relation code="KlarnaMarketRegion2MarketCountryRel" generate="true" localized="false" autocreate="true">
+			<sourceElement	qualifier="region" 		type="KlarnaMarketRegion"	cardinality="one" />
+			<targetElement	qualifier="countries"	type="KlarnaMarketCountry"	cardinality="many"
+							collectiontype="list" 	ordered="true" />
+		</relation>
+	  	<relation code="KlarnaConfig2KlarnaCredentialRel" generate="true" localized="false" autocreate="true">
+			<sourceElement 	qualifier="config"		type="KlarnaConfig"		cardinality="one" />
+			<targetElement 	qualifier="credentials"	type="KlarnaCredential"	cardinality="many" 
+							collectiontype="list"	ordered="true" />
+		</relation>
+		<relation code="KlarnaConfig2BaseStoreRel" generate="true" localized="false" autocreate="true">
+			<sourceElement 	qualifier="config"		type="KlarnaConfig"		cardinality="one" />
+			<targetElement 	qualifier="baseStores"	type="BaseStore"		cardinality="many" 
+							collectiontype="list"	ordered="true" />
+		</relation>
+	</relations>
+	
 	<itemtypes>
 		<typegroup name="Hybris">
 			<itemtype code="BaseStore" generate="false"
 				autocreate="false">
 				<attributes>
-					<attribute type="KlarnaPayConfig"
+					<!-- <attribute type="KlarnaPayConfig"
 						qualifier="klarnaPayConfig">
 						<modifiers write="true" read="true" unique="true"
 							optional="true" />
 						<persistence type="property" />
-					</attribute>
+					</attribute> -->
 					<attribute type="KlarnaExpCheckoutConfig"
 						qualifier="klarnaExpCheckoutConfig">
 						<modifiers write="true" read="true" unique="true"
@@ -191,7 +222,7 @@
 				</attributes>
 			</itemtype>
 
-			<itemtype code="KlarnaPayConfig" generate="true"
+			<!-- <itemtype code="KlarnaPayConfig" generate="true"
 				autocreate="true"
 				jaloclass="com.klarna.payment.jalo.KlarnaPayConfig">
 				<description>Hold configurations Of Klarna in Databases under table "KlarnaConfigTbl"</description>
@@ -238,9 +269,9 @@
 						<persistence type="property" />
 					</attribute>
 
-					<!-- <attribute qualifier="endPointUrl" type="java.lang.String"> <description>Klarna 
+					<attribute qualifier="endPointUrl" type="java.lang.String"> <description>Klarna 
 						End Point URL</description> <modifiers write="true" read="true" optional="false" 
-						initial="true"/> <persistence type="property"/> </attribute> -->
+						initial="true"/> <persistence type="property"/> </attribute>
 
 					<attribute qualifier="endpointMode" type="KPEndpointMode">
 						<defaultvalue>em().getEnumerationValue("KPEndpointMode", "TEST")</defaultvalue>
@@ -249,10 +280,10 @@
 							initial="true" />
 						<persistence type="property" />
 					</attribute>
-					<!-- <attribute qualifier="merchantReferenceField" type="java.lang.String"> 
+					<attribute qualifier="merchantReferenceField" type="java.lang.String"> 
 						<description>Merchant Reference field from hybris</description> <modifiers 
 						write="true" read="true" optional="true" initial="true"/> <persistence type="property"/> 
-						</attribute> -->
+						</attribute>
 					<attribute qualifier="merchantReference2"
 						type="java.lang.String">
 						<description>Merchant Reference field2 from hybris</description>
@@ -439,7 +470,7 @@
 						<key attribute="code" />
 					</index>
 				</indexes>
-			</itemtype>
+			</itemtype> -->
 
 			<itemtype code="KPPaymentInfo" extends="InvoicePaymentInfo"
 				generate="true" autocreate="true"
@@ -892,6 +923,295 @@
 					</attribute>
 					<attribute qualifier="refreshToken" type="java.lang.String">
 						<modifiers read="true" write="true" />
+						<persistence type="property" />
+					</attribute>
+				</attributes>
+			</itemtype>
+		</typegroup>
+		<typegroup name="KlarnaConfigRedesign">
+			<itemtype	code="KlarnaConfig"  generate="true" autocreate="true" jaloclass="com.klarna.jalo.KlarnaConfig">
+				<description>Klarna Configuration Table that holds all the configurations of Klarna Products</description>
+				<deployment table="KlarnaConfig" typecode="12107" />
+				<attributes>
+					<attribute qualifier="code" type="java.lang.String">
+							<description>The Id of Klarna Configuration</description>
+							<modifiers read="true" write="true" search="true" optional="false" initial="true" unique="true"/>
+							<persistence type="property" />
+					</attribute>
+					<attribute qualifier="active" type="java.lang.Boolean">
+							<defaultvalue>Boolean.FALSE</defaultvalue>
+							<description>Activate Klarna Config</description>
+							<modifiers read="true" write="true" search="true" optional="false" initial="true"/>
+							<persistence type="property" />
+					</attribute>
+					<attribute qualifier="environment" type="KlarnaEnv">
+							<defaultvalue>em().getEnumerationValue("KlarnaEnv", "playground")</defaultvalue>
+							<description>Determines the environment of the merchant</description>
+							<modifiers read="true" write="true" search="true" optional="false" initial="true"/>
+							<persistence type="property" />
+					</attribute>
+					<attribute qualifier="kpConfig" type="KlarnaKPConfig">
+							<description>Determines the Klarna Payment Config</description>
+							<modifiers read="true" write="true" optional="true" initial="true"/>
+							<persistence type="property" />
+					</attribute>
+					<attribute qualifier="kecConfig" type="KlarnaKECConfig">
+							<description>Determines the Klarna Express Checkout Config</description>
+							<modifiers read="true" write="true" optional="true" initial="true"/>
+							<persistence type="property" />
+					</attribute>
+					<attribute qualifier="siwkConfig" type="KlarnaSIWKConfig">
+							<description>Determines the Klarna SignIn Config</description>
+							<modifiers read="true" write="true" optional="true" initial="true"/>
+							<persistence type="property" />
+					</attribute>
+				</attributes>
+			</itemtype>
+			<itemtype code="KlarnaCredential" generate="true" autocreate="true" jaloclass="com.klarna.jalo.KlarnaCredential">
+				<description>This table holds the Credentials</description>
+				<deployment table="KlarnaCredential" typecode="12108" />
+				<attributes>
+					<attribute qualifier="code" type="java.lang.String">
+						<description>The Id of Klarna Express Checkout Configuration</description>
+						<modifiers read="true" write="true" optional="false" initial="true" search="true" unique="true" />
+						<persistence type="property" />
+					</attribute>
+					<attribute qualifier="clientId" type="java.lang.String">
+						<description>Merchant ID or Client ID</description>
+						<modifiers read="true" write="true" optional="false" initial="true" />
+						<persistence type="property" />
+					</attribute>
+					<attribute qualifier="apiUserName" type="java.lang.String">
+						<description>API UserName</description>
+						<modifiers read="true" write="true" optional="false" />
+						<persistence type="property" />
+					</attribute>
+					<attribute qualifier="apiPassword" type="java.lang.String">
+						<description>API Password</description>
+						<modifiers read="true" write="true" optional="false" />
+						<persistence type="property" />
+					</attribute>
+					<attribute qualifier="marketRegion" type="KlarnaMarketRegion">
+						<description>Market Region for the Credential</description>
+						<modifiers read="true" write="true" search="true" optional="false"/>
+						<persistence type="property" />
+					</attribute>
+					<attribute qualifier="marketCountries" type="KlarnaMarketCountryList">
+						<description>Market countries for the Region</description>
+						<modifiers read="true" write="true" search="true" optional="false"/>
+						<persistence type="property" />
+					</attribute>
+					<attribute qualifier="vcnEnabled" type="java.lang.Boolean">
+						<defaultvalue>Boolean.FALSE</defaultvalue>
+						<description>Activates VCN</description>
+						<modifiers read="true" write="true" optional="true"/>
+						<persistence type="property" />
+					</attribute>
+					<attribute qualifier="vcnKey" type="java.lang.String">
+						<description>VCN Key</description>
+						<modifiers read="true" write="true" optional="true"/>
+						<persistence type="property">
+							<columntype database="oracle">
+								<value>CLOB</value>
+							</columntype>
+							<columntype database="sap">
+								<value>NCLOB</value>
+							</columntype>
+							<columntype database="mysql">
+								<value>TEXT</value>
+							</columntype>
+							<columntype database="sqlserver">
+								<value>TEXT</value>
+							</columntype>
+							<columntype>
+								<value>HYBRIS.LONG_STRING</value>
+							</columntype>
+						</persistence>
+					</attribute>
+				</attributes>
+			</itemtype>
+			<itemtype code="KlarnaMarketRegion" generate="true" autocreate="true" jaloclass="com.klarna.jalo.KlarnaMarketRegion">
+				<description>Represents Klarna Market Regions</description>
+				<deployment table="KlarnaMarketRegion" typecode="12109" />
+				<attributes>
+					<attribute qualifier="code" type="java.lang.String">
+							<description>Region Code</description>
+							<modifiers read="true" write="true" search="true" optional="false" unique="true"/>
+							<persistence type="property" />
+					</attribute>
+					<attribute qualifier="name" type="localized:java.lang.String">
+							<description>Region Name</description>
+							<modifiers read="true" write="true" search="true" optional="true"/>
+							<persistence type="property" />
+					</attribute>
+				</attributes>
+			</itemtype>
+			<itemtype code="KlarnaMarketCountry" generate="true" autocreate="true" jaloclass="com.klarna.jalo.KlarnaMarketCountry">
+	            <description>Represents Klarna Market Country</description>
+				<deployment table="KlarnaMarketCountry" typecode="12110" />
+	            <attributes>
+					<attribute qualifier="isoCode" type="java.lang.String">
+							<description>ISO Code</description>
+							<modifiers read="true" write="true" search="true" optional="false" unique="true"/>
+							<persistence type="property" />
+					</attribute>
+					<attribute qualifier="name" type="localized:java.lang.String">
+							<description>Country Name</description>
+							<modifiers read="true" write="true" search="true" optional="true"/>
+							<persistence type="property" />
+					</attribute>
+	            </attributes>
+        	</itemtype>
+			<itemtype code="KlarnaKPConfig" generate="true" autocreate="true" jaloclass="com.klarna.jalo.KlarnaPaymentConfig">
+				<description>Klarna Payment Configuration</description>
+				<deployment table="KlarnaKPConfig" typecode="12111" />
+				<attributes>
+					<attribute qualifier="code" type="java.lang.String">
+						<description>The Id of KlarnaConfiguration</description>
+						<modifiers write="true" read="true" unique="true"
+							optional="false" initial="true" />
+						<persistence type="property" />
+					</attribute>
+					<attribute qualifier="active" type="java.lang.Boolean">
+						<defaultvalue>Boolean.FALSE</defaultvalue>
+						<description>Active Klarna 's checkout</description>
+						<modifiers write="true" read="true" optional="false"
+							initial="true" />
+						<persistence type="property" />
+					</attribute>
+					<attribute qualifier="merchantEmail"
+						type="java.lang.String">
+						<description>Merchant email address</description>
+						<modifiers write="true" read="true" optional="false"
+							initial="true" />
+						<persistence type="property" />
+					</attribute>
+					<attribute qualifier="merchantReference2"
+						type="java.lang.String">
+						<description>Merchant Reference 2</description>
+						<modifiers write="true" read="true" optional="true" initial="true" />
+						<persistence type="property" />
+					</attribute>
+					<attribute qualifier="sendEMD" type="java.lang.Boolean">
+						<defaultvalue>Boolean.FALSE</defaultvalue>
+						<description>send EMD</description>
+						<modifiers write="true" read="true" optional="true" initial="true" />
+						<persistence type="property" />
+					</attribute>
+					<attribute qualifier="autoCapture" type="java.lang.Boolean">
+						<defaultvalue>Boolean.FALSE</defaultvalue>
+						<description>Payment capture automatically</description>
+						<modifiers write="true" read="true" optional="false" initial="true" />
+						<persistence type="property" />
+					</attribute>
+					<attribute qualifier="customStyle" type="java.lang.String">
+						<description>Custom Style</description>
+						<modifiers read="true" write="true" optional="true"/>
+						<persistence type="property">
+							<columntype database="oracle">
+								<value>CLOB</value>
+							</columntype>
+							<columntype database="sap">
+								<value>NCLOB</value>
+							</columntype>
+							<columntype database="mysql">
+								<value>TEXT</value>
+							</columntype>
+							<columntype database="sqlserver">
+								<value>TEXT</value>
+							</columntype>
+							<columntype>
+								<value>HYBRIS.LONG_STRING</value>
+							</columntype>
+						</persistence>
+					</attribute>
+				</attributes>
+			</itemtype>
+			<itemtype code="KlarnaKECConfig" generate="true" autocreate="true" jaloclass="com.klarna.jalo.KlarnaKECConfig">
+			<description>Klarna Express Checkout Configuration</description>
+				<deployment table="KlarnaKECConfig" typecode="12112" />
+				<attributes>
+					<attribute qualifier="code" type="java.lang.String">
+						<description>The Id of Klarna Express Checkout Configuration</description>
+						<modifiers write="true" read="true" unique="true" optional="false" initial="true" />
+						<persistence type="property" />
+					</attribute>
+					<attribute qualifier="active" type="java.lang.Boolean">
+						<defaultvalue>Boolean.FALSE</defaultvalue>
+						<description>Active Klarna 's express checkout</description>
+						<modifiers write="true" read="true" optional="false" initial="true" />
+						<persistence type="property" />
+					</attribute>
+					<attribute qualifier="placements" type="KlarnaKECPlacementList">
+						<defaultvalue>em().getEnumerationValue("KlarnaKECPlacement", "Cart_Page")</defaultvalue>
+						<description>Placements</description>
+						<modifiers write="true" read="true" optional="true" initial="true" />
+						<persistence type="property" />
+					</attribute>
+					<attribute qualifier="buttonTheme" type="KlarnaButtonTheme">
+						<defaultvalue>em().getEnumerationValue("KlarnaButtonTheme", "default")</defaultvalue>
+						<description>Determines the button theme</description>
+						<modifiers write="true" read="true" optional="false"
+							initial="true" />
+						<persistence type="property" />
+					</attribute>
+					<attribute qualifier="buttonShape" type="KlarnaButtonShape">
+						<defaultvalue>em().getEnumerationValue("KlarnaButtonShape", "default")</defaultvalue>
+						<description>Determines the button shape</description>
+						<modifiers write="true" read="true" optional="false"
+							initial="true" />
+						<persistence type="property" />
+					</attribute>
+				</attributes>
+			</itemtype>
+			<itemtype code="KlarnaSIWKConfig" generate="true" autocreate="true" jaloclass="com.klarna.jalo.KlarnaSIWKConfig">
+				<description>Signin With Klarna Configuration</description>
+				<deployment table="KlarnaSIWKConfig" typecode="12113" />
+				<attributes>
+					<attribute qualifier="code" type="java.lang.String">
+						<description>The Id of Signin With Klarna Configuration</description>
+						<modifiers write="true" read="true" unique="true" optional="false" initial="true" />
+						<persistence type="property" />
+					</attribute>
+					<attribute qualifier="active" type="java.lang.Boolean">
+						<defaultvalue>Boolean.TRUE</defaultvalue>
+						<description>Activate Sign-in With Klarna</description>
+						<modifiers write="true" read="true" optional="false" initial="true" />
+						<persistence type="property" />
+					</attribute>
+					<attribute qualifier="scopeData" type="KlarnaDataScopeList">
+						<description>List of customer data to fetch from Klarna</description>
+						<modifiers write="true" read="true" optional="false"
+							initial="true" />
+						<persistence type="property" />
+					</attribute>
+					<attribute qualifier="redirectUri" type="java.lang.String">
+						<description>Sign in Redirect URI</description>
+						<persistence type="property" />
+						<modifiers read="true" write="true" optional="false" initial="true" />
+					</attribute>
+					<attribute qualifier="placements" type="KlarnaSIWKPlacementList">
+						<defaultvalue>em().getEnumerationValue("KlarnaSIWKPlacement", "Login_Page")</defaultvalue>
+						<description>Placements</description>
+						<modifiers write="true" read="true" optional="true" initial="true" />
+						<persistence type="property" />
+					</attribute>
+					<attribute qualifier="buttonTheme" type="KlarnaButtonTheme">
+						<defaultvalue>em().getEnumerationValue("KlarnaButtonTheme", "default")</defaultvalue>
+						<description>Determines the button theme</description>
+						<modifiers write="true" read="true" />
+						<persistence type="property" />
+					</attribute>
+					<attribute qualifier="buttonShape" type="KlarnaButtonShape">
+						<defaultvalue>em().getEnumerationValue("KlarnaButtonShape", "default")</defaultvalue>
+						<description>Determines the button shape</description>
+						<modifiers write="true" read="true" />
+						<persistence type="property" />
+					</attribute>
+					<attribute qualifier="buttonLogoAlignment" type="KlarnaButtonLogoAlignment">
+						<defaultvalue>em().getEnumerationValue("KlarnaButtonLogoAlignment", "left")</defaultvalue>
+						<description>Determines the alignment of Klarna logo on the button</description>
+						<modifiers write="true" read="true" />
 						<persistence type="property" />
 					</attribute>
 				</attributes>

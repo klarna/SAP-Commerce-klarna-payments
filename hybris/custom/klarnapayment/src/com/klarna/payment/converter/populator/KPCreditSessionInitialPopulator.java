@@ -8,6 +8,7 @@ import de.hybris.platform.commercefacades.product.data.ProductData;
 import de.hybris.platform.commerceservices.customer.CustomerEmailResolutionService;
 import de.hybris.platform.commerceservices.url.UrlResolver;
 import de.hybris.platform.converters.Populator;
+import de.hybris.platform.core.model.c2l.CurrencyModel;
 import de.hybris.platform.core.model.order.AbstractOrderEntryModel;
 import de.hybris.platform.core.model.order.AbstractOrderModel;
 import de.hybris.platform.core.model.product.ProductModel;
@@ -31,11 +32,10 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.util.Assert;
 
-import com.klarna.api.payments.model.PaymentsOptions;
 import com.klarna.api.payments.model.PaymentsOrderLine;
 import com.klarna.api.payments.model.PaymentsProductIdentifiers;
 import com.klarna.api.payments.model.PaymentsSession;
-import com.klarna.payment.data.KlarnaConfigData;
+import com.klarna.data.KlarnaConfigData;
 import com.klarna.payment.enums.KlarnaOrderTypeEnum;
 import com.klarna.payment.facades.KPConfigFacade;
 import com.klarna.payment.services.KPCurrencyConversionService;
@@ -72,11 +72,12 @@ public class KPCreditSessionInitialPopulator implements Populator<AbstractOrderM
 		addKlarnaCommon(source, target, klarnaConfig);
 		addKlarnaOrder(source, target, klarnaConfig);
 		addKlarnOrderTotal(source, target);
-		target.setOptions(getCheckoutOptions());
+		//target.setOptions(getCheckoutOptions());
 
 	}
 
-	private void addKlarnaCommon(final AbstractOrderModel source, final PaymentsSession target, final KlarnaConfigData klarnaConfig)
+	private void addKlarnaCommon(final AbstractOrderModel source, final PaymentsSession target,
+			final KlarnaConfigData klarnaConfig)
 	{
 		LogHelper.debugLog(LOG, "entering KPCreditSessionInitialPopulator.addKlarnaCommon ... ");
 		if (source.getDeliveryAddress() != null)
@@ -84,8 +85,8 @@ public class KPCreditSessionInitialPopulator implements Populator<AbstractOrderM
 			target.setPurchaseCountry(source.getDeliveryAddress().getCountry().getIsocode());
 			target.setLocale(getLocale(source.getDeliveryAddress().getCountry().getIsocode()));
 		}
-		target.setPurchaseCurrency(klarnaConfig.getPurchaseCurrency());
-
+		final CurrencyModel currentCurrency = commonI18NService.getCurrentCurrency();
+		target.setPurchaseCurrency(currentCurrency != null ? currentCurrency.getIsocode() : null);
 	}
 
 	private void addKlarnaOrder(final AbstractOrderModel source, final PaymentsSession target, final KlarnaConfigData klarnaConfig)
@@ -147,25 +148,26 @@ public class KPCreditSessionInitialPopulator implements Populator<AbstractOrderM
 		return orderLine;
 	}
 
-	private PaymentsOptions getCheckoutOptions()
-	{
-		LogHelper.debugLog(LOG, "Entering getCheckoutOptions ");
-		final KlarnaConfigData klarnaConfig = kpConfigFacade.getKlarnaConfig();
-		final PaymentsOptions checkoutOption = new PaymentsOptions();
+	//	private PaymentsOptions getCheckoutOptions()
+	//	{
+	//		LogHelper.debugLog(LOG, "Entering getCheckoutOptions ");
+	//		final KlarnaConfigData klarnaConfig = kpConfigFacade.getKlarnaConfig();
+	//		final PaymentsOptions checkoutOption = new PaymentsOptions();
 
-		checkoutOption.setColorBorder(klarnaConfig.getColorBorder());
-		checkoutOption.setColorBorderSelected(klarnaConfig.getColorBorderSelected());
-		checkoutOption.setColorText(klarnaConfig.getColorText());
-		checkoutOption.setRadiusBorder(klarnaConfig.getRadiusborder());
+	//		checkoutOption.setColorBorder(klarnaConfig.getColorBorder());
+	//		checkoutOption.setColorBorderSelected(klarnaConfig.getColorBorderSelected());
+	//		checkoutOption.setColorText(klarnaConfig.getColorText());
+	//		checkoutOption.setRadiusBorder(klarnaConfig.getRadiusborder());
+	//
+	//		checkoutOption.setColorButton(klarnaConfig.getColorButton());
+	//		checkoutOption.setColorButtonText(klarnaConfig.getColorButtonText());
+	//		checkoutOption.setColorCheckbox(klarnaConfig.getColorCheckbox());
+	//		checkoutOption.setColorCheckboxCheckmark(klarnaConfig.getColorCheckboxCheckMark());
+	//		checkoutOption.setColorHeader(klarnaConfig.getColorHeader());
+	//		checkoutOption.setColorLink(klarnaConfig.getColorLink());
 
-		checkoutOption.setColorButton(klarnaConfig.getColorButton());
-		checkoutOption.setColorButtonText(klarnaConfig.getColorButtonText());
-		checkoutOption.setColorCheckbox(klarnaConfig.getColorCheckbox());
-		checkoutOption.setColorCheckboxCheckmark(klarnaConfig.getColorCheckboxCheckMark());
-		checkoutOption.setColorHeader(klarnaConfig.getColorHeader());
-		checkoutOption.setColorLink(klarnaConfig.getColorLink());
-		return checkoutOption;
-	}
+	//		return checkoutOption;
+	//	}
 
 	private PaymentsOrderLine getGlobalDiscount(final AbstractOrderModel source)
 	{
@@ -240,8 +242,8 @@ public class KPCreditSessionInitialPopulator implements Populator<AbstractOrderM
 		}
 		else
 		{
-			return Long.valueOf(totalDiscount.longValue()
-					- ((totalDiscount.longValue() * TAX_FACTOR) / (TAX_FACTOR + taxRate.intValue())));
+			return Long.valueOf(
+					totalDiscount.longValue() - ((totalDiscount.longValue() * TAX_FACTOR) / (TAX_FACTOR + taxRate.intValue())));
 		}
 	}
 
@@ -259,16 +261,16 @@ public class KPCreditSessionInitialPopulator implements Populator<AbstractOrderM
 		orderLine.setQuantityUnit(entry.getUnit().getName());
 		orderLine.setUnitPrice(KlarnaConversionUtils.getKlarnaLongValue(convertToPurchaseCurrencyPrice(entry.getBasePrice())));
 		orderLine.setTotalAmount(KlarnaConversionUtils.getKlarnaLongValue(convertToPurchaseCurrencyPrice(entry.getTotalPrice())));
-		if (klarnaConfig.getProductUrlsRequired() != null && klarnaConfig.getProductUrlsRequired().booleanValue())
-		{
-			final BaseSiteModel currentBaseSite = getBaseSiteService().getCurrentBaseSite();
-			final String relUrl = getProductModelUrlResolver().resolve(entry.getProduct());
-			final String prodUrl = getSiteBaseUrlResolutionService().getWebsiteUrlForSite(currentBaseSite, true, relUrl);
-			final String mediaUrl = getSiteBaseUrlResolutionService().getMediaUrlForSite(currentBaseSite, true);
-			orderLine.setProductUrl(prodUrl);
-			final String imgUrl = getImageURL(entry.getProduct());
-			orderLine.setImageUrl(imgUrl != null ? mediaUrl != null ? mediaUrl + imgUrl : imgUrl : null);
-		}
+		//if (klarnaConfig.getProductUrlsRequired() != null && klarnaConfig.getProductUrlsRequired().booleanValue())
+		//{
+		final BaseSiteModel currentBaseSite = getBaseSiteService().getCurrentBaseSite();
+		final String relUrl = getProductModelUrlResolver().resolve(entry.getProduct());
+		final String prodUrl = getSiteBaseUrlResolutionService().getWebsiteUrlForSite(currentBaseSite, true, relUrl);
+		final String mediaUrl = getSiteBaseUrlResolutionService().getMediaUrlForSite(currentBaseSite, true);
+		orderLine.setProductUrl(prodUrl);
+		final String imgUrl = getImageURL(entry.getProduct());
+		orderLine.setImageUrl(imgUrl != null ? mediaUrl != null ? mediaUrl + imgUrl : imgUrl : null);
+		//}
 		final PaymentsProductIdentifiers productIdentifiers = getProductIdentifiers(entry.getProduct());
 		orderLine.setProductIdentifiers(productIdentifiers);
 
@@ -400,8 +402,8 @@ public class KPCreditSessionInitialPopulator implements Populator<AbstractOrderM
 				throw new IllegalArgumentException("System does not accept multiple tax for the order");
 			}
 		}
-
-		return new TaxValue("Empty Tax", 0.0D, false, klarnaConfig.getPurchaseCurrency());
+		final CurrencyModel currentCurrency = commonI18NService.getCurrentCurrency();
+		return new TaxValue("Empty Tax", 0.0D, false, currentCurrency != null ? currentCurrency.getIsocode() : null);
 	}
 
 	private Long getTaxRate(final TaxValue tax)

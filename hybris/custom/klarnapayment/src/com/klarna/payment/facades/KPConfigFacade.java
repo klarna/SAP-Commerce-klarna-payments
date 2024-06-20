@@ -2,8 +2,9 @@ package com.klarna.payment.facades;
 
 import de.hybris.platform.store.BaseStoreModel;
 
-import com.klarna.payment.data.KlarnaConfigData;
-import com.klarna.payment.model.KlarnaPayConfigModel;
+import com.klarna.data.KlarnaConfigData;
+import com.klarna.model.KlarnaConfigModel;
+import com.klarna.model.KlarnaCredentialModel;
 
 
 public interface KPConfigFacade
@@ -15,15 +16,19 @@ public interface KPConfigFacade
 	 */
 	KlarnaConfigData getKlarnaConfig();
 
-	KlarnaPayConfigModel getKlarnaConfigForStore(BaseStoreModel store);
+	KlarnaConfigModel getKlarnaConfigForStore(BaseStoreModel store);
 
 	boolean isNorthAmerianKlarnaPayment();
 
-	String getPaymentOption();
-
-	String getLogo();
-
-	String getDisplayName();
+	//	String getPaymentOption();
+	//
+	//	String getLogo();
+	//
+	//	String getDisplayName();
 
 	boolean isNLKlarnaPayment();
+
+	public KlarnaCredentialModel getKlarnaCredentialForSite(final KlarnaConfigModel klarnaConfig);
+
+	public String getConfigurationString(final String key);
 }

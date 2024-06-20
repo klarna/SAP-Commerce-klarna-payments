@@ -1,6 +1,7 @@
 package com.klarnapayment.interceptors;
 
 import de.hybris.platform.addonsupport.interceptors.BeforeViewHandlerAdaptee;
+import de.hybris.platform.servicelayer.i18n.CommonI18NService;
 import de.hybris.platform.servicelayer.i18n.I18NService;
 
 import javax.annotation.Resource;
@@ -11,9 +12,9 @@ import org.apache.commons.lang.BooleanUtils;
 import org.apache.log4j.Logger;
 import org.springframework.ui.ModelMap;
 
-import com.klarna.payment.data.KlarnaConfigData;
-import com.klarna.payment.data.KlarnaExpCheckoutConfigData;
-import com.klarna.payment.data.KlarnaSignInConfigData;
+import com.klarna.data.KlarnaConfigData;
+import com.klarna.data.KlarnaKECConfigData;
+import com.klarna.data.KlarnaSIWKConfigData;
 import com.klarna.payment.facades.KPConfigFacade;
 import com.klarna.payment.facades.KlarnaExpCheckoutFacade;
 import com.klarna.payment.facades.KlarnaSignInFacade;
@@ -35,6 +36,9 @@ public class KlarnaBeforeViewHandler implements BeforeViewHandlerAdaptee
 
 	@Resource(name = "i18NService")
 	private I18NService i18NService;
+
+	@Resource(name = "commonI18NService")
+	CommonI18NService commonI18NService;
 
 	private static final String IS_KLARNA_SIGN_IN_ENABLED = "isKlarnaSignInEnabled";
 	private static final String KLARNA_SIGN_IN_CONFIG_DATA = "klarnaSignInConfigData";
@@ -66,13 +70,13 @@ public class KlarnaBeforeViewHandler implements BeforeViewHandlerAdaptee
 			final KlarnaConfigData klarnaConfig = kpConfigFacade.getKlarnaConfig();
 			if (klarnaConfig != null && BooleanUtils.isTrue(klarnaConfig.getActive()))
 			{
-				KlarnaExpCheckoutConfigData klarnaExpCheckoutConfigData = klarnaExpCheckoutFacade.getKlarnaExpCheckoutConfigData();
-				if (klarnaExpCheckoutConfigData != null && BooleanUtils.isTrue(klarnaExpCheckoutConfigData.getActive()))
+				KlarnaKECConfigData klarnaKECConfigData = klarnaConfig.getKecConfig();
+				if (klarnaKECConfigData != null && BooleanUtils.isTrue(klarnaKECConfigData.getActive()))
 				{
 					model.addAttribute(IS_KLARNA_EXP_CHECKOUT_ENABLED, Boolean.TRUE);
-					model.addAttribute(KLARNA_EXP_CHECKOUT_CONFIG_DATA, klarnaExpCheckoutConfigData);
+					model.addAttribute(KLARNA_EXP_CHECKOUT_CONFIG_DATA, klarnaKECConfigData);
 					model.addAttribute(CURRENT_LOCALE,
-							i18NService.getCurrentLocale() + "-" + klarnaExpCheckoutConfigData.getCountry());
+							i18NService.getCurrentLocale() + "-" + commonI18NService.getCurrentCurrency().getIsocode());
 				}
 				else
 				{
@@ -92,16 +96,17 @@ public class KlarnaBeforeViewHandler implements BeforeViewHandlerAdaptee
 		{
 			LOG.debug("Inside setKlarnaSignInAttributes");
 		}
-		if (klarnaSignInFacade != null)
+		final KlarnaConfigData klarnaConfig = kpConfigFacade.getKlarnaConfig();
+		if (klarnaConfig != null)
 		{
-			KlarnaSignInConfigData klarnaSignInConfigData = klarnaSignInFacade.getKlarnaSignInConfigData();
-			if (klarnaSignInConfigData != null && klarnaSignInConfigData.getActive().booleanValue())
+			KlarnaSIWKConfigData siwkData = klarnaConfig.getSiwkConfig();
+			if (siwkData != null && Boolean.TRUE.equals(siwkData.getActive()))
 			{
-				System.out.println("klarnaSignInConfigData " + klarnaSignInConfigData.getActive() + "script url "
-						+ klarnaSignInConfigData.getScriptUrl() + " Scope Data  " + klarnaSignInConfigData.getScopeData());
+				System.out.println("KlarnaSIWKConfigData " + siwkData.getActive() + " Scope Data  " + siwkData.getScopeData());
 				model.addAttribute(IS_KLARNA_SIGN_IN_ENABLED, Boolean.TRUE);
-				model.addAttribute(KLARNA_SIGN_IN_CONFIG_DATA, klarnaSignInConfigData);
-				model.addAttribute(CURRENT_LOCALE, i18NService.getCurrentLocale() + "-" + klarnaSignInConfigData.getCountry());
+				model.addAttribute(KLARNA_SIGN_IN_CONFIG_DATA, siwkData);
+				model.addAttribute(CURRENT_LOCALE,
+						i18NService.getCurrentLocale() + "-" + commonI18NService.getCurrentCurrency().getIsocode());
 			}
 			else
 			{

@@ -30,7 +30,6 @@ import de.hybris.platform.servicelayer.model.ModelService;
 //import de.hybris.platform.servicelayer.security.spring.HybrisSessionFixationProtectionStrategy;
 import de.hybris.platform.servicelayer.user.UserService;
 import de.hybris.platform.site.BaseSiteService;
-import de.hybris.platform.store.BaseStoreModel;
 import de.hybris.platform.store.services.BaseStoreService;
 
 import java.util.UUID;
@@ -44,11 +43,9 @@ import com.google.common.collect.Sets;
 import com.klarna.api.signin.model.KlarnaSigninResponse;
 import com.klarna.api.signin.model.KlarnaSigninUserAccountLinking;
 import com.klarna.api.signin.model.KlarnaSigninUserAccountProfile;
-import com.klarna.payment.data.KlarnaSignInConfigData;
 import com.klarna.payment.enums.KlarnaSigninProfileStatus;
 import com.klarna.payment.facades.KlarnaSignInFacade;
 import com.klarna.payment.model.KlarnaCustomerProfileModel;
-import com.klarna.payment.model.KlarnaSignInConfigModel;
 
 
 
@@ -59,9 +56,6 @@ public class DefaultKlarnaSignInFacade implements KlarnaSignInFacade
 {
 	@Resource(name = "baseStoreService")
 	private BaseStoreService baseStoreService;
-
-	@Resource(name = "klarnaSignInConfigConverter")
-	private Converter klarnaSignInConfigConverter;
 
 	@Resource(name = "klarnaCustomerProfileReverseConverter")
 	private Converter klarnaCustomerProfileReverseConverter;
@@ -119,18 +113,6 @@ public class DefaultKlarnaSignInFacade implements KlarnaSignInFacade
 	private static final String CUSTOMER_GROUP = "customergroup";
 
 	@Override
-	public KlarnaSignInConfigData getKlarnaSignInConfigData()
-	{
-		final BaseStoreModel baseStore = baseStoreService.getCurrentBaseStore();
-		final KlarnaSignInConfigModel model = baseStore.getKlarnaSignInConfig();
-		if (model != null)
-		{
-			return (KlarnaSignInConfigData) klarnaSignInConfigConverter.convert(model);
-		}
-		return null;
-	}
-
-	@Override
 	public KlarnaSigninProfileStatus checkAndUpdateProfile(final KlarnaSigninResponse klarnaSigninResponse)
 	{
 		final KlarnaSigninUserAccountProfile klarnaSigninUserAccountProfile = klarnaSigninResponse.getUserAccountProfile();
@@ -158,7 +140,7 @@ public class DefaultKlarnaSignInFacade implements KlarnaSignInFacade
 				else if (user instanceof CustomerModel)
 				{
 					final CustomerModel customer = (CustomerModel) user;
-					if (customer.getKlarnaCustomerProfile() == null && !isAutoMergeEnabled())
+					if (customer.getKlarnaCustomerProfile() == null)
 					{
 						return KlarnaSigninProfileStatus.MERGE_AFTER_CONSENT;
 					}
@@ -263,30 +245,6 @@ public class DefaultKlarnaSignInFacade implements KlarnaSignInFacade
 						klarnaSigninUserAccountProfile.getFamilyName()));
 			}
 		}
-	}
-
-	@Override
-	public boolean isAutoMergeEnabled()
-	{
-		final KlarnaSignInConfigData signinConfig = getKlarnaSignInConfigData();
-		boolean mergeEnabled = false;
-		if (signinConfig != null && signinConfig.getAutoMergeAccounts() != null)
-		{
-			mergeEnabled = signinConfig.getAutoMergeAccounts().booleanValue();
-		}
-		return mergeEnabled;
-	}
-
-	@Override
-	public String getRedirectURI()
-	{
-		final KlarnaSignInConfigData signinConfig = getKlarnaSignInConfigData();
-		String redirectURI = null;
-		if (signinConfig != null)
-		{
-			redirectURI = signinConfig.getRedirectUri();
-		}
-		return redirectURI;
 	}
 
 }

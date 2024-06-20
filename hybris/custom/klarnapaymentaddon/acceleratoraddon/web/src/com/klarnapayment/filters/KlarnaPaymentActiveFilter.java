@@ -13,9 +13,10 @@ import org.apache.commons.lang.BooleanUtils;
 import org.apache.log4j.Logger;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.klarna.payment.data.KlarnaConfigData;
+import com.klarna.data.KlarnaConfigData;
 import com.klarna.payment.facades.KPConfigFacade;
 import com.klarna.payment.facades.KPPaymentCheckoutFacade;
+import com.klarna.payment.facades.KPPaymentFacade;
 import com.klarna.payment.util.LogHelper;
 
 
@@ -33,6 +34,7 @@ public class KlarnaPaymentActiveFilter extends OncePerRequestFilter
 	public final static String DEFAULT_CHECKOUT_URL = "/checkout/multi/summary/placeOrder";
 	public final static String KLARNA_CHECKOUT_URL = "/checkout/multi/summary/klarna/placeOrder";
 	public final static String DEFAULT_CONFIRMATION = "/checkout/orderConfirmation/";
+	public final static String DEFAULT_CHECKOUT_FIRST_STEP = "/checkout/multi/delivery-address/add";
 	private static final String PAYMENT_OPTION = "paymentOption";
 	private static final String KLARNA_LOGO = "klarna_logo";
 	private static final String KLARNA_DISPLAYNAME = "klarna_displayname";
@@ -40,8 +42,12 @@ public class KlarnaPaymentActiveFilter extends OncePerRequestFilter
 
 	@Resource(name = "kpConfigFacade")
 	private KPConfigFacade kpConfigFacade;
+
 	@Resource(name = "kpPaymentCheckoutFacade")
 	private KPPaymentCheckoutFacade kpPaymentCheckoutFacade;
+
+	@Resource(name = "kpPaymentFacade")
+	private KPPaymentFacade kpPaymentFacade;
 
 	/**
 	 * This filter is used to load config from KlarnaConfig Model, to analyze the environment checkout. If exist and is
@@ -99,9 +105,9 @@ public class KlarnaPaymentActiveFilter extends OncePerRequestFilter
 			if (klarnaConfig != null && klarnaConfig.getActive().booleanValue())
 			{
 				LogHelper.debugLog(LOG, "setting klarna parameters");
-				request.setAttribute(PAYMENT_OPTION, kpConfigFacade.getPaymentOption());
-				request.setAttribute(KLARNA_LOGO, kpConfigFacade.getLogo());
-				request.setAttribute(KLARNA_DISPLAYNAME, kpConfigFacade.getDisplayName());
+				//request.setAttribute(PAYMENT_OPTION, kpConfigFacade.getPaymentOption());
+				//request.setAttribute(KLARNA_LOGO, kpConfigFacade.getLogo());
+				//request.setAttribute(KLARNA_DISPLAYNAME, kpConfigFacade.getDisplayName());
 				request.setAttribute(IS_KLARNA_ACTIVE, kpConfigFacade.getKlarnaConfig().getActive());
 			}
 			else

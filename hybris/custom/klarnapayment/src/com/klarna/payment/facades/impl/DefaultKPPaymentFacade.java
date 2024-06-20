@@ -62,10 +62,10 @@ import com.klarna.api.payments.model.PaymentsOrder;
 import com.klarna.api.payments.model.PaymentsSession;
 import com.klarna.api.signin.model.KlarnaSigninTokenRequest;
 import com.klarna.api.signin.model.KlarnaSigninTokenResponse;
-import com.klarna.payment.data.KlarnaConfigData;
-import com.klarna.payment.data.KlarnaSignInConfigData;
-import com.klarna.payment.enums.KPEndpointMode;
-import com.klarna.payment.enums.KPEndpointType;
+import com.klarna.data.KlarnaConfigData;
+import com.klarna.data.KlarnaCredentialData;
+import com.klarna.data.KlarnaKPConfigData;
+import com.klarna.payment.constants.KlarnapaymentConstants;
 import com.klarna.payment.enums.KlarnaEnv;
 import com.klarna.payment.facades.KPConfigFacade;
 import com.klarna.payment.facades.KPPaymentFacade;
@@ -87,6 +87,9 @@ public class DefaultKPPaymentFacade implements KPPaymentFacade
 
 	@Resource(name = "klarnaSignInFacade")
 	private KlarnaSignInFacade klarnaSignInFacade;
+
+	@Resource(name = "klarnaCustomerProfileReverseConverter")
+	private Converter klarnaCustomerProfileReverseConverter;
 
 	private KPConfigFacade kpConfigFacade;
 	private CartService cartService;
@@ -330,58 +333,68 @@ public class DefaultKPPaymentFacade implements KPPaymentFacade
 	public Client getKlarnaClient()
 	{
 		LogHelper.debugLog(LOG, "Getting klarna client.. ");
-		final KlarnaConfigData klarnConfig = kpConfigFacade.getKlarnaConfig();
-		final String merchanId = klarnConfig.getMerchantID();
-		final String sharedSecret = klarnConfig.getSharedSecret();
-		final URI endpoint = getKlarnaEnpoint(klarnConfig);
+		final KlarnaConfigData klarnConfigData = kpConfigFacade.getKlarnaConfig();
 
-		final String shoporplatform = Config.getParameter("shoporplatform") != null ? Config.getParameter("shoporplatform")
-				: "Hybris_SAPCom";
-		final String platformversion = Config.getParameter("platformversion") != null ? Config.getParameter("platformversion")
-				: "1905";
-		final String modulename = Config.getParameter("modulename") != null ? Config.getParameter("modulename") : "KP";
-		final String moduleversion = Config.getParameter("moduleversion") != null ? Config.getParameter("moduleversion") : "6.0";
+		if (klarnConfigData != null)
+		{
+			final KlarnaCredentialData credentialData = klarnConfigData.getCredential();
+			if (credentialData != null)
+			{
+				final String merchanId = credentialData.getApiUserName();
+				final String sharedSecret = credentialData.getApiPassword();
+				final URI endpoint = getKlarnaEnpoint(klarnConfigData, credentialData);
 
-		final String USER_AGENT = String.format(
-				"Language/Java_%s (Vendor/%s; VM/%s) Module-name-and-version/%s OS/%s Shop-name-and-version/%s",
-				getProperty("java.version"), getProperty("java.vendor"), getProperty("java.vm.name"),
-				modulename + "_" + moduleversion, getProperty("os.name") + "_" + getProperty("os.version"),
-				shoporplatform + "_" + platformversion);
+				final String shoporplatform = Config.getParameter("shoporplatform") != null ? Config.getParameter("shoporplatform")
+						: "Hybris_SAPCom";
+				final String platformversion = Config.getParameter("platformversion") != null ? Config.getParameter("platformversion")
+						: "1905";
+				final String modulename = Config.getParameter("modulename") != null ? Config.getParameter("modulename") : "KP";
+				final String moduleversion = Config.getParameter("moduleversion") != null ? Config.getParameter("moduleversion")
+						: "6.0";
 
-		LOG.warn(USER_AGENT.toString());
-		return (new Client(merchanId, sharedSecret, endpoint, USER_AGENT.toString()));
-		//return (new Client(merchanId, sharedSecret, endpoint));
+				final String USER_AGENT = String.format(
+						"Language/Java_%s (Vendor/%s; VM/%s) Module-name-and-version/%s OS/%s Shop-name-and-version/%s",
+						getProperty("java.version"), getProperty("java.vendor"), getProperty("java.vm.name"),
+						modulename + "_" + moduleversion, getProperty("os.name") + "_" + getProperty("os.version"),
+						shoporplatform + "_" + platformversion);
+
+				LOG.warn(USER_AGENT.toString());
+				return (new Client(merchanId, sharedSecret, endpoint, USER_AGENT.toString()));
+			}
+		}
+		return null;
 	}
 
-	private URI getKlarnaEnpoint(final KlarnaConfigData klarnConfig)
+	private URI getKlarnaEnpoint(final KlarnaConfigData klarnConfigData, final KlarnaCredentialData credentialData)
 	{
 		LogHelper.debugLog(LOG, "Entering getKlarnaEnpoint.. ");
-		if (klarnConfig.getEndpointMode().equals(KPEndpointMode.LIVE.toString()))
+		final String marketRegion = credentialData.getMarketRegion();
+		if (klarnConfigData.getEnvironment().equals(KlarnaEnv.PRODUCTION))
 		{
-			if (klarnConfig.getEndpointType().equals(KPEndpointType.EUROPE.toString()))
+			if (marketRegion.equals(KlarnapaymentConstants.KLARNA_MARKET_REGION_EUROPE))
 			{
 				return HttpTransport.EU_BASE_URL;
 			}
-			if (klarnConfig.getEndpointType().equals(KPEndpointType.NORTH_AMERICA.toString()))
+			if (marketRegion.equals(KlarnapaymentConstants.KLARNA_MARKET_REGION_AMERICAS))
 			{
 				return HttpTransport.NA_BASE_URL;
 			}
-			if (klarnConfig.getEndpointType().equals(KPEndpointType.OCEANIA.toString()))
+			if (marketRegion.equals(KlarnapaymentConstants.KLARNA_MARKET_REGION_ASIA_AND_OCEANIA))
 			{
 				return URI.create(OC_LIVE_ENDPOINT);
 			}
 		}
 		else
 		{
-			if (klarnConfig.getEndpointType().equals(KPEndpointType.EUROPE.toString()))
+			if (marketRegion.equals(KlarnapaymentConstants.KLARNA_MARKET_REGION_EUROPE))
 			{
 				return HttpTransport.EU_TEST_BASE_URL;
 			}
-			if (klarnConfig.getEndpointType().equals(KPEndpointType.NORTH_AMERICA.toString()))
+			if (marketRegion.equals(KlarnapaymentConstants.KLARNA_MARKET_REGION_AMERICAS))
 			{
 				return HttpTransport.NA_TEST_BASE_URL;
 			}
-			if (klarnConfig.getEndpointType().equals(KPEndpointType.OCEANIA.toString()))
+			if (marketRegion.equals(KlarnapaymentConstants.KLARNA_MARKET_REGION_ASIA_AND_OCEANIA))
 			{
 				return URI.create(OC_TEST_ENDPOINT);
 			}
@@ -550,9 +563,10 @@ public class DefaultKPPaymentFacade implements KPPaymentFacade
 		/* Set MerchantReference2 */
 		final KlarnaConfigData klarnConfig = getKpConfigFacade().getKlarnaConfig();
 		final OrderModel orderModel = getKpOrderService().getOderForKlarnaOrderId(kpOrderId);
-		if (klarnConfig.getMerchantReference2() != null)
+		final KlarnaKPConfigData kpConfig = klarnConfig.getKpConfig();
+		if (kpConfig.getMerchantReference2() != null)
 		{
-			final Object attrval = getModelService().getAttributeValue(orderModel, klarnConfig.getMerchantReference2());
+			final Object attrval = getModelService().getAttributeValue(orderModel, kpConfig.getMerchantReference2());
 			if (attrval != null)
 			{
 				final String reference2 = attrval.toString();
@@ -646,66 +660,62 @@ public class DefaultKPPaymentFacade implements KPPaymentFacade
 	// Klarna Sign In
 	private void setAccessTokenForAutoLogin(final PaymentsSession paymentsSession)
 	{
-		final KlarnaSignInConfigData klarnaSignInConfigData = klarnaSignInFacade.getKlarnaSignInConfigData();
+		final KlarnaConfigData klarnConfigData = kpConfigFacade.getKlarnaConfig();
 
-		// TODO Check if Autologin is enabled
-		if (klarnaSignInConfigData.getAutoLoginToKP() != null && klarnaSignInConfigData.getAutoLoginToKP().booleanValue())
+		if (getUserService().getCurrentUser() != null && getUserService().getCurrentUser() instanceof CustomerModel)
 		{
-
-			if (getUserService().getCurrentUser() != null && getUserService().getCurrentUser() instanceof CustomerModel)
+			final CustomerModel customerModel = (CustomerModel) getUserService().getCurrentUser();
+			if (customerModel.getKlarnaCustomerProfile() != null
+					&& customerModel.getKlarnaCustomerProfile().getRefreshToken() != null)
 			{
-				final CustomerModel customerModel = (CustomerModel) getUserService().getCurrentUser();
-				if (customerModel.getKlarnaCustomerProfile() != null
-						&& customerModel.getKlarnaCustomerProfile().getRefreshToken() != null)
+				// Klarna Sign In Customer. Get Access Token
+				try
 				{
-					// Klarna Sign In Customer. Get Access Token
-					try
+					final KlarnaSigninTokenResponse klarnaSigninTokenResponse = getKlarnaSignInTokens(klarnConfigData,
+							customerModel.getKlarnaCustomerProfile().getRefreshToken());
+					customerModel.getKlarnaCustomerProfile().setRefreshToken(klarnaSigninTokenResponse.getRefreshToken());
+					getModelService().save(customerModel.getKlarnaCustomerProfile());
+					if (paymentsSession.getCustomer() == null)
 					{
-						final KlarnaSigninTokenResponse klarnaSigninTokenResponse = getKlarnaSignInTokens(klarnaSignInConfigData,
-								customerModel.getKlarnaCustomerProfile().getRefreshToken());
-						customerModel.getKlarnaCustomerProfile().setRefreshToken(klarnaSigninTokenResponse.getRefreshToken());
-						getModelService().save(customerModel.getKlarnaCustomerProfile());
-						if (paymentsSession.getCustomer() == null)
-						{
-							paymentsSession.setCustomer(new PaymentsCustomer());
-						}
-						paymentsSession.getCustomer().setKlarnaAccessToken(klarnaSigninTokenResponse.getAccessToken());
+						paymentsSession.setCustomer(new PaymentsCustomer());
 					}
-					catch (final Exception e)
-					{
-						LOG.error("Exception getting access token for customer uid " + customerModel.getUid() + "... ", e);
-					}
+					paymentsSession.getCustomer().setKlarnaAccessToken(klarnaSigninTokenResponse.getAccessToken());
+				}
+				catch (final Exception e)
+				{
+					LOG.error("Exception getting access token for customer uid " + customerModel.getUid() + "... ", e);
 				}
 			}
 		}
-
 	}
 
-	private KlarnaSigninTokenResponse getKlarnaSignInTokens(final KlarnaSignInConfigData klarnaSignInConfigData,
-			final String refreshToken) throws ApiException, IOException
+	private KlarnaSigninTokenResponse getKlarnaSignInTokens(final KlarnaConfigData klarnaConfigData, final String refreshToken)
+			throws ApiException, IOException
 	{
 		LogHelper.debugLog(LOG, "getKlarnaSignInTokens .. . ");
 		final KlarnaSigninTokenRequest klarnaSigninTokenRequest = new KlarnaSigninTokenRequest();
+
 		klarnaSigninTokenRequest.setRefreshToken(refreshToken);
-		klarnaSigninTokenRequest.setClientId(klarnaSignInConfigData.getClientId());
+		klarnaSigninTokenRequest
+				.setClientId(klarnaConfigData.getCredential() != null ? klarnaConfigData.getCredential().getClientId() : null);
 		klarnaSigninTokenRequest.setGrantType(GRANT_TYPE_REFRESH_TOKEN);
-		final KlarnaLoginApi klarnaLoginAPI = getKlarnaLoginApi(klarnaSignInConfigData);
+		final KlarnaLoginApi klarnaLoginAPI = getKlarnaLoginApi(klarnaConfigData);
 		return klarnaLoginAPI.getTokens(klarnaSigninTokenRequest);
 	}
 
-	private KlarnaLoginApi getKlarnaLoginApi(final KlarnaSignInConfigData klarnaSignInConfigData)
+	private KlarnaLoginApi getKlarnaLoginApi(final KlarnaConfigData klarnaConfigData)
 	{
 		LogHelper.debugLog(LOG, "getting new KlarnaLoginApi object.. . ");
-		return getKlarnaLoginClient(klarnaSignInConfigData).newKlarnaLoginApi();
+		return getKlarnaLoginClient(klarnaConfigData).newKlarnaLoginApi();
 	}
 
-	private Client getKlarnaLoginClient(final KlarnaSignInConfigData klarnaSignInConfigData)
+	private Client getKlarnaLoginClient(final KlarnaConfigData klarnaConfigData)
 	{
 		LogHelper.debugLog(LOG, "Getting klarna login client.. ");
 
 		//final String merchanId = klarnConfig.getMerchantID();
 		//final String sharedSecret = klarnConfig.getSharedSecret();
-		final URI endpoint = getKlarnaLoginEndpoint(klarnaSignInConfigData);
+		final URI endpoint = getKlarnaLoginEndpoint(klarnaConfigData);
 
 		//final String shoporplatform = Config.getParameter("shoporplatform") != null ? Config.getParameter("shoporplatform")
 		//		: "Hybris_SAPCom";
@@ -725,11 +735,11 @@ public class DefaultKPPaymentFacade implements KPPaymentFacade
 		//return (new Client(merchanId, sharedSecret, endpoint));
 	}
 
-	private URI getKlarnaLoginEndpoint(final KlarnaSignInConfigData klarnaSignInConfigData)
+	private URI getKlarnaLoginEndpoint(final KlarnaConfigData klarnaConfigData)
 	{
 		LogHelper.debugLog(LOG, "Entering getKlarnaLoginEndpoint.. ");
 		final StringBuilder uriBuilder = new StringBuilder(StringUtils.EMPTY);
-		if (StringUtils.equalsIgnoreCase(klarnaSignInConfigData.getEnvironment(), KlarnaEnv.PRODUCTION.getCode()))
+		if (StringUtils.equalsIgnoreCase(klarnaConfigData.getEnvironment(), KlarnaEnv.PRODUCTION.getCode()))
 		{
 			uriBuilder.append(KLARNA_LOGIN_BASE_URL);
 		}
@@ -739,13 +749,9 @@ public class DefaultKPPaymentFacade implements KPPaymentFacade
 		}
 		// TODO set region
 		final KlarnaConfigData klarnConfigData = kpConfigFacade.getKlarnaConfig();
-		if (klarnConfigData.getEndpointType().equals(KPEndpointType.EUROPE.toString()))
+		if (klarnConfigData.getCredential() != null && StringUtils.isNotBlank(klarnConfigData.getCredential().getMarketRegion()))
 		{
-			uriBuilder.append(KLARNA_MARKET_EU);
-		}
-		else
-		{
-			uriBuilder.append(KLARNA_MARKET_NA);
+			uriBuilder.append("/" + klarnConfigData.getCredential().getMarketRegion().toLowerCase());
 		}
 		return URI.create(uriBuilder.toString());
 	}
