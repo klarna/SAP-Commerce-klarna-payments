@@ -67,8 +67,8 @@ import com.klarna.data.KlarnaCredentialData;
 import com.klarna.data.KlarnaKPConfigData;
 import com.klarna.payment.constants.KlarnapaymentConstants;
 import com.klarna.payment.enums.KlarnaEnv;
-import com.klarna.payment.facades.KPConfigFacade;
 import com.klarna.payment.facades.KPPaymentFacade;
+import com.klarna.payment.facades.KlarnaConfigFacade;
 import com.klarna.payment.facades.KlarnaSignInFacade;
 import com.klarna.payment.model.KPPaymentInfoModel;
 import com.klarna.payment.services.KPOrderService;
@@ -91,7 +91,7 @@ public class DefaultKPPaymentFacade implements KPPaymentFacade
 	@Resource(name = "klarnaCustomerProfileReverseConverter")
 	private Converter klarnaCustomerProfileReverseConverter;
 
-	private KPConfigFacade kpConfigFacade;
+	private KlarnaConfigFacade klarnaConfigFacade;
 	private CartService cartService;
 	private ModelService modelService;
 	private Converter<AbstractOrderModel, PaymentsSession> klarnaCreditSessionConverter;
@@ -134,11 +134,11 @@ public class DefaultKPPaymentFacade implements KPPaymentFacade
 	}
 
 	/**
-	 * @return the kpConfigFacade
+	 * @return the klarnaConfigFacade
 	 */
-	public KPConfigFacade getKpConfigFacade()
+	public KlarnaConfigFacade getKlarnaConfigFacade()
 	{
-		return kpConfigFacade;
+		return klarnaConfigFacade;
 	}
 
 	/**
@@ -242,12 +242,12 @@ public class DefaultKPPaymentFacade implements KPPaymentFacade
 	}
 
 	/**
-	 * @param kpConfigFacade
-	 *           the kpConfigFacade to set
+	 * @param klarnaConfigFacade
+	 *           the klarnaConfigFacade to set
 	 */
-	public void setKpConfigFacade(final KPConfigFacade kpConfigFacade)
+	public void setKlarnaConfigFacade(final KlarnaConfigFacade klarnaConfigFacade)
 	{
-		this.kpConfigFacade = kpConfigFacade;
+		this.klarnaConfigFacade = klarnaConfigFacade;
 	}
 
 	/**
@@ -333,7 +333,7 @@ public class DefaultKPPaymentFacade implements KPPaymentFacade
 	public Client getKlarnaClient()
 	{
 		LogHelper.debugLog(LOG, "Getting klarna client.. ");
-		final KlarnaConfigData klarnConfigData = kpConfigFacade.getKlarnaConfig();
+		final KlarnaConfigData klarnConfigData = klarnaConfigFacade.getKlarnaConfig();
 
 		if (klarnConfigData != null)
 		{
@@ -429,7 +429,7 @@ public class DefaultKPPaymentFacade implements KPPaymentFacade
 		{
 
 			LogHelper.debugLog(LOG, "Session id not Present.. ");
-			if (getKpConfigFacade().isNorthAmerianKlarnaPayment())
+			if (getKlarnaConfigFacade().isNorthAmerianKlarnaPayment())
 			{
 				klarnaCreditSessionData = getKlarnaCreditSessionConverter().convert(cart);
 			}
@@ -468,7 +468,7 @@ public class DefaultKPPaymentFacade implements KPPaymentFacade
 		}
 		else
 		{
-			if (getKpConfigFacade().isNorthAmerianKlarnaPayment() || isPaymentSelected)
+			if (getKlarnaConfigFacade().isNorthAmerianKlarnaPayment() || isPaymentSelected)
 			{
 				klarnaCreditSessionData = getKlarnaCreditSessionConverter().convert(cart);
 			}
@@ -561,7 +561,7 @@ public class DefaultKPPaymentFacade implements KPPaymentFacade
 		final OrderManagementUpdateMerchantReferences paramUpdateMerchantReferences = new OrderManagementUpdateMerchantReferences();
 		paramUpdateMerchantReferences.setMerchantReference1(hybrisOrder.getCode());
 		/* Set MerchantReference2 */
-		final KlarnaConfigData klarnConfig = getKpConfigFacade().getKlarnaConfig();
+		final KlarnaConfigData klarnConfig = getKlarnaConfigFacade().getKlarnaConfig();
 		final OrderModel orderModel = getKpOrderService().getOderForKlarnaOrderId(kpOrderId);
 		final KlarnaKPConfigData kpConfig = klarnConfig.getKpConfig();
 		if (kpConfig.getMerchantReference2() != null)
@@ -660,7 +660,7 @@ public class DefaultKPPaymentFacade implements KPPaymentFacade
 	// Klarna Sign In
 	private void setAccessTokenForAutoLogin(final PaymentsSession paymentsSession)
 	{
-		final KlarnaConfigData klarnConfigData = kpConfigFacade.getKlarnaConfig();
+		final KlarnaConfigData klarnConfigData = klarnaConfigFacade.getKlarnaConfig();
 
 		if (getUserService().getCurrentUser() != null && getUserService().getCurrentUser() instanceof CustomerModel)
 		{
@@ -748,7 +748,7 @@ public class DefaultKPPaymentFacade implements KPPaymentFacade
 			uriBuilder.append(KLARNA_LOGIN_TEST_BASE_URL);
 		}
 		// TODO set region
-		final KlarnaConfigData klarnConfigData = kpConfigFacade.getKlarnaConfig();
+		final KlarnaConfigData klarnConfigData = klarnaConfigFacade.getKlarnaConfig();
 		if (klarnConfigData.getCredential() != null && StringUtils.isNotBlank(klarnConfigData.getCredential().getMarketRegion()))
 		{
 			uriBuilder.append("/" + klarnConfigData.getCredential().getMarketRegion().toLowerCase());

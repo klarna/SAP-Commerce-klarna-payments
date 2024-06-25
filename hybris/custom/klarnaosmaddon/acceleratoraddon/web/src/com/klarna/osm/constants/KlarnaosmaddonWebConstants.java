@@ -20,5 +20,5 @@ public final class KlarnaosmaddonWebConstants // NOSONAR
 		//empty to avoid instantiating this constant class
 	}
 
-	// implement here constants used by this extension
+	public static final String KLARNA_OSM_SCRIPTURL = "klarna.osm.scripturl";
 }

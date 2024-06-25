@@ -14,9 +14,8 @@ import org.apache.log4j.Logger;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.klarna.data.KlarnaConfigData;
-import com.klarna.payment.facades.KPConfigFacade;
 import com.klarna.payment.facades.KPPaymentCheckoutFacade;
-import com.klarna.payment.facades.KPPaymentFacade;
+import com.klarna.payment.facades.KlarnaConfigFacade;
 import com.klarna.payment.util.LogHelper;
 
 
@@ -34,20 +33,16 @@ public class KlarnaPaymentActiveFilter extends OncePerRequestFilter
 	public final static String DEFAULT_CHECKOUT_URL = "/checkout/multi/summary/placeOrder";
 	public final static String KLARNA_CHECKOUT_URL = "/checkout/multi/summary/klarna/placeOrder";
 	public final static String DEFAULT_CONFIRMATION = "/checkout/orderConfirmation/";
-	public final static String DEFAULT_CHECKOUT_FIRST_STEP = "/checkout/multi/delivery-address/add";
 	private static final String PAYMENT_OPTION = "paymentOption";
 	private static final String KLARNA_LOGO = "klarna_logo";
 	private static final String KLARNA_DISPLAYNAME = "klarna_displayname";
 	private static final String IS_KLARNA_ACTIVE = "is_klarna_active";
 
-	@Resource(name = "kpConfigFacade")
-	private KPConfigFacade kpConfigFacade;
+	@Resource(name = "klarnaConfigFacade")
+	private KlarnaConfigFacade klarnaConfigFacade;
 
 	@Resource(name = "kpPaymentCheckoutFacade")
 	private KPPaymentCheckoutFacade kpPaymentCheckoutFacade;
-
-	@Resource(name = "kpPaymentFacade")
-	private KPPaymentFacade kpPaymentFacade;
 
 	/**
 	 * This filter is used to load config from KlarnaConfig Model, to analyze the environment checkout. If exist and is
@@ -65,7 +60,7 @@ public class KlarnaPaymentActiveFilter extends OncePerRequestFilter
 	{
 
 		final String requestURL = request.getServletPath();
-		final KlarnaConfigData klarnaConfig = kpConfigFacade.getKlarnaConfig();
+		final KlarnaConfigData klarnaConfig = klarnaConfigFacade.getKlarnaConfig();
 		final HttpSession session = request.getSession();
 		if (requestURL.contains(DEFAULT_CONFIRMATION))
 		{
@@ -105,10 +100,18 @@ public class KlarnaPaymentActiveFilter extends OncePerRequestFilter
 			if (klarnaConfig != null && klarnaConfig.getActive().booleanValue())
 			{
 				LogHelper.debugLog(LOG, "setting klarna parameters");
-				//request.setAttribute(PAYMENT_OPTION, kpConfigFacade.getPaymentOption());
-				//request.setAttribute(KLARNA_LOGO, kpConfigFacade.getLogo());
-				//request.setAttribute(KLARNA_DISPLAYNAME, kpConfigFacade.getDisplayName());
-				request.setAttribute(IS_KLARNA_ACTIVE, kpConfigFacade.getKlarnaConfig().getActive());
+				//request.setAttribute(PAYMENT_OPTION, klarnaConfigFacade.getPaymentOption());
+				//request.setAttribute(KLARNA_LOGO, klarnaConfigFacade.getLogo());
+				//request.setAttribute(KLARNA_DISPLAYNAME, klarnaConfigFacade.getDisplayName());
+				// KP Configuration will be populated only if kpConfig is active
+				if (klarnaConfigFacade.getKlarnaConfig() != null && klarnaConfigFacade.getKlarnaConfig().getKpConfig() != null)
+				{
+					request.setAttribute(IS_KLARNA_ACTIVE, Boolean.TRUE);
+				}
+				else
+				{
+					request.setAttribute(IS_KLARNA_ACTIVE, Boolean.FALSE);
+				}
 			}
 			else
 			{

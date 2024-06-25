@@ -22,7 +22,7 @@ import java.util.List;
 import com.klarna.api.order_management.model.OrderManagementCaptureObject;
 import com.klarna.api.order_management.model.OrderManagementShippingInfo;
 import com.klarna.model.KlarnaConfigModel;
-import com.klarna.payment.facades.KPConfigFacade;
+import com.klarna.payment.facades.KlarnaConfigFacade;
 import com.klarna.payment.util.KlarnaConversionUtils;
 
 
@@ -33,7 +33,7 @@ public class KlarnaOrderCapturePopulator implements Populator<AbstractOrderModel
 {
 	Converter<AbstractOrderModel, List<OrderManagementShippingInfo>> klarnaCaptureShippingInfoConverter;
 	CommonI18NService commonI18NService;
-	KPConfigFacade kpConfigFacade;
+	KlarnaConfigFacade klarnaConfigFacade;
 
 	/**
 	 * @return the commonI18NService
@@ -83,7 +83,7 @@ public class KlarnaOrderCapturePopulator implements Populator<AbstractOrderModel
 	{
 		double grandTotalPrice;
 		final KlarnaConfigModel config = source.getStore().getConfig();
-		if (getKpConfigFacade().isNorthAmerianKlarnaPayment())
+		if (getKlarnaConfigFacade().isNorthAmerianKlarnaPayment())
 		{
 			grandTotalPrice = convertToPurchaseCurrencyPrice(source.getCurrency().getIsocode(), config, source.getTotalPrice())
 					.doubleValue()
@@ -128,22 +128,22 @@ public class KlarnaOrderCapturePopulator implements Populator<AbstractOrderModel
 
 
 	/**
-	 * @return the kpConfigFacade
+	 * @return the klarnaConfigFacade
 	 */
-	public KPConfigFacade getKpConfigFacade()
+	public KlarnaConfigFacade getKlarnaConfigFacade()
 	{
-		return kpConfigFacade;
+		return klarnaConfigFacade;
 	}
 
 
 
 	/**
-	 * @param kpConfigFacade
-	 *           the kpConfigFacade to set
+	 * @param klarnaConfigFacade
+	 *           the klarnaConfigFacade to set
 	 */
-	public void setKpConfigFacade(final KPConfigFacade kpConfigFacade)
+	public void setKlarnaConfigFacade(final KlarnaConfigFacade klarnaConfigFacade)
 	{
-		this.kpConfigFacade = kpConfigFacade;
+		this.klarnaConfigFacade = klarnaConfigFacade;
 	}
 
 

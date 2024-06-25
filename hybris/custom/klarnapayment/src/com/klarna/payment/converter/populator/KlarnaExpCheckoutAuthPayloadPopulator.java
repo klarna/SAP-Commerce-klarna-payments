@@ -44,7 +44,7 @@ import com.klarna.api.payments.model.PaymentsOrderLine;
 import com.klarna.api.payments.model.PaymentsProductIdentifiers;
 import com.klarna.api.payments.model.PaymentsSession;
 import com.klarna.payment.enums.KlarnaOrderTypeEnum;
-import com.klarna.payment.facades.KPConfigFacade;
+import com.klarna.payment.facades.KlarnaConfigFacade;
 import com.klarna.payment.util.KlarnaConversionUtils;
 import com.klarna.payment.util.LogHelper;
 
@@ -61,8 +61,8 @@ public class KlarnaExpCheckoutAuthPayloadPopulator implements Populator<Abstract
 	private static final String GLOBAL_DISCOUNT = "Global Discount";
 	private static final int TAX_FACTOR = 10000;
 
-	@Resource(name = "kpConfigFacade")
-	private KPConfigFacade kpConfigFacade;
+	@Resource(name = "klarnaConfigFacade")
+	private KlarnaConfigFacade klarnaConfigFacade;
 
 	@Resource(name = "baseStoreService")
 	private BaseStoreService baseStoreService;
@@ -180,7 +180,7 @@ public class KlarnaExpCheckoutAuthPayloadPopulator implements Populator<Abstract
 			{
 				orderLines.add(getGlobalDiscount(source));
 			}
-			if (kpConfigFacade.isNorthAmerianKlarnaPayment())
+			if (klarnaConfigFacade.isNorthAmerianKlarnaPayment())
 			{
 				orderLines.add(getKlarnaSalesTaxLine(source));
 			}
@@ -204,14 +204,14 @@ public class KlarnaExpCheckoutAuthPayloadPopulator implements Populator<Abstract
 			orderLine.setReference(getCouponCodes(source));
 		}
 
-		if (kpConfigFacade.isNorthAmerianKlarnaPayment())
+		if (klarnaConfigFacade.isNorthAmerianKlarnaPayment())
 		{
 			orderLine.setTaxRate(Long.valueOf(0));
 			orderLine.setTotalTaxAmount(Long.valueOf(0));
 		}
 		else
 		{
-		final Long taxRate = getTaxRate(getTaxValue(source.getTotalTaxValues(), source.getCurrency().getIsocode()));
+			final Long taxRate = getTaxRate(getTaxValue(source.getTotalTaxValues(), source.getCurrency().getIsocode()));
 			orderLine.setTaxRate(taxRate);
 			orderLine.setTotalTaxAmount(calculateGlobalTotalTaxAmount(source));
 		}
@@ -255,14 +255,14 @@ public class KlarnaExpCheckoutAuthPayloadPopulator implements Populator<Abstract
 		LogHelper.debugLog(LOG, "entering KlarnaExpCheckoutAuthPayloadPopulator.calculateGlobalTotalTaxAmount ... ");
 		final Long totalDiscount = KlarnaConversionUtils.getKlarnaLongValue(getGlobalDiscountValue(source));
 		final Long taxRate = getTaxRate(getTaxValue(source.getTotalTaxValues(), source.getCurrency().getIsocode()));
-		if (kpConfigFacade.isNorthAmerianKlarnaPayment())
+		if (klarnaConfigFacade.isNorthAmerianKlarnaPayment())
 		{
 			return Long.valueOf((totalDiscount.longValue() * taxRate.intValue()) / TAX_FACTOR);
 		}
 		else
 		{
-			return Long.valueOf(totalDiscount.longValue()
-					- ((totalDiscount.longValue() * TAX_FACTOR) / (TAX_FACTOR + taxRate.intValue())));
+			return Long.valueOf(
+					totalDiscount.longValue() - ((totalDiscount.longValue() * TAX_FACTOR) / (TAX_FACTOR + taxRate.intValue())));
 		}
 	}
 
@@ -301,16 +301,16 @@ public class KlarnaExpCheckoutAuthPayloadPopulator implements Populator<Abstract
 			orderLine.setTotalDiscountAmount(Long.valueOf(0));
 		}
 
-		if (kpConfigFacade.isNorthAmerianKlarnaPayment())
+		if (klarnaConfigFacade.isNorthAmerianKlarnaPayment())
 		{
 			orderLine.setTaxRate(Long.valueOf(0));
 			orderLine.setTotalTaxAmount(Long.valueOf(0));
 		}
 		else
 		{
-		orderLine.setTaxRate(getTaxRate(getTaxValue(entry.getTaxValues(), currencyCode)));
-		orderLine.setTotalTaxAmount(calculateOrderEntryTaxAmount(entry, currencyCode));
-	}
+			orderLine.setTaxRate(getTaxRate(getTaxValue(entry.getTaxValues(), currencyCode)));
+			orderLine.setTotalTaxAmount(calculateOrderEntryTaxAmount(entry, currencyCode));
+		}
 
 		return orderLine;
 	}
@@ -348,8 +348,7 @@ public class KlarnaExpCheckoutAuthPayloadPopulator implements Populator<Abstract
 		productIdentifiers.setGlobalTradeItemNumber(product.getEan());
 		productIdentifiers.setBrand(product.getManufacturerName());
 		productIdentifiers.setManufacturerPartNumber(product.getManufacturerAID());
-		final String productPath = StringEscapeUtils
-				.unescapeHtml(pageTitleResolver.resolveProductPageTitle(product.getCode()));
+		final String productPath = StringEscapeUtils.unescapeHtml(pageTitleResolver.resolveProductPageTitle(product.getCode()));
 		productIdentifiers.setCategoryPath(StringUtils.replace(productPath, "|", ">"));
 		return productIdentifiers;
 	}
@@ -444,7 +443,7 @@ public class KlarnaExpCheckoutAuthPayloadPopulator implements Populator<Abstract
 	private Long calculateTotalAmount(final AbstractOrderModel source)
 	{
 		LogHelper.debugLog(LOG, "entering KlarnaExpCheckoutAuthPayloadPopulator.calculateTotalAmount ... ");
-		if (kpConfigFacade.isNorthAmerianKlarnaPayment())
+		if (klarnaConfigFacade.isNorthAmerianKlarnaPayment())
 		{
 			final double grandTotalPrice = source.getTotalPrice().doubleValue() + source.getTotalTax().doubleValue();
 			return KlarnaConversionUtils.getKlarnaLongValue(Double.valueOf(grandTotalPrice));
@@ -483,7 +482,7 @@ public class KlarnaExpCheckoutAuthPayloadPopulator implements Populator<Abstract
 		orderLine.setUnitPrice(KlarnaConversionUtils.getKlarnaLongValue(order.getDeliveryCost()));
 		orderLine.setTotalAmount(KlarnaConversionUtils.getKlarnaLongValue(order.getDeliveryCost()));
 
-		if (kpConfigFacade.isNorthAmerianKlarnaPayment())
+		if (klarnaConfigFacade.isNorthAmerianKlarnaPayment())
 		{
 			orderLine.setTaxRate(Long.valueOf(0));
 			orderLine.setTotalTaxAmount(Long.valueOf(0));
@@ -504,7 +503,7 @@ public class KlarnaExpCheckoutAuthPayloadPopulator implements Populator<Abstract
 		final Long taxRate = getTaxRate(tax);
 		final Long deliveryCost = KlarnaConversionUtils.getKlarnaLongValue(order.getDeliveryCost());
 		long deliveryTaxAmount = 0L;
-		if (kpConfigFacade.isNorthAmerianKlarnaPayment())
+		if (klarnaConfigFacade.isNorthAmerianKlarnaPayment())
 		{
 			deliveryTaxAmount = deliveryCost.longValue() * taxRate.intValue() / TAX_FACTOR;
 		}

@@ -4,10 +4,9 @@ import de.hybris.platform.store.BaseStoreModel;
 
 import com.klarna.data.KlarnaConfigData;
 import com.klarna.model.KlarnaConfigModel;
-import com.klarna.model.KlarnaCredentialModel;
 
 
-public interface KPConfigFacade
+public interface KlarnaConfigFacade
 {
 	/**
 	 * Gets the KlarnaConfig for current base store.
@@ -27,8 +26,4 @@ public interface KPConfigFacade
 	//	String getDisplayName();
 
 	boolean isNLKlarnaPayment();
-
-	public KlarnaCredentialModel getKlarnaCredentialForSite(final KlarnaConfigModel klarnaConfig);
-
-	public String getConfigurationString(final String key);
 }

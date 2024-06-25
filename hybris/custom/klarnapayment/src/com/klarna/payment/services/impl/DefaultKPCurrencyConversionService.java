@@ -5,22 +5,22 @@ package com.klarna.payment.services.impl;
 
 import de.hybris.platform.servicelayer.i18n.CommonI18NService;
 
-import com.klarna.payment.facades.KPConfigFacade;
+import com.klarna.payment.facades.KlarnaConfigFacade;
 import com.klarna.payment.services.KPCurrencyConversionService;
 
 
 public class DefaultKPCurrencyConversionService implements KPCurrencyConversionService
 {
 	private CommonI18NService commonI18NService;
-	private KPConfigFacade kpConfigFacade;
+	private KlarnaConfigFacade klarnaConfigFacade;
 
 	/**
-	 * @param kpConfigFacade
-	 *           the kpConfigFacade to set
+	 * @param klarnaConfigFacade
+	 *           the klarnaConfigFacade to set
 	 */
-	public void setKpConfigFacade(final KPConfigFacade kpConfigFacade)
+	public void setKlarnaConfigFacade(final KlarnaConfigFacade klarnaConfigFacade)
 	{
-		this.kpConfigFacade = kpConfigFacade;
+		this.klarnaConfigFacade = klarnaConfigFacade;
 	}
 
 	/**
@@ -46,7 +46,7 @@ public class DefaultKPCurrencyConversionService implements KPCurrencyConversionS
 	{
 
 		final Double currentCurrConversion = commonI18NService.getCurrentCurrency().getConversion();
-		//final KlarnaConfigData klarnaConfig = kpConfigFacade.getKlarnaConfig();
+		//final KlarnaConfigData klarnaConfig = klarnaConfigFacade.getKlarnaConfig();
 		//final Double purchCurrConversion = commonI18NService.getCurrency(klarnaConfig.getPurchaseCurrency()).getConversion();
 		final Double purchCurrConversion = commonI18NService.getCurrentCurrency().getConversion();
 		if (currentCurrConversion == purchCurrConversion)

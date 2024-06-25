@@ -11,23 +11,34 @@
  */
 package com.klarna.converter.populator;
 
+import de.hybris.platform.acceleratorservices.config.SiteConfigService;
 import de.hybris.platform.converters.Populator;
 import de.hybris.platform.servicelayer.dto.converter.ConversionException;
 import de.hybris.platform.servicelayer.dto.converter.Converter;
 
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.klarna.data.KlarnaConfigData;
 import com.klarna.data.KlarnaCredentialData;
 import com.klarna.data.KlarnaKECConfigData;
+import com.klarna.data.KlarnaKOSMConfigData;
 import com.klarna.data.KlarnaKPConfigData;
 import com.klarna.data.KlarnaSIWKConfigData;
 import com.klarna.model.KlarnaConfigModel;
 import com.klarna.model.KlarnaCredentialModel;
 import com.klarna.model.KlarnaKECConfigModel;
 import com.klarna.model.KlarnaKPConfigModel;
+import com.klarna.model.KlarnaMarketCountryModel;
+import com.klarna.model.KlarnaMarketRegionModel;
 import com.klarna.model.KlarnaSIWKConfigModel;
-import com.klarna.payment.facades.KPConfigFacade;
+import com.klarna.osm.model.KlarnaKOSMConfigModel;
+import com.klarna.payment.constants.KlarnapaymentConstants;
 
 
 /**
@@ -40,15 +51,19 @@ public class KlarnaConfigPopulator implements Populator<KlarnaConfigModel, Klarn
 	private Converter klarnaKPConfigConverter;
 	private Converter klarnaKECConfigConverter;
 	private Converter klarnaSIWKConfigConverter;
-	private KPConfigFacade kpConfigFacade;
+	private Converter klarnaOsmConfigConverter;
+
+	@Resource(name = "siteConfigService")
+	private SiteConfigService siteConfigService;
 
 	@Override
 	public void populate(final KlarnaConfigModel source, final KlarnaConfigData target) throws ConversionException
 	{
 		target.setCode(source.getCode());
+		target.setActive(source.getActive());
 		target.setEnvironment(source.getEnvironment() != null ? source.getEnvironment().getCode() : null);
 
-		final KlarnaCredentialModel credentialModel = getKpConfigFacade().getKlarnaCredentialForSite(source);
+		final KlarnaCredentialModel credentialModel = getKlarnaCredentialForSite(source);
 		if (credentialModel != null)
 		{
 			final KlarnaCredentialData credential = new KlarnaCredentialData();
@@ -62,6 +77,13 @@ public class KlarnaConfigPopulator implements Populator<KlarnaConfigModel, Klarn
 			final KlarnaKPConfigData klarnaKPConfigData = new KlarnaKPConfigData();
 			klarnaKPConfigConverter.convert(klarnaKPConfigModel, klarnaKPConfigData);
 			target.setKpConfig(klarnaKPConfigData);
+			final KlarnaKOSMConfigModel klarnaKOSMConfigModel = source.getOsmConfig();
+			if (klarnaKOSMConfigModel != null && Boolean.TRUE == klarnaKOSMConfigModel.getActive())
+			{
+				final KlarnaKOSMConfigData klarnaKOSMConfigData = new KlarnaKOSMConfigData();
+				klarnaSIWKConfigConverter.convert(klarnaKOSMConfigModel, klarnaKOSMConfigData);
+				target.setOsmConfig(klarnaKOSMConfigData);
+			}
 		}
 
 		final KlarnaKECConfigModel klarnaKECConfigModel = source.getKecConfig();
@@ -80,10 +102,54 @@ public class KlarnaConfigPopulator implements Populator<KlarnaConfigModel, Klarn
 			target.setSiwkConfig(siwkConfigData);
 		}
 
+		final KlarnaKOSMConfigModel klarnaKOSMConfigModel = source.getOsmConfig();
+		if (klarnaKOSMConfigModel != null && Boolean.TRUE == klarnaKOSMConfigModel.getActive())
+		{
+			final KlarnaKOSMConfigData osmConfigData = new KlarnaKOSMConfigData();
+			klarnaOsmConfigConverter.convert(klarnaKOSMConfigModel, osmConfigData);
+			target.setOsmConfig(osmConfigData);
+		}
 	}
 
+	public KlarnaCredentialModel getKlarnaCredentialForSite(final KlarnaConfigModel klarnaConfig)
+	{
+		final String marketCountry = siteConfigService.getString(KlarnapaymentConstants.KLARNA_MARKET_COUNTRY_FOR_SITE,
+				StringUtils.EMPTY);
+		if (StringUtils.isNotBlank(marketCountry))
+		{
+			final String marketRegion = siteConfigService.getString(KlarnapaymentConstants.KLARNA_MARKET_REGION_FOR_SITE,
+					StringUtils.EMPTY);
+			if (StringUtils.isNotBlank(marketRegion))
+			{
+				final List<KlarnaCredentialModel> credentials = klarnaConfig.getCredentials();
+				if (CollectionUtils.isNotEmpty(credentials))
+				{
+					for (final KlarnaCredentialModel cred : credentials)
+					{
+						final KlarnaMarketRegionModel region = cred.getMarketRegion();
 
-
+						if (region != null && region.getCode().equalsIgnoreCase(marketRegion))
+						{
+							final List<KlarnaMarketCountryModel> markets = cred.getMarketCountries();
+							if (CollectionUtils.isNotEmpty(markets))
+							{
+								for (final KlarnaMarketCountryModel market : markets)
+								{
+									if (StringUtils.isNotEmpty(marketCountry)
+											&& (marketCountry.equalsIgnoreCase(KlarnapaymentConstants.KLARNA_MARKET_COUNTRY_ALL)
+													|| marketCountry.equalsIgnoreCase(market.getIsoCode())))
+									{
+										return cred;
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		return null;
+	}
 
 	/**
 	 * @return the klarnaCredentialConverter
@@ -153,27 +219,21 @@ public class KlarnaConfigPopulator implements Populator<KlarnaConfigModel, Klarn
 		this.klarnaSIWKConfigConverter = klarnaSIWKConfigConverter;
 	}
 
-
-
-
 	/**
-	 * @return the kpConfigFacade
+	 * @return the klarnaOsmConfigConverter
 	 */
-	public KPConfigFacade getKpConfigFacade()
+	public Converter getKlarnaOsmConfigConverter()
 	{
-		return kpConfigFacade;
+		return klarnaOsmConfigConverter;
 	}
 
-
-
-
 	/**
-	 * @param kpConfigFacade
-	 *           the kpConfigFacade to set
+	 * @param klarnaOsmConfigConverter
+	 *           the klarnaOsmConfigConverter to set
 	 */
-	public void setKpConfigFacade(final KPConfigFacade kpConfigFacade)
+	public void setKlarnaOsmConfigConverter(final Converter klarnaOsmConfigConverter)
 	{
-		this.kpConfigFacade = kpConfigFacade;
+		this.klarnaOsmConfigConverter = klarnaOsmConfigConverter;
 	}
 
 }

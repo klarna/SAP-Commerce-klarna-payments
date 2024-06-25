@@ -16,14 +16,14 @@ import com.klarna.data.KlarnaConfigData;
 import com.klarna.model.KlarnaConfigModel;
 import com.klarna.payment.constants.KlarnapaymentConstants;
 import com.klarna.payment.enums.KlarnaEnv;
-import com.klarna.payment.facades.impl.DefaultKPConfigFacade;
+import com.klarna.payment.facades.impl.DefaultKlarnaConfigFacade;
 
 
 
 @UnitTest
 public class DefaultKlarnaConfigFacadeUnitTest
 {
-	private DefaultKPConfigFacade defaultKPConfigFacade;
+	private DefaultKlarnaConfigFacade defaultKlarnaConfigFacade;
 
 	@Mock
 	private BaseStoreService baseStoreService;
@@ -56,28 +56,28 @@ public class DefaultKlarnaConfigFacadeUnitTest
 	@Test
 	public void testGetKlarnaConfigNull()
 	{
-		defaultKPConfigFacade = Mockito.spy(new DefaultKPConfigFacade());
-		Mockito.doReturn(baseStoreService).when(defaultKPConfigFacade).getBaseStoreService();
-		Mockito.doReturn(klarnaConfigConverter).when(defaultKPConfigFacade).getKlarnaConfigConverter();
+		defaultKlarnaConfigFacade = Mockito.spy(new DefaultKlarnaConfigFacade());
+		Mockito.doReturn(baseStoreService).when(defaultKlarnaConfigFacade).getBaseStoreService();
+		Mockito.doReturn(klarnaConfigConverter).when(defaultKlarnaConfigFacade).getKlarnaConfigConverter();
 		Mockito.doReturn(baseStoreModel).when(baseStoreService).getCurrentBaseStore();
 		Mockito.when(baseStoreModel.getConfig()).thenReturn(null);
 
 
-		Assert.assertNull(defaultKPConfigFacade.getKlarnaConfig());
+		Assert.assertNull(defaultKlarnaConfigFacade.getKlarnaConfig());
 	}
 
 
 	@Test
 	public void testGetKlarnaConfig()
 	{
-		defaultKPConfigFacade = Mockito.spy(new DefaultKPConfigFacade());
-		Mockito.doReturn(baseStoreService).when(defaultKPConfigFacade).getBaseStoreService();
-		Mockito.doReturn(klarnaConfigConverter).when(defaultKPConfigFacade).getKlarnaConfigConverter();
+		defaultKlarnaConfigFacade = Mockito.spy(new DefaultKlarnaConfigFacade());
+		Mockito.doReturn(baseStoreService).when(defaultKlarnaConfigFacade).getBaseStoreService();
+		Mockito.doReturn(klarnaConfigConverter).when(defaultKlarnaConfigFacade).getKlarnaConfigConverter();
 		Mockito.doReturn(baseStoreModel).when(baseStoreService).getCurrentBaseStore();
 		Mockito.when(baseStoreModel.getConfig()).thenReturn(KlarnaPayConfigModel);
 
 		Mockito.doReturn(config).when(klarnaConfigConverter).convert(Mockito.any(KlarnaConfigModel.class));
-		defaultKPConfigFacade.getKlarnaConfig();
+		defaultKlarnaConfigFacade.getKlarnaConfig();
 		Assert.assertNotNull(config);
 	}
 

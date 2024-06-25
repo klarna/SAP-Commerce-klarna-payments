@@ -2,6 +2,7 @@
 package com.klarna.osm.interceptor;
 
 import de.hybris.platform.addonsupport.interceptors.BeforeViewHandlerAdaptee;
+import de.hybris.platform.servicelayer.config.ConfigurationService;
 import de.hybris.platform.servicelayer.i18n.I18NService;
 
 import javax.annotation.Resource;
@@ -11,62 +12,54 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 import org.springframework.ui.ModelMap;
 
-import com.klarna.data.KlarnaOSMConfigData;
-import com.klarna.osm.facade.KlarnaOSMConfigFacade;
+import com.klarna.data.KlarnaConfigData;
+import com.klarna.data.KlarnaKOSMConfigData;
+import com.klarna.payment.facades.KlarnaConfigFacade;
+
+import com.klarna.osm.constants.KlarnaosmaddonWebConstants;
 
 
 public class KlarnaOSMUiThemeResourceBeforeViewHandlerAdaptee implements BeforeViewHandlerAdaptee
 {
 	private static final Logger LOG = Logger.getLogger(KlarnaOSMUiThemeResourceBeforeViewHandlerAdaptee.class);
 
-	KlarnaOSMConfigFacade klarnaOSMConfigFacade;
+	@Resource(name = "klarnaConfigFacade")
+	KlarnaConfigFacade klarnaConfigFacade;
+
 	@Resource(name = "i18NService")
 	private I18NService i18NService;
 
-	/**
-	 * @return the klarnaOSMConfigFacade
-	 */
-	public KlarnaOSMConfigFacade getKlarnaOSMConfigFacade()
-	{
-		return klarnaOSMConfigFacade;
-	}
-
-	/**
-	 * @param klarnaOSMConfigFacade
-	 *           the klarnaOSMConfigFacade to set
-	 */
-	public void setKlarnaOSMConfigFacade(final KlarnaOSMConfigFacade klarnaOSMConfigFacade)
-	{
-		this.klarnaOSMConfigFacade = klarnaOSMConfigFacade;
-	}
+	@Resource(name = "configurationService")
+	private ConfigurationService configurationService;
 
 	@Override
 	public String beforeView(final HttpServletRequest request, final HttpServletResponse response, final ModelMap model,
 			final String viewName)
 	{
-
 		if (LOG.isDebugEnabled())
 		{
 			LOG.debug("intercepting KlarnaUiThemeResourceBeforeViewHandlerAdaptee  ...");
 		}
-		final KlarnaOSMConfigData configData = klarnaOSMConfigFacade.getKlarnaConfig();
+		final KlarnaConfigData configData = klarnaConfigFacade.getKlarnaConfig();
+
 		if (configData != null)
 		{
-			model.addAttribute("isPdpEnabled", configData.getPdpEnabled());
-			model.addAttribute("isCartEnabled", configData.getCartEnabled());
-			model.addAttribute("isDataInlineEnabled", configData.getDataInlineEnabled());
-			model.addAttribute("scriptUrl", configData.getScriptUrl());
-			model.addAttribute("cartPlacementTagId", configData.getCartPlacementTagID());
-			model.addAttribute("productPlacementTagId", configData.getProductPlacementTagID());
-			model.addAttribute("osmCountry", configData.getCountry());
-			model.addAttribute("uci", configData.getUci());
-			model.addAttribute("locale", i18NService.getCurrentLocale());
-			model.addAttribute("cartTheme", configData.getCartTheme());
-			model.addAttribute("pdpTheme", configData.getPdpTheme());
-			model.addAttribute("customStyle", configData.getCustomStyle());
-
+			final KlarnaKOSMConfigData osmConfigData = configData.getOsmConfig();
+			if (osmConfigData != null)
+			{
+				model.addAttribute("scriptUrlKOSM",
+						configurationService.getConfiguration().getString(KlarnaosmaddonWebConstants.KLARNA_OSM_SCRIPTURL));
+				//model.addAttribute("cartPlacementTagId", configData.getCartPlacementTagID());
+				//model.addAttribute("productPlacementTagId", configData.getProductPlacementTagID());
+				model.addAttribute("osmPlacements", osmConfigData.getPlacements());
+				model.addAttribute("osmCountry", configData.getCredential().getMarketCountry()); //klarnaConfig.getCredential().getMarketCountry()
+				// when KlarnaConfigData is not null credential will also not be null
+				model.addAttribute("uci", configData.getCredential().getClientId());
+				model.addAttribute("locale", i18NService.getCurrentLocale());
+				model.addAttribute("osmTheme", osmConfigData.getTheme());
+				model.addAttribute("customStyle", osmConfigData.getCustomStyle());
+			}
 		}
-
 		return viewName;
 	}
 

@@ -11,15 +11,18 @@
  */
 package com.klarna.converter.populator;
 
+import de.hybris.platform.acceleratorservices.config.SiteConfigService;
 import de.hybris.platform.converters.Populator;
 import de.hybris.platform.servicelayer.dto.converter.ConversionException;
+
+import javax.annotation.Resource;
 
 import org.apache.log4j.Logger;
 
 import com.klarna.data.KlarnaCredentialData;
 import com.klarna.model.KlarnaCredentialModel;
 import com.klarna.payment.constants.KlarnapaymentConstants;
-import com.klarna.payment.facades.KPConfigFacade;
+import com.microsoft.sqlserver.jdbc.StringUtils;
 
 
 /**
@@ -30,7 +33,8 @@ public class KlarnaCredentialPopulator implements Populator<KlarnaCredentialMode
 
 	private static Logger LOG = Logger.getLogger(KlarnaCredentialPopulator.class);
 
-	private KPConfigFacade kpConfigFacade;
+	@Resource(name = "siteConfigService")
+	private SiteConfigService siteConfigService;
 
 	@Override
 	public void populate(final KlarnaCredentialModel source, final KlarnaCredentialData target) throws ConversionException
@@ -40,24 +44,7 @@ public class KlarnaCredentialPopulator implements Populator<KlarnaCredentialMode
 		target.setApiPassword(source.getApiPassword());
 		target.setClientId(source.getClientId());
 		target.setMarketRegion(source.getMarketRegion() != null ? source.getMarketRegion().getCode() : null);
-		target.setMarketCountry(getKpConfigFacade().getConfigurationString(KlarnapaymentConstants.KLARNA_MARKET_COUNTRY_FOR_SITE));
-	}
-
-	/**
-	 * @return the kpConfigFacade
-	 */
-	public KPConfigFacade getKpConfigFacade()
-	{
-		return kpConfigFacade;
-	}
-
-
-	/**
-	 * @param kpConfigFacade
-	 *           the kpConfigFacade to set
-	 */
-	public void setKpConfigFacade(final KPConfigFacade kpConfigFacade)
-	{
-		this.kpConfigFacade = kpConfigFacade;
+		target.setMarketCountry(
+				siteConfigService.getString(KlarnapaymentConstants.KLARNA_MARKET_COUNTRY_FOR_SITE, StringUtils.EMPTY));
 	}
 }

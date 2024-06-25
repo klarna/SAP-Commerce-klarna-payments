@@ -50,9 +50,9 @@ import com.klarna.data.KlarnaCredentialData;
 import com.klarna.payment.constants.GeneratedKlarnapaymentConstants.Enumerations.KlarnaEnv;
 import com.klarna.payment.constants.KlarnapaymentConstants;
 import com.klarna.payment.enums.KlarnaFraudStatusEnum;
-import com.klarna.payment.facades.KPConfigFacade;
 import com.klarna.payment.facades.KPOrderFacade;
 import com.klarna.payment.facades.KPPaymentFacade;
+import com.klarna.payment.facades.KlarnaConfigFacade;
 import com.klarna.payment.model.KPPaymentInfoModel;
 import com.klarna.payment.services.KPCurrencyConversionService;
 import com.klarna.payment.services.KPOrderService;
@@ -72,7 +72,7 @@ public class DefaultKPOrderFacade implements KPOrderFacade
 	private SubmitOrderStrategy eventPublishingSubmitOrderStrategy;
 	private KPOrderService kpOrderService;
 	private BusinessProcessService businessProcessService;
-	private KPConfigFacade kpConfigFacade;
+	private KlarnaConfigFacade klarnaConfigFacade;
 	private KPPaymentFacade kpPaymentFacade;
 	private UserService userService;
 	private CartService cartService;
@@ -178,20 +178,20 @@ public class DefaultKPOrderFacade implements KPOrderFacade
 	}
 
 	/**
-	 * @return the kpConfigFacade
+	 * @return the klarnaConfigFacade
 	 */
-	public KPConfigFacade getKpConfigFacade()
+	public KlarnaConfigFacade getKlarnaConfigFacade()
 	{
-		return kpConfigFacade;
+		return klarnaConfigFacade;
 	}
 
 	/**
-	 * @param kpConfigFacade
-	 *           the kpConfigFacade to set
+	 * @param klarnaConfigFacade
+	 *           the klarnaConfigFacade to set
 	 */
-	public void setKpConfigFacade(final KPConfigFacade kpConfigFacade)
+	public void setKlarnaConfigFacade(final KlarnaConfigFacade klarnaConfigFacade)
 	{
-		this.kpConfigFacade = kpConfigFacade;
+		this.klarnaConfigFacade = klarnaConfigFacade;
 	}
 
 	/**
@@ -327,7 +327,7 @@ public class DefaultKPOrderFacade implements KPOrderFacade
 			LogHelper.debugLog(LOG, "Order Updated on PENDING Notification");
 
 			/**************** KLARNAPII-952 *******************/
-			final KlarnaConfigData klarnaConfig = getKpConfigFacade().getKlarnaConfig();
+			final KlarnaConfigData klarnaConfig = getKlarnaConfigFacade().getKlarnaConfig();
 			final KlarnaCredentialData credential = klarnaConfig.getCredential();
 			if (credential != null)
 			{
@@ -381,7 +381,7 @@ public class DefaultKPOrderFacade implements KPOrderFacade
 			{
 				orderModel.setIsKpFraudRiskStopped(Boolean.TRUE);
 				orderModel.setStatus(OrderStatus.SUSPENDED);
-				final String env = kpConfigFacade.getKlarnaConfig().getEnvironment();
+				final String env = klarnaConfigFacade.getKlarnaConfig().getEnvironment();
 				if (StringUtils.isNotBlank(env) && env.equalsIgnoreCase(KlarnaEnv.PLAYGROUND))
 				{
 					getBusinessProcessService().triggerEvent(orderModel.getCode() + EVENT); //NOSONAR
@@ -405,7 +405,7 @@ public class DefaultKPOrderFacade implements KPOrderFacade
 	{
 		LogHelper.debugLog(LOG, "Entering handleSettlement");
 		final KPPaymentInfoModel klarnaPaymentInfo = (KPPaymentInfoModel) orderModel.getPaymentInfo();
-		final KlarnaConfigData klarnaConfig = kpConfigFacade.getKlarnaConfig();
+		final KlarnaConfigData klarnaConfig = klarnaConfigFacade.getKlarnaConfig();
 		final KlarnaCredentialData credentialData = klarnaConfig.getCredential();
 		if (credentialData != null)
 		{
@@ -492,7 +492,7 @@ public class DefaultKPOrderFacade implements KPOrderFacade
 	public Client getKlarnaClient(final BaseStoreModel store)
 	{
 		LogHelper.debugLog(LOG, "Getting klarna client.. ");
-		final KlarnaConfigData klarnConfigData = kpConfigFacade.getKlarnaConfig();
+		final KlarnaConfigData klarnConfigData = klarnaConfigFacade.getKlarnaConfig();
 
 		if (klarnConfigData != null)
 		{

@@ -16,7 +16,6 @@ import de.hybris.platform.servicelayer.dto.converter.ConversionException;
 
 import com.klarna.api.payments.model.PaymentsCreateOrderRequest;
 import com.klarna.api.payments.model.PaymentsSession;
-import com.klarna.payment.facades.KPConfigFacade;
 
 
 
@@ -26,22 +25,9 @@ import com.klarna.payment.facades.KPConfigFacade;
 public class KlarnaPaymentOrderPopulator implements Populator<PaymentsSession, PaymentsCreateOrderRequest>
 {
 
-	KPConfigFacade kpConfigFacade;
-
-	/**
-	 * @param kpConfigFacade
-	 *           the kpConfigFacade to set
-	 */
-	public void setKpConfigFacade(final KPConfigFacade kpConfigFacade)
-	{
-		this.kpConfigFacade = kpConfigFacade;
-	}
-
 	@Override
 	public void populate(final PaymentsSession source, final PaymentsCreateOrderRequest target) throws ConversionException
 	{
-		//final KlarnaConfigData klarnaConfig = kpConfigFacade.getKlarnaConfig();
-
 		target.setBillingAddress(source.getBillingAddress());
 		target.setShippingAddress(source.getShippingAddress());
 		target.setPurchaseCountry(source.getPurchaseCountry());

@@ -14,8 +14,8 @@ import org.apache.log4j.Logger;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.klarna.data.KlarnaConfigData;
-import com.klarna.payment.facades.KPConfigFacade;
 import com.klarna.payment.facades.KPPaymentCheckoutFacade;
+import com.klarna.payment.facades.KlarnaConfigFacade;
 import com.klarna.payment.util.LogHelper;
 
 
@@ -38,8 +38,8 @@ public class KlarnaPaymentActiveFilter extends OncePerRequestFilter
 	private static final String KLARNA_DISPLAYNAME = "klarna_displayname";
 	private static final String IS_KLARNA_ACTIVE = "is_klarna_active";
 
-	@Resource(name = "kpConfigFacade")
-	private KPConfigFacade kpConfigFacade;
+	@Resource(name = "klarnaConfigFacade")
+	private KlarnaConfigFacade klarnaConfigFacade;
 	@Resource(name = "kpPaymentCheckoutFacade")
 	private KPPaymentCheckoutFacade kpPaymentCheckoutFacade;
 
@@ -59,7 +59,7 @@ public class KlarnaPaymentActiveFilter extends OncePerRequestFilter
 	{
 
 		final String requestURL = request.getServletPath();
-		final KlarnaConfigData klarnaConfig = kpConfigFacade.getKlarnaConfig();
+		final KlarnaConfigData klarnaConfig = klarnaConfigFacade.getKlarnaConfig();
 		final HttpSession session = request.getSession();
 		if (requestURL.contains(DEFAULT_CONFIRMATION))
 		{
@@ -96,13 +96,15 @@ public class KlarnaPaymentActiveFilter extends OncePerRequestFilter
 	{
 		if (requestURL.contains("/checkout/multi/payment-method"))
 		{
-			if (klarnaConfig != null && klarnaConfig.getActive().booleanValue())
+			if (klarnaConfig != null && klarnaConfig.getKpConfig() != null)
 			{
 				LogHelper.debugLog(LOG, "setting klarna parameters");
-				//request.setAttribute(PAYMENT_OPTION, kpConfigFacade.getPaymentOption());
-				//request.setAttribute(KLARNA_LOGO, kpConfigFacade.getLogo());
-				//request.setAttribute(KLARNA_DISPLAYNAME, kpConfigFacade.getDisplayName());
-				request.setAttribute(IS_KLARNA_ACTIVE, kpConfigFacade.getKlarnaConfig().getActive());
+				//request.setAttribute(PAYMENT_OPTION, klarnaConfigFacade.getPaymentOption());
+				//request.setAttribute(KLARNA_LOGO, klarnaConfigFacade.getLogo());
+				//request.setAttribute(KLARNA_DISPLAYNAME, klarnaConfigFacade.getDisplayName());
+
+				// KP Configuration will be populated only if kpConfig is active
+				request.setAttribute(IS_KLARNA_ACTIVE, Boolean.TRUE);
 			}
 			else
 			{

@@ -64,10 +64,10 @@ import com.klarna.model.KlarnaConfigModel;
 import com.klarna.payment.data.KPPaymentInfoData;
 import com.klarna.payment.enums.KlarnaFraudStatusEnum;
 import com.klarna.payment.enums.KlarnaOrderTypeEnum;
-import com.klarna.payment.facades.KPConfigFacade;
 import com.klarna.payment.facades.KPOrderFacade;
 import com.klarna.payment.facades.KPPaymentCheckoutFacade;
 import com.klarna.payment.facades.KPPaymentFacade;
+import com.klarna.payment.facades.KlarnaConfigFacade;
 import com.klarna.payment.model.KPPaymentInfoModel;
 import com.klarna.payment.model.OrderFailedEmailProcessModel;
 import com.klarna.payment.services.KPCurrencyConversionService;
@@ -86,7 +86,7 @@ public class DefaultKPPaymentCheckoutFacade implements KPPaymentCheckoutFacade
 
 	private CartService cartService;
 	private ModelService modelService;
-	private KPConfigFacade kpConfigFacade;
+	private KlarnaConfigFacade klarnaConfigFacade;
 	private CommerceCheckoutService commerceCheckoutService;
 
 	private UserService userService;
@@ -140,11 +140,11 @@ public class DefaultKPPaymentCheckoutFacade implements KPPaymentCheckoutFacade
 	}
 
 	/**
-	 * @return the kpConfigFacade
+	 * @return the klarnaConfigFacade
 	 */
-	public KPConfigFacade getKpConfigFacade()
+	public KlarnaConfigFacade getklarnaConfigFacade()
 	{
-		return kpConfigFacade;
+		return klarnaConfigFacade;
 	}
 
 	/**
@@ -318,12 +318,12 @@ public class DefaultKPPaymentCheckoutFacade implements KPPaymentCheckoutFacade
 	}
 
 	/**
-	 * @param kpConfigFacade
-	 *           the kpConfigFacade to set
+	 * @param klarnaConfigFacade
+	 *           the klarnaConfigFacade to set
 	 */
-	public void setKpConfigFacade(final KPConfigFacade kpConfigFacade)
+	public void setklarnaConfigFacade(final KlarnaConfigFacade klarnaConfigFacade)
 	{
-		this.kpConfigFacade = kpConfigFacade;
+		this.klarnaConfigFacade = klarnaConfigFacade;
 	}
 
 	/**
@@ -448,7 +448,7 @@ public class DefaultKPPaymentCheckoutFacade implements KPPaymentCheckoutFacade
 
 			//else if autocapture, do catpure
 
-			final KlarnaConfigData klarnaConfig = getKpConfigFacade().getKlarnaConfig();
+			final KlarnaConfigData klarnaConfig = getklarnaConfigFacade().getKlarnaConfig();
 			/* Creating settlement request only when fraud status is accepted or FRAUD_RISK_ACCEPTED */
 			if (fraudStatus.equals(KlarnaFraudStatusEnum.ACCEPTED.getValue())
 					|| fraudStatus.equals(KlarnaFraudStatusEnum.FRAUD_RISK_ACCEPTED.getValue()))
@@ -475,7 +475,7 @@ public class DefaultKPPaymentCheckoutFacade implements KPPaymentCheckoutFacade
 	@Override
 	public void doAutoCapture(final String kpOrderId) throws ApiException, IOException
 	{
-		final KlarnaConfigData klarnaConfig = getKpConfigFacade().getKlarnaConfig();
+		final KlarnaConfigData klarnaConfig = getklarnaConfigFacade().getKlarnaConfig();
 		if (klarnaConfig.getCredential() != null && BooleanUtils.isFalse(klarnaConfig.getCredential().getVcnEnabled())
 				&& (klarnaConfig.getKpConfig() != null && BooleanUtils.isTrue(klarnaConfig.getKpConfig().getAutoCapture())))
 		{

@@ -14,7 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.klarna.payment.facades.KPConfigFacade;
+import com.klarna.payment.facades.KlarnaConfigFacade;
 
 
 public class NetPriceForNorthAmericanFilter extends OncePerRequestFilter
@@ -23,8 +23,8 @@ public class NetPriceForNorthAmericanFilter extends OncePerRequestFilter
 
 	public final static String KLARNA_CHECKOUT_URL = "/klarna/";
 
-	@Resource(name = "kpConfigFacade")
-	private KPConfigFacade kpConfigFacade;
+	@Resource(name = "klarnaConfigFacade")
+	private KlarnaConfigFacade klarnaConfigFacade;
 	@Resource(name = "baseStoreService")
 	private BaseStoreService baseStoreService;
 
@@ -49,7 +49,7 @@ public class NetPriceForNorthAmericanFilter extends OncePerRequestFilter
 	protected boolean validBaseStoreConfiguration()
 	{
 		final BaseStoreModel baseStoreModel = baseStoreService.getCurrentBaseStore();
-		if (kpConfigFacade.isNorthAmerianKlarnaPayment())
+		if (klarnaConfigFacade.isNorthAmerianKlarnaPayment())
 		{
 			if (!baseStoreModel.isNet())
 			{
@@ -70,12 +70,12 @@ public class NetPriceForNorthAmericanFilter extends OncePerRequestFilter
 
 
 	/**
-	 * @param kpConfigFacade
-	 *           the kpConfigFacade to set
+	 * @param klarnaConfigFacade
+	 *           the klarnaConfigFacade to set
 	 */
-	public void setKpConfigFacade(final KPConfigFacade kpConfigFacade)
+	public void setKlarnaConfigFacade(final KlarnaConfigFacade klarnaConfigFacade)
 	{
-		this.kpConfigFacade = kpConfigFacade;
+		this.klarnaConfigFacade = klarnaConfigFacade;
 	}
 
 	public BaseStoreService getBaseStoreService()

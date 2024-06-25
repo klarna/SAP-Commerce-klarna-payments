@@ -42,16 +42,14 @@
 	<bean id="klarnaosmaddonSampleDataEventListener" parent="abstractGenericAddOnSampleDataEventListener"  >
 		<property name="extensionName" value="klarnaosmaddon" />
 	</bean>
-
- <alias name="defaultKlarnaOSMConfigFacade" alias="klarnaOSMConfigFacade"/>
+	<!-- Klarna OSM Config -->
+ 	<alias name="defaultKlarnaOSMConfigFacade" alias="klarnaOSMConfigFacade"/>
     <bean id="defaultKlarnaOSMConfigFacade" class="com.klarna.osm.facade.impl.DefaultKlarnaOSMConfigFacade">
-        <property name="baseStoreService" ref="baseStoreService"/>
-        <property name="klarnaOsmConfigConverter" ref="klarnaOsmConfigConverter"/>
     </bean>
     
     <alias name="defaultKlarnaOsmConfigConverter" alias="klarnaOsmConfigConverter"/>
     <bean id="defaultKlarnaOsmConfigConverter" parent="abstractPopulatingConverter">
-        <property name="targetClass" value="com.klarna.data.KlarnaOSMConfigData"/>
+        <property name="targetClass" value="com.klarna.data.KlarnaKOSMConfigData"/>
         <property name="populators">
             <list>
                 <ref bean="klarnaOsmConfigPopulator"/>

@@ -15,7 +15,7 @@ import org.springframework.ui.ModelMap;
 import com.klarna.data.KlarnaConfigData;
 import com.klarna.data.KlarnaKECConfigData;
 import com.klarna.data.KlarnaSIWKConfigData;
-import com.klarna.payment.facades.KPConfigFacade;
+import com.klarna.payment.facades.KlarnaConfigFacade;
 import com.klarna.payment.facades.KlarnaExpCheckoutFacade;
 import com.klarna.payment.facades.KlarnaSignInFacade;
 
@@ -31,8 +31,8 @@ public class KlarnaBeforeViewHandler implements BeforeViewHandlerAdaptee
 	@Resource(name = "klarnaExpCheckoutFacade")
 	private KlarnaExpCheckoutFacade klarnaExpCheckoutFacade;
 
-	@Resource(name = "kpConfigFacade")
-	private KPConfigFacade kpConfigFacade;
+	@Resource(name = "klarnaConfigFacade")
+	private KlarnaConfigFacade klarnaConfigFacade;
 
 	@Resource(name = "i18NService")
 	private I18NService i18NService;
@@ -64,10 +64,10 @@ public class KlarnaBeforeViewHandler implements BeforeViewHandlerAdaptee
 
 	private void setKlarnaExpressCheckoutAttributes(final ModelMap model)
 	{
-		if (kpConfigFacade != null && klarnaExpCheckoutFacade != null)
+		if (klarnaConfigFacade != null && klarnaExpCheckoutFacade != null)
 		{
 			// Enabling Klarna Payment is a prerequisite  for enabling Klarna Express Checkou
-			final KlarnaConfigData klarnaConfig = kpConfigFacade.getKlarnaConfig();
+			final KlarnaConfigData klarnaConfig = klarnaConfigFacade.getKlarnaConfig();
 			if (klarnaConfig != null && BooleanUtils.isTrue(klarnaConfig.getActive()))
 			{
 				KlarnaKECConfigData klarnaKECConfigData = klarnaConfig.getKecConfig();
@@ -75,8 +75,11 @@ public class KlarnaBeforeViewHandler implements BeforeViewHandlerAdaptee
 				{
 					model.addAttribute(IS_KLARNA_EXP_CHECKOUT_ENABLED, Boolean.TRUE);
 					model.addAttribute(KLARNA_EXP_CHECKOUT_CONFIG_DATA, klarnaKECConfigData);
-					model.addAttribute(CURRENT_LOCALE,
-							i18NService.getCurrentLocale() + "-" + commonI18NService.getCurrentCurrency().getIsocode());
+					if (klarnaConfig.getCredential() != null)
+					{
+						model.addAttribute(CURRENT_LOCALE,
+								i18NService.getCurrentLocale() + "-" + klarnaConfig.getCredential().getMarketCountry());
+					}
 				}
 				else
 				{
@@ -96,7 +99,7 @@ public class KlarnaBeforeViewHandler implements BeforeViewHandlerAdaptee
 		{
 			LOG.debug("Inside setKlarnaSignInAttributes");
 		}
-		final KlarnaConfigData klarnaConfig = kpConfigFacade.getKlarnaConfig();
+		final KlarnaConfigData klarnaConfig = klarnaConfigFacade.getKlarnaConfig();
 		if (klarnaConfig != null)
 		{
 			KlarnaSIWKConfigData siwkData = klarnaConfig.getSiwkConfig();
@@ -105,8 +108,11 @@ public class KlarnaBeforeViewHandler implements BeforeViewHandlerAdaptee
 				System.out.println("KlarnaSIWKConfigData " + siwkData.getActive() + " Scope Data  " + siwkData.getScopeData());
 				model.addAttribute(IS_KLARNA_SIGN_IN_ENABLED, Boolean.TRUE);
 				model.addAttribute(KLARNA_SIGN_IN_CONFIG_DATA, siwkData);
-				model.addAttribute(CURRENT_LOCALE,
-						i18NService.getCurrentLocale() + "-" + commonI18NService.getCurrentCurrency().getIsocode());
+				if (klarnaConfig.getCredential() != null)
+				{
+					model.addAttribute(CURRENT_LOCALE,
+							i18NService.getCurrentLocale() + "-" + klarnaConfig.getCredential().getMarketCountry());
+				}
 			}
 			else
 			{

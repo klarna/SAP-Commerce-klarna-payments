@@ -24,8 +24,8 @@ import com.klarna.api.checkout.model.emd.ExtraMerchantDataBody;
 import com.klarna.api.payments.model.PaymentsAttachment;
 import com.klarna.api.payments.model.PaymentsSession;
 import com.klarna.data.KlarnaConfigData;
-import com.klarna.payment.facades.KPConfigFacade;
 import com.klarna.payment.facades.KPCustomerFacade;
+import com.klarna.payment.facades.KlarnaConfigFacade;
 import com.klarna.payment.util.LogHelper;
 
 
@@ -35,7 +35,7 @@ public class KPCreditSessionAttPopulator implements Populator<AbstractOrderModel
 	protected static final Logger LOG = Logger.getLogger(KPCreditSessionAttPopulator.class);
 
 
-	private KPConfigFacade kpConfigFacade;
+	private KlarnaConfigFacade klarnaConfigFacade;
 
 
 	private KPCreditSessionPopulator kpCreditSessionPopulator;
@@ -45,20 +45,20 @@ public class KPCreditSessionAttPopulator implements Populator<AbstractOrderModel
 
 
 	/**
-	 * @return the kpConfigFacade
+	 * @return the klarnaConfigFacade
 	 */
-	public KPConfigFacade getKpConfigFacade()
+	public KlarnaConfigFacade getKlarnaConfigFacade()
 	{
-		return kpConfigFacade;
+		return klarnaConfigFacade;
 	}
 
 	/**
-	 * @param kpConfigFacade
-	 *           the kpConfigFacade to set
+	 * @param klarnaConfigFacade
+	 *           the klarnaConfigFacade to set
 	 */
-	public void setKpConfigFacade(final KPConfigFacade kpConfigFacade)
+	public void setKlarnaConfigFacade(final KlarnaConfigFacade klarnaConfigFacade)
 	{
-		this.kpConfigFacade = kpConfigFacade;
+		this.klarnaConfigFacade = klarnaConfigFacade;
 	}
 
 	/**
@@ -135,7 +135,7 @@ public class KPCreditSessionAttPopulator implements Populator<AbstractOrderModel
 		LogHelper.debugLog(LOG, "inside full populator");
 		Assert.notNull(source, "Parameter source cannot be null.");
 		Assert.notNull(target, "Parameter target cannot be null.");
-		final KlarnaConfigData klarnaConfig = kpConfigFacade.getKlarnaConfig();
+		final KlarnaConfigData klarnaConfig = klarnaConfigFacade.getKlarnaConfig();
 		kpCreditSessionPopulator.populate(source, target);
 		addAttachment(target, klarnaConfig);
 
@@ -143,43 +143,44 @@ public class KPCreditSessionAttPopulator implements Populator<AbstractOrderModel
 
 	private void addAttachment(final PaymentsSession target, final KlarnaConfigData klarnaConfig)
 	{
-		//if (klarnaConfig.getAttachementRequired() != null && klarnaConfig.getAttachementRequired().booleanValue())
-		//{
-		LogHelper.debugLog(LOG, "inside attachemnt creation");
-		final CustomerAccountInformation customerAccountInformation = new CustomerAccountInformation();
-
-		if (!kpCustomerFacade.isAnonymousCheckout())
-
+		if (klarnaConfig != null && klarnaConfig.getKpConfig() != null
+				&& Boolean.TRUE.equals(klarnaConfig.getKpConfig().getSendEMD()))
 		{
-			final List<CustomerAccountInformation> custmerInfoList = new ArrayList();
-			final CustomerData customerData = customerFacade.getCurrentCustomer();
-			final String customerUid = customerData.getUid();
-			final CustomerModel customerModel = (CustomerModel) userService.getUserForUID(customerUid);
+			LogHelper.debugLog(LOG, "inside attachemnt creation");
+			final CustomerAccountInformation customerAccountInformation = new CustomerAccountInformation();
 
-			customerAccountInformation.setUniqueAccountIdentifier(customerModel.getCustomerID());
+			if (!kpCustomerFacade.isAnonymousCheckout())
 
-			customerAccountInformation.setAccountLastModified(
-					OffsetDateTime.ofInstant(customerModel.getModifiedtime().toInstant(), ZoneId.systemDefault()));
-			customerAccountInformation.setAccountRegistrationDate(
-					OffsetDateTime.ofInstant(customerModel.getCreationtime().toInstant(), ZoneId.systemDefault()));
-			custmerInfoList.add(customerAccountInformation);
-			final ExtraMerchantDataBody extraMerchantDataBody = new ExtraMerchantDataBody();
-			extraMerchantDataBody.setCustomerAccountInfo(custmerInfoList);
-			final PaymentsAttachment paymentsAttachment = new PaymentsAttachment();
-			paymentsAttachment.setContentType("application/vnd.klarna.internal.emd-v2+json");
-			final ObjectMapper om = new DefaultMapper();
-			try
 			{
-				paymentsAttachment.setBody(om.writeValueAsString(extraMerchantDataBody));
+				final List<CustomerAccountInformation> custmerInfoList = new ArrayList();
+				final CustomerData customerData = customerFacade.getCurrentCustomer();
+				final String customerUid = customerData.getUid();
+				final CustomerModel customerModel = (CustomerModel) userService.getUserForUID(customerUid);
+
+				customerAccountInformation.setUniqueAccountIdentifier(customerModel.getCustomerID());
+
+				customerAccountInformation.setAccountLastModified(
+						OffsetDateTime.ofInstant(customerModel.getModifiedtime().toInstant(), ZoneId.systemDefault()));
+				customerAccountInformation.setAccountRegistrationDate(
+						OffsetDateTime.ofInstant(customerModel.getCreationtime().toInstant(), ZoneId.systemDefault()));
+				custmerInfoList.add(customerAccountInformation);
+				final ExtraMerchantDataBody extraMerchantDataBody = new ExtraMerchantDataBody();
+				extraMerchantDataBody.setCustomerAccountInfo(custmerInfoList);
+				final PaymentsAttachment paymentsAttachment = new PaymentsAttachment();
+				paymentsAttachment.setContentType("application/vnd.klarna.internal.emd-v2+json");
+				final ObjectMapper om = new DefaultMapper();
+				try
+				{
+					paymentsAttachment.setBody(om.writeValueAsString(extraMerchantDataBody));
+				}
+				catch (final JsonProcessingException e1)
+				{
+					// YTODO Auto-generated catch block
+					LOG.error(e1);
+				}
+				target.setAttachment(paymentsAttachment);
 			}
-			catch (final JsonProcessingException e1)
-			{
-				// YTODO Auto-generated catch block
-				LOG.error(e1);
-			}
-			target.setAttachment(paymentsAttachment);
 		}
-		//}
 
 	}
 

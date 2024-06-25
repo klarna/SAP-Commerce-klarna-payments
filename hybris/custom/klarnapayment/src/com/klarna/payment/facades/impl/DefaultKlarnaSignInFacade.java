@@ -140,15 +140,8 @@ public class DefaultKlarnaSignInFacade implements KlarnaSignInFacade
 				else if (user instanceof CustomerModel)
 				{
 					final CustomerModel customer = (CustomerModel) user;
-					if (customer.getKlarnaCustomerProfile() == null)
-					{
-						return KlarnaSigninProfileStatus.MERGE_AFTER_CONSENT;
-					}
-					else
-					{
-						updateCustomer(customer, klarnaSigninUserAccountProfile, klarnaSigninResponse.getUserAccountLinking());
-						return KlarnaSigninProfileStatus.ACCOUNT_UPDATED;
-					}
+					updateCustomer(customer, klarnaSigninUserAccountProfile, klarnaSigninResponse.getUserAccountLinking());
+					return KlarnaSigninProfileStatus.ACCOUNT_UPDATED;
 				}
 			}
 		}

@@ -24,8 +24,8 @@ import com.klarna.data.KlarnaConfigData;
 import com.klarna.payment.constants.KlarnapaymentConstants;
 import com.klarna.payment.data.KlarnaMerchantURLs;
 import com.klarna.payment.exceptions.MissingMerchantURLException;
-import com.klarna.payment.facades.KPConfigFacade;
 import com.klarna.payment.facades.KPCustomerFacade;
+import com.klarna.payment.facades.KlarnaConfigFacade;
 import com.klarna.payment.util.KlarnaDateFormatterUtil;
 import com.klarna.payment.util.LogHelper;
 
@@ -34,9 +34,9 @@ public class KPCreditSessionPopulator implements Populator<AbstractOrderModel, P
 {
 
 	protected static final Logger LOG = Logger.getLogger(KPCreditSessionPopulator.class);
+	private static final String AUTH_CALL_BACK_URL = "/klarna/payment/auth-callback";
 
-
-	private KPConfigFacade kpConfigFacade;
+	private KlarnaConfigFacade klarnaConfigFacade;
 
 
 	private KPCreditSessionInitialPopulator kpCreditSessionInitialPopulator;
@@ -55,7 +55,7 @@ public class KPCreditSessionPopulator implements Populator<AbstractOrderModel, P
 		LogHelper.debugLog(LOG, "inside full populator");
 		Assert.notNull(source, "Parameter source cannot be null.");
 		Assert.notNull(target, "Parameter target cannot be null.");
-		final KlarnaConfigData klarnaConfig = kpConfigFacade.getKlarnaConfig();
+		final KlarnaConfigData klarnaConfig = klarnaConfigFacade.getKlarnaConfig();
 		kpCreditSessionInitialPopulator.populate(source, target);
 		addKlarnaOthers(source, target);
 		addMerchantReferences(source, target, klarnaConfig);
@@ -142,6 +142,8 @@ public class KPCreditSessionPopulator implements Populator<AbstractOrderModel, P
 		}
 		urls.setConfirmation(confirmationUrl);
 		urls.setNotification(notificationUrl);
+		final String authCallBackURL = AUTH_CALL_BACK_URL;
+		urls.setAuthorization(authCallBackURL);
 		return urls;
 	}
 
@@ -275,12 +277,12 @@ public class KPCreditSessionPopulator implements Populator<AbstractOrderModel, P
 	}
 
 	/**
-	 * @param kpConfigFacade
-	 *           the kpConfigFacade to set
+	 * @param klarnaConfigFacade
+	 *           the klarnaConfigFacade to set
 	 */
-	public void setKpConfigFacade(final KPConfigFacade kpConfigFacade)
+	public void setKlarnaConfigFacade(final KlarnaConfigFacade klarnaConfigFacade)
 	{
-		this.kpConfigFacade = kpConfigFacade;
+		this.klarnaConfigFacade = klarnaConfigFacade;
 	}
 
 	/**

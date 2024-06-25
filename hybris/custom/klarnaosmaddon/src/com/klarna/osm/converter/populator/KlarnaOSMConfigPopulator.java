@@ -14,11 +14,15 @@ package com.klarna.osm.converter.populator;
 import de.hybris.platform.converters.Populator;
 import de.hybris.platform.servicelayer.dto.converter.ConversionException;
 
-import com.klarna.data.KlarnaOSMConfigData;
-import com.klarna.osm.model.KlarnaOSMConfigModel;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.klarna.data.KlarnaKOSMConfigData;
+import com.klarna.osm.model.KlarnaKOSMConfigModel;
+import com.klarna.payment.enums.KlarnaOSMPlacement;
 
 
-public class KlarnaOSMConfigPopulator implements Populator<KlarnaOSMConfigModel, KlarnaOSMConfigData>
+public class KlarnaOSMConfigPopulator implements Populator<KlarnaKOSMConfigModel, KlarnaKOSMConfigData>
 {
 
 
@@ -26,42 +30,30 @@ public class KlarnaOSMConfigPopulator implements Populator<KlarnaOSMConfigModel,
 	 * Populate data from KlarnaConfigModel to KlarnaConfigData
 	 */
 	@Override
-	public void populate(final KlarnaOSMConfigModel source, final KlarnaOSMConfigData target) throws ConversionException
+	public void populate(final KlarnaKOSMConfigModel source, final KlarnaKOSMConfigData target) throws ConversionException
 	{
 		target.setCode(source.getCode());
-		target.setPdpEnabled(source.getPdpEnabled());
-		target.setCartEnabled(source.getCartEnabled());
-		if (source.getDataInlineEnabled() == null)
+		target.setActive(source.getActive());
+		target.setPlacements(getKOSMPlacements(source.getPlacements()));
+		if (null != source.getTheme())
 		{
-			target.setDataInlineEnabled(Boolean.FALSE);
+			target.setTheme(source.getTheme().getCode());
 		}
 		else
 		{
-			target.setDataInlineEnabled(source.getDataInlineEnabled());
-		}
-		target.setCountry(source.getCountry().getIsocode());
-		target.setCartPlacementTagID(source.getCartPlacementTagID());
-		target.setScriptUrl(source.getScriptUrl());
-		target.setProductPlacementTagID(source.getProductPlacementTagID());
-		target.setUci(source.getUci());
-		if (null != source.getCartTheme())
-		{
-			target.setCartTheme(source.getCartTheme().getCode());
-		}
-		else
-		{
-			target.setCartTheme(source.getCartTheme().DEFAULT.getCode());
-		}
-		if (null != source.getPdpTheme())
-		{
-			target.setPdpTheme(source.getPdpTheme().getCode());
-		}
-		else
-		{
-			target.setPdpTheme(source.getPdpTheme().DEFAULT.getCode());
+			target.setTheme(source.getTheme().DEFAULT.getCode());
 		}
 		target.setCustomStyle(source.getCustomStyle());
 
 	}
 
+	private List<String> getKOSMPlacements(final List<KlarnaOSMPlacement> placements)
+	{
+		final List<String> placementCodes = new ArrayList<String>();
+		for (final KlarnaOSMPlacement placement : placements)
+		{
+			placementCodes.add(placement.getCode());
+		}
+		return placementCodes;
+	}
 }

@@ -26,8 +26,8 @@ public final class KlarnapaymentConstants extends GeneratedKlarnapaymentConstant
 
 	public static final String PLATFORM_LOGO_CODE = "klarnapaymentPlatformLogo";
 
-	public static final String KLARNA_MARKET_COUNTRY_FOR_SITE = "klarna.market.country.";
-	public static final String KLARNA_MARKET_REGION_FOR_SITE = "klarna.market.region.";
+	public static final String KLARNA_MARKET_COUNTRY_FOR_SITE = "klarna.market.country";
+	public static final String KLARNA_MARKET_REGION_FOR_SITE = "klarna.market.region";
 	public static final String KLARNA_MARKET_COUNTRY_ALL = "ALL";
 	public static final String KLARNA_MARKET_REGION_EUROPE = "EU";
 	public static final String KLARNA_MARKET_REGION_AMERICAS = "NA";

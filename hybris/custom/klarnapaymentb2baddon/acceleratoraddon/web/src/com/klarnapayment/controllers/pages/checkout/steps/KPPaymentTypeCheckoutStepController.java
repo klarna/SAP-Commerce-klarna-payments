@@ -11,21 +11,19 @@ import de.hybris.platform.acceleratorstorefrontcommons.constants.WebConstants;
 import de.hybris.platform.acceleratorstorefrontcommons.controllers.ThirdPartyConstants;
 import de.hybris.platform.acceleratorstorefrontcommons.controllers.pages.checkout.steps.AbstractCheckoutStepController;
 import de.hybris.platform.acceleratorstorefrontcommons.controllers.util.GlobalMessages;
+import de.hybris.platform.b2b.enums.CheckoutPaymentType;
 import de.hybris.platform.b2bacceleratoraddon.controllers.B2bacceleratoraddonControllerConstants;
 import de.hybris.platform.b2bacceleratoraddon.forms.PaymentTypeForm;
 import de.hybris.platform.b2bacceleratoraddon.forms.validation.PaymentTypeFormValidator;
-import de.hybris.platform.b2bacceleratorfacades.api.cart.CheckoutFacade;
 import de.hybris.platform.b2bacceleratorfacades.order.data.B2BPaymentTypeData;
-import de.hybris.platform.b2b.enums.CheckoutPaymentType;
 import de.hybris.platform.b2bcommercefacades.company.B2BCostCenterFacade;
 import de.hybris.platform.b2bcommercefacades.company.data.B2BCostCenterData;
 import de.hybris.platform.cms2.exceptions.CMSItemNotFoundException;
 import de.hybris.platform.cms2.model.pages.ContentPageModel;
+import de.hybris.platform.commercefacades.order.CheckoutFacade;
 import de.hybris.platform.commercefacades.order.data.CartData;
 import de.hybris.platform.commercefacades.user.data.AddressData;
 import de.hybris.platform.commerceservices.order.CommerceCartModificationException;
-import com.klarna.payment.data.KlarnaConfigData;
-import com.klarna.payment.facades.KPConfigFacade;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -43,9 +41,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.klarna.api.payments.model.PaymentsSession;
-import com.klarna.payment.data.KlarnaConfigData;
-import com.klarna.payment.util.LogHelper;
+import com.klarna.data.KlarnaConfigData;
+import com.klarna.payment.facades.KlarnaConfigFacade;
 
 
 @Controller
@@ -62,9 +59,9 @@ public class KPPaymentTypeCheckoutStepController extends AbstractCheckoutStepCon
 
 	@Resource(name = "paymentTypeFormValidator")
 	private PaymentTypeFormValidator paymentTypeFormValidator;
-	
-	@Resource(name = "kpConfigFacade")
-	private KPConfigFacade kpConfigFacade;
+
+	@Resource(name = "klarnaConfigFacade")
+	private KlarnaConfigFacade klarnaConfigFacade;
 
 	@ModelAttribute("paymentTypes")
 	public Collection<B2BPaymentTypeData> getAllB2BPaymentTypes()
@@ -87,12 +84,12 @@ public class KPPaymentTypeCheckoutStepController extends AbstractCheckoutStepCon
 	public String enterStep(final Model model, final RedirectAttributes redirectAttributes)
 			throws CMSItemNotFoundException, CommerceCartModificationException
 	{
-		final KlarnaConfigData klarnaConfig = kpConfigFacade.getKlarnaConfig();
+		final KlarnaConfigData klarnaConfig = klarnaConfigFacade.getKlarnaConfig();
 		if (klarnaConfig != null && klarnaConfig.getActive().booleanValue())
 		{
-			model.addAttribute("isKlarnaActive", Boolean.TRUE);	
-		}	
-		
+			model.addAttribute("isKlarnaActive", Boolean.TRUE);
+		}
+
 		final CartData cartData = getCheckoutFacade().getCheckoutCart();
 		model.addAttribute("cartData", cartData);
 		model.addAttribute("paymentTypeForm", preparePaymentTypeForm(cartData));
@@ -110,8 +107,9 @@ public class KPPaymentTypeCheckoutStepController extends AbstractCheckoutStepCon
 
 	@RequestMapping(value = "/choose", method = RequestMethod.POST)
 	@RequireHardLogIn
-	public String choose(@ModelAttribute final PaymentTypeForm paymentTypeForm, final BindingResult bindingResult,
-			final Model model) throws CMSItemNotFoundException, CommerceCartModificationException
+	public String choose(@ModelAttribute
+	final PaymentTypeForm paymentTypeForm, final BindingResult bindingResult, final Model model)
+			throws CMSItemNotFoundException, CommerceCartModificationException
 	{
 		paymentTypeFormValidator.validate(paymentTypeForm, bindingResult);
 

@@ -43,7 +43,6 @@
 
 	<bean id="klarnaOSMUiThemeResourceBeforeViewHandlerAdaptee"
           class="com.klarna.osm.interceptor.KlarnaOSMUiThemeResourceBeforeViewHandlerAdaptee">
-          <property name="klarnaOSMConfigFacade" ref="klarnaOSMConfigFacade"/>
      </bean>
     <bean id="getKlarnaOSMUiThemeResourceBeforeViewHandler" parent="beforeViewHandlerAdapter">
         <property name="adaptee">
