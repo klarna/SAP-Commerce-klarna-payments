@@ -15,12 +15,12 @@ import de.hybris.platform.b2b.enums.CheckoutPaymentType;
 import de.hybris.platform.b2bacceleratoraddon.controllers.B2bacceleratoraddonControllerConstants;
 import de.hybris.platform.b2bacceleratoraddon.forms.PaymentTypeForm;
 import de.hybris.platform.b2bacceleratoraddon.forms.validation.PaymentTypeFormValidator;
+import de.hybris.platform.b2bacceleratorfacades.api.cart.CheckoutFacade;
 import de.hybris.platform.b2bacceleratorfacades.order.data.B2BPaymentTypeData;
 import de.hybris.platform.b2bcommercefacades.company.B2BCostCenterFacade;
 import de.hybris.platform.b2bcommercefacades.company.data.B2BCostCenterData;
 import de.hybris.platform.cms2.exceptions.CMSItemNotFoundException;
 import de.hybris.platform.cms2.model.pages.ContentPageModel;
-import de.hybris.platform.commercefacades.order.CheckoutFacade;
 import de.hybris.platform.commercefacades.order.data.CartData;
 import de.hybris.platform.commercefacades.user.data.AddressData;
 import de.hybris.platform.commerceservices.order.CommerceCartModificationException;
@@ -85,7 +85,8 @@ public class KPPaymentTypeCheckoutStepController extends AbstractCheckoutStepCon
 			throws CMSItemNotFoundException, CommerceCartModificationException
 	{
 		final KlarnaConfigData klarnaConfig = klarnaConfigFacade.getKlarnaConfig();
-		if (klarnaConfig != null && klarnaConfig.getActive().booleanValue())
+		// KpConfig will be present when KpConfig is active
+		if (klarnaConfig != null && klarnaConfig.getKpConfig() != null)
 		{
 			model.addAttribute("isKlarnaActive", Boolean.TRUE);
 		}
