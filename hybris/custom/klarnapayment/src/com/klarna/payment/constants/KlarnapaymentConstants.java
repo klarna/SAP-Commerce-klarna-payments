@@ -37,4 +37,5 @@ public final class KlarnapaymentConstants extends GeneratedKlarnapaymentConstant
 	public static final String MERCHANT_CONFIRM_PAGE_URL_NOT_FIND = "Coulld Not find URL of merchant confirmation page";
 	public static final String KP_MERCHANT_URL_CONFIRMATION = "klarnacheckout.merchant.url.confirmation";
 	public static final String KP_MERCHANT_URL_NOTIFICATION = "klarnacheckout.merchant.url.notification";
+	public static final String KP_MERCHANT_URL_AUTHORIZATION = "klarnacheckout.merchant.url.authorization";
 }

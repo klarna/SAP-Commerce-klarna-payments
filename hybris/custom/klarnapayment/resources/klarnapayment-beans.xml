@@ -86,7 +86,6 @@
 		<property name="merchantEmail"		type="String"	/>
 		<property name="merchantReference2"	type="String"	/>
 		<property name="sendEMD"			type="Boolean"	/>
-		<property name="productUrlsRequired"	type="Boolean"	/>
 		<property name="autoCapture"		type="Boolean"	/>
 		<property name="customStyle"		type="String"	/>
 	</bean>
@@ -130,6 +129,7 @@
 	<bean class="com.klarna.payment.data.KlarnaMerchantURLs">
 		<property name="confirmationURL" type="String"/>
 		<property name="notificationUpdateURL" type="String"/>
+		<property name="authorizationUpdateURL" type="String"/>
 	</bean>
 	
 	<bean class="com.klarna.payment.data.ProductIdentifiers">

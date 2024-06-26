@@ -34,7 +34,6 @@ public class KPCreditSessionPopulator implements Populator<AbstractOrderModel, P
 {
 
 	protected static final Logger LOG = Logger.getLogger(KPCreditSessionPopulator.class);
-	private static final String AUTH_CALL_BACK_URL = "/klarna/payment/auth-callback";
 
 	private KlarnaConfigFacade klarnaConfigFacade;
 
@@ -131,6 +130,8 @@ public class KPCreditSessionPopulator implements Populator<AbstractOrderModel, P
 		String notificationUrl = StringUtils.isNotBlank(merchantUrl.getNotificationUpdateURL())
 				? merchantUrl.getNotificationUpdateURL()
 				: StringUtils.EMPTY;
+		String authUrl = StringUtils.isNotBlank(merchantUrl.getAuthorizationUpdateURL()) ? merchantUrl.getAuthorizationUpdateURL()
+				: StringUtils.EMPTY;
 		if (StringUtils.isNotBlank(kid) && StringUtils.isNotBlank(confirmationUrl))
 		{
 			confirmationUrl = confirmationUrl + "?kid=" + kid;
@@ -140,10 +141,15 @@ public class KPCreditSessionPopulator implements Populator<AbstractOrderModel, P
 		{
 			notificationUrl = notificationUrl + "?kid=" + kid;
 		}
+
+		if (StringUtils.isNotBlank(kid) && StringUtils.isNotBlank(authUrl))
+		{
+			authUrl = authUrl + "?kid=" + kid;
+		}
+
 		urls.setConfirmation(confirmationUrl);
 		urls.setNotification(notificationUrl);
-		final String authCallBackURL = AUTH_CALL_BACK_URL;
-		urls.setAuthorization(authCallBackURL);
+		urls.setAuthorization(authUrl);
 		return urls;
 	}
 
@@ -160,6 +166,8 @@ public class KPCreditSessionPopulator implements Populator<AbstractOrderModel, P
 
 		klarnaMerchantURLs
 				.setNotificationUpdateURL(getSiteConfigService().getProperty(KlarnapaymentConstants.KP_MERCHANT_URL_NOTIFICATION));
+		klarnaMerchantURLs
+				.setAuthorizationUpdateURL(getSiteConfigService().getProperty(KlarnapaymentConstants.KP_MERCHANT_URL_AUTHORIZATION));
 		return klarnaMerchantURLs;
 	}
 

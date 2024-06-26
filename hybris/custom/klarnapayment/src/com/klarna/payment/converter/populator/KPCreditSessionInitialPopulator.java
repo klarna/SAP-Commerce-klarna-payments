@@ -169,7 +169,6 @@ public class KPCreditSessionInitialPopulator implements Populator<AbstractOrderM
 		{
 			LOG.warn("Klarna Payment :: Parsing of Custom style failed with error " + e.getMessage() + " for the below content \n"
 					+ customStyle);
-			checkoutOption = obejectMapper.readValue("{}", PaymentsOptions.class);
 		}
 		LOG.info("checkoutOption " + checkoutOption);
 		//checkoutOption =om.convertValue(customStyle, checkoutOption);
@@ -279,9 +278,7 @@ public class KPCreditSessionInitialPopulator implements Populator<AbstractOrderM
 		orderLine.setQuantityUnit(entry.getUnit().getName());
 		orderLine.setUnitPrice(KlarnaConversionUtils.getKlarnaLongValue(convertToPurchaseCurrencyPrice(entry.getBasePrice())));
 		orderLine.setTotalAmount(KlarnaConversionUtils.getKlarnaLongValue(convertToPurchaseCurrencyPrice(entry.getTotalPrice())));
-		if (klarnaConfig != null && klarnaConfig.getKpConfig() != null
-				&& klarnaConfig.getKpConfig().getProductUrlsRequired() != null
-				&& Boolean.TRUE.equals(klarnaConfig.getKpConfig().getProductUrlsRequired()))
+		if (klarnaConfig != null && klarnaConfig.getKpConfig() != null)
 		{
 			final BaseSiteModel currentBaseSite = getBaseSiteService().getCurrentBaseSite();
 			final String relUrl = getProductModelUrlResolver().resolve(entry.getProduct());

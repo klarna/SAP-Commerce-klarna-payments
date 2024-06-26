@@ -29,7 +29,6 @@ import com.klarna.api.model.ApiException;
 import com.klarna.api.payments.model.PaymentsSession;
 import com.klarna.payment.facades.KPPaymentCheckoutFacade;
 import com.klarna.payment.facades.KPPaymentFacade;
-import com.klarna.payment.facades.KlarnaConfigFacade;
 import com.klarna.payment.model.KPPaymentInfoModel;
 import com.klarna.payment.util.KlarnaDateFormatterUtil;
 import com.klarna.payment.util.LogHelper;
@@ -52,8 +51,6 @@ public class KPPaymentController extends AbstractPageController
 	private KPPaymentCheckoutFacade kpPaymentCheckoutFacade;
 	@Resource(name = "i18NFacade")
 	private I18NFacade i18NFacade;
-	@Resource(name = "KlarnaConfigFacade")
-	private KlarnaConfigFacade KlarnaConfigFacade;
 	@Resource(name = "cartService")
 	private CartService cartService;
 
