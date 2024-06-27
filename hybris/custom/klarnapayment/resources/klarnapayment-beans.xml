@@ -94,7 +94,9 @@
 		<description>KlarnaKECConfigData is a DTO equivalent of type KlarnaKECConfig</description>
 		<property name="code"				type="String"	/>
 		<property name="active"				type="Boolean"	/>
-		<property name="placements"			type="java.util.List&lt;String>"/>
+		<property name="showInCartPage"		type="Boolean"	/>
+		<property name="showInMiniCartPage"	type="Boolean"	/>
+		<property name="showInPDPPage"		type="Boolean"	/>
 		<property name="buttonTheme"		type="String"	/>
 		<property name="buttonShape"		type="String"	/>
 	</bean>
@@ -105,7 +107,9 @@
 		<property name="active"					type="Boolean"	/>
 		<property name="scopeData"				type="String"/>
 		<property name="redirectUri"			type="String"	/>
-		<property name="placements"				type="java.util.List&lt;String>"/>
+		<property name="showInLoginPage"		type="Boolean"	/>
+		<property name="showInRegisterPage"		type="Boolean"	/>
+		<property name="showInCheckoutLoginPage" type="Boolean"	/>
 		<property name="buttonTheme"			type="String"	/>
 		<property name="buttonShape"			type="String"	/>
 		<property name="buttonLogoAlignment"	type="String"	/>
@@ -115,7 +119,8 @@
 		<description>Klarna OSM Config Data equivalent of KlarnaKOSMConfig</description>
 		<property name="code"			type="String"/>
 		<property name="active"			type="Boolean"/>
-		<property name="placements"		type="java.util.List&lt;String>"/>
+		<property name="showInCartPage"	type="Boolean"	/>
+		<property name="showInPDPPage"	type="Boolean"	/>
 		<property name="theme"			type="String"	/>
 		<property name="customStyle"	type="String"	/>
 	</bean>

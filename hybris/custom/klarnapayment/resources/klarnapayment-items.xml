@@ -19,6 +19,8 @@
 						type="list" autocreate="true"	generate="true" />
 		<collectiontype code="KlarnaSIWKPlacementList"	elementtype="KlarnaSIWKPlacement" 
 						type="list" autocreate="true"	generate="true" />
+		<collectiontype	code="KlarnaOSMPlacementList"	elementtype="KlarnaOSMPlacement" 
+						type="list" autocreate="true"	generate="true" />
 	</collectiontypes>
 
 	<enumtypes>
@@ -98,6 +100,18 @@
 			<value code="Register_Page" />
 			<value code="Checkout_Login_Page" />
 		</enumtype>
+		<enumtype code="OsmTheme" generate="true" autocreate="true" dynamic="false">
+			<description>This enumeration denotes the OSM Themes</description>
+			<value code="Default" />
+			<value code="Dark" />
+			<value code="Custom" />
+		</enumtype>
+		<enumtype code="KlarnaOSMPlacement" generate="true"
+			autocreate="true" dynamic="false">
+			<description>This enumeration denotes the placement of Klarna OSM</description>
+			<value code="Cart_Page" />
+			<value code="Product_Details_Page" />
+		</enumtype>
 	</enumtypes>
 
 	<relations>
@@ -123,12 +137,12 @@
 			<itemtype code="BaseStore" generate="false"
 				autocreate="false">
 				<attributes>
-					<!-- <attribute type="KlarnaPayConfig"
+					<attribute type="KlarnaPayConfig"
 						qualifier="klarnaPayConfig">
 						<modifiers write="true" read="true" unique="true"
 							optional="true" />
 						<persistence type="property" />
-					</attribute> -->
+					</attribute>
 					<attribute type="KlarnaExpCheckoutConfig"
 						qualifier="klarnaExpCheckoutConfig">
 						<modifiers write="true" read="true" unique="true"
@@ -222,7 +236,7 @@
 				</attributes>
 			</itemtype>
 
-			<!-- <itemtype code="KlarnaPayConfig" generate="true"
+			<itemtype code="KlarnaPayConfig" generate="true"
 				autocreate="true"
 				jaloclass="com.klarna.payment.jalo.KlarnaPayConfig">
 				<description>Hold configurations Of Klarna in Databases under table "KlarnaConfigTbl"</description>
@@ -470,7 +484,7 @@
 						<key attribute="code" />
 					</index>
 				</indexes>
-			</itemtype> -->
+			</itemtype>
 
 			<itemtype code="KPPaymentInfo" extends="InvoicePaymentInfo"
 				generate="true" autocreate="true"
@@ -742,10 +756,10 @@
 							initial="true" />
 						<persistence type="property" />
 					</attribute>
-					<!-- <attribute qualifier="autoFinalize" type="java.lang.Boolean"> <defaultvalue>Boolean.FALSE</defaultvalue> 
+					<attribute qualifier="autoFinalize" type="java.lang.Boolean"> <defaultvalue>Boolean.FALSE</defaultvalue> 
 						<description>Auto finalize in Checkout required or not </description> <modifiers 
 						write="true" read="true" optional="false" initial="true"/> <persistence type="property"/> 
-						</attribute> -->
+						</attribute>
 					<attribute qualifier="buttonTheme"
 						type="KlarnaButtonTheme">
 						<defaultvalue>em().getEnumerationValue("KlarnaButtonTheme", "default")</defaultvalue>
@@ -965,6 +979,11 @@
 							<modifiers read="true" write="true" optional="true" initial="true"/>
 							<persistence type="property" />
 					</attribute>
+					<attribute qualifier="osmConfig" type="KlarnaKOSMConfig">
+						<description>Determines the KlarnaOSMConfig</description>
+						<modifiers write="true" read="true" optional="true" initial="true" />
+						<persistence type="property" />
+					</attribute>
 				</attributes>
 			</itemtype>
 			<itemtype code="KlarnaCredential" generate="true" autocreate="true" jaloclass="com.klarna.jalo.KlarnaCredential">
@@ -1073,7 +1092,7 @@
 						<persistence type="property" />
 					</attribute>
 					<attribute qualifier="active" type="java.lang.Boolean">
-						<defaultvalue>Boolean.FALSE</defaultvalue>
+						<defaultvalue>Boolean.TRUE</defaultvalue>
 						<description>Active Klarna 's checkout</description>
 						<modifiers write="true" read="true" optional="false"
 							initial="true" />
@@ -1137,29 +1156,26 @@
 						<persistence type="property" />
 					</attribute>
 					<attribute qualifier="active" type="java.lang.Boolean">
-						<defaultvalue>Boolean.FALSE</defaultvalue>
+						<defaultvalue>Boolean.TRUE</defaultvalue>
 						<description>Active Klarna 's express checkout</description>
 						<modifiers write="true" read="true" optional="false" initial="true" />
 						<persistence type="property" />
 					</attribute>
 					<attribute qualifier="placements" type="KlarnaKECPlacementList">
-						<defaultvalue>em().getEnumerationValue("KlarnaKECPlacement", "Cart_Page")</defaultvalue>
 						<description>Placements</description>
-						<modifiers write="true" read="true" optional="true" initial="true" />
+						<modifiers write="true" read="true" optional="false" initial="true" />
 						<persistence type="property" />
 					</attribute>
 					<attribute qualifier="buttonTheme" type="KlarnaButtonTheme">
 						<defaultvalue>em().getEnumerationValue("KlarnaButtonTheme", "default")</defaultvalue>
 						<description>Determines the button theme</description>
-						<modifiers write="true" read="true" optional="false"
-							initial="true" />
+						<modifiers write="true" read="true"/>
 						<persistence type="property" />
 					</attribute>
 					<attribute qualifier="buttonShape" type="KlarnaButtonShape">
 						<defaultvalue>em().getEnumerationValue("KlarnaButtonShape", "default")</defaultvalue>
 						<description>Determines the button shape</description>
-						<modifiers write="true" read="true" optional="false"
-							initial="true" />
+						<modifiers write="true" read="true"/>
 						<persistence type="property" />
 					</attribute>
 				</attributes>
@@ -1191,9 +1207,8 @@
 						<modifiers read="true" write="true" optional="false" initial="true" />
 					</attribute>
 					<attribute qualifier="placements" type="KlarnaSIWKPlacementList">
-						<defaultvalue>em().getEnumerationValue("KlarnaSIWKPlacement", "Login_Page")</defaultvalue>
 						<description>Placements</description>
-						<modifiers write="true" read="true" optional="true" initial="true" />
+						<modifiers write="true" read="true" optional="false" initial="true" />
 						<persistence type="property" />
 					</attribute>
 					<attribute qualifier="buttonTheme" type="KlarnaButtonTheme">
@@ -1216,7 +1231,57 @@
 					</attribute>
 				</attributes>
 			</itemtype>
+			
+						<itemtype code="KlarnaKOSMConfig" generate="true" autocreate="true" jaloclass="com.klarna.osm.jalo.KlarnaKOSMConfig">
+				<description>Klarna OSM Configuration</description>
+				<deployment table="KlarnaKOSMConfig" typecode="12114" />
+				<attributes>
+					<attribute qualifier="code" type="java.lang.String">
+						<description>The Id of Klarna Express Checkout Configuration</description>
+						<modifiers write="true" read="true" unique="true" optional="false" initial="true" />
+						<persistence type="property" />
+					</attribute>
+					<attribute qualifier="active" type="java.lang.Boolean">
+						<defaultvalue>Boolean.FALSE</defaultvalue>
+						<description>Active Klarna 's express checkout</description>
+						<modifiers write="true" read="true" optional="false" initial="true" />
+						<persistence type="property" />
+					</attribute>
+					<attribute qualifier="placements" type="KlarnaOSMPlacementList">
+						<description>Placements</description>
+						<modifiers write="true" read="true" optional="true" initial="true" />
+						<persistence type="property" />
+					</attribute>
+					<attribute qualifier="theme" type="OsmTheme">
+						<defaultvalue>em().getEnumerationValue("OsmTheme", "Default")</defaultvalue>
+						<description>The data theme of KlarnaConfiguration</description>
+						<modifiers write="true" read="true" optional="false" initial="true"/>
+						<persistence type="property"/>
+					</attribute>
+					<attribute qualifier="customStyle" type="java.lang.String">
+						<description>Custom Style</description>
+						<modifiers read="true" write="true" optional="true"/>
+						<persistence type="property">
+							<columntype database="oracle">
+								<value>CLOB</value>
+							</columntype>
+							<columntype database="sap">
+								<value>NCLOB</value>
+							</columntype>
+							<columntype database="mysql">
+								<value>TEXT</value>
+							</columntype>
+							<columntype database="sqlserver">
+								<value>TEXT</value>
+							</columntype>
+							<columntype>
+								<value>HYBRIS.LONG_STRING</value>
+							</columntype>
+						</persistence>
+					</attribute>
+				</attributes>
+			</itemtype>
+			
 		</typegroup>
 	</itemtypes>
-
 </items>

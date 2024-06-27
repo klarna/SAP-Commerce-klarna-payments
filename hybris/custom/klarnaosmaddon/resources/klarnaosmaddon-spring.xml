@@ -47,17 +47,4 @@
     <bean id="defaultKlarnaOSMConfigFacade" class="com.klarna.osm.facade.impl.DefaultKlarnaOSMConfigFacade">
     </bean>
     
-    <alias name="defaultKlarnaOsmConfigConverter" alias="klarnaOsmConfigConverter"/>
-    <bean id="defaultKlarnaOsmConfigConverter" parent="abstractPopulatingConverter">
-        <property name="targetClass" value="com.klarna.data.KlarnaKOSMConfigData"/>
-        <property name="populators">
-            <list>
-                <ref bean="klarnaOsmConfigPopulator"/>
-            </list>
-        </property>
-    </bean>
-
-    <alias name="defaultKlarnaOsmConfigPopulator" alias="klarnaOsmConfigPopulator"/>
-    <bean id="defaultKlarnaOsmConfigPopulator" class="com.klarna.osm.converter.populator.KlarnaOSMConfigPopulator">
-    </bean>
 </beans>

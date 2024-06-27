@@ -38,4 +38,9 @@ public final class KlarnapaymentConstants extends GeneratedKlarnapaymentConstant
 	public static final String KP_MERCHANT_URL_CONFIRMATION = "klarnacheckout.merchant.url.confirmation";
 	public static final String KP_MERCHANT_URL_NOTIFICATION = "klarnacheckout.merchant.url.notification";
 	public static final String KP_MERCHANT_URL_AUTHORIZATION = "klarnacheckout.merchant.url.authorization";
+
+	public static final String KLARNA_KEC_SCRIPT_URL = "klarna.kec.script.url";
+	public static final String KLARNA_SIWK_SCRIPT_URL = "klarna.siwk.script.url";
+	public static final String KLARNA_OSM_SCRIPTURL = "klarna.osm.script.url";
+
 }

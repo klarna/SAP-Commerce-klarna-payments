@@ -892,8 +892,6 @@
 	<!-- KlarnaKPConfig - ends   -->
 
 	<!-- KlarnaKECConfig - starts   -->
-
-<!--
 	<context component="explorer-tree" merge-by="module">
       	<n:explorer-tree xmlns:n="http://www.hybris.com/cockpitng/config/explorertree">
             <n:navigation-node id="Klarna">
@@ -948,12 +946,15 @@
 	                    <wz:property qualifier="code" type="java.lang.String"/>
 	                    <wz:property qualifier="active" type="java.lang.Boolean"/>
 	                    <wz:property qualifier="placements" />
-						<wz:property qualifier="buttonTheme" editor="com.klarna.payment.editor.attributenameenum(KlarnaButtonTheme)"/>
-						<wz:property qualifier="buttonShape" editor="com.klarna.payment.editor.attributenameenum(KlarnaButtonShape)"/>
+						<wz:property qualifier="buttonTheme"/>
+						<wz:property qualifier="buttonShape"/>
 					</wz:property-list>
 	            </wz:content>
 	            <wz:navigation id="step1.navigation">
 	            	<wz:cancel/>
+	               	<wz:done visible="!#empty(newKlarnaKECConfig.code) and (newKlarnaKECConfig.placements != null)">
+	               	<wz:save property="newKlarnaKECConfig"/>
+	               	</wz:done>
 	            </wz:navigation>
 	        </wz:step>
 	    </wz:flow>
@@ -964,7 +965,7 @@
 	                <y:label>code</y:label>
 	            </y:labels>
 	        </y:base>
-	</context> -->
+	</context>
 	<!-- KlarnaKECConfig - ends   -->
 	<!-- KlarnaSIWKConfig - starts -->
 	<context component="explorer-tree" merge-by="module">
@@ -1033,7 +1034,7 @@
 	            </wz:content>
 	            <wz:navigation id="step1.navigation">
 					<wz:cancel/>
-					<wz:next visible="!#empty(newKlarnaSIWKConfig.code) and (newKlarnaSIWKConfig.scopeData != null) and (newKlarnaSIWKConfig.redirectUri != null)" />
+					<wz:next visible="!#empty(newKlarnaSIWKConfig.code) and (newKlarnaSIWKConfig.scopeData != null) and (newKlarnaSIWKConfig.redirectUri != null) and (newKlarnaSIWKConfig.placements != null)" />
 	               	<wz:done visible="false">
 	               </wz:done>
 	            </wz:navigation>
@@ -1126,9 +1127,7 @@
 	            </wz:content>
 	            <wz:navigation id="step1.navigation">
 	                <wz:cancel/>
-					<wz:done visible="!#empty(newKlarnaKOSMConfig.code) and 
-					!#empty(newKlarnaKOSMConfig.active) and 
-					(newKlarnaKOSMConfig.placements != null)">
+					<wz:done visible="!#empty(newKlarnaKOSMConfig.code) and (newKlarnaKOSMConfig.placements != null )">
 	                    <wz:save property="newKlarnaKOSMConfig"/>
 	                </wz:done>      
 	            </wz:navigation>

@@ -14,7 +14,6 @@ package com.klarna.converter.populator;
 import de.hybris.platform.converters.Populator;
 import de.hybris.platform.servicelayer.dto.converter.ConversionException;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -41,7 +40,7 @@ public class KlarnaSIWKConfigPopulator implements Populator<KlarnaSIWKConfigMode
 	{
 		target.setCode(source.getCode());
 		target.setActive(source.getActive());
-		target.setPlacements(getPlacementCodesSIWK(source.getPlacements()));
+		setSIWKPlacements(source.getPlacements(), target);
 		target.setRedirectUri(source.getRedirectUri());
 		setScopeParameters(source, target);
 		target.setButtonShape(source.getButtonShape() != null ? source.getButtonShape().getCode() : KlarnaButtonShape.DEFAULT);
@@ -69,13 +68,22 @@ public class KlarnaSIWKConfigPopulator implements Populator<KlarnaSIWKConfigMode
 		}
 	}
 
-	private List<String> getPlacementCodesSIWK(final List<KlarnaSIWKPlacement> placements)
+	private void setSIWKPlacements(final List<KlarnaSIWKPlacement> list, final KlarnaSIWKConfigData target)
 	{
-		final List<String> placementCodes = new ArrayList<String>();
-		for (final KlarnaSIWKPlacement placement : placements)
+		for (final KlarnaSIWKPlacement placement : list)
 		{
-			placementCodes.add(placement.getCode());
+			if (KlarnaSIWKPlacement.LOGIN_PAGE.equals(placement))
+			{
+				target.setShowInLoginPage(Boolean.TRUE);
+			}
+			if (KlarnaSIWKPlacement.CHECKOUT_LOGIN_PAGE.equals(placement))
+			{
+				target.setShowInCheckoutLoginPage(Boolean.TRUE);
+			}
+			if (KlarnaSIWKPlacement.REGISTER_PAGE.equals(placement))
+			{
+				target.setShowInRegisterPage(Boolean.TRUE);
+			}
 		}
-		return placementCodes;
 	}
 }

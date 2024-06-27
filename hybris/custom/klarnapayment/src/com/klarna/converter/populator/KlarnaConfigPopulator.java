@@ -51,7 +51,7 @@ public class KlarnaConfigPopulator implements Populator<KlarnaConfigModel, Klarn
 	private Converter klarnaKPConfigConverter;
 	private Converter klarnaKECConfigConverter;
 	private Converter klarnaSIWKConfigConverter;
-	private Converter klarnaOsmConfigConverter;
+	private Converter klarnaKOSMConfigConverter;
 
 	@Resource(name = "siteConfigService")
 	private SiteConfigService siteConfigService;
@@ -77,13 +77,6 @@ public class KlarnaConfigPopulator implements Populator<KlarnaConfigModel, Klarn
 			final KlarnaKPConfigData klarnaKPConfigData = new KlarnaKPConfigData();
 			klarnaKPConfigConverter.convert(klarnaKPConfigModel, klarnaKPConfigData);
 			target.setKpConfig(klarnaKPConfigData);
-			final KlarnaKOSMConfigModel klarnaKOSMConfigModel = source.getOsmConfig();
-			if (klarnaKOSMConfigModel != null && Boolean.TRUE == klarnaKOSMConfigModel.getActive())
-			{
-				final KlarnaKOSMConfigData klarnaKOSMConfigData = new KlarnaKOSMConfigData();
-				klarnaSIWKConfigConverter.convert(klarnaKOSMConfigModel, klarnaKOSMConfigData);
-				target.setOsmConfig(klarnaKOSMConfigData);
-			}
 		}
 
 		final KlarnaKECConfigModel klarnaKECConfigModel = source.getKecConfig();
@@ -106,7 +99,7 @@ public class KlarnaConfigPopulator implements Populator<KlarnaConfigModel, Klarn
 		if (klarnaKOSMConfigModel != null && Boolean.TRUE == klarnaKOSMConfigModel.getActive())
 		{
 			final KlarnaKOSMConfigData osmConfigData = new KlarnaKOSMConfigData();
-			klarnaOsmConfigConverter.convert(klarnaKOSMConfigModel, osmConfigData);
+			klarnaKOSMConfigConverter.convert(klarnaKOSMConfigModel, osmConfigData);
 			target.setOsmConfig(osmConfigData);
 		}
 	}
@@ -220,20 +213,20 @@ public class KlarnaConfigPopulator implements Populator<KlarnaConfigModel, Klarn
 	}
 
 	/**
-	 * @return the klarnaOsmConfigConverter
+	 * @return the klarnaKOSMConfigConverter
 	 */
-	public Converter getKlarnaOsmConfigConverter()
+	public Converter getKlarnaKOSMConfigConverter()
 	{
-		return klarnaOsmConfigConverter;
+		return klarnaKOSMConfigConverter;
 	}
 
 	/**
-	 * @param klarnaOsmConfigConverter
-	 *           the klarnaOsmConfigConverter to set
+	 * @param klarnaKOSMConfigConverter
+	 *           the klarnaKOSMConfigConverter to set
 	 */
-	public void setKlarnaOsmConfigConverter(final Converter klarnaOsmConfigConverter)
+	public void setKlarnaKOSMConfigConverter(final Converter klarnaKOSMConfigConverter)
 	{
-		this.klarnaOsmConfigConverter = klarnaOsmConfigConverter;
+		this.klarnaKOSMConfigConverter = klarnaKOSMConfigConverter;
 	}
 
 }

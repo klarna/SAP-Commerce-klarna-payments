@@ -16,23 +16,9 @@
 <items 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
 			xsi:noNamespaceSchemaLocation="items.xsd">
 <collectiontypes>
-	<collectiontype		code="KlarnaOSMPlacementList"	elementtype="KlarnaOSMPlacement" 
-						type="list" autocreate="true"	generate="true" />
+	
 </collectiontypes>
 <enumtypes>
-		
-		<enumtype code="OsmTheme" generate="true" autocreate="true" dynamic="false">
-			<description>This enumeration denotes the OSM Themes</description>
-			<value code="Default" />
-			<value code="Dark" />
-			<value code="Custom" />
-		</enumtype>
-		<enumtype code="KlarnaOSMPlacement" generate="true"
-			autocreate="true" dynamic="false">
-			<description>This enumeration denotes the placement of Klarna OSM</description>
-			<value code="Cart_Page" />
-			<value code="Product_Details_Page" />
-		</enumtype>
 </enumtypes>
 	<itemtypes>
 <!--
@@ -155,65 +141,6 @@
 					<attribute type="KlarnaOSMConfig" qualifier="klarnaOsmConfig">
 						<modifiers write="true" read="true" unique="true" optional="true"/>
 						<persistence type="property"/>
-					</attribute>
-				</attributes>
-			</itemtype>
-			<itemtype code="KlarnaKOSMConfig" generate="true" autocreate="true" jaloclass="com.klarna.osm.jalo.KlarnaKOSMConfig">
-				<description>Klarna OSM Configuration</description>
-				<deployment table="KlarnaKOSMConfig" typecode="12114" />
-				<attributes>
-					<attribute qualifier="code" type="java.lang.String">
-						<description>The Id of Klarna Express Checkout Configuration</description>
-						<modifiers write="true" read="true" unique="true" optional="false" initial="true" />
-						<persistence type="property" />
-					</attribute>
-					<attribute qualifier="active" type="java.lang.Boolean">
-						<defaultvalue>Boolean.FALSE</defaultvalue>
-						<description>Active Klarna 's express checkout</description>
-						<modifiers write="true" read="true" optional="false" initial="true" />
-						<persistence type="property" />
-					</attribute>
-					<attribute qualifier="placements" type="KlarnaOSMPlacementList">
-						<defaultvalue>em().getEnumerationValue("KlarnaOSMPlacement", "Product_Details_Page")</defaultvalue>
-						<description>Placements</description>
-						<modifiers write="true" read="true" optional="true" initial="true" />
-						<persistence type="property" />
-					</attribute>
-					<attribute qualifier="theme" type="OsmTheme">
-						<defaultvalue>em().getEnumerationValue("OsmTheme", "Default")</defaultvalue>
-						<description>The data theme of KlarnaConfiguration</description>
-						<modifiers write="true" read="true" optional="false" initial="true"/>
-						<persistence type="property"/>
-					</attribute>
-					<attribute qualifier="customStyle" type="java.lang.String">
-						<description>Custom Style</description>
-						<modifiers read="true" write="true" optional="true"/>
-						<persistence type="property">
-							<columntype database="oracle">
-								<value>CLOB</value>
-							</columntype>
-							<columntype database="sap">
-								<value>NCLOB</value>
-							</columntype>
-							<columntype database="mysql">
-								<value>TEXT</value>
-							</columntype>
-							<columntype database="sqlserver">
-								<value>TEXT</value>
-							</columntype>
-							<columntype>
-								<value>HYBRIS.LONG_STRING</value>
-							</columntype>
-						</persistence>
-					</attribute>
-				</attributes>
-			</itemtype>
-			<itemtype code="KlarnaConfig" generate="false" autocreate="false">
-				<attributes>
-					<attribute qualifier="osmConfig" type="KlarnaKOSMConfig">
-						<description>Determines the KlarnaOSMConfig</description>
-						<modifiers write="true" read="true" optional="true" initial="true" />
-						<persistence type="property" />
 					</attribute>
 				</attributes>
 			</itemtype>

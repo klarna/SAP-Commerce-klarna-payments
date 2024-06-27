@@ -25,7 +25,7 @@ import de.hybris.platform.commercefacades.i18n.I18NFacade;
 import de.hybris.platform.commercefacades.order.data.CartData;
 import de.hybris.platform.commercefacades.user.data.AddressData;
 import de.hybris.platform.commercefacades.user.data.CountryData;
-import de.hybris.platform.yacceleratorstorefront.controllers.pages.checkout.steps.PaymentMethodCheckoutStepController;
+import de.hybris.platform.yb2bacceleratorstorefront.controllers.pages.checkout.steps.PaymentMethodCheckoutStepController;
 
 import java.io.IOException;
 import java.util.Collection;

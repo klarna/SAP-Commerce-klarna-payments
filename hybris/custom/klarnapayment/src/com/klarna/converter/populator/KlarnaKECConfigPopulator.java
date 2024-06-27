@@ -14,7 +14,6 @@ package com.klarna.converter.populator;
 import de.hybris.platform.converters.Populator;
 import de.hybris.platform.servicelayer.dto.converter.ConversionException;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -38,22 +37,28 @@ public class KlarnaKECConfigPopulator implements Populator<KlarnaKECConfigModel,
 	{
 		target.setCode(source.getCode());
 		target.setActive(source.getActive());
-		target.setPlacements(getPlacementCodes(source.getPlacements()));
+		setKECPlacements(source.getPlacements(), target);
 		target.setButtonShape(source.getButtonShape() != null ? source.getButtonShape().getCode() : KlarnaButtonShape.DEFAULT);
 		target.setButtonTheme(source.getButtonTheme() != null ? source.getButtonTheme().getCode() : KlarnaButtonTheme.DEFAULT);
 	}
 
-	/**
-	 *
-	 */
-	private List<String> getPlacementCodes(final List<KlarnaKECPlacement> placements)
+	private void setKECPlacements(final List<KlarnaKECPlacement> list, final KlarnaKECConfigData target)
 	{
-		final List<String> placementCodes = new ArrayList<String>();
-		for (final KlarnaKECPlacement placement : placements)
+		for (final KlarnaKECPlacement placement : list)
 		{
-			placementCodes.add(placement.getCode());
+			if (KlarnaKECPlacement.MINI_CART_POPUP.equals(placement))
+			{
+				target.setShowInMiniCartPage(Boolean.TRUE);
+			}
+			if (KlarnaKECPlacement.CART_PAGE.equals(placement))
+			{
+				target.setShowInCartPage(Boolean.TRUE);
+			}
+			if (KlarnaKECPlacement.PRODUCT_DETAILS_PAGE.equals(placement))
+			{
+				target.setShowInPDPPage(Boolean.TRUE);
+			}
 		}
-		return placementCodes;
 	}
 
 }

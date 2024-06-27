@@ -115,7 +115,7 @@
     	<property name="klarnaKPConfigConverter" ref="klarnaKPConfigConverter"/>
     	<property name="klarnaKECConfigConverter" ref="klarnaKECConfigConverter"/>
     	<property name="klarnaSIWKConfigConverter" ref="klarnaSIWKConfigConverter"/>
-    	<property name="klarnaOsmConfigConverter" ref="klarnaOsmConfigConverter"/>
+    	<property name="klarnaKOSMConfigConverter" ref="klarnaKOSMConfigConverter"/>
     </bean>
 
 	<!-- KlarnaCredential -->
@@ -177,6 +177,21 @@
     <alias name="defaultKlarnaSIWKConfigPopulator" alias="klarnaSIWKConfigPopulator"/>
     <bean id="defaultKlarnaSIWKConfigPopulator" class="com.klarna.converter.populator.KlarnaSIWKConfigPopulator">
     </bean>
+    
+    <alias name="defaultKlarnaKOSMConfigConverter" alias="klarnaKOSMConfigConverter"/>
+    <bean id="defaultKlarnaKOSMConfigConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.klarna.data.KlarnaKOSMConfigData"/>
+        <property name="populators">
+            <list>
+                <ref bean="klarnaKOSMConfigPopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <alias name="defaultKlarnaKOSMConfigPopulator" alias="klarnaKOSMConfigPopulator"/>
+    <bean id="defaultKlarnaKOSMConfigPopulator" class="com.klarna.converter.populator.KlarnaKOSMConfigPopulator">
+    </bean>
+    
     <!-- Klarna config Redesign - end -->
     
     <bean id="hexValueOfRBGAttributeHandler" class="com.klarna.payment.attributehandlers.HexValueOfRBGAttributeHandler"/>

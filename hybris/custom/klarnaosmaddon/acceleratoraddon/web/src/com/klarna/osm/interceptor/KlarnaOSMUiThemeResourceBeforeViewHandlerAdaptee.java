@@ -14,9 +14,8 @@ import org.springframework.ui.ModelMap;
 
 import com.klarna.data.KlarnaConfigData;
 import com.klarna.data.KlarnaKOSMConfigData;
+import com.klarna.payment.constants.KlarnapaymentConstants;
 import com.klarna.payment.facades.KlarnaConfigFacade;
-
-import com.klarna.osm.constants.KlarnaosmaddonWebConstants;
 
 
 public class KlarnaOSMUiThemeResourceBeforeViewHandlerAdaptee implements BeforeViewHandlerAdaptee
@@ -48,16 +47,16 @@ public class KlarnaOSMUiThemeResourceBeforeViewHandlerAdaptee implements BeforeV
 			if (osmConfigData != null)
 			{
 				model.addAttribute("scriptUrlKOSM",
-						configurationService.getConfiguration().getString(KlarnaosmaddonWebConstants.KLARNA_OSM_SCRIPTURL));
+						configurationService.getConfiguration().getString(KlarnapaymentConstants.KLARNA_OSM_SCRIPTURL));
 				//model.addAttribute("cartPlacementTagId", configData.getCartPlacementTagID());
 				//model.addAttribute("productPlacementTagId", configData.getProductPlacementTagID());
-				model.addAttribute("osmPlacements", osmConfigData.getPlacements());
+				model.addAttribute("osmConfigData", osmConfigData);
 				model.addAttribute("osmCountry", configData.getCredential().getMarketCountry()); //klarnaConfig.getCredential().getMarketCountry()
 				// when KlarnaConfigData is not null credential will also not be null
 				model.addAttribute("uci", configData.getCredential().getClientId());
 				model.addAttribute("locale", i18NService.getCurrentLocale());
 				model.addAttribute("osmTheme", osmConfigData.getTheme());
-				model.addAttribute("customStyle", osmConfigData.getCustomStyle());
+				model.addAttribute("customStyleOSM", osmConfigData.getCustomStyle());
 			}
 		}
 		return viewName;

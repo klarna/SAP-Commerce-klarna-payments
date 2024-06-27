@@ -1,5 +1,21 @@
 window.onload = async function() {
 	
+	// placement Flags
+	var currentURL = window.location.href;
+	var showInLoginPage = $("#showInLoginPage").val();
+	var showInRegisterPage = $("#showInRegisterPage").val();
+	var showInCheckoutLoginPage = $("#showInCheckoutLoginPage").val();
+	var showSignInButton = false;
+	if(currentURL.endsWith("/login/checkout") && (showInCheckoutLoginPage == "true") )
+	{
+		showSignInButton = true;
+	}
+	else if(currentURL.endsWith("/login") && (showInLoginPage == "true" || showInRegisterPage == "true") )
+	{
+		showSignInButton = true;
+	}
+	
+	if(showSignInButton){
 	var clientId			= $("#clientId").val();
 	var environment			= $("#environment").val();
 	var currentLocale		= $("#currentLocale").val();
@@ -12,29 +28,16 @@ window.onload = async function() {
 	
 	var scopeData			= $("#scopeData").val();
 	var redirectUri			= $("#redirectUri").val();
-	var hideOverlay			= $("#hideOverlay").val();
 	var buttonTheme			= $("#buttonTheme").val();
 	var buttonShape			= $("#buttonShape").val();
 	var buttonLogoAlignment	= $("#buttonLogoAlignment").val();
 	var country 			= $("#country").val();
 	
-	//scopeData = "offline_access openid profile:name profile:email profile:phone profile:billing_address";
-	console.log("clientId "+clientId);
-	console.log("environment "+environment);
-	console.log("currentLocale "+currentLocale);
-	console.log("scopeData "+scopeData);
-	console.log("redirectUri "+redirectUri);
-	console.log("hideOverlay "+hideOverlay);
-	console.log("buttonTheme "+buttonTheme);
-	console.log("buttonShape "+buttonShape);
-	console.log("buttonLogoAlignment "+buttonLogoAlignment);
-	console.log("market "+country);
-	
 	const siwkButton = klarna.Identity.button({
 		scope:				scopeData,
 		redirectUri:		redirectUri,
 		interactionMode:	"DEVICE_BEST",
-		hideOverlay:		hideOverlay,
+		hideOverlay:		false,
 		shape:				buttonShape,
 		theme:				buttonTheme,
 		logoAlignment:		buttonLogoAlignment,
@@ -59,6 +62,7 @@ window.onload = async function() {
 		ACC.signin.showErrorMessage(message);
 		console.log("error " + JSON.stringify(data));
 		});
+	}
 };
 ACC.signin = {
 	initiateSignInResponse: function (authResponse){
