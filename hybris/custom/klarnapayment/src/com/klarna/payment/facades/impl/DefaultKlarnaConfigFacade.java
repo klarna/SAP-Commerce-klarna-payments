@@ -57,7 +57,7 @@ public class DefaultKlarnaConfigFacade implements KlarnaConfigFacade
 	public KlarnaConfigData getKlarnaConfig()
 	{
 		final BaseStoreModel baseStore = getBaseStoreService().getCurrentBaseStore();
-		final KlarnaConfigModel klarnaConfigModel = baseStore.getConfig();
+		final KlarnaConfigModel klarnaConfigModel = baseStore.getKlarnaConfig();
 
 		if (klarnaConfigModel == null || !Boolean.TRUE.equals(klarnaConfigModel.getActive())
 				|| CollectionUtils.isEmpty(klarnaConfigModel.getCredentials()))
@@ -112,7 +112,7 @@ public class DefaultKlarnaConfigFacade implements KlarnaConfigFacade
 	@Override
 	public KlarnaConfigModel getKlarnaConfigForStore(final BaseStoreModel store)
 	{
-		final KlarnaConfigModel model = store.getConfig();
+		final KlarnaConfigModel model = store.getKlarnaConfig();
 
 		if (model == null)
 		{

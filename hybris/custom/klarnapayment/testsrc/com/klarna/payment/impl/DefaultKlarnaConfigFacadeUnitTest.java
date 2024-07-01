@@ -60,7 +60,7 @@ public class DefaultKlarnaConfigFacadeUnitTest
 		Mockito.doReturn(baseStoreService).when(defaultKlarnaConfigFacade).getBaseStoreService();
 		Mockito.doReturn(klarnaConfigConverter).when(defaultKlarnaConfigFacade).getKlarnaConfigConverter();
 		Mockito.doReturn(baseStoreModel).when(baseStoreService).getCurrentBaseStore();
-		Mockito.when(baseStoreModel.getConfig()).thenReturn(null);
+		Mockito.when(baseStoreModel.getKlarnaConfig()).thenReturn(null);
 
 
 		Assert.assertNull(defaultKlarnaConfigFacade.getKlarnaConfig());
@@ -74,7 +74,7 @@ public class DefaultKlarnaConfigFacadeUnitTest
 		Mockito.doReturn(baseStoreService).when(defaultKlarnaConfigFacade).getBaseStoreService();
 		Mockito.doReturn(klarnaConfigConverter).when(defaultKlarnaConfigFacade).getKlarnaConfigConverter();
 		Mockito.doReturn(baseStoreModel).when(baseStoreService).getCurrentBaseStore();
-		Mockito.when(baseStoreModel.getConfig()).thenReturn(KlarnaPayConfigModel);
+		Mockito.when(baseStoreModel.getKlarnaConfig()).thenReturn(KlarnaPayConfigModel);
 
 		Mockito.doReturn(config).when(klarnaConfigConverter).convert(Mockito.any(KlarnaConfigModel.class));
 		defaultKlarnaConfigFacade.getKlarnaConfig();

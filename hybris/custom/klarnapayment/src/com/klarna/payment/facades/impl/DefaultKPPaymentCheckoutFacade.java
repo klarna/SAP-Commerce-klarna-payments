@@ -799,7 +799,7 @@ public class DefaultKPPaymentCheckoutFacade implements KPPaymentCheckoutFacade
 	{
 
 		final CartModel cart = cartService.getSessionCart();
-		final KlarnaConfigModel config = cart.getStore().getConfig();
+		final KlarnaConfigModel config = cart.getStore().getKlarnaConfig();
 		if (config != null && config.getKpConfig() != null && StringUtils.isNotEmpty(config.getKpConfig().getMerchantEmail()))
 		{
 			final OrderFailedEmailProcessModel orderFailedEmailProcessModel = (OrderFailedEmailProcessModel) getBusinessProcessService()

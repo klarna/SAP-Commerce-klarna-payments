@@ -17,7 +17,7 @@
 		<!--Please check documentation for code snippets for specific components-->
 	<!--</context>-->
 
-<!-- <context component="explorer-tree" merge-by="module">
+	<context component="explorer-tree" merge-by="module">
       <n:explorer-tree xmlns:n="http://www.hybris.com/cockpitng/config/explorertree">
             <n:navigation-node id="Klarna">
                 <n:type-node id="KlarnaOSMConfig" code="KlarnaOSMConfig" />
@@ -124,5 +124,5 @@
 	                </editorArea:section>
 	            </editorArea:tab>
 	        </editorArea:editorArea>
-     </context> -->
+     </context>
 </config>

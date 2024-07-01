@@ -9,7 +9,7 @@ import org.apache.log4j.Logger;
 public class KlarnaPayConfig extends GeneratedKlarnaPayConfig
 {
 	@SuppressWarnings("unused")
-	private final static Logger LOG = Logger.getLogger( KlarnaPayConfig.class.getName() );
+	private static final Logger LOG = Logger.getLogger( KlarnaPayConfig.class.getName() );
 	
 	@Override
 	protected Item createItem(final SessionContext ctx, final ComposedType type, final ItemAttributeMap allAttributes) throws JaloBusinessException

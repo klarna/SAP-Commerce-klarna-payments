@@ -59,10 +59,10 @@ public class OrderFailedEmailContext extends AbstractEmailContext<StoreFrontCust
 		cartId = ((OrderFailedEmailProcessModel) orderFailedEmailProcessModel).getCartId();
 		errorMessage = ((OrderFailedEmailProcessModel) orderFailedEmailProcessModel).getKperrorMessage();
 		if (((OrderFailedEmailProcessModel) orderFailedEmailProcessModel).getStore() != null
-				&& ((OrderFailedEmailProcessModel) orderFailedEmailProcessModel).getStore().getConfig() != null
-				&& ((OrderFailedEmailProcessModel) orderFailedEmailProcessModel).getStore().getConfig().getKpConfig() != null)
+				&& ((OrderFailedEmailProcessModel) orderFailedEmailProcessModel).getStore().getKlarnaConfig() != null
+				&& ((OrderFailedEmailProcessModel) orderFailedEmailProcessModel).getStore().getKlarnaConfig().getKpConfig() != null)
 		{
-			put(EMAIL, ((OrderFailedEmailProcessModel) orderFailedEmailProcessModel).getStore().getConfig().getKpConfig()
+			put(EMAIL, ((OrderFailedEmailProcessModel) orderFailedEmailProcessModel).getStore().getKlarnaConfig().getKpConfig()
 					.getMerchantEmail());
 		}
 

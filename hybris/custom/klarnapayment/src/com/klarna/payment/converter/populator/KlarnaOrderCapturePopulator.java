@@ -82,7 +82,7 @@ public class KlarnaOrderCapturePopulator implements Populator<AbstractOrderModel
 	public void populate(final AbstractOrderModel source, final OrderManagementCaptureObject target) throws ConversionException
 	{
 		double grandTotalPrice;
-		final KlarnaConfigModel config = source.getStore().getConfig();
+		final KlarnaConfigModel config = source.getStore().getKlarnaConfig();
 		if (getKlarnaConfigFacade().isNorthAmerianKlarnaPayment())
 		{
 			grandTotalPrice = convertToPurchaseCurrencyPrice(source.getCurrency().getIsocode(), config, source.getTotalPrice())

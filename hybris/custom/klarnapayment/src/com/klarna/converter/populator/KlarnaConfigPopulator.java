@@ -57,50 +57,52 @@ public class KlarnaConfigPopulator implements Populator<KlarnaConfigModel, Klarn
 	private SiteConfigService siteConfigService;
 
 	@Override
-	public void populate(final KlarnaConfigModel source, final KlarnaConfigData target) throws ConversionException
+	public void populate(final KlarnaConfigModel source, KlarnaConfigData target) throws ConversionException
 	{
-		target.setCode(source.getCode());
-		target.setActive(source.getActive());
-		target.setEnvironment(source.getEnvironment() != null ? source.getEnvironment().getCode() : null);
-
 		final KlarnaCredentialModel credentialModel = getKlarnaCredentialForSite(source);
 		if (credentialModel != null)
 		{
+			target.setCode(source.getCode());
+			target.setActive(source.getActive());
+			target.setEnvironment(source.getEnvironment() != null ? source.getEnvironment().getCode() : null);
 			final KlarnaCredentialData credential = new KlarnaCredentialData();
 			klarnaCredentialConverter.convert(credentialModel, credential);
 			target.setCredential(credential);
-		}
+			final KlarnaKPConfigModel klarnaKPConfigModel = source.getKpConfig();
+			if (klarnaKPConfigModel != null && Boolean.TRUE == klarnaKPConfigModel.getActive())
+			{
+				final KlarnaKPConfigData klarnaKPConfigData = new KlarnaKPConfigData();
+				klarnaKPConfigConverter.convert(klarnaKPConfigModel, klarnaKPConfigData);
+				target.setKpConfig(klarnaKPConfigData);
+			}
 
-		final KlarnaKPConfigModel klarnaKPConfigModel = source.getKpConfig();
-		if (klarnaKPConfigModel != null && Boolean.TRUE == klarnaKPConfigModel.getActive())
-		{
-			final KlarnaKPConfigData klarnaKPConfigData = new KlarnaKPConfigData();
-			klarnaKPConfigConverter.convert(klarnaKPConfigModel, klarnaKPConfigData);
-			target.setKpConfig(klarnaKPConfigData);
-		}
+			final KlarnaKECConfigModel klarnaKECConfigModel = source.getKecConfig();
+			if (klarnaKECConfigModel != null && Boolean.TRUE == klarnaKECConfigModel.getActive())
+			{
+				final KlarnaKECConfigData kecConfigData = new KlarnaKECConfigData();
+				klarnaKECConfigConverter.convert(klarnaKECConfigModel, kecConfigData);
+				target.setKecConfig(kecConfigData);
+			}
 
-		final KlarnaKECConfigModel klarnaKECConfigModel = source.getKecConfig();
-		if (klarnaKECConfigModel != null && Boolean.TRUE == klarnaKECConfigModel.getActive())
-		{
-			final KlarnaKECConfigData kecConfigData = new KlarnaKECConfigData();
-			klarnaKECConfigConverter.convert(klarnaKECConfigModel, kecConfigData);
-			target.setKecConfig(kecConfigData);
-		}
+			final KlarnaSIWKConfigModel klarnaSIWKConfigModel = source.getSiwkConfig();
+			if (klarnaSIWKConfigModel != null && Boolean.TRUE == klarnaSIWKConfigModel.getActive())
+			{
+				final KlarnaSIWKConfigData siwkConfigData = new KlarnaSIWKConfigData();
+				klarnaSIWKConfigConverter.convert(klarnaSIWKConfigModel, siwkConfigData);
+				target.setSiwkConfig(siwkConfigData);
+			}
 
-		final KlarnaSIWKConfigModel klarnaSIWKConfigModel = source.getSiwkConfig();
-		if (klarnaSIWKConfigModel != null && Boolean.TRUE == klarnaSIWKConfigModel.getActive())
-		{
-			final KlarnaSIWKConfigData siwkConfigData = new KlarnaSIWKConfigData();
-			klarnaSIWKConfigConverter.convert(klarnaSIWKConfigModel, siwkConfigData);
-			target.setSiwkConfig(siwkConfigData);
+			final KlarnaKOSMConfigModel klarnaKOSMConfigModel = source.getOsmConfig();
+			if (klarnaKOSMConfigModel != null && Boolean.TRUE == klarnaKOSMConfigModel.getActive())
+			{
+				final KlarnaKOSMConfigData osmConfigData = new KlarnaKOSMConfigData();
+				klarnaKOSMConfigConverter.convert(klarnaKOSMConfigModel, osmConfigData);
+				target.setOsmConfig(osmConfigData);
+			}
 		}
-
-		final KlarnaKOSMConfigModel klarnaKOSMConfigModel = source.getOsmConfig();
-		if (klarnaKOSMConfigModel != null && Boolean.TRUE == klarnaKOSMConfigModel.getActive())
+		else
 		{
-			final KlarnaKOSMConfigData osmConfigData = new KlarnaKOSMConfigData();
-			klarnaKOSMConfigConverter.convert(klarnaKOSMConfigModel, osmConfigData);
-			target.setOsmConfig(osmConfigData);
+			target = null;
 		}
 	}
 

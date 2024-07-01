@@ -121,13 +121,13 @@
 							collectiontype="list" 	ordered="true" />
 		</relation>
 	  	<relation code="KlarnaConfig2KlarnaCredentialRel" generate="true" localized="false" autocreate="true">
-			<sourceElement 	qualifier="config"		type="KlarnaConfig"		cardinality="one" />
-			<targetElement 	qualifier="credentials"	type="KlarnaCredential"	cardinality="many" 
+			<sourceElement 	qualifier="klarnaConfig"	type="KlarnaConfig"		cardinality="one" />
+			<targetElement 	qualifier="credentials"		type="KlarnaCredential"	cardinality="many" 
 							collectiontype="list"	ordered="true" />
 		</relation>
 		<relation code="KlarnaConfig2BaseStoreRel" generate="true" localized="false" autocreate="true">
-			<sourceElement 	qualifier="config"		type="KlarnaConfig"		cardinality="one" />
-			<targetElement 	qualifier="baseStores"	type="BaseStore"		cardinality="many" 
+			<sourceElement 	qualifier="klarnaConfig"	type="KlarnaConfig"		cardinality="one" />
+			<targetElement 	qualifier="baseStores"		type="BaseStore"		cardinality="many" 
 							collectiontype="list"	ordered="true" />
 		</relation>
 	</relations>
@@ -953,7 +953,7 @@
 							<persistence type="property" />
 					</attribute>
 					<attribute qualifier="active" type="java.lang.Boolean">
-							<defaultvalue>Boolean.FALSE</defaultvalue>
+							<defaultvalue>Boolean.TRUE</defaultvalue>
 							<description>Activate Klarna Config</description>
 							<modifiers read="true" write="true" search="true" optional="false" initial="true"/>
 							<persistence type="property" />
@@ -1232,7 +1232,7 @@
 				</attributes>
 			</itemtype>
 			
-						<itemtype code="KlarnaKOSMConfig" generate="true" autocreate="true" jaloclass="com.klarna.osm.jalo.KlarnaKOSMConfig">
+			<itemtype code="KlarnaKOSMConfig" generate="true" autocreate="true" jaloclass="com.klarna.osm.jalo.KlarnaKOSMConfig">
 				<description>Klarna OSM Configuration</description>
 				<deployment table="KlarnaKOSMConfig" typecode="12114" />
 				<attributes>
@@ -1242,7 +1242,7 @@
 						<persistence type="property" />
 					</attribute>
 					<attribute qualifier="active" type="java.lang.Boolean">
-						<defaultvalue>Boolean.FALSE</defaultvalue>
+						<defaultvalue>Boolean.TRUE</defaultvalue>
 						<description>Active Klarna 's express checkout</description>
 						<modifiers write="true" read="true" optional="false" initial="true" />
 						<persistence type="property" />

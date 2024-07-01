@@ -1,7 +1,7 @@
 /*
  * ----------------------------------------------------------------
  * --- WARNING: THIS FILE IS GENERATED AND WILL BE OVERWRITTEN! ---
- * --- Generated at 24-Jun-2024, 6:12:15 am                     ---
+ * --- Generated at 01-Jul-2024, 2:23:57 pm                     ---
  * ----------------------------------------------------------------
  */
 package com.klarna.api.jalo;
