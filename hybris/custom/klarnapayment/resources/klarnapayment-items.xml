@@ -149,12 +149,6 @@
 							optional="true" />
 						<persistence type="property" />
 					</attribute>
-					<attribute type="KlarnaSignInConfig"
-						qualifier="klarnaSignInConfig">
-						<modifiers write="true" read="true" unique="true"
-							optional="true" />
-						<persistence type="property" />
-					</attribute>
 				</attributes>
 			</itemtype>
 			<itemtype code="Customer" generate="false"
@@ -282,11 +276,6 @@
 							initial="true" />
 						<persistence type="property" />
 					</attribute>
-
-					<attribute qualifier="endPointUrl" type="java.lang.String"> <description>Klarna 
-						End Point URL</description> <modifiers write="true" read="true" optional="false" 
-						initial="true"/> <persistence type="property"/> </attribute>
-
 					<attribute qualifier="endpointMode" type="KPEndpointMode">
 						<defaultvalue>em().getEnumerationValue("KPEndpointMode", "TEST")</defaultvalue>
 						<description>Determines the endpoint mode of the merchant</description>
@@ -294,10 +283,6 @@
 							initial="true" />
 						<persistence type="property" />
 					</attribute>
-					<attribute qualifier="merchantReferenceField" type="java.lang.String"> 
-						<description>Merchant Reference field from hybris</description> <modifiers 
-						write="true" read="true" optional="true" initial="true"/> <persistence type="property"/> 
-						</attribute>
 					<attribute qualifier="merchantReference2"
 						type="java.lang.String">
 						<description>Merchant Reference field2 from hybris</description>
@@ -756,10 +741,6 @@
 							initial="true" />
 						<persistence type="property" />
 					</attribute>
-					<attribute qualifier="autoFinalize" type="java.lang.Boolean"> <defaultvalue>Boolean.FALSE</defaultvalue> 
-						<description>Auto finalize in Checkout required or not </description> <modifiers 
-						write="true" read="true" optional="false" initial="true"/> <persistence type="property"/> 
-						</attribute>
 					<attribute qualifier="buttonTheme"
 						type="KlarnaButtonTheme">
 						<defaultvalue>em().getEnumerationValue("KlarnaButtonTheme", "default")</defaultvalue>
@@ -780,105 +761,6 @@
 						<description>Country for Locale</description>
 						<modifiers write="true" read="true" optional="true"
 							initial="true" />
-						<persistence type="property" />
-					</attribute>
-				</attributes>
-			</itemtype>
-			<itemtype code="KlarnaSignInConfig" generate="true"
-				autocreate="true"
-				jaloclass="com.klarna.payment.jalo.KlarnaSignInConfig">
-				<description>Hold configurations Of Klarna Sign In Config in Databases under table "KlarnaSignInConfig"</description>
-				<deployment table="KlarnaSignInConfig" typecode="12105" />
-				<attributes>
-					<attribute qualifier="code" type="java.lang.String">
-						<description>The Id of Klarna Express Checkout Configuration</description>
-						<modifiers write="true" read="true" unique="true"
-							optional="false" initial="true" />
-						<persistence type="property" />
-					</attribute>
-					<attribute qualifier="active" type="java.lang.Boolean">
-						<defaultvalue>Boolean.TRUE</defaultvalue>
-						<description>Activate Klarna Sign-in Config</description>
-						<modifiers write="true" read="true" optional="false"
-							initial="true" />
-						<persistence type="property" />
-					</attribute>
-					<attribute qualifier="autoMergeAccounts"
-						type="java.lang.Boolean">
-						<defaultvalue>Boolean.FALSE</defaultvalue>
-						<description>Activate Klarna Sign-in User Profile Auto merge</description>
-						<modifiers write="true" read="true" />
-						<persistence type="property" />
-					</attribute>
-					<attribute qualifier="autoLoginToKP" type="java.lang.Boolean">
-						<defaultvalue>Boolean.TRUE</defaultvalue>
-						<description>Auto Login to Klarna Payment </description>
-						<modifiers write="true" read="true" />
-						<persistence type="property" />
-					</attribute>
-					<attribute qualifier="clientId" type="java.lang.String">
-						<description>Merchant ID or Client ID</description>
-						<modifiers write="true" read="true" optional="false" initial="true" />
-						<persistence type="property" />
-					</attribute>
-					<attribute qualifier="environment" type="KlarnaEnv">
-						<defaultvalue>em().getEnumerationValue("KlarnaEnv", "playground")</defaultvalue>
-						<description>Determines the environment of the merchant</description>
-						<modifiers write="true" read="true" optional="false"
-							initial="true" />
-						<persistence type="property" />
-					</attribute>
-					<attribute qualifier="scriptUrl" type="java.lang.String">
-						<description>URL of Klarna Sign In javascript library</description>
-						<modifiers write="true" read="true" optional="false"
-							initial="true" />
-						<persistence type="property" />
-					</attribute>
-					<attribute qualifier="country" type="Country">
-						<description>Country Code for the Locale</description>
-						<modifiers write="true" read="true" optional="false"
-							initial="true" />
-						<persistence type="property" />
-					</attribute>
-					<attribute qualifier="scopeData"
-						type="KlarnaDataScopeList">
-						<description>List of customer data to fetch from Klarna</description>
-						<modifiers write="true" read="true" optional="false"
-							initial="true" />
-						<persistence type="property" />
-					</attribute>
-					<attribute qualifier="redirectUri"
-						type="java.lang.String">
-						<description>Sign in Redirect URI</description>
-						<persistence type="property" />
-						<modifiers read="true" write="true" />
-					</attribute>
-					<attribute qualifier="hideOverlay"
-						type="java.lang.Boolean">
-						<defaultvalue>Boolean.TRUE</defaultvalue>
-						<description>To Hide the Overlay</description>
-						<modifiers write="true" read="true" />
-						<persistence type="property" />
-					</attribute>
-					<attribute qualifier="buttonTheme"
-						type="KlarnaButtonTheme">
-						<defaultvalue>em().getEnumerationValue("KlarnaButtonTheme", "default")</defaultvalue>
-						<description>Determines the button theme</description>
-						<modifiers write="true" read="true" />
-						<persistence type="property" />
-					</attribute>
-					<attribute qualifier="buttonShape"
-						type="KlarnaButtonShape">
-						<defaultvalue>em().getEnumerationValue("KlarnaButtonShape", "default")</defaultvalue>
-						<description>Determines the button shape</description>
-						<modifiers write="true" read="true" />
-						<persistence type="property" />
-					</attribute>
-					<attribute qualifier="buttonLogoAlignment"
-						type="KlarnaButtonLogoAlignment">
-						<defaultvalue>em().getEnumerationValue("KlarnaButtonLogoAlignment", "left")</defaultvalue>
-						<description>Determines the alignment of Klarna logo on the button</description>
-						<modifiers write="true" read="true" />
 						<persistence type="property" />
 					</attribute>
 				</attributes>
@@ -1249,7 +1131,7 @@
 					</attribute>
 					<attribute qualifier="placements" type="KlarnaOSMPlacementList">
 						<description>Placements</description>
-						<modifiers write="true" read="true" optional="true" initial="true" />
+						<modifiers write="true" read="true" optional="false" initial="true" />
 						<persistence type="property" />
 					</attribute>
 					<attribute qualifier="theme" type="OsmTheme">

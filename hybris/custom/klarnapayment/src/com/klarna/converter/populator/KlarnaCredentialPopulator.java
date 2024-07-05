@@ -46,5 +46,7 @@ public class KlarnaCredentialPopulator implements Populator<KlarnaCredentialMode
 		target.setMarketRegion(source.getMarketRegion() != null ? source.getMarketRegion().getCode() : null);
 		target.setMarketCountry(
 				siteConfigService.getString(KlarnapaymentConstants.KLARNA_MARKET_COUNTRY_FOR_SITE, StringUtils.EMPTY));
+		target.setVcnEnabled(source.getVcnEnabled() != null ? source.getVcnEnabled() : Boolean.FALSE);
+		target.setVcnKey(source.getVcnKey());
 	}
 }

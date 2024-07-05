@@ -130,7 +130,8 @@ public class KPCreditSessionPopulator implements Populator<AbstractOrderModel, P
 		String notificationUrl = StringUtils.isNotBlank(merchantUrl.getNotificationUpdateURL())
 				? merchantUrl.getNotificationUpdateURL()
 				: StringUtils.EMPTY;
-		String authUrl = StringUtils.isNotBlank(merchantUrl.getAuthorizationUpdateURL()) ? merchantUrl.getAuthorizationUpdateURL()
+		final String authUrl = StringUtils.isNotBlank(merchantUrl.getAuthorizationUpdateURL())
+				? merchantUrl.getAuthorizationUpdateURL()
 				: StringUtils.EMPTY;
 		if (StringUtils.isNotBlank(kid) && StringUtils.isNotBlank(confirmationUrl))
 		{
@@ -142,14 +143,12 @@ public class KPCreditSessionPopulator implements Populator<AbstractOrderModel, P
 			notificationUrl = notificationUrl + "?kid=" + kid;
 		}
 
-		if (StringUtils.isNotBlank(kid) && StringUtils.isNotBlank(authUrl))
-		{
-			authUrl = authUrl + "?kid=" + kid;
-		}
-
 		urls.setConfirmation(confirmationUrl);
 		urls.setNotification(notificationUrl);
-		urls.setAuthorization(authUrl);
+		if (StringUtils.isNotBlank(authUrl))
+		{
+			urls.setAuthorization(authUrl);
+		}
 		return urls;
 	}
 
