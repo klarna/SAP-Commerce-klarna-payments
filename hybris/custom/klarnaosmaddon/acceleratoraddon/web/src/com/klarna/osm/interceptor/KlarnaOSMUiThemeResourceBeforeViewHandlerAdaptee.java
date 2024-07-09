@@ -41,7 +41,7 @@ public class KlarnaOSMUiThemeResourceBeforeViewHandlerAdaptee implements BeforeV
 		}
 		final KlarnaConfigData configData = klarnaConfigFacade.getKlarnaConfig();
 
-		if (configData != null)
+		if (configData != null && configData.getCredential() != null)
 		{
 			final KlarnaKOSMConfigData osmConfigData = configData.getOsmConfig();
 			if (osmConfigData != null)
