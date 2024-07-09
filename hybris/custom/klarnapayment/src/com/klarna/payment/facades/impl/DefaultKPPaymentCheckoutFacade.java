@@ -440,15 +440,26 @@ public class DefaultKPPaymentCheckoutFacade implements KPPaymentCheckoutFacade
 				cartModel.setIsKpPendingOrder(Boolean.TRUE);
 
 			}
+
+			final KlarnaConfigData klarnaConfig = getklarnaConfigFacade().getKlarnaConfig();
+			PaymentTransactionType transactionType;
+			if (BooleanUtils.isTrue(klarnaConfig.getKpConfig().getAutoCapture())
+					&& BooleanUtils.isFalse(klarnaConfig.getCredential().getVcnEnabled()))
+			{
+				transactionType = PaymentTransactionType.CAPTURE;
+			}
+			else
+			{
+				transactionType = PaymentTransactionType.AUTHORIZATION;
+			}
 			/************************ KLARNAPII-952 **************************/
 			getKpPaymentFacade().createTransactionEntry(paymentInfo.getAuthToken(), paymentInfo, transaction,
-					PaymentTransactionType.AUTHORIZATION, TransactionStatus.ACCEPTED.name(),
+					transactionType, TransactionStatus.ACCEPTED.name(),
 					TransactionStatusDetails.SUCCESFULL.name());
 			//if vcn enabled, ignore autocapture mode, go with handle settlement
 
 			//else if autocapture, do catpure
 
-			final KlarnaConfigData klarnaConfig = getklarnaConfigFacade().getKlarnaConfig();
 			/* Creating settlement request only when fraud status is accepted or FRAUD_RISK_ACCEPTED */
 			if (fraudStatus.equals(KlarnaFraudStatusEnum.ACCEPTED.getValue())
 					|| fraudStatus.equals(KlarnaFraudStatusEnum.FRAUD_RISK_ACCEPTED.getValue()))
