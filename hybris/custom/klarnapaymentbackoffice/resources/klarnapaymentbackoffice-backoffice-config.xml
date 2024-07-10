@@ -558,6 +558,7 @@
 	<context type="KlarnaMarketRegion" component="simple-search">
 	    <yss:simple-search xmlns:yss="http://www.hybris.com/cockpitng/config/simplesearch">
 	        <yss:field name="code"/>
+	        <yss:field name="name"/>
 	    </yss:simple-search>
 	</context>
 	<context type="KlarnaMarketRegion" component="advanced-search">
@@ -631,6 +632,7 @@
 	<context type="KlarnaMarketCountry" component="simple-search">
 	    <yss:simple-search xmlns:yss="http://www.hybris.com/cockpitng/config/simplesearch">
 	        <yss:field name="isoCode"/>
+	        <yss:field name="name"/>
 	    </yss:simple-search>
 	</context>
 	<context type="KlarnaMarketCountry" component="advanced-search">
