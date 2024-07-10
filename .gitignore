@@ -3,6 +3,12 @@
 # Learn more about .gitignore:
 #     https://www.atlassian.com/git/tutorials/saving-changes/gitignore
 
+# B2B storefront extension
+custom/yb2bacceleratorstorefront
+
+# Generated files
+Generated*.java
+
 # Node artifact files
 node_modules/
 dist/

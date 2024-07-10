@@ -2,9 +2,9 @@ window.onload = async function() {
 	
 	// placement Flags
 	var currentURL = window.location.href;
-	var showInLoginPage = $("#showInLoginPage").val();
-	var showInRegisterPage = $("#showInRegisterPage").val();
-	var showInCheckoutLoginPage = $("#showInCheckoutLoginPage").val();
+	var showInLoginPage = $("#showSIWKInLoginPage").val();
+	var showInRegisterPage = $("#showSIWKInRegisterPage").val();
+	var showInCheckoutLoginPage = $("#showSIWKInCheckoutLoginPage").val();
 	var showSignInButton = false;
 	if(currentURL.endsWith("/login/checkout") && (showInCheckoutLoginPage == "true") )
 	{
@@ -16,22 +16,22 @@ window.onload = async function() {
 	}
 	
 	if(showSignInButton){
-	var clientId			= $("#clientId").val();
-	var environment			= $("#environment").val();
-	var currentLocale		= $("#currentLocale").val();
+	var clientId			= $("#klarnaClientId").val();
+	var environment			= $("#klarnaEnv").val();
+	var klarnaLocale		= $("#klarnaLocale").val();
 	
 	const klarna = await Klarna.init({
 		clientId:		clientId,
 		environment:	environment,
-		locale:			currentLocale
+		locale:			klarnaLocale
 	});
 	
-	var scopeData			= $("#scopeData").val();
-	var redirectUri			= $("#redirectUri").val();
-	var buttonTheme			= $("#buttonTheme").val();
-	var buttonShape			= $("#buttonShape").val();
-	var buttonLogoAlignment	= $("#buttonLogoAlignment").val();
-	var country 			= $("#country").val();
+	var scopeData			= $("#siwkScopeData").val();
+	var redirectUri			= $("#siwkRedirectUri").val();
+	var buttonTheme			= $("#siwkButtonTheme").val();
+	var buttonShape			= $("#siwkButtonShape").val();
+	var buttonLogoAlignment	= $("#siwkButtonLogoAlignment").val();
+	var klarnaCountry 			= $("#klarnaCountry").val();
 	
 	const siwkButton = klarna.Identity.button({
 		scope:				scopeData,

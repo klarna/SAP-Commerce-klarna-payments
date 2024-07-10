@@ -963,7 +963,7 @@
 					</attribute>
 	            </attributes>
         	</itemtype>
-			<itemtype code="KlarnaKPConfig" generate="true" autocreate="true" jaloclass="com.klarna.jalo.KlarnaPaymentConfig">
+			<itemtype code="KlarnaKPConfig" generate="true" autocreate="true" jaloclass="com.klarna.jalo.KlarnaKPConfig">
 				<description>Klarna Payment Configuration</description>
 				<deployment table="KlarnaKPConfig" typecode="12111" />
 				<attributes>

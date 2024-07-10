@@ -195,7 +195,7 @@ public class KPOrderConfirmationController
 					hybrisOrderId = orderData.getCode();
 				}
 			}
-			kpPaymentCheckoutFacade.doAutoCapture(orderData.getKpOrderId());
+			//kpPaymentCheckoutFacade.doAutoCapture(orderData.getKpOrderId());
 			//kpPaymentFacade.acknowledgeOrderNotify(kpOrderId, klarnaOrder, orderData);
 		}
 		catch (final InvalidCartException e)

@@ -25,10 +25,19 @@ public class KlarnaBeforeViewHandler implements BeforeViewHandlerAdaptee
 	private static final Logger LOG = Logger.getLogger(KlarnaBeforeViewHandler.class);
 
 	private static final String IS_KLARNA_EXP_CHECKOUT_ENABLED = "isKlarnaExpCheckoutEnabled";
-	private static final String KLARNA_CONFIG_DATA = "klarnaConfigData";
-	private static final String CURRENT_LOCALE = "currentLocale";
+	private static final String IS_KLARNA_SIGN_IN_ENABLED = "isKlarnaSignInEnabled";
+	private static final String KLARNA_CLIENT_ID = "klarnaClientId";
+	private static final String KLARNA_ENV = "klarnaEnv";
+	private static final String KLARNA_LOCALE = "klarnaLocale";
+	private static final String KLARNA_COUNTRY = "klarnaCountry";
 	private static final String SCRIPT_URL_KEC = "scriptUrlKEC";
+	private static final String SHOW_KEC_IN_PDP = "showKECInPDP";
+	private static final String SHOW_KEC_IN_CART_PAGE = "showKECInCartPage";
+	private static final String SHOW_KEC_IN_CART_POPUP = "showKECInCartPopup";
+	private static final String KEC_BUTTON_THEME = "kecButtonTheme";
+	private static final String KEC_BUTTON_SHAPE = "kecButtonShape";
 	private static final String SCRIPT_URL_SIWK = "scriptUrlSIWK";
+	private static final String SIWK_CONFIG_DATA = "siwkConfigData";
 
 	@Resource(name = "klarnaExpCheckoutFacade")
 	private KlarnaExpCheckoutFacade klarnaExpCheckoutFacade;
@@ -41,8 +50,6 @@ public class KlarnaBeforeViewHandler implements BeforeViewHandlerAdaptee
 
 	@Resource(name = "commonI18NService")
 	CommonI18NService commonI18NService;
-
-	private static final String IS_KLARNA_SIGN_IN_ENABLED = "isKlarnaSignInEnabled";
 
 	@Resource(name = "klarnaSignInFacade")
 	private KlarnaSignInFacade klarnaSignInFacade;
@@ -59,9 +66,13 @@ public class KlarnaBeforeViewHandler implements BeforeViewHandlerAdaptee
 			LOG.debug("Inside KlarnaPaymentBeforeViewHandler");
 		}
 		final KlarnaConfigData klarnaConfig = klarnaConfigFacade.getKlarnaConfig();
-		if (klarnaConfig != null)
+		if (klarnaConfig != null && klarnaConfig.getCredential() != null)
 		{
-			setKlarnaCommonAttributes(model, klarnaConfig);
+			model.addAttribute(KLARNA_CLIENT_ID, klarnaConfig.getCredential().getClientId());
+			model.addAttribute(KLARNA_ENV, klarnaConfig.getEnvironment());
+			model.addAttribute(KLARNA_COUNTRY, klarnaConfig.getCredential().getMarketCountry());
+			model.addAttribute(KLARNA_LOCALE,
+					i18NService.getCurrentLocale() + "-" + klarnaConfig.getCredential().getMarketCountry());
 
 			setKlarnaExpressCheckoutAttributes(model, klarnaConfig);
 
@@ -71,24 +82,18 @@ public class KlarnaBeforeViewHandler implements BeforeViewHandlerAdaptee
 		return viewName;
 	}
 
-	/**
-	 * @param model
-	 * @param klarnaConfig
-	 */
-	private void setKlarnaCommonAttributes(final ModelMap model, final KlarnaConfigData klarnaConfig)
-	{
-		model.addAttribute(KLARNA_CONFIG_DATA, klarnaConfig);
-		model.addAttribute(CURRENT_LOCALE, i18NService.getCurrentLocale() + "-" + klarnaConfig.getCredential().getMarketCountry());
-	}
-
 	private void setKlarnaExpressCheckoutAttributes(final ModelMap model, final KlarnaConfigData klarnaConfig)
 	{
-		// KecConfig and Credential will not be null if klarnaConfig is not null
-		if (klarnaConfig != null && klarnaConfig.getKecConfig() != null)
+		if (klarnaConfig.getKecConfig() != null)
 		{
 			model.addAttribute(IS_KLARNA_EXP_CHECKOUT_ENABLED, Boolean.TRUE);
 			model.addAttribute(SCRIPT_URL_KEC,
 					configurationService.getConfiguration().getString(KlarnapaymentConstants.KLARNA_KEC_SCRIPT_URL));
+			model.addAttribute(SHOW_KEC_IN_PDP, klarnaConfig.getKecConfig().getShowInPDPPage());
+			model.addAttribute(SHOW_KEC_IN_CART_PAGE, klarnaConfig.getKecConfig().getShowInCartPage());
+			model.addAttribute(SHOW_KEC_IN_CART_POPUP, klarnaConfig.getKecConfig().getShowInMiniCartPage());
+			model.addAttribute(KEC_BUTTON_THEME, klarnaConfig.getKecConfig().getButtonTheme());
+			model.addAttribute(KEC_BUTTON_SHAPE, klarnaConfig.getKecConfig().getButtonShape());
 		}
 		else
 		{
@@ -98,16 +103,11 @@ public class KlarnaBeforeViewHandler implements BeforeViewHandlerAdaptee
 
 	private void setKlarnaSignInAttributes(final ModelMap model, final KlarnaConfigData klarnaConfig)
 	{
-		if (LOG.isDebugEnabled())
-		{
-			LOG.debug("Inside setKlarnaSignInAttributes");
-		}
 		KlarnaSIWKConfigData siwkData = klarnaConfig.getSiwkConfig();
-		// siwkData will not be null if it's active
 		if (siwkData != null)
 		{
-			System.out.println("KlarnaSIWKConfigData " + siwkData.getActive() + " Scope Data  " + siwkData.getScopeData());
 			model.addAttribute(IS_KLARNA_SIGN_IN_ENABLED, Boolean.TRUE);
+			model.addAttribute(SIWK_CONFIG_DATA, siwkData);
 			model.addAttribute(SCRIPT_URL_SIWK,
 					configurationService.getConfiguration().getString(KlarnapaymentConstants.KLARNA_SIWK_SCRIPT_URL));
 		}
