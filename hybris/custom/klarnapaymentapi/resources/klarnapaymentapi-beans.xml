@@ -564,6 +564,23 @@
     	</property>
 	</bean>
 	
+	<bean class="com.klarna.api.payments.model.KlarnaPaymentAuthCallbackResponse">
+		<import type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
+	    <import type="com.fasterxml.jackson.annotation.JsonProperty" />
+    	<property name="authorizationToken" type="String">
+    			<annotations>@JsonProperty("authorization_token")</annotations>
+    	</property>
+    	<property name="sessionId" type="Boolean">
+    	    	<annotations>@JsonProperty("session_id")</annotations>
+    	</property>
+    	<property name="merchantReference1" type="String">
+    			<annotations>@JsonProperty("merchant_reference1")</annotations>
+    	</property>
+    	<property name="merchantReference2" type="String">
+    			<annotations>@JsonProperty("merchant_reference2")</annotations>
+    	</property>
+	</bean>
+	
 	<bean class="com.klarna.api.order_management.model.OrderManagementCapture">
 		
 		<import type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
@@ -1181,4 +1198,5 @@
     	    	<annotations>@JsonProperty("expires_in")</annotations>
     	</property>
 	</bean>
+	
 </beans>

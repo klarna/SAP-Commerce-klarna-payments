@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.klarna.api.model.ApiException;
+import com.klarna.api.payments.model.KlarnaPaymentAuthCallbackResponse;
 import com.klarna.api.payments.model.PaymentsSession;
 import com.klarna.payment.facades.KPPaymentCheckoutFacade;
 import com.klarna.payment.facades.KPPaymentFacade;
@@ -95,19 +96,37 @@ public class KPPaymentController extends AbstractPageController
 		return creditSessionData;
 	}
 
-	@RequestMapping(value = "/auth-callback", method = RequestMethod.POST, produces = "application/json")
+	@RequestMapping(value = "/auth-callback", method = RequestMethod.POST)
 	@RequireHardLogIn
-	@ResponseBody
-	public String authorizeCallback(@RequestParam("authorizationToken")
-	final String authorizationToken, @RequestParam("paymentOption")
-	final String paymentOption, @RequestParam("finalizeRequired")
-	final Boolean finalizeRequired)
+	public String authorizeCallbackPOST(@RequestBody
+	final KlarnaPaymentAuthCallbackResponse klarnaPaymentAuthCallbackResponse, final HttpSession httpSession)
 	{
-		LogHelper.debugLog(LOG, "Going to save Authorization");
-		kpPaymentCheckoutFacade.saveAuthorization(authorizationToken, paymentOption, finalizeRequired);
+		LogHelper.debugLog(LOG, "Going to save Authorization for Klarna Payment ");
+		LOG.info("klarnaPaymentAuthCallbackResponse Token POST "+(klarnaPaymentAuthCallbackResponse!= null?klarnaPaymentAuthCallbackResponse.getAuthorizationToken()+" "+klarnaPaymentAuthCallbackResponse.getSessionId():klarnaPaymentAuthCallbackResponse));
+		kpPaymentCheckoutFacade.saveAuthorization(klarnaPaymentAuthCallbackResponse.getAuthorizationToken(), null, null);
 
 		//Create payment transaction
 		kpPaymentFacade.createPaymentTransaction();
+
+		LogHelper.debugLog(LOG,
+				"Saved Authorization Token for Klarna Payment with Session Id :: " + klarnaPaymentAuthCallbackResponse.getSessionId());
+		return "success";
+	}
+	
+	@RequestMapping(value = "/auth-callback", method = RequestMethod.GET)
+	@RequireHardLogIn
+	public String authorizeCallbackGET(@RequestBody
+	final KlarnaPaymentAuthCallbackResponse klarnaPaymentAuthCallbackResponse, final HttpSession httpSession)
+	{
+		LogHelper.debugLog(LOG, "Going to save Authorization for Klarna Payment ");
+		LOG.info("klarnaPaymentAuthCallbackResponse Token GET "+(klarnaPaymentAuthCallbackResponse!= null?klarnaPaymentAuthCallbackResponse.getAuthorizationToken()+" "+klarnaPaymentAuthCallbackResponse.getSessionId():klarnaPaymentAuthCallbackResponse));
+		kpPaymentCheckoutFacade.saveAuthorization(klarnaPaymentAuthCallbackResponse.getAuthorizationToken(), null, null);
+		System.out.println();
+		//Create payment transaction
+		kpPaymentFacade.createPaymentTransaction();
+
+		LogHelper.debugLog(LOG,
+				"Saved Authorization Token for Klarna Payment with Session Id :: " + klarnaPaymentAuthCallbackResponse.getSessionId());
 		return "success";
 	}
 
@@ -184,7 +203,7 @@ public class KPPaymentController extends AbstractPageController
 			{
 				KPPaymentInfoModel kpPaymentInfo = (KPPaymentInfoModel) cart.getPaymentInfo();
 				String authToken = kpPaymentInfo.getAuthToken();
-				if (authToken != null || !authToken.equals(""))
+				if (StringUtils.isNotBlank(authToken))
 				{
 					//Cancel Klarna Authorzation
 					kpPaymentFacade.getKlarnaDeleteAuthorization(authToken);
