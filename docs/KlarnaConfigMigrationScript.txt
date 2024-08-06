@@ -1,0 +1,185 @@
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import de.hybris.platform.acceleratorservices.config.SiteConfigService;
+import de.hybris.platform.store.services.BaseStoreService;
+import de.hybris.platform.servicelayer.model.ModelService;
+import de.hybris.platform.servicelayer.search.FlexibleSearchService;
+import de.hybris.platform.servicelayer.exceptions.ModelNotFoundException;
+import com.klarna.payment.constants.KlarnapaymentConstants;
+import de.hybris.platform.store.BaseStoreModel;
+import com.klarna.model.KlarnaConfigModel;
+import com.klarna.model.KlarnaCredentialModel;
+import com.klarna.model.KlarnaKECConfigModel;
+import com.klarna.model.KlarnaKPConfigModel;
+import com.klarna.model.KlarnaMarketCountryModel;
+import com.klarna.model.KlarnaMarketRegionModel;
+import com.klarna.osm.model.KlarnaKOSMConfigModel;
+import com.klarna.osm.model.KlarnaOSMConfigModel;
+import com.klarna.payment.model.KlarnaExpCheckoutConfigModel;
+import com.klarna.payment.model.KlarnaPayConfigModel;
+import com.klarna.payment.enums.KPEndpointMode;
+import com.klarna.payment.enums.KlarnaEnv;
+import com.klarna.payment.enums.KlarnaOSMPlacement;
+import com.klarna.payment.enums.KlarnaKECPlacement;
+
+// Base Store Id, Country Code and Region Code are mandatory parameters
+String baseStoreId = "apparel-uk";
+String marketCountryIsoCode = "GB";
+String marketRegionCode = "EU";
+
+BaseStoreService baseStoreService = spring.getBean("baseStoreService");
+ModelService modelService = spring.getBean("modelService");
+FlexibleSearchService flexibleSearchService = spring.getBean("flexibleSearchService");
+
+println "Starting Klarna config migration..";
+// Base Store Validation
+if (StringUtils.isEmpty(baseStoreId))
+{
+	return "Error! Please provide Base Store Id.";
+}
+
+BaseStoreModel baseStore = baseStoreService.getBaseStoreForUid(baseStoreId);
+if (baseStore == null)
+{
+	return "Error! No valid Base Store with Id: "+ baseStoreId;
+}
+println "Found Base Store with Id : "+baseStoreId;
+
+// Country Validation
+if (StringUtils.isEmpty(marketCountryIsoCode))
+{
+	return "Error! Please provide Country ISO Code.";
+}
+KlarnaMarketCountryModel marketCountry = new KlarnaMarketCountryModel();
+marketCountry.setIsoCode(marketCountryIsoCode);
+try {
+	marketCountry = flexibleSearchService.getModelByExample(marketCountry);
+}
+catch(ModelNotFoundException e) {
+	return "Market Country doesnt't exist for the configured Country ISO Code: " + marketCountryIsoCode;
+}
+println "Market Country exists for ISO Code : "+marketCountryIsoCode;
+
+// Check if valid market region is configured
+if (StringUtils.isEmpty(marketRegionCode))
+{
+	return "Error! Market Region not configured for the Base Store: " + baseStoreId;
+}
+KlarnaMarketRegionModel marketRegion = new KlarnaMarketRegionModel();
+marketRegion.setCode(marketRegionCode);
+try {
+	marketRegion = flexibleSearchService.getModelByExample(marketRegion);
+}
+catch(ModelNotFoundException e) {
+	return "Market Region doesnt't exist for the configured Region Code: " + marketRegionCode;
+}
+println "Market Region exists for Code : "+marketRegionCode;
+
+// Create Klarna Common Configuration
+KlarnaConfigModel klarnaConfigModel = modelService.create(KlarnaConfigModel._TYPECODE);
+klarnaConfigModel.setCode("Klarna_Config_" + baseStoreId);
+klarnaConfigModel.setActive(true);
+klarnaConfigModel.setBaseStores(new ArrayList<BaseStoreModel>(Arrays.asList(baseStore)));
+
+// Create Credential configuration
+KlarnaCredentialModel klarnaCredentialModel = modelService.create(KlarnaCredentialModel._TYPECODE);
+klarnaCredentialModel.setCode("Klarna_Credential_"+baseStoreId+"_"+marketRegionCode);
+klarnaCredentialModel.setMarketRegion(marketRegion);
+klarnaCredentialModel.setMarketCountries(new ArrayList<KlarnaMarketCountryModel>(Arrays.asList(marketCountry)));
+
+KlarnaPayConfigModel klarnaPayConfigOld = baseStore.getKlarnaPayConfig();
+KlarnaKPConfigModel klarnaKPConfigModel = null;
+if (klarnaPayConfigOld == null)
+{
+	println "Klarna Payment Configuration doesn't exist for Base Store: " + baseStoreId;
+}
+else
+{
+	// Create Klarna Payment Configuration
+	klarnaKPConfigModel = modelService.create(KlarnaKPConfigModel._TYPECODE);
+	klarnaKPConfigModel.setCode("Klarna_Payment_Config_"+baseStoreId);
+	klarnaKPConfigModel.setActive(klarnaPayConfigOld.getActive());
+	klarnaKPConfigModel.setAutoCapture(klarnaPayConfigOld.getAutoCapture());
+	klarnaKPConfigModel.setMerchantEmail(klarnaPayConfigOld.getMerchantEmail());
+	klarnaKPConfigModel.setMerchantReference2(klarnaPayConfigOld.getMerchantReference2());
+	klarnaKPConfigModel.setSendEMD(klarnaPayConfigOld.getAttachementRequired());
+	modelService.save(klarnaKPConfigModel);
+	println "Created new Klarna Payment Configuration with Code: " + klarnaKPConfigModel.getCode();
+	klarnaConfigModel.setKpConfig(klarnaKPConfigModel);
+	if(KPEndpointMode.LIVE.equals(klarnaPayConfigOld.getEndpointMode())) {
+		klarnaConfigModel.setEnvironment(KlarnaEnv.PRODUCTION);
+	}
+	else {
+		klarnaConfigModel.setEnvironment(KlarnaEnv.PLAYGROUND);
+	}
+	klarnaCredentialModel.setApiUserName(klarnaPayConfigOld.getMerchantID());
+	klarnaCredentialModel.setApiPassword(klarnaPayConfigOld.getSharedSecret());
+	klarnaCredentialModel.setVcnEnabled(klarnaPayConfigOld.getIsVCNEnabled());
+	klarnaCredentialModel.setVcnKey(klarnaPayConfigOld.getVcnKeyID());	
+}
+
+KlarnaOSMConfigModel klarnaOSMConfigModelOld = baseStore.getKlarnaOsmConfig();
+KlarnaKOSMConfigModel klarnaKOSMConfigModel = null;
+if (klarnaOSMConfigModelOld == null)
+{
+	println "Klarna OSM Configuration doesn't exist for Base Store: " + baseStoreId;
+}
+else
+{
+	// Create Klarna OSM Configuration
+	klarnaKOSMConfigModel = modelService.create(KlarnaKOSMConfigModel._TYPECODE);
+	klarnaKOSMConfigModel.setCode("Klarna_OSM_Config_"+baseStoreId);
+	List<KlarnaOSMPlacement> osmPlacements = new ArrayList<KlarnaOSMPlacement>();
+	if(Boolean.TRUE.equals(klarnaOSMConfigModelOld.getCartEnabled())) {
+		osmPlacements.add(KlarnaOSMPlacement.CART_PAGE);
+		klarnaKOSMConfigModel.setActive(Boolean.TRUE);
+		klarnaKOSMConfigModel.setTheme(klarnaOSMConfigModelOld.getCartTheme());
+	}
+	if(Boolean.TRUE.equals(klarnaOSMConfigModelOld.getPdpEnabled())) {
+		osmPlacements.add(KlarnaOSMPlacement.PRODUCT_DETAILS_PAGE);
+		klarnaKOSMConfigModel.setActive(Boolean.TRUE);
+		klarnaKOSMConfigModel.setTheme(klarnaOSMConfigModelOld.getPdpTheme());
+	}
+	klarnaKOSMConfigModel.setPlacements(osmPlacements);
+	klarnaKOSMConfigModel.setCustomStyle(klarnaOSMConfigModelOld.getCustomStyle());
+	modelService.save(klarnaKOSMConfigModel);
+	println "Created new Klarna OSM Configuration with Code: " + klarnaKOSMConfigModel.getCode();
+	klarnaConfigModel.setOsmConfig(klarnaKOSMConfigModel);
+	klarnaCredentialModel.setClientId(klarnaOSMConfigModelOld.getUci());
+}
+
+KlarnaExpCheckoutConfigModel klarnaExpCheckoutConfigModelOld = baseStore.getKlarnaExpCheckoutConfig();
+KlarnaKECConfigModel klarnaKECConfigModel = null;
+if (klarnaExpCheckoutConfigModelOld == null)
+{
+	println "Klarna Express Checkout Configuration doesn't exist for Base Store: " + baseStoreId;
+}
+else
+{
+	// Create Klarna OSM Configuration
+	klarnaKECConfigModel = modelService.create(KlarnaKECConfigModel._TYPECODE);
+	klarnaKECConfigModel.setCode("Klarna_KEC_Config_"+baseStoreId);
+	klarnaKECConfigModel.setActive(klarnaExpCheckoutConfigModelOld.getActive());
+	klarnaKECConfigModel.setButtonShape(klarnaExpCheckoutConfigModelOld.getButtonShape());
+	klarnaKECConfigModel.setButtonTheme(klarnaExpCheckoutConfigModelOld.getButtonTheme());
+	List<KlarnaKECPlacement> kecPlacements = new ArrayList<KlarnaKECPlacement>();
+	kecPlacements.add(KlarnaKECPlacement.CART_PAGE);
+	kecPlacements.add(KlarnaKECPlacement.PRODUCT_DETAILS_PAGE);
+	kecPlacements.add(KlarnaKECPlacement.MINI_CART_POPUP);
+	klarnaKECConfigModel.setPlacements(kecPlacements);
+	modelService.save(klarnaKECConfigModel);
+	println "Created new KEC Configuration with Code: " + klarnaKECConfigModel.getCode();
+	klarnaConfigModel.setKecConfig(klarnaKECConfigModel);
+	if(klarnaCredentialModel.getClientId() == null) {
+		klarnaCredentialModel.setClientId(klarnaExpCheckoutConfigModelOld.getClientKey());
+	}
+}
+
+modelService.save(klarnaCredentialModel);
+println "Created new credential with Code: " + klarnaCredentialModel.getCode();
+
+klarnaConfigModel.setCredentials(new ArrayList<KlarnaCredentialModel>(Arrays.asList(klarnaCredentialModel)));
+modelService.save(klarnaConfigModel);
+println "Created new Klarna configuration with Code: " + klarnaConfigModel.getCode();
+return "Success";
+	
