@@ -29,12 +29,14 @@ import com.klarna.data.KlarnaCredentialData;
 import com.klarna.data.KlarnaKECConfigData;
 import com.klarna.data.KlarnaKOSMConfigData;
 import com.klarna.data.KlarnaKPConfigData;
+import com.klarna.data.KlarnaSIWKConfigData;
 import com.klarna.model.KlarnaConfigModel;
 import com.klarna.model.KlarnaCredentialModel;
 import com.klarna.model.KlarnaKECConfigModel;
 import com.klarna.model.KlarnaKPConfigModel;
 import com.klarna.model.KlarnaMarketCountryModel;
 import com.klarna.model.KlarnaMarketRegionModel;
+import com.klarna.model.KlarnaSIWKConfigModel;
 import com.klarna.osm.model.KlarnaKOSMConfigModel;
 import com.klarna.payment.constants.KlarnapaymentConstants;
 
@@ -82,20 +84,22 @@ public class KlarnaConfigPopulator implements Populator<KlarnaConfigModel, Klarn
 				target.setKecConfig(kecConfigData);
 			}
 
-			//final KlarnaSIWKConfigModel klarnaSIWKConfigModel = source.getSiwkConfig();
-			//if (klarnaSIWKConfigModel != null && Boolean.TRUE == klarnaSIWKConfigModel.getActive())
-			//{
-			//	final KlarnaSIWKConfigData siwkConfigData = new KlarnaSIWKConfigData();
-			//	klarnaSIWKConfigConverter.convert(klarnaSIWKConfigModel, siwkConfigData);
-			//	target.setSiwkConfig(siwkConfigData);
-			//}
+			final KlarnaSIWKConfigModel klarnaSIWKConfigModel = source.getSiwkConfig();
+			if (klarnaSIWKConfigModel != null && Boolean.TRUE == klarnaSIWKConfigModel.getActive())
+			{
+			final KlarnaSIWKConfigData siwkConfigData = new KlarnaSIWKConfigData();
+			klarnaSIWKConfigConverter.convert(klarnaSIWKConfigModel, siwkConfigData);
+			target.setSiwkConfig(siwkConfigData);
+			}
 
 			final KlarnaKOSMConfigModel klarnaKOSMConfigModel = source.getOsmConfig();
+			LOG.debug("klarnaKOSMConfigModel "+klarnaKOSMConfigModel);
 			if (klarnaKOSMConfigModel != null && Boolean.TRUE == klarnaKOSMConfigModel.getActive())
 			{
 				final KlarnaKOSMConfigData osmConfigData = new KlarnaKOSMConfigData();
 				klarnaKOSMConfigConverter.convert(klarnaKOSMConfigModel, osmConfigData);
 				target.setOsmConfig(osmConfigData);
+				LOG.debug("osmConfigData "+osmConfigData);
 			}
 		}
 		else

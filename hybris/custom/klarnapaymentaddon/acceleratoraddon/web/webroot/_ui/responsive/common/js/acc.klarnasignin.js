@@ -1,5 +1,5 @@
 window.onload = async function() {
-	
+
 	// placement Flags
 	var currentURL = window.location.href;
 	var showInLoginPage = $("#showSIWKInLoginPage").val();
@@ -14,40 +14,39 @@ window.onload = async function() {
 	{
 		showSignInButton = true;
 	}
-	
+
 	if(showSignInButton){
 	var clientId			= $("#klarnaClientId").val();
 	var environment			= $("#klarnaEnv").val();
 	var klarnaLocale		= $("#klarnaLocale").val();
-	
+
 	const klarna = await Klarna.init({
 		clientId:		clientId,
 		environment:	environment,
 		locale:			klarnaLocale
 	});
-	
+
 	var scopeData			= $("#siwkScopeData").val();
 	var redirectUri			= $("#siwkRedirectUri").val();
 	var buttonTheme			= $("#siwkButtonTheme").val();
 	var buttonShape			= $("#siwkButtonShape").val();
 	var buttonLogoAlignment	= $("#siwkButtonLogoAlignment").val();
 	var klarnaCountry 			= $("#klarnaCountry").val();
-	
+
 	const siwkButton = klarna.Identity.button({
-		scope:				scopeData,
+		scope:				scopeData+" customer:login",
 		redirectUri:		redirectUri,
 		interactionMode:	"DEVICE_BEST",
-		hideOverlay:		false,
 		shape:				buttonShape,
 		theme:				buttonTheme,
 		logoAlignment:		buttonLogoAlignment,
-		market:				country
+		market:				klarnaCountry,
 	})
 	siwkButton.mount("#klarna-signin-container");
 
 	//klarna.Identity.handleRedirect();
-	
-	klarna.Identity.on("signin", 
+
+	klarna.Identity.on("signin",
 		(data) => {
 		ACC.signin.initiateSignInResponse(data);
 		},
@@ -56,7 +55,7 @@ window.onload = async function() {
 		ACC.signin.showErrorMessage(message);
 		console.log("signin error" + JSON.stringify(error));
 		});
-		
+
 	klarna.Identity.on("error", (data) => {
 		var message = $('#signinErrHidden').val();
 		ACC.signin.showErrorMessage(message);
@@ -80,7 +79,7 @@ ACC.signin = {
 		}
 		else{
 			console.log(" no data ",url);
-		} 
+		}
 		}).fail(function (error) {
 		console.log("Authorize reponse error:", JSON.stringify(error));
 		});

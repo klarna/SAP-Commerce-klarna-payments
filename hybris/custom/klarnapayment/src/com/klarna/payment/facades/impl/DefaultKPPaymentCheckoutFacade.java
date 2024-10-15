@@ -610,9 +610,22 @@ public class DefaultKPPaymentCheckoutFacade implements KPPaymentCheckoutFacade
 			kpPaymentInfo.setPaymentOption(paymentOption);
 			kpPaymentInfo.setFinalizeRequired(finalizeRequired);
 		}
-
-		kpPaymentInfo.setAuthToken(authorizationToken);
-
+		
+		// Auth Token to be set freshly
+		if(authorizationToken != null && !StringUtils.equals(authorizationToken, kpPaymentInfo.getAuthToken())) {
+			kpPaymentInfo.setAuthToken(authorizationToken);
+		}
+		if(LOG.isDebugEnabled())
+		{
+			if( paymentOption ==  null) {
+				LogHelper.debugLog(LOG,"Auth Callback :: Auth Token for cart"+cart.getCode()+" is :: "+authorizationToken);
+			}
+			else
+			{
+				LogHelper.debugLog(LOG,"Save Auth JS response :: Auth Token for cart"+cart.getCode()+" is :: "+authorizationToken);
+			}
+		}
+		
 		cart.setPaymentInfo(kpPaymentInfo);
 		if (getUserService().isAnonymousUser(getUserService().getCurrentUser()))
 		{
@@ -620,6 +633,8 @@ public class DefaultKPPaymentCheckoutFacade implements KPPaymentCheckoutFacade
 		}
 		getModelService().saveAll();
 	}
+
+
 
 	@Override
 	public void processPayment(final AddressData addressData, final String sessionId)

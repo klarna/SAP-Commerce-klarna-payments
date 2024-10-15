@@ -30,4 +30,6 @@ public interface KlarnaSignInFacade
 
 	void updateCustomer(CustomerModel customer, final KlarnaSigninUserAccountProfile klarnaSigninUserAccountProfile,
 			final KlarnaSigninUserAccountLinking klarnaSigninUserAccountLinking);
+
+	boolean validateSigninToken(KlarnaSigninResponse klarnaSigninResponse, String environment);
 }

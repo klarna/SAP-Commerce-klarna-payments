@@ -35,7 +35,9 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.klarna.api.signin.model.KlarnaSigninResponse;
+import com.klarna.data.KlarnaConfigData;
 import com.klarna.payment.enums.KlarnaSigninProfileStatus;
+import com.klarna.payment.facades.KlarnaConfigFacade;
 import com.klarna.payment.facades.KlarnaSignInFacade;
 import com.klarnapayment.controllers.KlarnapaymentaddonControllerConstants;
 import com.klarnapayment.strategy.impl.DefaultKlarnaSignInLoginStrategy;
@@ -76,6 +78,9 @@ public class KlarnaSigninController extends AbstractPageController
 	@Resource(name = "klarnaAutoLoginStrategy")
 	private DefaultKlarnaSignInLoginStrategy klarnaAutoLoginStrategy;
 
+	@Resource(name = "klarnaConfigFacade")
+	private KlarnaConfigFacade klarnaConfigFacade;
+
 	private static final String SIGN_IN_ERROR_MSG = "Login failed! Please check the Klarna user id or password is valid.";
 	private static final String KLARNA_SIGNIN_CONSENT_PAGE = "KlarnaSigninRegisterPage";
 	private static final String KLARNA_SIGNIN_CONSENT_URL = "/klarna/signin/consent";
@@ -93,31 +98,40 @@ public class KlarnaSigninController extends AbstractPageController
 	{
 		StringBuffer requestUrl = request.getRequestURL();
 		String prevPage = request.getHeader("Referer");
-		sessionService.setAttribute("signInRefererPage", prevPage);
-		sessionService.setAttribute("klarnaSigninResponse", klarnaSigninResponse);
-		KlarnaSigninProfileStatus profileStatus = KlarnaSigninProfileStatus.LOGIN_FAILED;
-		if (klarnaSigninResponse != null)
+		sessionService.getCurrentSession().setAttribute("signInRefererPage", prevPage);
+		sessionService.getCurrentSession().setAttribute("klarnaSigninResponse", klarnaSigninResponse);
+		model.addAttribute("klarnaSigninResponse", klarnaSigninResponse);
+
+		final KlarnaConfigData klarnaConfig = klarnaConfigFacade.getKlarnaConfig();
+		if(klarnaConfig != null && StringUtils.isNotBlank(klarnaConfig.getEnvironment()))
 		{
-			String redirectURL = "";
-			profileStatus = klarnaSignInFacade.checkAndUpdateProfile(klarnaSigninResponse);
-			if (profileStatus.equals(KlarnaSigninProfileStatus.ACCOUNT_UPDATED)
-					&& klarnaSigninResponse.getUserAccountProfile() != null)
+			KlarnaSigninProfileStatus profileStatus = KlarnaSigninProfileStatus.LOGIN_FAILED;
+			if (klarnaSigninResponse != null)
 			{
-				redirectURL = authenticateAndLogin(klarnaSigninResponse.getUserAccountProfile().getEmail(), request, response,
-						redirectAttr, prevPage);
-				return redirectURL;
-			}
-			else if (profileStatus.equals(KlarnaSigninProfileStatus.LOGIN_FAILED))
-			{
-				redirectURL = getRedirectURlOnError(prevPage);
-				GlobalMessages.addFlashMessage(redirectAttr, GlobalMessages.ERROR_MESSAGES_HOLDER, "klarna.signin.error");
-				return redirectURL;
-			}
-			else
-			{
-				return KLARNA_SIGNIN_CONSENT_URL + REQ_PARAM_PROFILE_STATUS + profileStatus;
+				if(klarnaSignInFacade.validateSigninToken(klarnaSigninResponse, klarnaConfig.getEnvironment())) {
+   				String redirectURL = "";
+   				profileStatus = klarnaSignInFacade.checkAndUpdateProfile(klarnaSigninResponse);
+   				if (profileStatus.equals(KlarnaSigninProfileStatus.ACCOUNT_UPDATED)
+   						&& klarnaSigninResponse.getUserAccountProfile() != null)
+   				{
+   					redirectURL = authenticateAndLogin(klarnaSigninResponse.getUserAccountProfile().getEmail(), request, response,
+   							redirectAttr, prevPage);
+   					return redirectURL;
+   				}
+   				else if (profileStatus.equals(KlarnaSigninProfileStatus.LOGIN_FAILED))
+   				{
+   					redirectURL = getRedirectURlOnError(prevPage);
+   					GlobalMessages.addFlashMessage(redirectAttr, GlobalMessages.ERROR_MESSAGES_HOLDER, "klarna.signin.error");
+   					return redirectURL;
+   				}
+   				else
+   				{
+   					return KLARNA_SIGNIN_CONSENT_URL + REQ_PARAM_PROFILE_STATUS + profileStatus;
+   				}
+				}
 			}
 		}
+
 		return LOGIN_URL;
 	}
 

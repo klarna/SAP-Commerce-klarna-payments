@@ -41,6 +41,7 @@ import java.util.List;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -82,6 +83,7 @@ public class DefaultKPPaymentFacade implements KPPaymentFacade
 	private static final String GRANT_TYPE_REFRESH_TOKEN = "refresh_token";
 	public static final String KLARNA_LOGIN_BASE_URL = "https://login.klarna.com";
 	public static final String KLARNA_LOGIN_TEST_BASE_URL = "https://login.playground.klarna.com";
+
 	public static final String KLARNA_MARKET_EU = "/eu";
 	public static final String KLARNA_MARKET_NA = "/na";
 
@@ -584,20 +586,35 @@ public class DefaultKPPaymentFacade implements KPPaymentFacade
 	{
 		final CartModel cart = getCartService().getSessionCart();
 		final KPPaymentInfoModel kpPaymentInfo = (KPPaymentInfoModel) cart.getPaymentInfo();
-		final PaymentTransactionModel transaction = modelService.create(PaymentTransactionModel.class);
-		//final PaymentTransactionType paymentTransactionType = PaymentTransactionType.CREATE_SUBSCRIPTION;
-		transaction.setCode(cart.getCode());
-		transaction.setRequestId(kpPaymentInfo.getCode());
-		transaction.setRequestToken(kpPaymentInfo.getAuthToken());
-		transaction.setPaymentProvider(KP_PAYMENT_PROVIDER);
-		transaction.setInfo(kpPaymentInfo);
-		modelService.save(transaction);
+		List<PaymentTransactionModel>  transactions = cart.getPaymentTransactions();
+		if(CollectionUtils.isEmpty(transactions))
+		{
+			final PaymentTransactionModel transaction = modelService.create(PaymentTransactionModel.class);
+			//final PaymentTransactionType paymentTransactionType = PaymentTransactionType.CREATE_SUBSCRIPTION;
+			transaction.setCode(cart.getCode());
+			transaction.setRequestId(kpPaymentInfo.getCode());
+			transaction.setRequestToken(kpPaymentInfo.getAuthToken());
+			transaction.setPaymentProvider(KP_PAYMENT_PROVIDER);
+			transaction.setInfo(kpPaymentInfo);
+			modelService.save(transaction);
 
-		//create transactionentry for transaction
-		//createTransactionEntry(kpPaymentInfo, transaction, paymentTransactionType);
-		//create transaction for cart
-		createTransactionForCart(cart.getUser().getUid(), cart.getCode(), transaction);
-
+			//create transactionentry for transaction
+			//createTransactionEntry(kpPaymentInfo, transaction, paymentTransactionType);
+			//create transaction for cart
+			createTransactionForCart(cart.getUser().getUid(), cart.getCode(), transaction);
+		}
+		else
+		{
+			for(PaymentTransactionModel transaction : transactions)
+			{
+				if(kpPaymentInfo != null && StringUtils.equals(KP_PAYMENT_PROVIDER, transaction.getPaymentProvider()))
+				{
+					transaction.setRequestToken(kpPaymentInfo.getAuthToken());
+					modelService.save(transaction);
+					break;
+				}
+			}
+		}
 	}
 
 	@Override
@@ -703,11 +720,13 @@ public class DefaultKPPaymentFacade implements KPPaymentFacade
 		return klarnaLoginAPI.getTokens(klarnaSigninTokenRequest);
 	}
 
+
 	private KlarnaLoginApi getKlarnaLoginApi(final KlarnaConfigData klarnaConfigData)
 	{
 		LogHelper.debugLog(LOG, "getting new KlarnaLoginApi object.. . ");
 		return getKlarnaLoginClient(klarnaConfigData).newKlarnaLoginApi();
 	}
+
 
 	private Client getKlarnaLoginClient(final KlarnaConfigData klarnaConfigData)
 	{

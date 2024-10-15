@@ -46,6 +46,7 @@ import com.klarna.api.signin.model.KlarnaSigninUserAccountProfile;
 import com.klarna.payment.enums.KlarnaSigninProfileStatus;
 import com.klarna.payment.facades.KlarnaSignInFacade;
 import com.klarna.payment.model.KlarnaCustomerProfileModel;
+import com.klarna.payment.util.KlarnaTokenUtils;
 
 
 
@@ -238,6 +239,21 @@ public class DefaultKlarnaSignInFacade implements KlarnaSignInFacade
 						klarnaSigninUserAccountProfile.getFamilyName()));
 			}
 		}
+	}
+
+	@Override
+	public boolean validateSigninToken(final KlarnaSigninResponse klarnaSigninResponse, String environment)
+	{
+		if(klarnaSigninResponse != null && klarnaSigninResponse.getUserAccountLinking() != null &&  StringUtils.isNotBlank(klarnaSigninResponse.getUserAccountLinking().getUserAccountLinkingIdToken())) {
+   		final boolean isValidIdToken = KlarnaTokenUtils.validateJWTToken(klarnaSigninResponse.getUserAccountLinking().getUserAccountLinkingIdToken(),environment);
+   		LOG.error("Is the Id " + klarnaSigninResponse.getUserAccountLinking().getUserAccountLinkingIdToken()+" token Valid ?"+isValidIdToken);
+   		return isValidIdToken;
+		}
+		else
+		{
+			LOG.error("ID Token Not Found :: " + klarnaSigninResponse.getUserAccountLinking().getUserAccountLinkingIdToken());
+		}
+		return false;
 	}
 
 }

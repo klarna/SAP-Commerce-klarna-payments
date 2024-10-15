@@ -380,11 +380,9 @@
 	            <editorArea:section name="klarna.kec.section.label">
 	            	<editorArea:attribute qualifier="kecConfig"/>
 	            </editorArea:section>
-	            <!--
 	            <editorArea:section name="klarna.siwk.section.label">
 	            	<editorArea:attribute qualifier="siwkConfig"/>
 	            </editorArea:section>
-	            -->
 	            <editorArea:section name="klarna.osm.section.label">
 	                <editorArea:attribute qualifier="osmConfig"/>
 	            </editorArea:section>
@@ -863,7 +861,7 @@
 	</context>
 	<!-- KlarnaKECConfig - ends   -->
 	<!-- KlarnaSIWKConfig - starts -->
-<!-- 	<context component="explorer-tree" merge-by="module">
+	<context component="explorer-tree" merge-by="module">
       <n:explorer-tree xmlns:n="http://www.hybris.com/cockpitng/config/explorertree">
             <n:navigation-node id="Klarna">
                 <n:type-node id="KlarnaSIWKConfig" code="KlarnaSIWKConfig" />
@@ -958,7 +956,7 @@
 	                <y:label>code</y:label>
 	            </y:labels>
 	        </y:base>
-	</context> -->
+	</context>
 	<!-- KlarnaSIWKConfig - ends   -->
     <!-- KlarnaKOSMConfig - starts -->
 	<context component="explorer-tree" merge-by="module">

@@ -5,10 +5,12 @@ package com.klarnapayment.controllers.pages.checkout;
 
 import de.hybris.platform.acceleratorfacades.order.AcceleratorCheckoutFacade;
 import de.hybris.platform.acceleratorstorefrontcommons.controllers.util.GlobalMessages;
+import de.hybris.platform.acceleratorstorefrontcommons.strategy.CartRestorationStrategy;
 import de.hybris.platform.commercefacades.order.CartFacade;
 import de.hybris.platform.commercefacades.order.data.CartData;
 import de.hybris.platform.commercefacades.order.data.OrderData;
 import de.hybris.platform.commerceservices.strategies.CheckoutCustomerStrategy;
+import de.hybris.platform.order.CartService;
 import de.hybris.platform.order.InvalidCartException;
 import de.hybris.platform.servicelayer.session.SessionService;
 
@@ -20,6 +22,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -66,11 +69,19 @@ public class KPOrderConfirmationController
 	@Resource(name = "kpCustomerFacade")
 	private KPCustomerFacade kpCustomerFacade;
 
+	@Resource(name = "cartService")
+	private CartService cartService;
+
+	@Resource(name = "cartRestorationStrategy")
+	private CartRestorationStrategy cartRestorationStrategy;
+
 	public static final String SESSIONID = "sessionId";
 	public static final String CLIENTTOKEN = "clientToken";
 
 	private static final String IS_KLARNA_EXP_CHECKOUT_SESSION = "isKlarnaExpCheckoutSession";
 	private static final String CLIENT_TOKEN = "clientToken";
+
+	Logger LOG = Logger.getLogger(KPOrderConfirmationController.class);
 
 	/**
 	 * @return the sessionService
@@ -136,6 +147,14 @@ public class KPOrderConfirmationController
 			hybrisOrderId = placeOrder(klarnaOrderId, klarnaOrder, redirectModel);
 			httpSession.removeAttribute(SESSIONID);
 			httpSession.removeAttribute(CLIENTTOKEN);
+			if(hybrisOrderId != null)
+			{
+				LOG.debug("Before  restore --- session cart details " + cartService.getSessionCart() + " cartService.hasSessionCart() "
+						+ cartService.hasSessionCart());
+				cartRestorationStrategy.restoreCart(request);
+				LOG.debug("After  restore --- session cart details " + cartService.getSessionCart() + " cartService.hasSessionCart() "
+						+ cartService.hasSessionCart());
+			}
 		}
 		catch (Exception e)
 		{
