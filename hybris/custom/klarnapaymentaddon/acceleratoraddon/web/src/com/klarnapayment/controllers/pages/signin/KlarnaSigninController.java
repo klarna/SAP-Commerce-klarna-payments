@@ -101,7 +101,7 @@ public class KlarnaSigninController extends AbstractPageController
 		sessionService.getCurrentSession().setAttribute("signInRefererPage", prevPage);
 		sessionService.getCurrentSession().setAttribute("klarnaSigninResponse", klarnaSigninResponse);
 		model.addAttribute("klarnaSigninResponse", klarnaSigninResponse);
-
+		String redirectURL = null;
 		final KlarnaConfigData klarnaConfig = klarnaConfigFacade.getKlarnaConfig();
 		if(klarnaConfig != null && StringUtils.isNotBlank(klarnaConfig.getEnvironment()))
 		{
@@ -109,7 +109,7 @@ public class KlarnaSigninController extends AbstractPageController
 			if (klarnaSigninResponse != null)
 			{
 				if(klarnaSignInFacade.validateSigninToken(klarnaSigninResponse, klarnaConfig.getEnvironment())) {
-   				String redirectURL = "";
+
    				profileStatus = klarnaSignInFacade.checkAndUpdateProfile(klarnaSigninResponse);
    				if (profileStatus.equals(KlarnaSigninProfileStatus.ACCOUNT_UPDATED)
    						&& klarnaSigninResponse.getUserAccountProfile() != null)
@@ -120,8 +120,6 @@ public class KlarnaSigninController extends AbstractPageController
    				}
    				else if (profileStatus.equals(KlarnaSigninProfileStatus.LOGIN_FAILED))
    				{
-   					redirectURL = getRedirectURlOnError(prevPage);
-   					GlobalMessages.addFlashMessage(redirectAttr, GlobalMessages.ERROR_MESSAGES_HOLDER, "klarna.signin.error");
    					return redirectURL;
    				}
    				else
@@ -131,8 +129,7 @@ public class KlarnaSigninController extends AbstractPageController
 				}
 			}
 		}
-
-		return LOGIN_URL;
+		return redirectURL;
 	}
 
 	@RequestMapping(value = "/consent", method = RequestMethod.GET)
@@ -225,7 +222,7 @@ public class KlarnaSigninController extends AbstractPageController
 	String authenticateAndLogin(final String emailId, final HttpServletRequest request, final HttpServletResponse response,
 			final RedirectAttributes redirectAttr, final String prevPage)
 	{
-		String redirectURL = "";
+		String redirectURL = null;
 		boolean loginSuccessful = true;
 		// login the user
 		try
@@ -239,20 +236,7 @@ public class KlarnaSigninController extends AbstractPageController
 		}
 		if (loginSuccessful)
 		{
-			if (StringUtils.isNotEmpty(prevPage) && prevPage.endsWith(CHECKOUT_LOGIN_URL))
-			{
-				redirectURL = CHECKOUT_URL;
-			}
-			else if (StringUtils.isNotEmpty(prevPage) && prevPage.endsWith(LOGIN_URL))
-			{
-				redirectURL = FORWARD_SLASH;
-			}
-			GlobalMessages.addFlashMessage(redirectAttr, GlobalMessages.INFO_MESSAGES_HOLDER, "klarna.signin.success");
-		}
-		else
-		{
-			redirectURL = getRedirectURlOnError(prevPage);
-			GlobalMessages.addFlashMessage(redirectAttr, GlobalMessages.ERROR_MESSAGES_HOLDER, "klarna.signin.failure");
+			redirectURL = "";
 		}
 		return redirectURL;
 	}

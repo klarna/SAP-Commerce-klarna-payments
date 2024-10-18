@@ -74,11 +74,11 @@ ACC.signin = {
 		        type: "post"
 		}).done(function(url) {
 		if(url != null){
-		//alert("redirecting now  "+url);
-		ACC.signinInitiate.loginRedirect(url);
+			ACC.signin.loginRedirect(url);
 		}
 		else{
-			console.log(" no data ",url);
+			var message = $('#signinErrHidden').val();
+			ACC.signin.showErrorMessage(message);
 		}
 		}).fail(function (error) {
 		console.log("Authorize reponse error:", JSON.stringify(error));
@@ -94,9 +94,12 @@ ACC.signin = {
 	        height:"300px"
 	  	});
 	},
-};
-ACC.signinInitiate = {
-	loginRedirect:function(data){
-			window.location = ACC.config.encodedContextPath + data;
-	},
+	loginRedirect:function(redirectURL){
+		let currentURL = window.location.href ;
+		if(currentURL && currentURL.endsWith("/login/checkout"))
+		{
+			redirectURL = "/checkout";
+		}
+		window.location = ACC.config.encodedContextPath + redirectURL;
+	}
 };
