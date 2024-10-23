@@ -14,9 +14,12 @@ package com.klarna.payment.converter.populator;
 import de.hybris.platform.converters.Populator;
 import de.hybris.platform.servicelayer.dto.converter.ConversionException;
 
+import javax.annotation.Resource;
+
 import com.klarna.api.payments.model.PaymentsCreateOrderRequest;
 import com.klarna.api.payments.model.PaymentsSession;
-import com.klarna.payment.facades.KPConfigFacade;
+import com.klarna.data.KlarnaConfigData;
+import com.klarna.payment.facades.KlarnaConfigFacade;
 
 
 
@@ -25,23 +28,12 @@ import com.klarna.payment.facades.KPConfigFacade;
  */
 public class KlarnaPaymentOrderPopulator implements Populator<PaymentsSession, PaymentsCreateOrderRequest>
 {
-
-	KPConfigFacade kpConfigFacade;
-
-	/**
-	 * @param kpConfigFacade
-	 *           the kpConfigFacade to set
-	 */
-	public void setKpConfigFacade(final KPConfigFacade kpConfigFacade)
-	{
-		this.kpConfigFacade = kpConfigFacade;
-	}
+	@Resource(name = "klarnaConfigFacade")
+	KlarnaConfigFacade klarnaConfigFacade;
 
 	@Override
 	public void populate(final PaymentsSession source, final PaymentsCreateOrderRequest target) throws ConversionException
 	{
-		//final KlarnaConfigData klarnaConfig = kpConfigFacade.getKlarnaConfig();
-
 		target.setBillingAddress(source.getBillingAddress());
 		target.setShippingAddress(source.getShippingAddress());
 		target.setPurchaseCountry(source.getPurchaseCountry());
@@ -59,8 +51,8 @@ public class KlarnaPaymentOrderPopulator implements Populator<PaymentsSession, P
 		target.setCustomer(source.getCustomer());
 		target.setOptions(source.getOptions());
 		target.setAttachment(source.getAttachment());
-		//target.setAutoCapture(klarnaConfig.getAutoCapture());
-
+		final KlarnaConfigData klarnaConfig = klarnaConfigFacade.getKlarnaConfig();
+		target.setAutoCapture(klarnaConfig.getKpConfig() != null ? klarnaConfig.getKpConfig().getAutoCapture() : Boolean.FALSE);
 	}
 
 }

@@ -10,7 +10,6 @@ import de.hybris.platform.order.CartService;
 import de.hybris.platform.servicelayer.dto.converter.Converter;
 import de.hybris.platform.servicelayer.model.ModelService;
 import de.hybris.platform.servicelayer.user.UserService;
-import de.hybris.platform.store.BaseStoreModel;
 import de.hybris.platform.store.services.BaseStoreService;
 
 import javax.annotation.Resource;
@@ -20,10 +19,8 @@ import org.apache.log4j.Logger;
 
 import com.klarna.api.expcheckout.model.KlarnaExpCheckoutAuthorizationResponse;
 import com.klarna.api.payments.model.PaymentsSession;
-import com.klarna.payment.data.KlarnaExpCheckoutConfigData;
 import com.klarna.payment.facades.KlarnaExpCheckoutFacade;
 import com.klarna.payment.model.KPPaymentInfoModel;
-import com.klarna.payment.model.KlarnaExpCheckoutConfigModel;
 
 
 public class DefaultKlarnaExpCheckoutFacade implements KlarnaExpCheckoutFacade
@@ -32,9 +29,6 @@ public class DefaultKlarnaExpCheckoutFacade implements KlarnaExpCheckoutFacade
 	private static final Logger LOG = Logger.getLogger(DefaultKlarnaExpCheckoutFacade.class);
 
 	private static final String KLARNA_PREFIX = "KLARNA_";
-
-	@Resource(name = "klarnaExpCheckoutConfigConverter")
-	private Converter klarnaExpCheckoutConfigConverter;
 
 	@Resource(name = "klarnaExpCheckoutAuthPayloadConverter")
 	private Converter klarnaExpCheckoutAuthPayloadConverter;
@@ -62,18 +56,6 @@ public class DefaultKlarnaExpCheckoutFacade implements KlarnaExpCheckoutFacade
 
 	@Resource(name = "baseStoreService")
 	private BaseStoreService baseStoreService;
-
-	@Override
-	public KlarnaExpCheckoutConfigData getKlarnaExpCheckoutConfigData()
-	{
-		final BaseStoreModel baseStore = baseStoreService.getCurrentBaseStore();
-		final KlarnaExpCheckoutConfigModel model = baseStore.getKlarnaExpCheckoutConfig();
-		if (model != null)
-		{
-			return (KlarnaExpCheckoutConfigData) klarnaExpCheckoutConfigConverter.convert(model);
-		}
-		return null;
-	}
 
 	@Override
 	public PaymentsSession getAuthorizePayload()

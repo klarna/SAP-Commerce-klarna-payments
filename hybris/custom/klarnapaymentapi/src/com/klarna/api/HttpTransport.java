@@ -172,4 +172,7 @@ public interface HttpTransport
 	 *            if an error occurred when connecting to the server or when parsing a response.
 	 */
 	ApiResponse delete(final String path, final byte[] data, Map<String, String> headers) throws ApiException, IOException;
+
+	public ApiResponse postRequest(final String path, final byte[] data, final Map<String, String> headers)
+			throws ApiException, IOException;
 }

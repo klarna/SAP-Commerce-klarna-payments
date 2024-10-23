@@ -14,7 +14,7 @@
 
 		<!-- you should add all required extensions to this list, except platform extensions which are automatically required -->         
 		<requires-extension name="addonsupport"/>
-
+		<requires-extension name="klarnapayment"/>
 		<coremodule generated="true" manager="com.klarna.osm.jalo.KlarnaosmaddonManager" packageroot="com.klarna.osm"/>
 
 		

@@ -15,7 +15,7 @@
 
 <beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="beans.xsd">
 
-	<bean class="com.klarna.payment.data.KlarnaConfigData">
+<!-- 	<bean class="com.klarna.payment.data.KlarnaConfigData">
 		<description>Data object of KlarnaConfig which has no equivalent on the type system</description>
 		<property name="code" type="String"/>
 		<property name="active" type="Boolean"/>
@@ -24,7 +24,7 @@
 		<property name="merchantEmail" type="String"/>
 		<property name="merchantReference2" type="String"/>
 		<property name="endpointType" type="String"/>
-		<!-- <property name="endPointUrl" type="String"/> -->
+		<property name="endPointUrl" type="String"/>
 		<property name="endpointMode" type="String"/>
 		<property name="purchaseCurrency" type="String"/>
 		<property name="purchaseCountry" type="String"/>
@@ -53,7 +53,80 @@
 		<property name="paymentOption" type="String"/>
 		<property name="guiData" type="com.klarna.payment.data.GuiData"/>
 		<property name="vcnKeyID" type="String"/>
+	</bean> -->
+	<!-- Klarna Config Redesign - starts  -->
+	<bean class="com.klarna.data.KlarnaConfigData">
+		<description>KlarnaConfigData is a DTO equivalent of type KlarnaConfig</description>
+		<property name="code"			type="String"/>
+		<property name="active"			type="Boolean"/>
+		<property name="environment"	type="String"/>
+		<property name="kpConfig"		type="com.klarna.data.KlarnaKPConfigData"/>
+		<property name="kecConfig"		type="com.klarna.data.KlarnaKECConfigData"/>
+		<property name="siwkConfig"		type="com.klarna.data.KlarnaSIWKConfigData"/>
+		<property name="osmConfig"		type="com.klarna.data.KlarnaKOSMConfigData"/>
+		<property name="credential"		type="com.klarna.data.KlarnaCredentialData"/>
 	</bean>
+	
+	<bean class="com.klarna.data.KlarnaCredentialData">
+		<description>KlarnaCredentialData is a DTO equivalent of type KlarnaCredential</description>
+		<property name="code"			type="String"	/>
+		<property name="clientId"		type="String"	/>
+		<property name="apiUserName"	type="String"	/>
+		<property name="apiPassword"	type="String"	/>
+		<property name="marketRegion"	type="String"	/>
+		<property name="marketCountry"	type="String"	/>
+		<property name="vcnKey"			type="String"	/>
+		<property name="vcnEnabled"		type="Boolean"	/>
+	</bean>
+	
+	<bean class="com.klarna.data.KlarnaKPConfigData">
+		<description>KlarnaKPConfigData is a DTO equivalent of type KlarnaKPConfig</description>
+		<property name="code"				type="String"	/>
+		<property name="active"				type="Boolean"	/>
+		<property name="merchantEmail"		type="String"	/>
+		<property name="merchantReference2"	type="String"	/>
+		<property name="sendEMD"			type="Boolean"	/>
+		<property name="autoCapture"		type="Boolean"	/>
+		<property name="customStyle"		type="String"	/>
+	</bean>
+	
+	<bean class="com.klarna.data.KlarnaKECConfigData">
+		<description>KlarnaKECConfigData is a DTO equivalent of type KlarnaKECConfig</description>
+		<property name="code"				type="String"	/>
+		<property name="active"				type="Boolean"	/>
+		<property name="showInCartPage"		type="Boolean"	/>
+		<property name="showInMiniCartPage"	type="Boolean"	/>
+		<property name="showInPDPPage"		type="Boolean"	/>
+		<property name="buttonTheme"		type="String"	/>
+		<property name="buttonShape"		type="String"	/>
+	</bean>
+	
+	<bean class="com.klarna.data.KlarnaSIWKConfigData">
+		<description>KlarnaSIWKConfigData is a DTO equivalent of type KlarnaSIWKConfig</description>
+		<property name="code"					type="String"	/>
+		<property name="active"					type="Boolean"	/>
+		<property name="scopeData"				type="String"/>
+		<property name="redirectUri"			type="String"	/>
+		<property name="showInLoginPage"		type="Boolean"	/>
+		<property name="showInRegisterPage"		type="Boolean"	/>
+		<property name="showInCheckoutLoginPage" type="Boolean"	/>
+		<property name="buttonTheme"			type="String"	/>
+		<property name="buttonShape"			type="String"	/>
+		<property name="buttonLogoAlignment"	type="String"	/>
+	</bean>
+	
+	<bean class="com.klarna.data.KlarnaKOSMConfigData">
+		<description>Klarna OSM Config Data equivalent of KlarnaKOSMConfig</description>
+		<property name="code"			type="String"/>
+		<property name="active"			type="Boolean"/>
+		<property name="showInCartPage"	type="Boolean"	/>
+		<property name="showInPDPPage"	type="Boolean"	/>
+		<property name="theme"			type="String"	/>
+		<property name="customStyle"	type="String"	/>
+	</bean>
+	
+	<!-- Klarna Config Redesign - ends  -->
+	
 	<bean class="com.klarna.payment.data.GuiData">
 		<property name="disableAutoFocus" type="Boolean"/>
 		<property name="minimumConfirmation" type="Boolean"/>
@@ -61,6 +134,7 @@
 	<bean class="com.klarna.payment.data.KlarnaMerchantURLs">
 		<property name="confirmationURL" type="String"/>
 		<property name="notificationUpdateURL" type="String"/>
+		<property name="authorizationUpdateURL" type="String"/>
 	</bean>
 	
 	<bean class="com.klarna.payment.data.ProductIdentifiers">
@@ -99,15 +173,32 @@
 		<property name="kpPaymentInfo" type="com.klarna.payment.data.KPPaymentInfoData"/>
 	</bean>
 	
-	<bean class="com.klarna.payment.data.KlarnaExpCheckoutConfigData">
+	<!-- <bean class="com.klarna.payment.data.KlarnaExpCheckoutConfigData">
 		<property name="code" type="String"/>
 		<property name="active" type="Boolean"/>
 		<property name="clientKey" type="String"/>
 		<property name="scriptUrl" type="String"/>
 		<property name="collectShippingAddress" type="Boolean"/>
-		<!-- <property name="autoFinalize" type="Boolean"/> -->
+		<property name="autoFinalize" type="Boolean"/>
 		<property name="buttonTheme" type="String"/>
 		<property name="buttonShape" type="String"/>
 		<property name="country" type="String"/>
-	</bean>
+	</bean> -->
+	
+	<!-- <bean class="com.klarna.payment.data.KlarnaSignInConfigData">
+		<property name="code" type="String"/>
+		<property name="active" type="Boolean"/>
+		<property name="autoMergeAccounts" type="Boolean"/>
+		<property name="autoLoginToKP" type="Boolean"/>
+		<property name="clientId" type="String"/>
+		<property name="environment" type="String"/>
+		<property name="scriptUrl" type="String"/>
+		<property name="country" type="String"/>
+		<property name="scopeData" type="String"/>
+		<property name="redirectUri" type="String"/>
+		<property name="hideOverlay" type="Boolean"/>
+		<property name="buttonTheme" type="String"/>
+		<property name="buttonShape" type="String"/>
+		<property name="buttonLogoAlignment" type="String"/>
+	</bean> -->
 </beans>

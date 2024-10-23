@@ -5,10 +5,12 @@ package com.klarnapayment.controllers.pages.checkout;
 
 import de.hybris.platform.acceleratorfacades.order.AcceleratorCheckoutFacade;
 import de.hybris.platform.acceleratorstorefrontcommons.controllers.util.GlobalMessages;
+import de.hybris.platform.acceleratorstorefrontcommons.strategy.CartRestorationStrategy;
 import de.hybris.platform.commercefacades.order.CartFacade;
 import de.hybris.platform.commercefacades.order.data.CartData;
 import de.hybris.platform.commercefacades.order.data.OrderData;
 import de.hybris.platform.commerceservices.strategies.CheckoutCustomerStrategy;
+import de.hybris.platform.order.CartService;
 import de.hybris.platform.order.InvalidCartException;
 import de.hybris.platform.servicelayer.session.SessionService;
 
@@ -65,6 +67,12 @@ public class KPOrderConfirmationController
 	private KlarnaPaymentHelper klarnaPaymentHelper;
 	@Resource(name = "kpCustomerFacade")
 	private KPCustomerFacade kpCustomerFacade;
+
+	@Resource(name = "cartService")
+	private CartService cartService;
+
+	@Resource(name = "cartRestorationStrategy")
+	private CartRestorationStrategy cartRestorationStrategy;
 
 	public static final String SESSIONID = "sessionId";
 	public static final String CLIENTTOKEN = "clientToken";
@@ -136,6 +144,10 @@ public class KPOrderConfirmationController
 			hybrisOrderId = placeOrder(klarnaOrderId, klarnaOrder, redirectModel);
 			httpSession.removeAttribute(SESSIONID);
 			httpSession.removeAttribute(CLIENTTOKEN);
+			if(hybrisOrderId != null)
+			{
+				cartRestorationStrategy.restoreCart(request);
+			}
 		}
 		catch (Exception e)
 		{
@@ -195,7 +207,7 @@ public class KPOrderConfirmationController
 					hybrisOrderId = orderData.getCode();
 				}
 			}
-			kpPaymentCheckoutFacade.doAutoCapture(orderData.getKpOrderId());
+			//kpPaymentCheckoutFacade.doAutoCapture(orderData.getKpOrderId());
 			//kpPaymentFacade.acknowledgeOrderNotify(kpOrderId, klarnaOrder, orderData);
 		}
 		catch (final InvalidCartException e)

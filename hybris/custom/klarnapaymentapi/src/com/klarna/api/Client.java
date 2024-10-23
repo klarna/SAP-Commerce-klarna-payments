@@ -18,6 +18,7 @@ package com.klarna.api;
 
 import java.net.URI;
 
+import com.klarna.api.login.KlarnaLoginApi;
 import com.klarna.api.merchant_card_service.VirtualCreditCardSettlementsApi;
 import com.klarna.api.order_management.OrderManagementCapturesApi;
 import com.klarna.api.order_management.OrderManagementOrdersApi;
@@ -62,6 +63,12 @@ public class Client
 	{
 
 		this.transport = new HttpUrlConnectionTransport(merchantId, sharedSecret, baseUri, userAgent);
+	}
+
+	public Client(final URI baseUri)
+	{
+
+		this.transport = new HttpUrlConnectionTransport(baseUri);
 	}
 
 	/**
@@ -215,6 +222,11 @@ public class Client
 	public PaymentsSessionsApi newPaymentsSessionsApi()
 	{
 		return new PaymentsSessionsApi(transport);
+	}
+
+	public KlarnaLoginApi newKlarnaLoginApi()
+	{
+		return new KlarnaLoginApi(transport);
 	}
 
 

@@ -1,1101 +1,1467 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!--
- Copyright (c) 2019 SAP SE or an SAP affiliate company. All rights reserved.
--->
-<!--
-	ATTENTION: This is just an example file. You have to edit it according to your needs.
--->
+<!-- Copyright (c) 2019 SAP SE or an SAP affiliate company. All rights reserved. -->
+<!-- ATTENTION: This is just an example file. You have to edit it according 
+	to your needs. -->
 
-<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="beans.xsd">
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="beans.xsd">
 
 	<enum class="com.klarna.api.payments.TypeEnum">
-	<value>invoice</value>
-	<value>fixed_amount</value>
-	<value>pix</value>
-	<value>base_account</value>
-	<value>deferred_interest</value>
-	<value>direct_debit</value>
-	<value>direct_bank_transfer</value>
-	<value>b2b_invoice</value>
-	<value>card</value>
-	<value>slice_it_by_card</value>
-	<value>pay_by_card</value>
-	<value>fixed_sum_credit</value>
+		<value>invoice</value>
+		<value>fixed_amount</value>
+		<value>pix</value>
+		<value>base_account</value>
+		<value>deferred_interest</value>
+		<value>direct_debit</value>
+		<value>direct_bank_transfer</value>
+		<value>b2b_invoice</value>
+		<value>card</value>
+		<value>slice_it_by_card</value>
+		<value>pay_by_card</value>
+		<value>fixed_sum_credit</value>
 	</enum>
-	
+
 	<enum class="com.klarna.api.order_management.model.TypeEnum">
-	<value>INVOICE</value>
-	<value>FIXED_AMOUNT</value>
-	<value>FIXED_AMOUNT_BY_CARD</value>
-	<value>ACCOUNT</value>
-	<value>DIRECT_DEBIT</value>
-	<value>CARD</value>
-	<value>BANK_TRANSFER</value>
-	<value>PAY_IN_X</value>
-	<value>INVOICE_BUSINESS</value>
-	<value>DEFERRED_INTEREST</value>
-	<value>FIXED_SUM_CREDIT</value>
-	<value>PAY_LATER_BY_CARD</value>
-	<value>PAY_BY_CARD</value>
-	<value>OTHER</value>
+		<value>INVOICE</value>
+		<value>FIXED_AMOUNT</value>
+		<value>FIXED_AMOUNT_BY_CARD</value>
+		<value>ACCOUNT</value>
+		<value>DIRECT_DEBIT</value>
+		<value>CARD</value>
+		<value>BANK_TRANSFER</value>
+		<value>PAY_IN_X</value>
+		<value>INVOICE_BUSINESS</value>
+		<value>DEFERRED_INTEREST</value>
+		<value>FIXED_SUM_CREDIT</value>
+		<value>PAY_LATER_BY_CARD</value>
+		<value>PAY_BY_CARD</value>
+		<value>OTHER</value>
 	</enum>
-	
+
 	<enum class="com.klarna.api.order_management.StatusEnum">
-	<value>AUTHORIZED</value>
-	<value>PART_CAPTURED</value>
-	<value>CAPTURED</value>
-	<value>CANCELLED</value>
-	<value>EXPIRED</value>
-	<value>CLOSED</value>
+		<value>AUTHORIZED</value>
+		<value>PART_CAPTURED</value>
+		<value>CAPTURED</value>
+		<value>CANCELLED</value>
+		<value>EXPIRED</value>
+		<value>CLOSED</value>
 	</enum>
-	
+
 	<enum class="com.klarna.api.payments.IntendedUseEnum">
-	<value>SUBSCRIPTION</value>
+		<value>SUBSCRIPTION</value>
 	</enum>
-	
+
 	<enum class="com.klarna.api.payments.model.StatusEnum">
-	<value>COMPLETE</value>
-	<value>INCOMPLETE</value>
+		<value>COMPLETE</value>
+		<value>INCOMPLETE</value>
 	</enum>
-	
+
 	<enum class="com.klarna.api.payments.IntendedUseEnum">
-	<value>SUBSCRIPTION</value>
+		<value>SUBSCRIPTION</value>
 	</enum>
-	
+
 	<bean class="com.klarna.api.payments.model.PaymentsSession">
 
-		<import type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
-	    <import type="com.fasterxml.jackson.annotation.JsonProperty" />
-	
+		<import
+			type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
+		<import type="com.fasterxml.jackson.annotation.JsonProperty" />
+
 		<property name="acquiringChannel" type="String">
-				<annotations>@JsonProperty("acquiring_channel")</annotations>
+			<annotations>@JsonProperty("acquiring_channel")</annotations>
 		</property>
-    	<property name="attachment" type="com.klarna.api.payments.model.PaymentsAttachment">
-    			<annotations>@JsonProperty("attachment")</annotations>
-    	</property>
-    	<property name="authorizationToken" type="String">
-    	    	<annotations>@JsonProperty("authorization_token")</annotations>
-    	</property>
-    	<property name="billingAddress" type="com.klarna.api.payments.model.PaymentsAddress">
-    	    	<annotations>@JsonProperty("billing_address")</annotations>
-    	</property>
-    	<property name="clientToken" type="String">
-    			<annotations>@JsonProperty("client_token")</annotations>
-    	</property>
-    	<property name="customPaymentMethodIds" type="java.util.List&lt;String&gt;">
-    			<annotations>@JsonProperty("custom_payment_method_ids")</annotations>
-    	</property>
-    	<property name="customer" type="com.klarna.api.payments.model.PaymentsCustomer">
-    			<annotations>@JsonProperty("customer")</annotations>
-    	</property>
-    	<property name="design" type="String">
-    			<annotations>@JsonProperty("design")</annotations>
-    	</property>
-    	<property name="expiresAt" type="java.time.OffsetDateTime">
-    			<annotations>@JsonProperty("expires_at")</annotations>
-    	</property>
-    	<property name="locale" type="String">
-    			<annotations>@JsonProperty("locale")</annotations>
-    	</property>
-    	<property name="merchantData" type="String">
-    			<annotations>@JsonProperty("merchant_data")</annotations>
-    	</property>
-    	<property name="merchantReference1" type="String">
-    			<annotations>@JsonProperty("merchant_reference1")</annotations>
-    	</property>
-    	<property name="merchantReference2" type="String">
-    			<annotations>@JsonProperty("merchant_reference2")</annotations>
-    	</property>
-    	<property name="merchantUrls" type="com.klarna.api.payments.model.PaymentsMerchantUrls">
-    			<annotations>@JsonProperty("merchant_urls")</annotations>
-    	</property>
-    	<property name="options" type="com.klarna.api.payments.model.PaymentsOptions">
-    			<annotations>@JsonProperty("options")</annotations>
-    	</property>
-    	<property name="orderAmount" type="Long">
-    			<annotations>@JsonProperty("order_amount")</annotations>
-    	</property>
-    	<property name="orderLines" type="java.util.List&lt;com.klarna.api.payments.model.PaymentsOrderLine&gt;">
-    			<annotations>@JsonProperty("order_lines")</annotations>
-    	</property>
-    	<property name="orderTaxAmount" type="Long">
-    			<annotations>@JsonProperty("order_tax_amount")</annotations>
-    	</property>
-    	<property name="paymentMethodCategories" type="java.util.List&lt;com.klarna.api.payments.model.PaymentsPaymentMethodCategory&gt;">
-    			<annotations>@JsonProperty("payment_method_categories")</annotations>
-    	</property>
-    	<property name="purchaseCountry" type="String">
-    			<annotations>@JsonProperty("purchase_country")</annotations>
-    	</property>
-    	<property name="purchaseCurrency" type="String">
-    			<annotations>@JsonProperty("purchase_currency")</annotations>
-    	</property>
-    	<property name="shippingAddress" type="com.klarna.api.payments.model.PaymentsAddress">
-    			<annotations>@JsonProperty("shipping_address")</annotations>
-    	</property>
-    	<property name="status" type="com.klarna.api.payments.model.StatusEnum">
-    			<annotations>@JsonProperty("status")</annotations>
-    	</property>    	
-    	<property name="intent" type="String">
-    			<annotations>@JsonProperty("intent")</annotations>
-    	</property>
-    	
+		<property name="attachment"
+			type="com.klarna.api.payments.model.PaymentsAttachment">
+			<annotations>@JsonProperty("attachment")</annotations>
+		</property>
+		<property name="authorizationToken" type="String">
+			<annotations>@JsonProperty("authorization_token")</annotations>
+		</property>
+		<property name="billingAddress"
+			type="com.klarna.api.payments.model.PaymentsAddress">
+			<annotations>@JsonProperty("billing_address")</annotations>
+		</property>
+		<property name="clientToken" type="String">
+			<annotations>@JsonProperty("client_token")</annotations>
+		</property>
+		<property name="customPaymentMethodIds"
+			type="java.util.List&lt;String&gt;">
+			<annotations>@JsonProperty("custom_payment_method_ids")</annotations>
+		</property>
+		<property name="customer"
+			type="com.klarna.api.payments.model.PaymentsCustomer">
+			<annotations>@JsonProperty("customer")</annotations>
+		</property>
+		<property name="design" type="String">
+			<annotations>@JsonProperty("design")</annotations>
+		</property>
+		<property name="expiresAt" type="java.time.OffsetDateTime">
+			<annotations>@JsonProperty("expires_at")</annotations>
+		</property>
+		<property name="locale" type="String">
+			<annotations>@JsonProperty("locale")</annotations>
+		</property>
+		<property name="merchantData" type="String">
+			<annotations>@JsonProperty("merchant_data")</annotations>
+		</property>
+		<property name="merchantReference1" type="String">
+			<annotations>@JsonProperty("merchant_reference1")</annotations>
+		</property>
+		<property name="merchantReference2" type="String">
+			<annotations>@JsonProperty("merchant_reference2")</annotations>
+		</property>
+		<property name="merchantUrls"
+			type="com.klarna.api.payments.model.PaymentsMerchantUrls">
+			<annotations>@JsonProperty("merchant_urls")</annotations>
+		</property>
+		<property name="options"
+			type="com.klarna.api.payments.model.PaymentsOptions">
+			<annotations>@JsonProperty("options")</annotations>
+		</property>
+		<property name="orderAmount" type="Long">
+			<annotations>@JsonProperty("order_amount")</annotations>
+		</property>
+		<property name="orderLines"
+			type="java.util.List&lt;com.klarna.api.payments.model.PaymentsOrderLine&gt;">
+			<annotations>@JsonProperty("order_lines")</annotations>
+		</property>
+		<property name="orderTaxAmount" type="Long">
+			<annotations>@JsonProperty("order_tax_amount")</annotations>
+		</property>
+		<property name="paymentMethodCategories"
+			type="java.util.List&lt;com.klarna.api.payments.model.PaymentsPaymentMethodCategory&gt;">
+			<annotations>@JsonProperty("payment_method_categories")</annotations>
+		</property>
+		<property name="purchaseCountry" type="String">
+			<annotations>@JsonProperty("purchase_country")</annotations>
+		</property>
+		<property name="purchaseCurrency" type="String">
+			<annotations>@JsonProperty("purchase_currency")</annotations>
+		</property>
+		<property name="shippingAddress"
+			type="com.klarna.api.payments.model.PaymentsAddress">
+			<annotations>@JsonProperty("shipping_address")</annotations>
+		</property>
+		<property name="status"
+			type="com.klarna.api.payments.model.StatusEnum">
+			<annotations>@JsonProperty("status")</annotations>
+		</property>
+		<property name="intent" type="String">
+			<annotations>@JsonProperty("intent")</annotations>
+		</property>
+
 	</bean>
-	
-	<bean class="com.klarna.api.payments.model.PaymentsCreateOrderRequest">
-	
-		<import type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
-	    <import type="com.fasterxml.jackson.annotation.JsonProperty" />
-	
+
+	<bean
+		class="com.klarna.api.payments.model.PaymentsCreateOrderRequest">
+
+		<import
+			type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
+		<import type="com.fasterxml.jackson.annotation.JsonProperty" />
+
 		<property name="acquiringChannel" type="String">
-				<annotations>@JsonProperty("acquiring_channel")</annotations>
+			<annotations>@JsonProperty("acquiring_channel")</annotations>
 		</property>
-    	<property name="attachment" type="com.klarna.api.payments.model.PaymentsAttachment">
-    			<annotations>@JsonProperty("attachment")</annotations>
-    	</property>
-    	<property name="authorizationToken" type="String">
-    	    	<annotations>@JsonProperty("authorization_token")</annotations>
-    	</property>
-    	<property name="autoCapture" type="Boolean">
-    	    	<annotations>@JsonProperty("auto_capture")</annotations>
-    	</property>
-    	<property name="billingAddress" type="com.klarna.api.payments.model.PaymentsAddress">
-    	    	<annotations>@JsonProperty("billing_address")</annotations>
-    	</property>
-    	<property name="clientToken" type="String">
-    			<annotations>@JsonProperty("client_token")</annotations>
-    	</property>
-    	<property name="customPaymentMethodIds" type="java.util.List&lt;String&gt;">
-    			<annotations>@JsonProperty("custom_payment_method_ids")</annotations>
-    	</property>
-    	<property name="customer" type="com.klarna.api.payments.model.PaymentsCustomer">
-    			<annotations>@JsonProperty("customer")</annotations>
-    	</property>
-    	<property name="design" type="String">
-    			<annotations>@JsonProperty("design")</annotations>
-    	</property>
-    	<property name="expiresAt" type="java.time.OffsetDateTime">
-    			<annotations>@JsonProperty("expires_at")</annotations>
-    	</property>
-    	<property name="locale" type="String">
-    			<annotations>@JsonProperty("locale")</annotations>
-    	</property>
-    	<property name="merchantData" type="String">
-    			<annotations>@JsonProperty("merchant_data")</annotations>
-    	</property>
-    	<property name="merchantReference1" type="String">
-    			<annotations>@JsonProperty("merchant_reference1")</annotations>
-    	</property>
-    	<property name="merchantReference2" type="String">
-    			<annotations>@JsonProperty("merchant_reference2")</annotations>
-    	</property>
-    	<property name="merchantUrls" type="com.klarna.api.payments.model.PaymentsMerchantUrls">
-    			<annotations>@JsonProperty("merchant_urls")</annotations>
-    	</property>
-    	<property name="options" type="com.klarna.api.payments.model.PaymentsOptions">
-    			<annotations>@JsonProperty("options")</annotations>
-    	</property>
-    	<property name="orderAmount" type="Long">
-    			<annotations>@JsonProperty("order_amount")</annotations>
-    	</property>
-    	<property name="orderLines" type="java.util.List&lt;com.klarna.api.payments.model.PaymentsOrderLine&gt;">
-    			<annotations>@JsonProperty("order_lines")</annotations>
-    	</property>
-    	<property name="orderTaxAmount" type="Long">
-    			<annotations>@JsonProperty("order_tax_amount")</annotations>
-    	</property>
-    	<property name="paymentMethodCategories" type="java.util.List&lt;com.klarna.api.payments.model.PaymentsPaymentMethodCategory&gt;">
-    			<annotations>@JsonProperty("payment_method_categories")</annotations>
-    	</property>
-    	<property name="purchaseCountry" type="String">
-    			<annotations>@JsonProperty("purchase_country")</annotations>
-    	</property>
-    	<property name="purchaseCurrency" type="String">
-    			<annotations>@JsonProperty("purchase_currency")</annotations>
-    	</property>
-    	<property name="shippingAddress" type="com.klarna.api.payments.model.PaymentsAddress">
-    			<annotations>@JsonProperty("shipping_address")</annotations>
-    	</property>
-	
-	</bean> 
-	
-	
-	
- 	<bean class="com.klarna.api.payments.model.PaymentsAttachment">
- 	
- 		<import type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
-	    <import type="com.fasterxml.jackson.annotation.JsonProperty" />
- 	
+		<property name="attachment"
+			type="com.klarna.api.payments.model.PaymentsAttachment">
+			<annotations>@JsonProperty("attachment")</annotations>
+		</property>
+		<property name="authorizationToken" type="String">
+			<annotations>@JsonProperty("authorization_token")</annotations>
+		</property>
+		<property name="autoCapture" type="Boolean">
+			<annotations>@JsonProperty("auto_capture")</annotations>
+		</property>
+		<property name="billingAddress"
+			type="com.klarna.api.payments.model.PaymentsAddress">
+			<annotations>@JsonProperty("billing_address")</annotations>
+		</property>
+		<property name="clientToken" type="String">
+			<annotations>@JsonProperty("client_token")</annotations>
+		</property>
+		<property name="customPaymentMethodIds"
+			type="java.util.List&lt;String&gt;">
+			<annotations>@JsonProperty("custom_payment_method_ids")</annotations>
+		</property>
+		<property name="customer"
+			type="com.klarna.api.payments.model.PaymentsCustomer">
+			<annotations>@JsonProperty("customer")</annotations>
+		</property>
+		<property name="design" type="String">
+			<annotations>@JsonProperty("design")</annotations>
+		</property>
+		<property name="expiresAt" type="java.time.OffsetDateTime">
+			<annotations>@JsonProperty("expires_at")</annotations>
+		</property>
+		<property name="locale" type="String">
+			<annotations>@JsonProperty("locale")</annotations>
+		</property>
+		<property name="merchantData" type="String">
+			<annotations>@JsonProperty("merchant_data")</annotations>
+		</property>
+		<property name="merchantReference1" type="String">
+			<annotations>@JsonProperty("merchant_reference1")</annotations>
+		</property>
+		<property name="merchantReference2" type="String">
+			<annotations>@JsonProperty("merchant_reference2")</annotations>
+		</property>
+		<property name="merchantUrls"
+			type="com.klarna.api.payments.model.PaymentsMerchantUrls">
+			<annotations>@JsonProperty("merchant_urls")</annotations>
+		</property>
+		<property name="options"
+			type="com.klarna.api.payments.model.PaymentsOptions">
+			<annotations>@JsonProperty("options")</annotations>
+		</property>
+		<property name="orderAmount" type="Long">
+			<annotations>@JsonProperty("order_amount")</annotations>
+		</property>
+		<property name="orderLines"
+			type="java.util.List&lt;com.klarna.api.payments.model.PaymentsOrderLine&gt;">
+			<annotations>@JsonProperty("order_lines")</annotations>
+		</property>
+		<property name="orderTaxAmount" type="Long">
+			<annotations>@JsonProperty("order_tax_amount")</annotations>
+		</property>
+		<property name="paymentMethodCategories"
+			type="java.util.List&lt;com.klarna.api.payments.model.PaymentsPaymentMethodCategory&gt;">
+			<annotations>@JsonProperty("payment_method_categories")</annotations>
+		</property>
+		<property name="purchaseCountry" type="String">
+			<annotations>@JsonProperty("purchase_country")</annotations>
+		</property>
+		<property name="purchaseCurrency" type="String">
+			<annotations>@JsonProperty("purchase_currency")</annotations>
+		</property>
+		<property name="shippingAddress"
+			type="com.klarna.api.payments.model.PaymentsAddress">
+			<annotations>@JsonProperty("shipping_address")</annotations>
+		</property>
+
+	</bean>
+
+
+
+	<bean class="com.klarna.api.payments.model.PaymentsAttachment">
+
+		<import
+			type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
+		<import type="com.fasterxml.jackson.annotation.JsonProperty" />
+
 		<property name="body" type="String">
-				<annotations>@JsonProperty("body")</annotations>
+			<annotations>@JsonProperty("body")</annotations>
 		</property>
-    	<property name="contentType" type="String">
-    			<annotations>@JsonProperty("content_type")</annotations>
-    	</property>
+		<property name="contentType" type="String">
+			<annotations>@JsonProperty("content_type")</annotations>
+		</property>
 	</bean>
 
-	<bean class="com.klarna.api.payments.model.PaymentsAddress" >
-	
-		<import type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
-	    <import type="com.fasterxml.jackson.annotation.JsonProperty" />
-	
-    	<property name="attention" type="String">
-    			<annotations>@JsonProperty("attention")</annotations>
-    	</property>
-    	<property name="city" type="String">
-    			<annotations>@JsonProperty("city")</annotations>
-    	</property>
-    	<property name="country" type="String">
-    			<annotations>@JsonProperty("country")</annotations>
-    	</property>
-    	<property name="email" type="String">
-    			<annotations>@JsonProperty("email")</annotations>
-    	</property>
-    	<property name="familyName" type="String">
-    			<annotations>@JsonProperty("family_name")</annotations>
-    	</property>
-    	<property name="givenName" type="String">
-    			<annotations>@JsonProperty("given_name")</annotations>
-    	</property>
-    	<property name="organizationName" type="String">
-    			<annotations>@JsonProperty("organization_name")</annotations>
-    	</property>
-    	<property name="phone" type="String">
-    			<annotations>@JsonProperty("phone")</annotations>
-    	</property>
-    	<property name="postalCode" type="String">
-    			<annotations>@JsonProperty("postal_code")</annotations>
-    	</property>
-    	<property name="region" type="String">
-    			<annotations>@JsonProperty("region")</annotations>
-    	</property>
-    	<property name="streetAddress" type="String">
-    			<annotations>@JsonProperty("street_address")</annotations>
-    	</property>
-    	<property name="streetAddress2" type="String">
-    			<annotations>@JsonProperty("street_address2")</annotations>
-    	</property>
-    	<property name="title" type="String">
-    			<annotations>@JsonProperty("title")</annotations>
-    	</property>
-    </bean>  
-    
-    <bean class="com.klarna.api.payments.model.PaymentsOrderLine">
-    
-    	<import type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
-	    <import type="com.fasterxml.jackson.annotation.JsonProperty" />
-    
-   		<property name="imageUrl" type="String">
-    			<annotations>@JsonProperty("image_url")</annotations>
-    	</property> 
-    	<property name="merchantData" type="String">
-    			<annotations>@JsonProperty("merchant_data")</annotations>
-    	</property> 
-    	<property name="name" type="String">
-    			<annotations>@JsonProperty("name")</annotations>
-    	</property> 
-    	<property name="productIdentifiers" type="com.klarna.api.payments.model.PaymentsProductIdentifiers">
-    			<annotations>@JsonProperty("product_identifiers")</annotations>
-    	</property> 
-    	<property name="productUrl" type="String">
-    			<annotations>@JsonProperty("product_url")</annotations>
-    	</property> 
-    	<property name="quantity" type="Long">
-    			<annotations>@JsonProperty("quantity")</annotations>
-    	</property> 
-    	<property name="quantityUnit" type="String">
-    			<annotations>@JsonProperty("quantity_unit")</annotations>
-    	</property> 
-    	<property name="reference" type="String">
-    			<annotations>@JsonProperty("reference")</annotations>
-    	</property> 
-    	<property name="taxRate" type="Long">
-    			<annotations>@JsonProperty("tax_rate")</annotations>
-    	</property> 
-    	<property name="totalAmount" type="Long">
-    			<annotations>@JsonProperty("total_amount")</annotations>
-    	</property> 
-    	<property name="totalDiscountAmount" type="Long">
-    			<annotations>@JsonProperty("total_discount_amount")</annotations>
-    	</property> 
-    	<property name="totalTaxAmount" type="Long">
-    			<annotations>@JsonProperty("total_tax_amount")</annotations>
-    	</property> 
-    	<property name="type" type="String">
-    			<annotations>@JsonProperty("type")</annotations>
-    	</property> 
-    	<property name="unitPrice" type="Long">
-    			<annotations>@JsonProperty("unit_price")</annotations>
-    	</property> 
-    </bean>
-    
-    <bean class="com.klarna.api.payments.model.PaymentsProductIdentifiers">
-    
-    	<import type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
-	    <import type="com.fasterxml.jackson.annotation.JsonProperty" />
-    
-   		<property name="brand" type="String">
-    			<annotations>@JsonProperty("brand")</annotations>
-    	</property> 
-    	<property name="categoryPath" type="String">
-    			<annotations>@JsonProperty("category_path")</annotations>
-    	</property> 
-    	<property name="globalTradeItemNumber" type="String">
-    			<annotations>@JsonProperty("global_trade_item_number")</annotations>
-    	</property> 
-    	<property name="manufacturerPartNumber" type="String">
-    			<annotations>@JsonProperty("manufacturer_part_number")</annotations>
-    	</property> 
-    </bean>
-    
-    <bean class="com.klarna.api.payments.model.PaymentsPaymentMethodCategory">
-        
-        <import type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
-	    <import type="com.fasterxml.jackson.annotation.JsonProperty" />
-    
-   		<property name="assetUrls" type="com.klarna.api.payments.model.PaymentsAssetUrls">
-    			<annotations>@JsonProperty("asset_urls")</annotations>
-    	</property> 
-    	<property name="identifier" type="String">
-    			<annotations>@JsonProperty("identifier")</annotations>
-    	</property> 
-    	<property name="name" type="String">
-    			<annotations>@JsonProperty("name")</annotations>
-    	</property> 
-    	
-    </bean>
-    
-    <bean class="com.klarna.api.payments.model.PaymentsAssetUrls">
-    	
-    	<import type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
-	    <import type="com.fasterxml.jackson.annotation.JsonProperty" />
-    
-   		<property name="descriptive" type="String">
-    			<annotations>@JsonProperty("descriptive")</annotations>
-    	</property> 
-    	<property name="standard" type="String">
-    			<annotations>@JsonProperty("standard")</annotations>
-    	</property> 
-    	
-    </bean>
-    
-    <bean class="com.klarna.api.payments.model.PaymentsOptions">
-    	
-    	<import type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
-	    <import type="com.fasterxml.jackson.annotation.JsonProperty" />
-    
-   		<property name="colorBorder" type="String">
-    			<annotations>@JsonProperty("color_border")</annotations>
-    	</property>
-    	<property name="colorBorderSelected" type="String">
-    			<annotations>@JsonProperty("color_border_selected")</annotations>
-    	</property>
-    	<property name="colorButton" type="String">
-    			<annotations>@JsonProperty("color_button")</annotations>
-    	</property>
-    	<property name="colorButtonText" type="String">
-    			<annotations>@JsonProperty("color_button_text")</annotations>
-    	</property>
-    	<property name="colorCheckbox" type="String">
-    			<annotations>@JsonProperty("color_checkbox")</annotations>
-    	</property>
-    	<property name="colorCheckboxCheckmark" type="String">
-    			<annotations>@JsonProperty("color_checkbox_checkmark")</annotations>
-    	</property>
-    	<property name="colorDetails" type="String">
-    			<annotations>@JsonProperty("color_details")</annotations>
-    	</property>
-    	<property name="colorHeader" type="String">
-    			<annotations>@JsonProperty("color_header")</annotations>
-    	</property>
-    	<property name="colorLink" type="String">
-    			<annotations>@JsonProperty("color_link")</annotations>
-    	</property>
-    	<property name="colorText" type="String">
-    			<annotations>@JsonProperty("color_text")</annotations>
-    	</property>
-    	<property name="colorTextSecondary" type="String">
-    			<annotations>@JsonProperty("color_text_secondary")</annotations>
-    	</property>
-    	<property name="radiusBorder" type="String">
-    			<annotations>@JsonProperty("radius_border")</annotations>
-    	</property>
-    	
-    </bean>
-    
-    <bean class="com.klarna.api.payments.model.PaymentsMerchantUrls">
-    
-   	 	<import type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
-	    <import type="com.fasterxml.jackson.annotation.JsonProperty" />
-    
-   		<property name="confirmation" type="String">
-    			<annotations>@JsonProperty("confirmation")</annotations>
-    	</property>
-    	<property name="notification" type="String">
-    			<annotations>@JsonProperty("notification")</annotations>
-    	</property>
-    	<property name="push" type="String">
-    			<annotations>@JsonProperty("push")</annotations>
-    	</property>
-    	<property name="authorization" type="String">
-    			<annotations>@JsonProperty("authorization")</annotations>
-    	</property>
-    
-    </bean>
-    
-    <bean class="com.klarna.api.payments.model.PaymentsCustomer">
-    
-    	<import type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
-	    <import type="com.fasterxml.jackson.annotation.JsonProperty" />
-    
-   		<property name="dateOfBirth" type="String">
-    			<annotations>@JsonProperty("date_of_birth")</annotations>
-    	</property>
-    	<property name="gender" type="String">
-    			<annotations>@JsonProperty("gender")</annotations>
-    	</property>
-    	<property name="lastFourSsn" type="String">
-    			<annotations>@JsonProperty("last_four_ssn")</annotations>
-    	</property>
-    	<property name="nationalIdentificationNumber" type="String">
-    			<annotations>@JsonProperty("national_identification_number")</annotations>
-    	</property>
-    
-    </bean>
-    
-    <bean class="com.klarna.api.payments.model.PaymentsCustomerTokenCreationRequest">
-    
-    	<import type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
-	    <import type="com.fasterxml.jackson.annotation.JsonProperty" />
-    
-   		<property name="billingAddress" type="com.klarna.api.payments.model.PaymentsAddress">
-    			<annotations>@JsonProperty("billing_address")</annotations>
-    	</property>
-    	<property name="customer" type="com.klarna.api.payments.model.PaymentsCustomer">
-    			<annotations>@JsonProperty("customer")</annotations>
-    	</property>
-    	<property name="description" type="String">
-    			<annotations>@JsonProperty("description")</annotations>
-    	</property>
-		<property name="intendedUse" type="com.klarna.api.payments.IntendedUseEnum">
-    			<annotations>@JsonProperty("intended_use")</annotations>
-    	</property>
-    	<property name="locale" type="String">
-    			<annotations>@JsonProperty("locale")</annotations>
-    	</property>
-    	<property name="purchaseCountry" type="String">
-    			<annotations>@JsonProperty("purchase_country")</annotations>
-    	</property>
-    	<property name="purchaseCurrency" type="String">
-    			<annotations>@JsonProperty("purchase_currency")</annotations>
-    	</property>
+	<bean class="com.klarna.api.payments.model.PaymentsAddress">
 
-    </bean>
-    
-    <bean class="com.klarna.api.payments.model.PaymentsCustomerTokenCreationResponse">
-    
-    	<import type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
-	    <import type="com.fasterxml.jackson.annotation.JsonProperty" />
-    
-   		<property name="billingAddress" type="com.klarna.api.payments.model.PaymentsAddress">
-    			<annotations>@JsonProperty("billing_address")</annotations>
-    	</property>
-    	<property name="customer" type="com.klarna.api.payments.model.PaymentsCustomer">
-    			<annotations>@JsonProperty("customer")</annotations>
-    	</property>
-    	<property name="paymentMethodReference" type="String">
-    			<annotations>@JsonProperty("payment_method_reference")</annotations>
-    	</property>
-    	<property name="redirectUrl" type="String">
-    			<annotations>@JsonProperty("redirect_url")</annotations>
-    	</property>
-    	<property name="tokenId" type="String">
-    			<annotations>@JsonProperty("token_id")</annotations>
-    	</property>
-    
-    </bean>
-    
-    <bean class="com.klarna.api.payments.model.PaymentsOrder">
-    
-    	<import type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
-	    <import type="com.fasterxml.jackson.annotation.JsonProperty" />
-    
-   		<property name="authorizedPaymentMethod" type="com.klarna.api.payments.model.PaymentsAuthorizedPaymentMethod">
-    			<annotations>@JsonProperty("authorized_payment_method")</annotations>
-    	</property>
-    	<property name="fraudStatus" type="String">
-    			<annotations>@JsonProperty("fraud_status")</annotations>
-    	</property>
-    	<property name="orderId" type="String">
-    			<annotations>@JsonProperty("order_id")</annotations>
-    	</property>
-    	<property name="redirectUrl" type="String">
-    			<annotations>@JsonProperty("redirect_url")</annotations>
-    	</property>
-    
-    </bean>
-    
-    <bean class="com.klarna.api.payments.model.PaymentsAuthorizedPaymentMethod">
-    
-    	<import type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
-	    <import type="com.fasterxml.jackson.annotation.JsonProperty" />
-    
-   		<property name="type" type="com.klarna.api.payments.TypeEnum">
-    			<annotations>@JsonProperty("type")</annotations>
-    	</property>
-    </bean>
-	
-	<bean class="com.klarna.api.payments.model.PaymentsMerchantSession">
-		
-		<import type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
-	    <import type="com.fasterxml.jackson.annotation.JsonProperty" />
-    
-   		<property name="clientToken" type="String">
-    			<annotations>@JsonProperty("client_token")</annotations>
-    	</property>
-    	<property name="paymentMethodCategories" type="java.util.List&lt;com.klarna.api.payments.model.PaymentsPaymentMethodCategory&gt;">
-    			<annotations>@JsonProperty("payment_method_categories")</annotations>
-    	</property>
-    	<property name="sessionId" type="String">
-    			<annotations>@JsonProperty("session_id")</annotations>
-    	</property>
+		<import
+			type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
+		<import type="com.fasterxml.jackson.annotation.JsonProperty" />
+
+		<property name="attention" type="String">
+			<annotations>@JsonProperty("attention")</annotations>
+		</property>
+		<property name="city" type="String">
+			<annotations>@JsonProperty("city")</annotations>
+		</property>
+		<property name="country" type="String">
+			<annotations>@JsonProperty("country")</annotations>
+		</property>
+		<property name="email" type="String">
+			<annotations>@JsonProperty("email")</annotations>
+		</property>
+		<property name="familyName" type="String">
+			<annotations>@JsonProperty("family_name")</annotations>
+		</property>
+		<property name="givenName" type="String">
+			<annotations>@JsonProperty("given_name")</annotations>
+		</property>
+		<property name="organizationName" type="String">
+			<annotations>@JsonProperty("organization_name")</annotations>
+		</property>
+		<property name="phone" type="String">
+			<annotations>@JsonProperty("phone")</annotations>
+		</property>
+		<property name="postalCode" type="String">
+			<annotations>@JsonProperty("postal_code")</annotations>
+		</property>
+		<property name="region" type="String">
+			<annotations>@JsonProperty("region")</annotations>
+		</property>
+		<property name="streetAddress" type="String">
+			<annotations>@JsonProperty("street_address")</annotations>
+		</property>
+		<property name="streetAddress2" type="String">
+			<annotations>@JsonProperty("street_address2")</annotations>
+		</property>
+		<property name="title" type="String">
+			<annotations>@JsonProperty("title")</annotations>
+		</property>
 	</bean>
-	
-	<bean class="com.klarna.api.order_management.model.OrderManagementCapture">
-		
-		<import type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
-	    <import type="com.fasterxml.jackson.annotation.JsonProperty" />
-    
-   		<property name="captureId" type="String">
-    			<annotations>@JsonProperty("capture_id")</annotations>
-    	</property>
-    	<property name="klarnaReference" type="String">
-    			<annotations>@JsonProperty("klarna_reference")</annotations>
-    	</property>
-    	<property name="capturedAmount" type="Long">
-    			<annotations>@JsonProperty("captured_amount")</annotations>
-    	</property>
-    	<property name="capturedAt" type="java.time.OffsetDateTime">	
-    			<annotations>@JsonProperty("captured_at")</annotations>
-    	</property>
-    	<property name="description" type="String">
-    			<annotations>@JsonProperty("description")</annotations>
-    	</property>
-    	<property name="orderLines" type="java.util.List&lt;com.klarna.api.order_management.model.OrderManagementOrderLine&gt;">
-    			<annotations>@JsonProperty("order_lines")</annotations>
-    	</property>
-    	<property name="refundedAmount" type="Long">
-    			<annotations>@JsonProperty("refunded_amount")</annotations>
-    	</property>
-    	<property name="billingAddress" type="com.klarna.api.order_management.model.OrderManagementAddress">
-    			<annotations>@JsonProperty("billing_address")</annotations>
-    	</property>
-    	<property name="shipping_address" type="com.klarna.api.order_management.model.OrderManagementAddress">
-    			<annotations>@JsonProperty("shippingAddress")</annotations>
-    	</property>
-    	<property name="shippingInfo" type="java.util.List&lt;com.klarna.api.order_management.model.OrderManagementShippingInfo&gt;">
-    			<annotations>@JsonProperty("shipping_info")</annotations>
-    	</property>
-    	
+
+	<bean class="com.klarna.api.payments.model.PaymentsOrderLine">
+
+		<import
+			type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
+		<import type="com.fasterxml.jackson.annotation.JsonProperty" />
+
+		<property name="imageUrl" type="String">
+			<annotations>@JsonProperty("image_url")</annotations>
+		</property>
+		<property name="merchantData" type="String">
+			<annotations>@JsonProperty("merchant_data")</annotations>
+		</property>
+		<property name="name" type="String">
+			<annotations>@JsonProperty("name")</annotations>
+		</property>
+		<property name="productIdentifiers"
+			type="com.klarna.api.payments.model.PaymentsProductIdentifiers">
+			<annotations>@JsonProperty("product_identifiers")</annotations>
+		</property>
+		<property name="productUrl" type="String">
+			<annotations>@JsonProperty("product_url")</annotations>
+		</property>
+		<property name="quantity" type="Long">
+			<annotations>@JsonProperty("quantity")</annotations>
+		</property>
+		<property name="quantityUnit" type="String">
+			<annotations>@JsonProperty("quantity_unit")</annotations>
+		</property>
+		<property name="reference" type="String">
+			<annotations>@JsonProperty("reference")</annotations>
+		</property>
+		<property name="taxRate" type="Long">
+			<annotations>@JsonProperty("tax_rate")</annotations>
+		</property>
+		<property name="totalAmount" type="Long">
+			<annotations>@JsonProperty("total_amount")</annotations>
+		</property>
+		<property name="totalDiscountAmount" type="Long">
+			<annotations>@JsonProperty("total_discount_amount")</annotations>
+		</property>
+		<property name="totalTaxAmount" type="Long">
+			<annotations>@JsonProperty("total_tax_amount")</annotations>
+		</property>
+		<property name="type" type="String">
+			<annotations>@JsonProperty("type")</annotations>
+		</property>
+		<property name="unitPrice" type="Long">
+			<annotations>@JsonProperty("unit_price")</annotations>
+		</property>
 	</bean>
-	
-	<bean class="com.klarna.api.order_management.model.OrderManagementOrderLine">
-	
-		<import type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
-	    <import type="com.fasterxml.jackson.annotation.JsonProperty" />
-    
-   		<property name="reference" type="String">
-    			<annotations>@JsonProperty("reference")</annotations>
-    	</property>
-    	<property name="type" type="String">
-    			<annotations>@JsonProperty("type")</annotations>
-    	</property>
-    	<property name="quantity" type="Long">
-    			<annotations>@JsonProperty("quantity")</annotations>
-    	</property>
-    	<property name="quantityUnit" type="String">
-    			<annotations>@JsonProperty("quantity_unit")</annotations>
-    	</property>
-    	<property name="name" type="String">
-    			<annotations>@JsonProperty("name")</annotations>
-    	</property>
-    	<property name="totalAmount" type="Long">
-    			<annotations>@JsonProperty("total_amount")</annotations>
-    	</property>
-    	<property name="unitPrice" type="Long">
-    			<annotations>@JsonProperty("unit_price")</annotations>
-    	</property>
-    	<property name="totalDiscountAmount" type="Long">
-    			<annotations>@JsonProperty("total_discount_amount")</annotations>
-    	</property>
-    	<property name="taxRate" type="Integer">
-    			<annotations>@JsonProperty("tax_rate")</annotations>
-    	</property>
-    	<property name="totalTaxAmount" type="Long">
-    			<annotations>@JsonProperty("total_tax_amount")</annotations>
-    	</property>
-    	<property name="merchantData" type="String">
-    			<annotations>@JsonProperty("merchant_data")</annotations>
-    	</property>
-    	<property name="productUrl" type="String">
-    			<annotations>@JsonProperty("product_url")</annotations>
-    	</property>
-    	<property name="imageUrl" type="String">
-    			<annotations>@JsonProperty("image_url")</annotations>
-    	</property>
-    	<property name="productIdentifiers" type="com.klarna.api.order_management.model.OrderManagementProductIdentifiers">
-    			<annotations>@JsonProperty("product_identifiers")</annotations>
-    	</property>
-	
+
+	<bean
+		class="com.klarna.api.payments.model.PaymentsProductIdentifiers">
+
+		<import
+			type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
+		<import type="com.fasterxml.jackson.annotation.JsonProperty" />
+
+		<property name="brand" type="String">
+			<annotations>@JsonProperty("brand")</annotations>
+		</property>
+		<property name="categoryPath" type="String">
+			<annotations>@JsonProperty("category_path")</annotations>
+		</property>
+		<property name="globalTradeItemNumber" type="String">
+			<annotations>@JsonProperty("global_trade_item_number")</annotations>
+		</property>
+		<property name="manufacturerPartNumber" type="String">
+			<annotations>@JsonProperty("manufacturer_part_number")</annotations>
+		</property>
 	</bean>
-	
-	<bean class="com.klarna.api.order_management.model.OrderManagementProductIdentifiers">
-	
-		<import type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
-	    <import type="com.fasterxml.jackson.annotation.JsonProperty" />
-    
-   		<property name="categoryPath" type="String">
-    			<annotations>@JsonProperty("category_path")</annotations>
-    	</property>
-    	<property name="globalTradeItemNumber" type="String">
-    			<annotations>@JsonProperty("global_trade_item_number")</annotations>
-    	</property>
-    	<property name="manufacturerPartNumber" type="String">
-    			<annotations>@JsonProperty("manufacturer_part_number")</annotations>
-    	</property>
-    	<property name="brand" type="String">
-    			<annotations>@JsonProperty("brand")</annotations>
-    	</property>
-	
+
+	<bean
+		class="com.klarna.api.payments.model.PaymentsPaymentMethodCategory">
+
+		<import
+			type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
+		<import type="com.fasterxml.jackson.annotation.JsonProperty" />
+
+		<property name="assetUrls"
+			type="com.klarna.api.payments.model.PaymentsAssetUrls">
+			<annotations>@JsonProperty("asset_urls")</annotations>
+		</property>
+		<property name="identifier" type="String">
+			<annotations>@JsonProperty("identifier")</annotations>
+		</property>
+		<property name="name" type="String">
+			<annotations>@JsonProperty("name")</annotations>
+		</property>
+
 	</bean>
-	
-	<bean class="com.klarna.api.order_management.model.OrderManagementAddress">
-	
-		<import type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
-	    <import type="com.fasterxml.jackson.annotation.JsonProperty" />
-    
-   		<property name="givenName" type="String">
-    			<annotations>@JsonProperty("given_name")</annotations>
-    	</property>
-    	<property name="familyName" type="String">
-    			<annotations>@JsonProperty("family_name")</annotations>
-    	</property>
-    	<property name="title" type="String">
-    			<annotations>@JsonProperty("title")</annotations>
-    	</property>
-    	<property name="streetAddress" type="String">
-    			<annotations>@JsonProperty("street_address")</annotations>
-    	</property>
-    	<property name="streetAddress2" type="String">
-    			<annotations>@JsonProperty("street_address2")</annotations>
-    	</property>
-    	<property name="postalCode" type="String">
-    			<annotations>@JsonProperty("postal_code")</annotations>
-    	</property>
-    	<property name="city" type="String">
-    			<annotations>@JsonProperty("city")</annotations>
-    	</property>
-    	<property name="region" type="String">
-    			<annotations>@JsonProperty("region")</annotations>
-    	</property>
-    	<property name="country" type="String">
-    			<annotations>@JsonProperty("country")</annotations>
-    	</property>
-    	<property name="email" type="String">
-    			<annotations>@JsonProperty("email")</annotations>
-    	</property>
-    	<property name="phone" type="String">
-    			<annotations>@JsonProperty("phone")</annotations>
-    	</property>
-	
+
+	<bean class="com.klarna.api.payments.model.PaymentsAssetUrls">
+
+		<import
+			type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
+		<import type="com.fasterxml.jackson.annotation.JsonProperty" />
+
+		<property name="descriptive" type="String">
+			<annotations>@JsonProperty("descriptive")</annotations>
+		</property>
+		<property name="standard" type="String">
+			<annotations>@JsonProperty("standard")</annotations>
+		</property>
+
 	</bean>
-	
-	<bean class="com.klarna.api.order_management.model.OrderManagementShippingInfo">
-	
-		<import type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
-	    <import type="com.fasterxml.jackson.annotation.JsonProperty" />
-    
-   		<property name="shippingCompany" type="String">
-    			<annotations>@JsonProperty("shipping_company")</annotations>
-    	</property>
-    	<property name="shippingMethod" type="String">
-    			<annotations>@JsonProperty("shipping_method")</annotations>
-    	</property>
-    	<property name="trackingNumber" type="String">
-    			<annotations>@JsonProperty("tracking_number")</annotations>
-    	</property>
-    	<property name="trackingUri" type="String">
-    			<annotations>@JsonProperty("tracking_uri")</annotations>
-    	</property>
-    	<property name="returnShippingCompany" type="String">
-    			<annotations>@JsonProperty("return_shipping_company")</annotations>
-    	</property>
-    	<property name="returnTrackingNumber" type="String">
-    			<annotations>@JsonProperty("return_tracking_number")</annotations>
-    	</property>
-    	<property name="returnTrackingUri" type="String">
-    			<annotations>@JsonProperty("return_tracking_uri")</annotations>
-    	</property>
-	
+
+	<bean class="com.klarna.api.payments.model.PaymentsOptions">
+
+		<import
+			type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
+		<import type="com.fasterxml.jackson.annotation.JsonProperty" />
+
+		<property name="colorBorder" type="String">
+			<annotations>@JsonProperty("color_border")</annotations>
+		</property>
+		<property name="colorBorderSelected" type="String">
+			<annotations>@JsonProperty("color_border_selected")</annotations>
+		</property>
+		<property name="colorButton" type="String">
+			<annotations>@JsonProperty("color_button")</annotations>
+		</property>
+		<property name="colorButtonText" type="String">
+			<annotations>@JsonProperty("color_button_text")</annotations>
+		</property>
+		<property name="colorCheckbox" type="String">
+			<annotations>@JsonProperty("color_checkbox")</annotations>
+		</property>
+		<property name="colorCheckboxCheckmark" type="String">
+			<annotations>@JsonProperty("color_checkbox_checkmark")</annotations>
+		</property>
+		<property name="colorDetails" type="String">
+			<annotations>@JsonProperty("color_details")</annotations>
+		</property>
+		<property name="colorHeader" type="String">
+			<annotations>@JsonProperty("color_header")</annotations>
+		</property>
+		<property name="colorLink" type="String">
+			<annotations>@JsonProperty("color_link")</annotations>
+		</property>
+		<property name="colorText" type="String">
+			<annotations>@JsonProperty("color_text")</annotations>
+		</property>
+		<property name="colorTextSecondary" type="String">
+			<annotations>@JsonProperty("color_text_secondary")</annotations>
+		</property>
+		<property name="radiusBorder" type="String">
+			<annotations>@JsonProperty("radius_border")</annotations>
+		</property>
+
 	</bean>
-	
-	<bean class="com.klarna.api.order_management.model.OrderManagementCaptureObject">
-	
-		<import type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
-	    <import type="com.fasterxml.jackson.annotation.JsonProperty" />
-    
-   		<property name="capturedAmount" type="Long">
-    			<annotations>@JsonProperty("captured_amount")</annotations>
-    	</property>
-    	<property name="description" type="String">
-    			<annotations>@JsonProperty("description")</annotations>
-    	</property>
-    	<property name="reference" type="String">
-    			<annotations>@JsonProperty("reference")</annotations>
-    	</property>
-    	<property name="orderLines" type="java.util.List&lt;com.klarna.api.order_management.model.OrderManagementOrderLine&gt;">
-    			<annotations>@JsonProperty("order_lines")</annotations>
-    	</property>
-    	<property name="shippingInfo" type="java.util.List&lt;com.klarna.api.order_management.model.OrderManagementShippingInfo&gt;">
-    			<annotations>@JsonProperty("shipping_info")</annotations>
-    	</property>
-    	<property name="shippingDelay" type="Long">
-    			<annotations>@JsonProperty("shipping_delay")</annotations>
-    	</property>
-	
+
+	<bean class="com.klarna.api.payments.model.PaymentsMerchantUrls">
+
+		<import
+			type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
+		<import type="com.fasterxml.jackson.annotation.JsonProperty" />
+
+		<property name="confirmation" type="String">
+			<annotations>@JsonProperty("confirmation")</annotations>
+		</property>
+		<property name="notification" type="String">
+			<annotations>@JsonProperty("notification")</annotations>
+		</property>
+		<property name="push" type="String">
+			<annotations>@JsonProperty("push")</annotations>
+		</property>
+		<property name="authorization" type="String">
+			<annotations>@JsonProperty("authorization")</annotations>
+		</property>
+
 	</bean>
-	
-	<bean class="com.klarna.api.order_management.model.OrderManagementUpdateShippingInfo">
-	
-		<import type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
-	    <import type="com.fasterxml.jackson.annotation.JsonProperty" />
-    
-   		<property name="shippingInfo" type="java.util.List&lt;com.klarna.api.order_management.model.OrderManagementShippingInfo&gt;">
-    			<annotations>@JsonProperty("shipping_info")</annotations>
-    	</property>
-	
+
+	<bean class="com.klarna.api.payments.model.PaymentsCustomer">
+
+		<import
+			type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
+		<import type="com.fasterxml.jackson.annotation.JsonProperty" />
+
+		<property name="dateOfBirth" type="String">
+			<annotations>@JsonProperty("date_of_birth")</annotations>
+		</property>
+		<property name="gender" type="String">
+			<annotations>@JsonProperty("gender")</annotations>
+		</property>
+		<property name="lastFourSsn" type="String">
+			<annotations>@JsonProperty("last_four_ssn")</annotations>
+		</property>
+		<property name="nationalIdentificationNumber" type="String">
+			<annotations>@JsonProperty("national_identification_number")</annotations>
+		</property>
+		<property name="klarnaAccessToken" type="String">
+			<annotations>@JsonProperty("klarna_access_token")</annotations>
+		</property>
+
 	</bean>
-	
-	<bean class="com.klarna.api.order_management.model.OrderManagementOrder">
-	
-		<import type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
-	    <import type="com.fasterxml.jackson.annotation.JsonProperty" />
-    
-    	<property name="orderId" type="String">
-    			<annotations>@JsonProperty("order_id")</annotations>
-    	</property>
-   		<property name="status" type="com.klarna.api.order_management.StatusEnum">
-    			<annotations>@JsonProperty("status")</annotations>
-    	</property>
-    	<property name="fraudStatus" type="String">
-    			<annotations>@JsonProperty("fraud_status")</annotations>
-    	</property>
-    	<property name="orderAmount" type="Long">
-    			<annotations>@JsonProperty("order_amount")</annotations>
-    	</property>
-    	<property name="originalOrderAmount" type="Long">
-    			<annotations>@JsonProperty("original_order_amount")</annotations>
-    	</property>
-    	<property name="capturedAmount" type="Long">
-    			<annotations>@JsonProperty("captured_amount")</annotations>
-    	</property>
-    	<property name="refundedAmount" type="Long">
-    			<annotations>@JsonProperty("refunded_amount")</annotations>
-    	</property>
-    	<property name="remainingAuthorizedAmount" type="Long">
-    			<annotations>@JsonProperty("remaining_authorized_amount")</annotations>
-    	</property>
-    	<property name="purchaseCurrency" type="String">
-    			<annotations>@JsonProperty("purchase_currency")</annotations>
-    	</property>
-    	<property name="locale" type="String">
-    			<annotations>@JsonProperty("locale")</annotations>
-    	</property>
-    	<property name="orderLines" type="java.util.List&lt;com.klarna.api.order_management.model.OrderManagementOrderLine&gt;">
-    			<annotations>@JsonProperty("order_lines")</annotations>
-    	</property>
-    	<property name="merchantReference1" type="String">
-    			<annotations>@JsonProperty("merchant_reference1")</annotations>
-    	</property>
-    	<property name="merchantReference2" type="String">
-    			<annotations>@JsonProperty("merchant_reference2")</annotations>
-    	</property>
-    	<property name="klarnaReference" type="String">
-    			<annotations>@JsonProperty("klarna_reference")</annotations>
-    	</property>
-    	<property name="customer" type="com.klarna.api.order_management.OrderManagementCustomer">
-    			<annotations>@JsonProperty("customer")</annotations>
-    	</property>
-    	<property name="billingAddress" type="com.klarna.api.order_management.model.OrderManagementAddress">
-    			<annotations>@JsonProperty("billing_address")</annotations>
-    	</property>
-    	<property name="shippingAddress" type="com.klarna.api.order_management.model.OrderManagementAddress">
-    			<annotations>@JsonProperty("shipping_address")</annotations>
-    	</property>
-    	<property name="createdAt" type="java.time.OffsetDateTime">
-    			<annotations>@JsonProperty("created_at")</annotations>
-    	</property>
-    	<property name="purchaseCountry" type="String">
-    			<annotations>@JsonProperty("purchase_country")</annotations>
-    	</property>
-    	<property name="expiresAt" type="java.time.OffsetDateTime">
-    			<annotations>@JsonProperty("expires_at")</annotations>
-    	</property>
-    	<property name="captures" type="java.util.List&lt;com.klarna.api.order_management.model.OrderManagementCapture&gt;">
-    			<annotations>@JsonProperty("captures")</annotations>
-    	</property>
-    	<property name="refunds" type="java.util.List&lt;com.klarna.api.order_management.model.OrderManagementRefund&gt;">
-    			<annotations>@JsonProperty("refunds")</annotations>
-    	</property>
-    	<property name="merchantData" type="String">
-    			<annotations>@JsonProperty("merchant_data")</annotations>
-    	</property>
-    	<property name="initialPaymentMethod" type="com.klarna.api.order_management.model.OrderManagementInitialPaymentMethodDto">
-    			<annotations>@JsonProperty("initial_payment_method")</annotations>
-    	</property>
-	
+
+	<bean
+		class="com.klarna.api.payments.model.PaymentsCustomerTokenCreationRequest">
+
+		<import
+			type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
+		<import type="com.fasterxml.jackson.annotation.JsonProperty" />
+
+		<property name="billingAddress"
+			type="com.klarna.api.payments.model.PaymentsAddress">
+			<annotations>@JsonProperty("billing_address")</annotations>
+		</property>
+		<property name="customer"
+			type="com.klarna.api.payments.model.PaymentsCustomer">
+			<annotations>@JsonProperty("customer")</annotations>
+		</property>
+		<property name="description" type="String">
+			<annotations>@JsonProperty("description")</annotations>
+		</property>
+		<property name="intendedUse"
+			type="com.klarna.api.payments.IntendedUseEnum">
+			<annotations>@JsonProperty("intended_use")</annotations>
+		</property>
+		<property name="locale" type="String">
+			<annotations>@JsonProperty("locale")</annotations>
+		</property>
+		<property name="purchaseCountry" type="String">
+			<annotations>@JsonProperty("purchase_country")</annotations>
+		</property>
+		<property name="purchaseCurrency" type="String">
+			<annotations>@JsonProperty("purchase_currency")</annotations>
+		</property>
+
 	</bean>
-	
-	<bean class="com.klarna.api.order_management.OrderManagementCustomer">
-	
-		<import type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
-	    <import type="com.fasterxml.jackson.annotation.JsonProperty" />
-    
-   		<property name="dateOfBirth" type="java.time.LocalDate">
-    			<annotations>@JsonProperty("date_of_birth")</annotations>
-    	</property>
-    	<property name="nationalIdentificationNumber" type="String">
-    			<annotations>@JsonProperty("national_identification_number")</annotations>
-    	</property>
-	
+
+	<bean
+		class="com.klarna.api.payments.model.PaymentsCustomerTokenCreationResponse">
+
+		<import
+			type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
+		<import type="com.fasterxml.jackson.annotation.JsonProperty" />
+
+		<property name="billingAddress"
+			type="com.klarna.api.payments.model.PaymentsAddress">
+			<annotations>@JsonProperty("billing_address")</annotations>
+		</property>
+		<property name="customer"
+			type="com.klarna.api.payments.model.PaymentsCustomer">
+			<annotations>@JsonProperty("customer")</annotations>
+		</property>
+		<property name="paymentMethodReference" type="String">
+			<annotations>@JsonProperty("payment_method_reference")</annotations>
+		</property>
+		<property name="redirectUrl" type="String">
+			<annotations>@JsonProperty("redirect_url")</annotations>
+		</property>
+		<property name="tokenId" type="String">
+			<annotations>@JsonProperty("token_id")</annotations>
+		</property>
+
 	</bean>
-	
-	<bean class="com.klarna.api.order_management.model.OrderManagementRefund">
-	
-		<import type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
-	    <import type="com.fasterxml.jackson.annotation.JsonProperty" />
-    
-   		<property name="refundId" type="String">
-    			<annotations>@JsonProperty("refund_id")</annotations>
-    	</property>
-    	<property name="refundedAmount" type="Long">
-    			<annotations>@JsonProperty("refunded_amount")</annotations>
-    	</property>
-    	<property name="refundedAt" type="java.time.OffsetDateTime">
-    			<annotations>@JsonProperty("refunded_at")</annotations>
-    	</property>
-    	<property name="description" type="String">
-    			<annotations>@JsonProperty("description")</annotations>
-    	</property>
-    	<property name="orderLines" type="java.util.List&lt;com.klarna.api.order_management.model.OrderManagementOrderLine&gt;">
-    			<annotations>@JsonProperty("order_lines")</annotations>
-    	</property>
-	
-	</bean>
-	
-	<bean class="com.klarna.api.order_management.model.OrderManagementInitialPaymentMethodDto">
-	
-		<import type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
-	    <import type="com.fasterxml.jackson.annotation.JsonProperty" />
-    
-   		<property name="type" type="com.klarna.api.order_management.model.TypeEnum">
-    			<annotations>@JsonProperty("type")</annotations>
-    	</property>
-    	<property name="description" type="String">
-    			<annotations>@JsonProperty("description")</annotations>
-    	</property>
-    	<property name="numberOfInstallments" type="Integer">
-    			<annotations>@JsonProperty("number_of_installments")</annotations>
-    	</property>
-	
-	</bean>
-	
-	<bean class="com.klarna.api.order_management.model.OrderManagementUpdateAuthorization">
-	
-		<import type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
-	    <import type="com.fasterxml.jackson.annotation.JsonProperty" />
-    
-   		<property name="orderAmount" type="Long">
-    			<annotations>@JsonProperty("order_amount")</annotations>
-    	</property>
-    	<property name="description" type="String">
-    			<annotations>@JsonProperty("description")</annotations>
-    	</property>
-    	<property name="orderLines" type="java.util.List&lt;com.klarna.api.order_management.model.OrderManagementOrderLine&gt;">
-    			<annotations>@JsonProperty("order_lines")</annotations>
-    	</property>
-	
-	</bean>
-	
-	<bean class="com.klarna.api.order_management.model.OrderManagementUpdateConsumer">
-	
-		<import type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
-	    <import type="com.fasterxml.jackson.annotation.JsonProperty" />
-    
-   		<property name="shippingAddress" type="com.klarna.api.order_management.model.OrderManagementAddress">
-    			<annotations>@JsonProperty("shipping_address")</annotations>
-    	</property>
-    	<property name="billingAddress" type="com.klarna.api.order_management.model.OrderManagementAddress">
-    			<annotations>@JsonProperty("billing_address")</annotations>
-    	</property>
-	
-	</bean>
-	
-	<bean class="com.klarna.api.order_management.model.OrderManagementUpdateMerchantReferences">
-	
-		<import type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
-	    <import type="com.fasterxml.jackson.annotation.JsonProperty" />
-    
-   		<property name="merchantReference1" type="String">
-    			<annotations>@JsonProperty("merchant_reference1")</annotations>
-    	</property>
-    	<property name="merchantReference2" type="String">
-    			<annotations>@JsonProperty("merchant_reference2")</annotations>
-    	</property>
-	
-	</bean>
-	
-	
-	<bean class="com.klarna.api.order_management.model.OrderManagementRefundObject">
-	
-		<import type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
-	    <import type="com.fasterxml.jackson.annotation.JsonProperty" />
-    
-    	<property name="refundedAmount" type="Long">
-    			<annotations>@JsonProperty("refunded_amount")</annotations>
-    	</property>
-    	<property name="description" type="String">
-    			<annotations>@JsonProperty("description")</annotations>
-    	</property>
-    	<property name="reference" type="String">
-    			<annotations>@JsonProperty("reference")</annotations>
-    	</property>
-    	<property name="orderLines" type="java.util.List&lt;com.klarna.api.order_management.model.OrderManagementOrderLine&gt;">
-    			<annotations>@JsonProperty("order_lines")</annotations>
-    	</property>
-	
-	</bean>
-	
-	<bean class="com.klarna.api.checkout.model.emd.CustomerAccountInformation">
-	<property name="uniqueAccountIdentifier" type="String"/>
-	<property name="accountRegistrationDate" type="java.time.OffsetDateTime"/>
-	<property name="accountLastModified" type="java.time.OffsetDateTime"/>
-	</bean>
-	
-	<bean class="com.klarna.api.checkout.model.emd.ExtraMerchantDataBody">
-	<property name="customerAccountInfo" type="java.util.List&lt;com.klarna.api.checkout.model.emd.CustomerAccountInformation&gt;"></property>
-	</bean>
-	
-	<bean class="com.klarna.api.merchant_card_service.model.CardServiceSettlementRequest">
-	
-		<import type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
-	    <import type="com.fasterxml.jackson.annotation.JsonProperty" />
-    
-    	<property name="promiseId" type="String">
-    			<annotations>@JsonProperty("promise_id")</annotations>
-    	</property>
+
+	<bean class="com.klarna.api.payments.model.PaymentsOrder">
+
+		<import
+			type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
+		<import type="com.fasterxml.jackson.annotation.JsonProperty" />
+
+		<property name="authorizedPaymentMethod"
+			type="com.klarna.api.payments.model.PaymentsAuthorizedPaymentMethod">
+			<annotations>@JsonProperty("authorized_payment_method")</annotations>
+		</property>
+		<property name="fraudStatus" type="String">
+			<annotations>@JsonProperty("fraud_status")</annotations>
+		</property>
 		<property name="orderId" type="String">
-    			<annotations>@JsonProperty("order_id")</annotations>
-    	</property>
-    	<property name="keyId" type="String">
-    			<annotations>@JsonProperty("key_id")</annotations>
-    	</property>
-    	
+			<annotations>@JsonProperty("order_id")</annotations>
+		</property>
+		<property name="redirectUrl" type="String">
+			<annotations>@JsonProperty("redirect_url")</annotations>
+		</property>
+
 	</bean>
-	
-	<bean class="com.klarna.api.merchant_card_service.model.CardServiceSettlementResponse">
-	
-		<import type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
-	    <import type="com.fasterxml.jackson.annotation.JsonProperty" />
-    
-    	<property name="settlementId" type="String">
-    			<annotations>@JsonProperty("settlement_id")</annotations>
-    	</property>
+
+	<bean
+		class="com.klarna.api.payments.model.PaymentsAuthorizedPaymentMethod">
+
+		<import
+			type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
+		<import type="com.fasterxml.jackson.annotation.JsonProperty" />
+
+		<property name="type" type="com.klarna.api.payments.TypeEnum">
+			<annotations>@JsonProperty("type")</annotations>
+		</property>
+	</bean>
+
+	<bean
+		class="com.klarna.api.payments.model.PaymentsMerchantSession">
+
+		<import
+			type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
+		<import type="com.fasterxml.jackson.annotation.JsonProperty" />
+
+		<property name="clientToken" type="String">
+			<annotations>@JsonProperty("client_token")</annotations>
+		</property>
+		<property name="paymentMethodCategories"
+			type="java.util.List&lt;com.klarna.api.payments.model.PaymentsPaymentMethodCategory&gt;">
+			<annotations>@JsonProperty("payment_method_categories")</annotations>
+		</property>
+		<property name="sessionId" type="String">
+			<annotations>@JsonProperty("session_id")</annotations>
+		</property>
+	</bean>
+
+	<bean
+		class="com.klarna.api.payments.model.KlarnaPaymentAuthCallbackResponse">
+		<import
+			type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
+		<import type="com.fasterxml.jackson.annotation.JsonProperty" />
+		<property name="authorizationToken" type="String">
+			<annotations>@JsonProperty("authorization_token")</annotations>
+		</property>
+		<property name="sessionId" type="String">
+			<annotations>@JsonProperty("session_id")</annotations>
+		</property>
+		<property name="merchantReference1" type="String">
+			<annotations>@JsonProperty("merchant_reference1")</annotations>
+		</property>
+		<property name="merchantReference2" type="String">
+			<annotations>@JsonProperty("merchant_reference2")</annotations>
+		</property>
+	</bean>
+
+	<bean
+		class="com.klarna.api.order_management.model.OrderManagementCapture">
+
+		<import
+			type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
+		<import type="com.fasterxml.jackson.annotation.JsonProperty" />
+
+		<property name="captureId" type="String">
+			<annotations>@JsonProperty("capture_id")</annotations>
+		</property>
+		<property name="klarnaReference" type="String">
+			<annotations>@JsonProperty("klarna_reference")</annotations>
+		</property>
+		<property name="capturedAmount" type="Long">
+			<annotations>@JsonProperty("captured_amount")</annotations>
+		</property>
+		<property name="capturedAt" type="java.time.OffsetDateTime">
+			<annotations>@JsonProperty("captured_at")</annotations>
+		</property>
+		<property name="description" type="String">
+			<annotations>@JsonProperty("description")</annotations>
+		</property>
+		<property name="orderLines"
+			type="java.util.List&lt;com.klarna.api.order_management.model.OrderManagementOrderLine&gt;">
+			<annotations>@JsonProperty("order_lines")</annotations>
+		</property>
+		<property name="refundedAmount" type="Long">
+			<annotations>@JsonProperty("refunded_amount")</annotations>
+		</property>
+		<property name="billingAddress"
+			type="com.klarna.api.order_management.model.OrderManagementAddress">
+			<annotations>@JsonProperty("billing_address")</annotations>
+		</property>
+		<property name="shipping_address"
+			type="com.klarna.api.order_management.model.OrderManagementAddress">
+			<annotations>@JsonProperty("shippingAddress")</annotations>
+		</property>
+		<property name="shippingInfo"
+			type="java.util.List&lt;com.klarna.api.order_management.model.OrderManagementShippingInfo&gt;">
+			<annotations>@JsonProperty("shipping_info")</annotations>
+		</property>
+
+	</bean>
+
+	<bean
+		class="com.klarna.api.order_management.model.OrderManagementOrderLine">
+
+		<import
+			type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
+		<import type="com.fasterxml.jackson.annotation.JsonProperty" />
+
+		<property name="reference" type="String">
+			<annotations>@JsonProperty("reference")</annotations>
+		</property>
+		<property name="type" type="String">
+			<annotations>@JsonProperty("type")</annotations>
+		</property>
+		<property name="quantity" type="Long">
+			<annotations>@JsonProperty("quantity")</annotations>
+		</property>
+		<property name="quantityUnit" type="String">
+			<annotations>@JsonProperty("quantity_unit")</annotations>
+		</property>
+		<property name="name" type="String">
+			<annotations>@JsonProperty("name")</annotations>
+		</property>
+		<property name="totalAmount" type="Long">
+			<annotations>@JsonProperty("total_amount")</annotations>
+		</property>
+		<property name="unitPrice" type="Long">
+			<annotations>@JsonProperty("unit_price")</annotations>
+		</property>
+		<property name="totalDiscountAmount" type="Long">
+			<annotations>@JsonProperty("total_discount_amount")</annotations>
+		</property>
+		<property name="taxRate" type="Integer">
+			<annotations>@JsonProperty("tax_rate")</annotations>
+		</property>
+		<property name="totalTaxAmount" type="Long">
+			<annotations>@JsonProperty("total_tax_amount")</annotations>
+		</property>
+		<property name="merchantData" type="String">
+			<annotations>@JsonProperty("merchant_data")</annotations>
+		</property>
+		<property name="productUrl" type="String">
+			<annotations>@JsonProperty("product_url")</annotations>
+		</property>
+		<property name="imageUrl" type="String">
+			<annotations>@JsonProperty("image_url")</annotations>
+		</property>
+		<property name="productIdentifiers"
+			type="com.klarna.api.order_management.model.OrderManagementProductIdentifiers">
+			<annotations>@JsonProperty("product_identifiers")</annotations>
+		</property>
+
+	</bean>
+
+	<bean
+		class="com.klarna.api.order_management.model.OrderManagementProductIdentifiers">
+
+		<import
+			type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
+		<import type="com.fasterxml.jackson.annotation.JsonProperty" />
+
+		<property name="categoryPath" type="String">
+			<annotations>@JsonProperty("category_path")</annotations>
+		</property>
+		<property name="globalTradeItemNumber" type="String">
+			<annotations>@JsonProperty("global_trade_item_number")</annotations>
+		</property>
+		<property name="manufacturerPartNumber" type="String">
+			<annotations>@JsonProperty("manufacturer_part_number")</annotations>
+		</property>
+		<property name="brand" type="String">
+			<annotations>@JsonProperty("brand")</annotations>
+		</property>
+
+	</bean>
+
+	<bean
+		class="com.klarna.api.order_management.model.OrderManagementAddress">
+
+		<import
+			type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
+		<import type="com.fasterxml.jackson.annotation.JsonProperty" />
+
+		<property name="givenName" type="String">
+			<annotations>@JsonProperty("given_name")</annotations>
+		</property>
+		<property name="familyName" type="String">
+			<annotations>@JsonProperty("family_name")</annotations>
+		</property>
+		<property name="title" type="String">
+			<annotations>@JsonProperty("title")</annotations>
+		</property>
+		<property name="streetAddress" type="String">
+			<annotations>@JsonProperty("street_address")</annotations>
+		</property>
+		<property name="streetAddress2" type="String">
+			<annotations>@JsonProperty("street_address2")</annotations>
+		</property>
+		<property name="postalCode" type="String">
+			<annotations>@JsonProperty("postal_code")</annotations>
+		</property>
+		<property name="city" type="String">
+			<annotations>@JsonProperty("city")</annotations>
+		</property>
+		<property name="region" type="String">
+			<annotations>@JsonProperty("region")</annotations>
+		</property>
+		<property name="country" type="String">
+			<annotations>@JsonProperty("country")</annotations>
+		</property>
+		<property name="email" type="String">
+			<annotations>@JsonProperty("email")</annotations>
+		</property>
+		<property name="phone" type="String">
+			<annotations>@JsonProperty("phone")</annotations>
+		</property>
+
+	</bean>
+
+	<bean
+		class="com.klarna.api.order_management.model.OrderManagementShippingInfo">
+
+		<import
+			type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
+		<import type="com.fasterxml.jackson.annotation.JsonProperty" />
+
+		<property name="shippingCompany" type="String">
+			<annotations>@JsonProperty("shipping_company")</annotations>
+		</property>
+		<property name="shippingMethod" type="String">
+			<annotations>@JsonProperty("shipping_method")</annotations>
+		</property>
+		<property name="trackingNumber" type="String">
+			<annotations>@JsonProperty("tracking_number")</annotations>
+		</property>
+		<property name="trackingUri" type="String">
+			<annotations>@JsonProperty("tracking_uri")</annotations>
+		</property>
+		<property name="returnShippingCompany" type="String">
+			<annotations>@JsonProperty("return_shipping_company")</annotations>
+		</property>
+		<property name="returnTrackingNumber" type="String">
+			<annotations>@JsonProperty("return_tracking_number")</annotations>
+		</property>
+		<property name="returnTrackingUri" type="String">
+			<annotations>@JsonProperty("return_tracking_uri")</annotations>
+		</property>
+
+	</bean>
+
+	<bean
+		class="com.klarna.api.order_management.model.OrderManagementCaptureObject">
+
+		<import
+			type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
+		<import type="com.fasterxml.jackson.annotation.JsonProperty" />
+
+		<property name="capturedAmount" type="Long">
+			<annotations>@JsonProperty("captured_amount")</annotations>
+		</property>
+		<property name="description" type="String">
+			<annotations>@JsonProperty("description")</annotations>
+		</property>
+		<property name="reference" type="String">
+			<annotations>@JsonProperty("reference")</annotations>
+		</property>
+		<property name="orderLines"
+			type="java.util.List&lt;com.klarna.api.order_management.model.OrderManagementOrderLine&gt;">
+			<annotations>@JsonProperty("order_lines")</annotations>
+		</property>
+		<property name="shippingInfo"
+			type="java.util.List&lt;com.klarna.api.order_management.model.OrderManagementShippingInfo&gt;">
+			<annotations>@JsonProperty("shipping_info")</annotations>
+		</property>
+		<property name="shippingDelay" type="Long">
+			<annotations>@JsonProperty("shipping_delay")</annotations>
+		</property>
+
+	</bean>
+
+	<bean
+		class="com.klarna.api.order_management.model.OrderManagementUpdateShippingInfo">
+
+		<import
+			type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
+		<import type="com.fasterxml.jackson.annotation.JsonProperty" />
+
+		<property name="shippingInfo"
+			type="java.util.List&lt;com.klarna.api.order_management.model.OrderManagementShippingInfo&gt;">
+			<annotations>@JsonProperty("shipping_info")</annotations>
+		</property>
+
+	</bean>
+
+	<bean
+		class="com.klarna.api.order_management.model.OrderManagementOrder">
+
+		<import
+			type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
+		<import type="com.fasterxml.jackson.annotation.JsonProperty" />
+
+		<property name="orderId" type="String">
+			<annotations>@JsonProperty("order_id")</annotations>
+		</property>
+		<property name="status"
+			type="com.klarna.api.order_management.StatusEnum">
+			<annotations>@JsonProperty("status")</annotations>
+		</property>
+		<property name="fraudStatus" type="String">
+			<annotations>@JsonProperty("fraud_status")</annotations>
+		</property>
+		<property name="orderAmount" type="Long">
+			<annotations>@JsonProperty("order_amount")</annotations>
+		</property>
+		<property name="originalOrderAmount" type="Long">
+			<annotations>@JsonProperty("original_order_amount")</annotations>
+		</property>
+		<property name="capturedAmount" type="Long">
+			<annotations>@JsonProperty("captured_amount")</annotations>
+		</property>
+		<property name="refundedAmount" type="Long">
+			<annotations>@JsonProperty("refunded_amount")</annotations>
+		</property>
+		<property name="remainingAuthorizedAmount" type="Long">
+			<annotations>@JsonProperty("remaining_authorized_amount")</annotations>
+		</property>
+		<property name="purchaseCurrency" type="String">
+			<annotations>@JsonProperty("purchase_currency")</annotations>
+		</property>
+		<property name="locale" type="String">
+			<annotations>@JsonProperty("locale")</annotations>
+		</property>
+		<property name="orderLines"
+			type="java.util.List&lt;com.klarna.api.order_management.model.OrderManagementOrderLine&gt;">
+			<annotations>@JsonProperty("order_lines")</annotations>
+		</property>
+		<property name="merchantReference1" type="String">
+			<annotations>@JsonProperty("merchant_reference1")</annotations>
+		</property>
+		<property name="merchantReference2" type="String">
+			<annotations>@JsonProperty("merchant_reference2")</annotations>
+		</property>
+		<property name="klarnaReference" type="String">
+			<annotations>@JsonProperty("klarna_reference")</annotations>
+		</property>
+		<property name="customer"
+			type="com.klarna.api.order_management.OrderManagementCustomer">
+			<annotations>@JsonProperty("customer")</annotations>
+		</property>
+		<property name="billingAddress"
+			type="com.klarna.api.order_management.model.OrderManagementAddress">
+			<annotations>@JsonProperty("billing_address")</annotations>
+		</property>
+		<property name="shippingAddress"
+			type="com.klarna.api.order_management.model.OrderManagementAddress">
+			<annotations>@JsonProperty("shipping_address")</annotations>
+		</property>
+		<property name="createdAt" type="java.time.OffsetDateTime">
+			<annotations>@JsonProperty("created_at")</annotations>
+		</property>
+		<property name="purchaseCountry" type="String">
+			<annotations>@JsonProperty("purchase_country")</annotations>
+		</property>
+		<property name="expiresAt" type="java.time.OffsetDateTime">
+			<annotations>@JsonProperty("expires_at")</annotations>
+		</property>
+		<property name="captures"
+			type="java.util.List&lt;com.klarna.api.order_management.model.OrderManagementCapture&gt;">
+			<annotations>@JsonProperty("captures")</annotations>
+		</property>
+		<property name="refunds"
+			type="java.util.List&lt;com.klarna.api.order_management.model.OrderManagementRefund&gt;">
+			<annotations>@JsonProperty("refunds")</annotations>
+		</property>
+		<property name="merchantData" type="String">
+			<annotations>@JsonProperty("merchant_data")</annotations>
+		</property>
+		<property name="initialPaymentMethod"
+			type="com.klarna.api.order_management.model.OrderManagementInitialPaymentMethodDto">
+			<annotations>@JsonProperty("initial_payment_method")</annotations>
+		</property>
+
+	</bean>
+
+	<bean
+		class="com.klarna.api.order_management.OrderManagementCustomer">
+
+		<import
+			type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
+		<import type="com.fasterxml.jackson.annotation.JsonProperty" />
+
+		<property name="dateOfBirth" type="java.time.LocalDate">
+			<annotations>@JsonProperty("date_of_birth")</annotations>
+		</property>
+		<property name="nationalIdentificationNumber" type="String">
+			<annotations>@JsonProperty("national_identification_number")</annotations>
+		</property>
+
+	</bean>
+
+	<bean
+		class="com.klarna.api.order_management.model.OrderManagementRefund">
+
+		<import
+			type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
+		<import type="com.fasterxml.jackson.annotation.JsonProperty" />
+
+		<property name="refundId" type="String">
+			<annotations>@JsonProperty("refund_id")</annotations>
+		</property>
+		<property name="refundedAmount" type="Long">
+			<annotations>@JsonProperty("refunded_amount")</annotations>
+		</property>
+		<property name="refundedAt" type="java.time.OffsetDateTime">
+			<annotations>@JsonProperty("refunded_at")</annotations>
+		</property>
+		<property name="description" type="String">
+			<annotations>@JsonProperty("description")</annotations>
+		</property>
+		<property name="orderLines"
+			type="java.util.List&lt;com.klarna.api.order_management.model.OrderManagementOrderLine&gt;">
+			<annotations>@JsonProperty("order_lines")</annotations>
+		</property>
+
+	</bean>
+
+	<bean
+		class="com.klarna.api.order_management.model.OrderManagementInitialPaymentMethodDto">
+
+		<import
+			type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
+		<import type="com.fasterxml.jackson.annotation.JsonProperty" />
+
+		<property name="type"
+			type="com.klarna.api.order_management.model.TypeEnum">
+			<annotations>@JsonProperty("type")</annotations>
+		</property>
+		<property name="description" type="String">
+			<annotations>@JsonProperty("description")</annotations>
+		</property>
+		<property name="numberOfInstallments" type="Integer">
+			<annotations>@JsonProperty("number_of_installments")</annotations>
+		</property>
+
+	</bean>
+
+	<bean
+		class="com.klarna.api.order_management.model.OrderManagementUpdateAuthorization">
+
+		<import
+			type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
+		<import type="com.fasterxml.jackson.annotation.JsonProperty" />
+
+		<property name="orderAmount" type="Long">
+			<annotations>@JsonProperty("order_amount")</annotations>
+		</property>
+		<property name="description" type="String">
+			<annotations>@JsonProperty("description")</annotations>
+		</property>
+		<property name="orderLines"
+			type="java.util.List&lt;com.klarna.api.order_management.model.OrderManagementOrderLine&gt;">
+			<annotations>@JsonProperty("order_lines")</annotations>
+		</property>
+
+	</bean>
+
+	<bean
+		class="com.klarna.api.order_management.model.OrderManagementUpdateConsumer">
+
+		<import
+			type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
+		<import type="com.fasterxml.jackson.annotation.JsonProperty" />
+
+		<property name="shippingAddress"
+			type="com.klarna.api.order_management.model.OrderManagementAddress">
+			<annotations>@JsonProperty("shipping_address")</annotations>
+		</property>
+		<property name="billingAddress"
+			type="com.klarna.api.order_management.model.OrderManagementAddress">
+			<annotations>@JsonProperty("billing_address")</annotations>
+		</property>
+
+	</bean>
+
+	<bean
+		class="com.klarna.api.order_management.model.OrderManagementUpdateMerchantReferences">
+
+		<import
+			type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
+		<import type="com.fasterxml.jackson.annotation.JsonProperty" />
+
+		<property name="merchantReference1" type="String">
+			<annotations>@JsonProperty("merchant_reference1")</annotations>
+		</property>
+		<property name="merchantReference2" type="String">
+			<annotations>@JsonProperty("merchant_reference2")</annotations>
+		</property>
+
+	</bean>
+
+
+	<bean
+		class="com.klarna.api.order_management.model.OrderManagementRefundObject">
+
+		<import
+			type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
+		<import type="com.fasterxml.jackson.annotation.JsonProperty" />
+
+		<property name="refundedAmount" type="Long">
+			<annotations>@JsonProperty("refunded_amount")</annotations>
+		</property>
+		<property name="description" type="String">
+			<annotations>@JsonProperty("description")</annotations>
+		</property>
+		<property name="reference" type="String">
+			<annotations>@JsonProperty("reference")</annotations>
+		</property>
+		<property name="orderLines"
+			type="java.util.List&lt;com.klarna.api.order_management.model.OrderManagementOrderLine&gt;">
+			<annotations>@JsonProperty("order_lines")</annotations>
+		</property>
+
+	</bean>
+
+	<bean
+		class="com.klarna.api.checkout.model.emd.CustomerAccountInformation">
+		<property name="uniqueAccountIdentifier" type="String" />
+		<property name="accountRegistrationDate"
+			type="java.time.OffsetDateTime" />
+		<property name="accountLastModified"
+			type="java.time.OffsetDateTime" />
+	</bean>
+
+	<bean
+		class="com.klarna.api.checkout.model.emd.ExtraMerchantDataBody">
+		<property name="customerAccountInfo"
+			type="java.util.List&lt;com.klarna.api.checkout.model.emd.CustomerAccountInformation&gt;"></property>
+	</bean>
+
+	<bean
+		class="com.klarna.api.merchant_card_service.model.CardServiceSettlementRequest">
+
+		<import
+			type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
+		<import type="com.fasterxml.jackson.annotation.JsonProperty" />
+
 		<property name="promiseId" type="String">
-    			<annotations>@JsonProperty("promise_id")</annotations>
-    	</property>
-    	<property name="orderId" type="String">
-    			<annotations>@JsonProperty("order_id")</annotations>
-    	</property>
-    	<property name="cards" type="java.util.List&lt;com.klarna.api.merchant_card_service.model.CardServiceCard&gt;">
-    			<annotations>@JsonProperty("cards")</annotations>
-    	</property>
-    	<property name="createdAt" type="String">
-    			<annotations>@JsonProperty("created_at")</annotations>
-    	</property>
-    	<property name="expiresAt" type="String">
-    			<annotations>@JsonProperty("expires_at")</annotations>
-    	</property>
-    	
+			<annotations>@JsonProperty("promise_id")</annotations>
+		</property>
+		<property name="orderId" type="String">
+			<annotations>@JsonProperty("order_id")</annotations>
+		</property>
+		<property name="keyId" type="String">
+			<annotations>@JsonProperty("key_id")</annotations>
+		</property>
+
 	</bean>
-	
-	<bean class="com.klarna.api.merchant_card_service.model.CardServiceCard">
-	
+
+	<bean
+		class="com.klarna.api.merchant_card_service.model.CardServiceSettlementResponse">
+
+		<import
+			type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
+		<import type="com.fasterxml.jackson.annotation.JsonProperty" />
+
+		<property name="settlementId" type="String">
+			<annotations>@JsonProperty("settlement_id")</annotations>
+		</property>
+		<property name="promiseId" type="String">
+			<annotations>@JsonProperty("promise_id")</annotations>
+		</property>
+		<property name="orderId" type="String">
+			<annotations>@JsonProperty("order_id")</annotations>
+		</property>
+		<property name="cards"
+			type="java.util.List&lt;com.klarna.api.merchant_card_service.model.CardServiceCard&gt;">
+			<annotations>@JsonProperty("cards")</annotations>
+		</property>
+		<property name="createdAt" type="String">
+			<annotations>@JsonProperty("created_at")</annotations>
+		</property>
+		<property name="expiresAt" type="String">
+			<annotations>@JsonProperty("expires_at")</annotations>
+		</property>
+
+	</bean>
+
+	<bean
+		class="com.klarna.api.merchant_card_service.model.CardServiceCard">
+
+		<import
+			type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
+		<import type="com.fasterxml.jackson.annotation.JsonProperty" />
+
+		<property name="reference" type="String">
+			<annotations>@JsonProperty("reference")</annotations>
+		</property>
+		<property name="cardId" type="String">
+			<annotations>@JsonProperty("card_id")</annotations>
+		</property>
+		<property name="amount" type="Long">
+			<annotations>@JsonProperty("amount")</annotations>
+		</property>
+		<property name="currency" type="String">
+			<annotations>@JsonProperty("currency")</annotations>
+		</property>
+		<property name="pciData" type="String">
+			<annotations>@JsonProperty("pci_data")</annotations>
+		</property>
+		<property name="iv" type="String">
+			<annotations>@JsonProperty("iv")</annotations>
+		</property>
+		<property name="aesKey" type="String">
+			<annotations>@JsonProperty("aes_key")</annotations>
+		</property>
+		<property name="brand" type="String">
+			<annotations>@JsonProperty("brand")</annotations>
+		</property>
+		<property name="holder" type="String">
+			<annotations>@JsonProperty("holder")</annotations>
+		</property>
+
+	</bean>
+
+	<bean
+		class="com.klarna.api.expcheckout.model.KlarnaExpCheckoutAuthorizationResponse">
+
+		<import
+			type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
+		<import type="com.fasterxml.jackson.annotation.JsonProperty" />
+
+		<property name="clientToken" type="String">
+			<annotations>@JsonProperty("client_token")</annotations>
+		</property>
+		<property name="finalizeRequired" type="Boolean">
+			<annotations>@JsonProperty("finalize_required")</annotations>
+		</property>
+		<property name="collectedShippingAddress"
+			type="com.klarna.api.payments.model.PaymentsAddress">
+			<annotations>@JsonProperty("collected_shipping_address")</annotations>
+		</property>
+
+	</bean>
+
+	<bean
+		class="com.klarna.api.expcheckout.model.KlarnaExpCheckoutAuthCallbackRequest">
+		<import
+			type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
+		<import type="com.fasterxml.jackson.annotation.JsonProperty" />
+		<property name="authorizationToken" type="String">
+			<annotations>@JsonProperty("authorization_token")</annotations>
+		</property>
+		<property name="sessionId" type="String">
+			<annotations>@JsonProperty("session_id")</annotations>
+		</property>
+		<property name="merchantReference1" type="String">
+			<annotations>@JsonProperty("merchant_reference1")</annotations>
+		</property>
+	</bean>
+
+	<bean class="com.klarna.api.signin.model.KlarnaSigninResponse">
+		<import
+			type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
+		<import type="com.fasterxml.jackson.annotation.JsonProperty" />
+		<property name="userAccountProfile"
+			type="com.klarna.api.signin.model.KlarnaSigninUserAccountProfile">
+			<annotations>@JsonProperty("user_account_profile")</annotations>
+		</property>
+		<property name="userAccountLinking"
+			type="com.klarna.api.signin.model.KlarnaSigninUserAccountLinking">
+			<annotations>@JsonProperty("user_account_linking")</annotations>
+		</property>
+	</bean>
+	<bean
+		class="com.klarna.api.signin.model.KlarnaSigninUserAccountProfile">
+		<import
+			type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
+		<import type="com.fasterxml.jackson.annotation.JsonProperty" />
+		<property name="userId" type="String">
+			<annotations>@JsonProperty("user_id")</annotations>
+		</property>
+		<property name="givenName" type="String">
+			<annotations>@JsonProperty("given_name")</annotations>
+		</property>
+		<property name="familyName" type="String">
+			<annotations>@JsonProperty("family_name")</annotations>
+		</property>
+		<property name="email" type="String">
+			<annotations>@JsonProperty("email")</annotations>
+		</property>
+		<property name="emailVerified" type="Boolean">
+			<annotations>@JsonProperty("email_verified")</annotations>
+		</property>
+		<property name="phone" type="String">
+			<annotations>@JsonProperty("phone")</annotations>
+		</property>
+		<property name="phoneVerified" type="Boolean">
+			<annotations>@JsonProperty("phone_verified")</annotations>
+		</property>
+		<property name="nationalId" type="String">
+			<annotations>@JsonProperty("national_id")</annotations>
+		</property>
+		<property name="billingAddress"
+			type="com.klarna.api.payments.model.PaymentsAddress">
+			<annotations>@JsonProperty("billing_address")</annotations>
+		</property>
+	</bean>
+	<bean
+		class="com.klarna.api.signin.model.KlarnaSigninUserAccountLinking">
+		<import
+			type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
+		<import type="com.fasterxml.jackson.annotation.JsonProperty" />
+		<property name="userAccountLinkingRefreshToken" type="String">
+			<annotations>@JsonProperty("user_account_linking_refresh_token")</annotations>
+		</property>
+		<property name="userAccountLinkingIdToken" type="String">
+			<annotations>@JsonProperty("user_account_linking_id_token")</annotations>
+		</property>
+	</bean>
+	<bean class="com.klarna.api.signin.model.KlarnaSigninTokenRequest">
+		<import
+			type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
+		<import type="com.fasterxml.jackson.annotation.JsonProperty" />
+		<property name="refreshToken" type="String">
+			<annotations>@JsonProperty("refresh_token")</annotations>
+		</property>
+		<property name="clientId" type="String">
+			<annotations>@JsonProperty("client_id")</annotations>
+		</property>
+		<property name="grantType" type="String">
+			<annotations>@JsonProperty("grant_type")</annotations>
+		</property>
+	</bean>
+	<bean
+		class="com.klarna.api.signin.model.KlarnaSigninTokenResponse">
+		<import
+			type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
+		<import type="com.fasterxml.jackson.annotation.JsonProperty" />
+		<property name="refreshToken" type="String">
+			<annotations>@JsonProperty("refresh_token")</annotations>
+		</property>
+		<property name="accessToken" type="String">
+			<annotations>@JsonProperty("access_token")</annotations>
+		</property>
+		<property name="idToken" type="String">
+			<annotations>@JsonProperty("id_token")</annotations>
+		</property>
+		<property name="tokenType" type="String">
+			<annotations>@JsonProperty("token_type")</annotations>
+		</property>
+		<property name="expiresIn" type="Long">
+			<annotations>@JsonProperty("expires_in")</annotations>
+		</property>
+	</bean>
+
+	<!-- Shopping Session API - SupplementaryPurchaseData -->
+	<bean class="com.klarna.api.shoppingdata.model.ShoppingCreateSessionRequest">
 		<import type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
-	    <import type="com.fasterxml.jackson.annotation.JsonProperty" />
-    
-    	<property name="reference" type="String">
-    			<annotations>@JsonProperty("reference")</annotations>
-    	</property>
-    	<property name="cardId" type="String">
-    			<annotations>@JsonProperty("card_id")</annotations>
-    	</property>
-    	<property name="amount" type="Long">
-    			<annotations>@JsonProperty("amount")</annotations>
-    	</property>
-    	<property name="currency" type="String">
-    			<annotations>@JsonProperty("currency")</annotations>
-    	</property>
-    	<property name="pciData" type="String">
-    			<annotations>@JsonProperty("pci_data")</annotations>
-    	</property>
-    	<property name="iv" type="String">
-    			<annotations>@JsonProperty("iv")</annotations>
-    	</property>
-    	<property name="aesKey" type="String">
-    			<annotations>@JsonProperty("aes_key")</annotations>
-    	</property>
-    	<property name="brand" type="String">
-    			<annotations>@JsonProperty("brand")</annotations>
-    	</property>
-    	<property name="holder" type="String">
-    			<annotations>@JsonProperty("holder")</annotations>
-    	</property>
-	
+		<import type="com.fasterxml.jackson.annotation.JsonProperty" />
+
+		<property name="supplementaryPurchaseData" type="com.klarna.api.shoppingdata.model.SupplementaryPurchaseData">
+			<annotations>@JsonProperty("supplementary_purchase_data")</annotations>
+		</property>
 	</bean>
-	
-	<bean class="com.klarna.api.expcheckout.model.KlarnaExpCheckoutAuthorizationResponse">
-	
+
+	<bean class="com.klarna.api.shoppingdata.model.SupplementaryPurchaseData">
 		<import type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
-	    <import type="com.fasterxml.jackson.annotation.JsonProperty" />
-	    
-    	<property name="clientToken" type="String">
-    			<annotations>@JsonProperty("client_token")</annotations>
-    	</property>
-    	<property name="finalizeRequired" type="Boolean">
-    	    	<annotations>@JsonProperty("finalize_required")</annotations>
-    	</property>
-    	<property name="collectedShippingAddress" type="com.klarna.api.payments.model.PaymentsAddress">
-    	    	<annotations>@JsonProperty("collected_shipping_address")</annotations>
-    	</property>
-	
+		<import type="com.fasterxml.jackson.annotation.JsonProperty" />
+
+		<property name="merchantReferences" type="java.util.List&lt;String&gt;">
+			<annotations>@JsonProperty("merchant_references")</annotations>
+		</property>
+		<property name="contentType" type="String">
+			<annotations>@JsonProperty("content_type")</annotations>
+		</property>
+		<property name="content" type="com.klarna.api.shoppingdata.model.ShoppingDataContent">
+			<annotations>@JsonProperty("content")</annotations>
+		</property>
 	</bean>
-	
-	<bean class="com.klarna.api.expcheckout.model.KlarnaExpCheckoutAuthCallbackRequest">
-	
+
+	<bean class="com.klarna.api.shoppingdata.model.ShoppingDataContent">
 		<import type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
-	    <import type="com.fasterxml.jackson.annotation.JsonProperty" />
-	    
-    	<property name="authorizationToken" type="String">
-    	    	<annotations>@JsonProperty("authorization_token")</annotations>
-    	</property>
-    	<property name="sessionId" type="String">
-    			<annotations>@JsonProperty("session_id")</annotations>
-    	</property>
-    	<property name="merchantReference1" type="String">
-    			<annotations>@JsonProperty("merchant_reference1")</annotations>
-    	</property>
-	
+		<import type="com.fasterxml.jackson.annotation.JsonProperty" />
+
+		<property name="acquiringChannel" type="String">
+			<annotations>@JsonProperty("acquiring_channel")</annotations>
+		</property>
+		<property name="merchantReference" type="String">
+			<annotations>@JsonProperty("merchant_reference")</annotations>
+		</property>
+		<property name="lineItems" type="java.util.List&lt;com.klarna.api.shoppingdata.model.ShoppingDataLine&gt;">
+			<annotations>@JsonProperty("line_items")</annotations>
+		</property>
+		<property name="shipping" type="com.klarna.api.shoppingdata.model.ShippingData">
+			<annotations>@JsonProperty("shipping")</annotations>
+		</property>
+		<property name="buyer" type="String">
+			<annotations>@JsonProperty("buyer")</annotations>
+		</property>
+		<property name="subscriptions" type="java.util.List&lt;String&gt;">
+			<annotations>@JsonProperty("subscriptions")</annotations>
+		</property>
+		<property name="ondemand" type="String">
+			<annotations>@JsonProperty("ondemand")</annotations>
+		</property>
 	</bean>
+
+	<bean class="com.klarna.api.shoppingdata.model.ShoppingDataLine">
+		<import type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
+		<import type="com.fasterxml.jackson.annotation.JsonProperty" />
+
+		<property name="name" type="String">
+			<annotations>@JsonProperty("name")</annotations>
+		</property>
+		<property name="quantity" type="Long">
+			<annotations>@JsonProperty("quantity")</annotations>
+		</property>
+		<property name="totalAmount" type="Long">
+			<annotations>@JsonProperty("total_amount")</annotations>
+		</property>
+		<property name="totalTaxAmount" type="Long">
+			<annotations>@JsonProperty("total_tax_amount")</annotations>
+		</property>
+		<property name="unitPrice" type="Long">
+			<annotations>@JsonProperty("unit_price")</annotations>
+		</property>
+		<property name="productUrl" type="String">
+			<annotations>@JsonProperty("product_url")</annotations>
+		</property>
+		<property name="imageUrl" type="String">
+			<annotations>@JsonProperty("image_url")</annotations>
+		</property>
+		<property name="productIdentifier" type="String">
+			<annotations>@JsonProperty("product_identifier")</annotations>
+		</property>
+		<property name="reference" type="String">
+			<annotations>@JsonProperty("reference")</annotations>
+		</property>
+		<property name="shippingReference" type="String">
+			<annotations>@JsonProperty("shipping_reference")</annotations>
+		</property>
+	</bean>
+
+	<bean class="com.klarna.api.shoppingdata.model.ShippingData">
+		<import type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
+		<import type="com.fasterxml.jackson.annotation.JsonProperty" />
+		<property name="address" type="com.klarna.api.payments.model.PaymentsAddress">
+			<annotations>@JsonProperty("address")</annotations>
+		</property>
+		<property name="recipient" type="com.klarna.api.payments.model.PaymentsAddress">
+			<annotations>@JsonProperty("recipient")</annotations>
+		</property>
+		<property name="shippingOption" type="com.klarna.api.shoppingdata.model.ShippingOption">
+			<annotations>@JsonProperty("shipping_option")</annotations>
+		</property>
+		<property name="shippingReference" type="String">
+			<annotations>@JsonProperty("shipping_reference")</annotations>
+		</property>
+	</bean>
+	
+	<bean class="com.klarna.api.shoppingdata.model.ShippingOption">
+		<import type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
+		<import type="com.fasterxml.jackson.annotation.JsonProperty" />
+		<property name="shippingTypeAttributes" type="java.util.List&lt;String&gt;">
+			<annotations>@JsonProperty("shipping_type_attributes")</annotations>
+		</property>
+		<property name="shippingType" type="String">
+			<annotations>@JsonProperty("shipping_type")</annotations>
+		</property>
+		<property name="shippingCarrier" type="String">
+			<annotations>@JsonProperty("shipping_carrier")</annotations>
+		</property>
+	</bean>
+	
+	<bean class="com.klarna.api.shoppingdata.model.ShoppingCreateSessionResponse">
+		<import type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
+		<import type="com.fasterxml.jackson.annotation.JsonProperty" />
+		<property name="shoppingSessionId" type="String">
+			<annotations>@JsonProperty("shopping_session_id")</annotations>
+		</property>
+		<property name="createdAt" type="java.time.OffsetDateTime">
+			<annotations>@JsonProperty("created_at")</annotations>
+		</property>
+		<property name="expiresAt" type="java.time.OffsetDateTime">
+			<annotations>@JsonProperty("expires_at")</annotations>
+		</property>
+	</bean>
+	
 	
 </beans>

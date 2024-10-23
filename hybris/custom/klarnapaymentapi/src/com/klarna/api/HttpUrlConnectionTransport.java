@@ -131,6 +131,11 @@ public class HttpUrlConnectionTransport implements HttpTransport
 
 	}
 
+	public HttpUrlConnectionTransport(final URI baseUri)
+	{
+		this.baseUri = baseUri;
+	}
+
 	/**
 	 * Sends HTTP GET request to specified path.
 	 *
@@ -399,6 +404,47 @@ public class HttpUrlConnectionTransport implements HttpTransport
 		conn.setReadTimeout(this.timeout);
 
 		this.authorize(conn);
+
+		if (headers != null)
+		{
+			for (final String key : headers.keySet())
+			{
+				conn.setRequestProperty(key, headers.get(key));
+			}
+		}
+
+		return conn;
+	}
+
+	public ApiResponse postRequest(final String path, final byte[] data, final Map<String, String> headers)
+			throws ApiException, IOException
+	{
+		final HttpURLConnection conn = this.buildConnectionWithoutAuthorize(path, headers);
+		conn.setRequestMethod("POST");
+
+		return this.makeRequest(conn, data);
+	}
+
+	protected HttpURLConnection buildConnectionWithoutAuthorize(final String path, final Map<String, String> headers)
+			throws IOException
+	{
+		final URL url = this.buildPath(path);
+
+		HttpURLConnection conn;
+		if (this.proxy != null)
+		{
+			conn = (HttpURLConnection) url.openConnection(this.proxy);
+		}
+		else
+		{
+			conn = (HttpURLConnection) url.openConnection();
+		}
+
+		//conn.setRequestProperty("Content-Type", DEFAULT_MEDIA_TYPE);
+		//conn.setRequestProperty("User-Agent", this.userAgent);
+		conn.setConnectTimeout(this.timeout);
+		conn.setReadTimeout(this.timeout);
+		conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
 
 		if (headers != null)
 		{

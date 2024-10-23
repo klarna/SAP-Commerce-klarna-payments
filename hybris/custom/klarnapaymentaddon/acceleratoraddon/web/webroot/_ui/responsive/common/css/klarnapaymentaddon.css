@@ -25,3 +25,7 @@
     top: 30px;
   }
 }
+.y-tree-icon-Klarna{
+	max-height : 20px;
+	background-image: url("https://upload.wikimedia.org/wikipedia/commons/4/40/Klarna_Payment_Badge.svg");
+}
