@@ -18,8 +18,8 @@ import java.util.List;
 
 import com.klarna.data.KlarnaKECConfigData;
 import com.klarna.model.KlarnaKECConfigModel;
-import com.klarna.payment.enums.KlarnaButtonShape;
-import com.klarna.payment.enums.KlarnaButtonTheme;
+import com.klarna.payment.constants.GeneratedKlarnapaymentConstants.Enumerations.KlarnaButtonShape;
+import com.klarna.payment.constants.GeneratedKlarnapaymentConstants.Enumerations.KlarnaButtonTheme;
 import com.klarna.payment.enums.KlarnaKECPlacement;
 
 
