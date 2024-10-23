@@ -75,7 +75,6 @@ import com.klarna.payment.services.KPOrderService;
 import com.klarna.payment.services.KPPaymentInfoService;
 import com.klarna.payment.services.KPTitleService;
 import com.klarna.payment.util.KlarnaConversionUtils;
-import com.klarna.payment.util.LogHelper;
 
 
 public class DefaultKPPaymentCheckoutFacade implements KPPaymentCheckoutFacade
@@ -424,7 +423,6 @@ public class DefaultKPPaymentCheckoutFacade implements KPPaymentCheckoutFacade
 	@Override
 	public void saveKlarnaOrderId(final PaymentsOrder authorizationResponse) throws ApiException, IOException
 	{
-		LogHelper.debugLog(LOG, "Entering saveKlarnaOderID");
 		final CartModel cartModel = getCartService().getSessionCart();
 		if (cartModel != null)
 		{
@@ -468,7 +466,6 @@ public class DefaultKPPaymentCheckoutFacade implements KPPaymentCheckoutFacade
 				if (klarnaConfig.getCredential() != null && BooleanUtils.isTrue(klarnaConfig.getCredential().getVcnEnabled()))
 				{
 					final String vcnKey = klarnaConfig.getCredential().getVcnKey();
-					LogHelper.debugLog(LOG, "Going for handle settlement");
 					handleSettlement(cartModel, vcnKey);
 
 				}
@@ -478,8 +475,6 @@ public class DefaultKPPaymentCheckoutFacade implements KPPaymentCheckoutFacade
 			}
 			getModelService().save(cartModel);
 			getCartService().setSessionCart(cartModel);
-			LogHelper.debugLog(LOG, "Saved Klarna Order ID");
-
 		}
 	}
 
@@ -512,11 +507,7 @@ public class DefaultKPPaymentCheckoutFacade implements KPPaymentCheckoutFacade
 
 	public void handleSettlement(final CartModel cartModel, final String vcnKey) throws ApiException, IOException
 	{
-		LogHelper.debugLog(LOG, "Entering handleSettlement");
 		final KPPaymentInfoModel klarnaPaymentInfo = (KPPaymentInfoModel) cartModel.getPaymentInfo();
-
-
-		LogHelper.debugLog(LOG, "VCN Eanabled");
 		klarnaPaymentInfo.setIsVCNUsed(Boolean.TRUE);
 		final CardServiceSettlementRequest settlementData = new CardServiceSettlementRequest();
 		settlementData.setOrderId(cartModel.getKpOrderId());
@@ -533,10 +524,7 @@ public class DefaultKPPaymentCheckoutFacade implements KPPaymentCheckoutFacade
 			klarnaPaymentInfo.setKpVCNIV(cardData.getIv());
 			klarnaPaymentInfo.setKpVCNAESKey(cardData.getAesKey());
 			klarnaPaymentInfo.setKpVCNCardID(cardData.getCardId());
-
-
 			getModelService().saveAll();
-			LogHelper.debugLog(LOG, "VCN data Saved");
 		}
 		catch (final Exception e)
 		{
@@ -558,7 +546,6 @@ public class DefaultKPPaymentCheckoutFacade implements KPPaymentCheckoutFacade
 	@Override
 	public boolean isCartSynchronization(final CartData cartData, final OrderManagementOrder orderData)
 	{
-		LogHelper.debugLog(LOG, "Entering isCartSynchronization");
 		final BigDecimal totalPrice = cartData.isNet() ? cartData.getTotalPriceWithTax().getValue()
 				: cartData.getTotalPrice().getValue();
 		if (!KlarnaConversionUtils
@@ -566,7 +553,10 @@ public class DefaultKPPaymentCheckoutFacade implements KPPaymentCheckoutFacade
 						kpCurrencyConversionService.convertToPurchaseCurrencyPrice(Double.valueOf(totalPrice.doubleValue())))
 				.equals(orderData.getOrderAmount()))
 		{
-			LogHelper.debugLog(LOG, "Cart is not In Synch");
+			if (LOG.isWarnEnabled())
+			{
+				LOG.warn("Cart is not In Synch");
+			}
 			return false;
 		}
 		final HashMap<String, Long> productMap = new HashMap<String, Long>();
@@ -582,11 +572,13 @@ public class DefaultKPPaymentCheckoutFacade implements KPPaymentCheckoutFacade
 			if (!(productMap.containsKey(orderEntry.getProduct().getCode())
 					&& productMap.get(orderEntry.getProduct().getCode()).equals(orderEntry.getQuantity())))
 			{
-				LogHelper.debugLog(LOG, "Cart is not In Synch");
+				if (LOG.isWarnEnabled())
+				{
+					LOG.warn("Cart is not In Synch");
+				}
 				return false;
 			}
 		}
-		LogHelper.debugLog(LOG, "Cart is Synch");
 		return true;
 	}
 
@@ -610,22 +602,11 @@ public class DefaultKPPaymentCheckoutFacade implements KPPaymentCheckoutFacade
 			kpPaymentInfo.setPaymentOption(paymentOption);
 			kpPaymentInfo.setFinalizeRequired(finalizeRequired);
 		}
-		
+
 		// Auth Token to be set freshly
 		if(authorizationToken != null && !StringUtils.equals(authorizationToken, kpPaymentInfo.getAuthToken())) {
 			kpPaymentInfo.setAuthToken(authorizationToken);
 		}
-		if(LOG.isDebugEnabled())
-		{
-			if( paymentOption ==  null) {
-				LogHelper.debugLog(LOG,"Auth Callback :: Auth Token for cart"+cart.getCode()+" is :: "+authorizationToken);
-			}
-			else
-			{
-				LogHelper.debugLog(LOG,"Save Auth JS response :: Auth Token for cart"+cart.getCode()+" is :: "+authorizationToken);
-			}
-		}
-		
 		cart.setPaymentInfo(kpPaymentInfo);
 		if (getUserService().isAnonymousUser(getUserService().getCurrentUser()))
 		{

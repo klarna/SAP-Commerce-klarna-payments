@@ -31,7 +31,6 @@ import com.klarna.payment.facades.KPPaymentCheckoutFacade;
 import com.klarna.payment.facades.KPPaymentFacade;
 import com.klarna.payment.model.KPPaymentInfoModel;
 import com.klarna.payment.util.KlarnaDateFormatterUtil;
-import com.klarna.payment.util.LogHelper;
 import com.klarnapayment.forms.KPAddressForm;
 
 
@@ -56,13 +55,10 @@ public class KPPaymentController extends AbstractPageController
 
 
 	@RequestMapping(value = "/session", method = RequestMethod.GET, produces = "application/json")
-
 	@RequireHardLogIn
-
 	@ResponseBody
 	public String createSession(final HttpSession httpSession) throws ApiException, IOException
 	{
-		LogHelper.debugLog(LOG, "Entering create Session Call");
 		httpSession.removeAttribute("sessionId");
 		final PaymentsSession creditSessionData = kpPaymentFacade.getORcreateORUpdateSession(httpSession, null, false, false);
 
@@ -78,19 +74,15 @@ public class KPPaymentController extends AbstractPageController
 	public PaymentsSession updateSession(@RequestBody
 	final KPAddressForm billingAddress, final HttpSession httpSession) throws JsonProcessingException
 	{
-
-		LogHelper.debugLog(LOG, "Entering update Session Call");
 		PaymentsSession creditSessionData = null;
 		try
 		{
 			creditSessionData = kpPaymentFacade.getORcreateORUpdateSession(httpSession, getBillingAddressData(billingAddress), true,
 					true);
-
 		}
 		catch (final ApiException | IOException ex)
 		{
 			LOG.error("Couldn't authorize klarnaPayment :: " + ex.getMessage());
-
 		}
 		return creditSessionData;
 	}
@@ -110,14 +102,12 @@ public class KPPaymentController extends AbstractPageController
 
 		if (StringUtils.isNotEmpty(billingAddress.getCountry()))
 		{
-
 			addressData.setCountry(i18NFacade.getCountryForIsocode(billingAddress.getCountry()));
 			if (StringUtils.isNotEmpty(billingAddress.getRegion()))
 			{
 				final String regionIso = billingAddress.getCountry() + "-" + billingAddress.getRegion();
 				addressData.setRegion(i18NFacade.getRegion(billingAddress.getCountry(), regionIso));
 			}
-
 		}
 
 		addressData.setLine1(billingAddress.getStreetAddress());
@@ -147,9 +137,7 @@ public class KPPaymentController extends AbstractPageController
 	final String paymentOption, @RequestParam("finalizeRequired")
 	final Boolean finalizeRequired)
 	{
-		LogHelper.debugLog(LOG, "Going to save Authorization");
 		kpPaymentCheckoutFacade.saveAuthorization(authorizationToken, paymentOption, finalizeRequired);
-
 		//Create payment transaction
 		kpPaymentFacade.createPaymentTransaction();
 		return "success";
@@ -162,7 +150,6 @@ public class KPPaymentController extends AbstractPageController
 	{
 		try
 		{
-			LogHelper.debugLog(LOG, "Going to Cancel Authorization");
 			CartModel cart = cartService.getSessionCart();
 			if (cart.getPaymentInfo() instanceof KPPaymentInfoModel)
 			{
@@ -181,7 +168,6 @@ public class KPPaymentController extends AbstractPageController
 		{
 			LOG.error(e.getMessage());
 		}
-
 		return "success";
 	}
 

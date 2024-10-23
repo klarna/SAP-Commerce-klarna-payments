@@ -17,8 +17,6 @@ import de.hybris.platform.servicelayer.dto.converter.ConversionException;
 
 import javax.annotation.Resource;
 
-import org.apache.log4j.Logger;
-
 import com.klarna.data.KlarnaCredentialData;
 import com.klarna.model.KlarnaCredentialModel;
 import com.klarna.payment.constants.KlarnapaymentConstants;
@@ -30,8 +28,6 @@ import com.microsoft.sqlserver.jdbc.StringUtils;
  */
 public class KlarnaCredentialPopulator implements Populator<KlarnaCredentialModel, KlarnaCredentialData>
 {
-
-	private static Logger LOG = Logger.getLogger(KlarnaCredentialPopulator.class);
 
 	@Resource(name = "siteConfigService")
 	private SiteConfigService siteConfigService;

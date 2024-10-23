@@ -22,7 +22,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -80,8 +79,6 @@ public class KPOrderConfirmationController
 
 	private static final String IS_KLARNA_EXP_CHECKOUT_SESSION = "isKlarnaExpCheckoutSession";
 	private static final String CLIENT_TOKEN = "clientToken";
-
-	Logger LOG = Logger.getLogger(KPOrderConfirmationController.class);
 
 	/**
 	 * @return the sessionService
@@ -149,11 +146,7 @@ public class KPOrderConfirmationController
 			httpSession.removeAttribute(CLIENTTOKEN);
 			if(hybrisOrderId != null)
 			{
-				LOG.debug("Before  restore --- session cart details " + cartService.getSessionCart() + " cartService.hasSessionCart() "
-						+ cartService.hasSessionCart());
 				cartRestorationStrategy.restoreCart(request);
-				LOG.debug("After  restore --- session cart details " + cartService.getSessionCart() + " cartService.hasSessionCart() "
-						+ cartService.hasSessionCart());
 			}
 		}
 		catch (Exception e)

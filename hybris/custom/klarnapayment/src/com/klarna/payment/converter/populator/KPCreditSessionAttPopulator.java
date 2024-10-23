@@ -26,7 +26,6 @@ import com.klarna.api.payments.model.PaymentsSession;
 import com.klarna.data.KlarnaConfigData;
 import com.klarna.payment.facades.KPCustomerFacade;
 import com.klarna.payment.facades.KlarnaConfigFacade;
-import com.klarna.payment.util.LogHelper;
 
 
 public class KPCreditSessionAttPopulator implements Populator<AbstractOrderModel, PaymentsSession>
@@ -132,7 +131,6 @@ public class KPCreditSessionAttPopulator implements Populator<AbstractOrderModel
 	@Override
 	public void populate(final AbstractOrderModel source, final PaymentsSession target) throws ConversionException
 	{
-		LogHelper.debugLog(LOG, "inside full populator");
 		Assert.notNull(source, "Parameter source cannot be null.");
 		Assert.notNull(target, "Parameter target cannot be null.");
 		final KlarnaConfigData klarnaConfig = klarnaConfigFacade.getKlarnaConfig();
@@ -146,7 +144,6 @@ public class KPCreditSessionAttPopulator implements Populator<AbstractOrderModel
 		if (klarnaConfig != null && klarnaConfig.getKpConfig() != null
 				&& Boolean.TRUE.equals(klarnaConfig.getKpConfig().getSendEMD()))
 		{
-			LogHelper.debugLog(LOG, "inside attachemnt creation");
 			final CustomerAccountInformation customerAccountInformation = new CustomerAccountInformation();
 
 			if (!kpCustomerFacade.isAnonymousCheckout())
@@ -175,7 +172,6 @@ public class KPCreditSessionAttPopulator implements Populator<AbstractOrderModel
 				}
 				catch (final JsonProcessingException e1)
 				{
-					// YTODO Auto-generated catch block
 					LOG.error(e1);
 				}
 				target.setAttachment(paymentsAttachment);

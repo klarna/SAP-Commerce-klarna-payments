@@ -16,12 +16,10 @@ import de.hybris.platform.servicelayer.dto.converter.ConversionException;
 
 import java.util.List;
 
-import org.apache.log4j.Logger;
-
 import com.klarna.data.KlarnaKECConfigData;
 import com.klarna.model.KlarnaKECConfigModel;
-import com.klarna.payment.constants.GeneratedKlarnapaymentConstants.Enumerations.KlarnaButtonShape;
-import com.klarna.payment.constants.GeneratedKlarnapaymentConstants.Enumerations.KlarnaButtonTheme;
+import com.klarna.payment.enums.KlarnaButtonShape;
+import com.klarna.payment.enums.KlarnaButtonTheme;
 import com.klarna.payment.enums.KlarnaKECPlacement;
 
 
@@ -30,8 +28,6 @@ import com.klarna.payment.enums.KlarnaKECPlacement;
  */
 public class KlarnaKECConfigPopulator implements Populator<KlarnaKECConfigModel, KlarnaKECConfigData>
 {
-	private static Logger LOG = Logger.getLogger(KlarnaKECConfigPopulator.class);
-
 	@Override
 	public void populate(final KlarnaKECConfigModel source, final KlarnaKECConfigData target) throws ConversionException
 	{

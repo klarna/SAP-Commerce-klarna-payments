@@ -22,7 +22,6 @@ import javax.annotation.Resource;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
 
 import com.klarna.data.KlarnaConfigData;
 import com.klarna.data.KlarnaCredentialData;
@@ -46,7 +45,6 @@ import com.klarna.payment.constants.KlarnapaymentConstants;
  */
 public class KlarnaConfigPopulator implements Populator<KlarnaConfigModel, KlarnaConfigData>
 {
-	private static Logger LOG = Logger.getLogger(KlarnaConfigPopulator.class);
 	private Converter klarnaCredentialConverter;
 	private Converter klarnaKPConfigConverter;
 	private Converter klarnaKECConfigConverter;
@@ -93,13 +91,11 @@ public class KlarnaConfigPopulator implements Populator<KlarnaConfigModel, Klarn
 			}
 
 			final KlarnaKOSMConfigModel klarnaKOSMConfigModel = source.getOsmConfig();
-			LOG.debug("klarnaKOSMConfigModel "+klarnaKOSMConfigModel);
 			if (klarnaKOSMConfigModel != null && Boolean.TRUE == klarnaKOSMConfigModel.getActive())
 			{
 				final KlarnaKOSMConfigData osmConfigData = new KlarnaKOSMConfigData();
 				klarnaKOSMConfigConverter.convert(klarnaKOSMConfigModel, osmConfigData);
 				target.setOsmConfig(osmConfigData);
-				LOG.debug("osmConfigData "+osmConfigData);
 			}
 		}
 		else

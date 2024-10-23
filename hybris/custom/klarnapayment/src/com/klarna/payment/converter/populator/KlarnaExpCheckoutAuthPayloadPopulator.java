@@ -46,7 +46,6 @@ import com.klarna.api.payments.model.PaymentsSession;
 import com.klarna.payment.enums.KlarnaOrderTypeEnum;
 import com.klarna.payment.facades.KlarnaConfigFacade;
 import com.klarna.payment.util.KlarnaConversionUtils;
-import com.klarna.payment.util.LogHelper;
 
 
 public class KlarnaExpCheckoutAuthPayloadPopulator implements Populator<AbstractOrderModel, PaymentsSession>
@@ -99,7 +98,6 @@ public class KlarnaExpCheckoutAuthPayloadPopulator implements Populator<Abstract
 	@Override
 	public void populate(final AbstractOrderModel source, final PaymentsSession target) throws ConversionException
 	{
-		LogHelper.debugLog(LOG, "Populating Authorization payload for Cart Id :: " + source.getCode());
 		Assert.notNull(source, "Parameter source cannot be null.");
 		Assert.notNull(target, "Parameter target cannot be null.");
 
@@ -146,14 +144,12 @@ public class KlarnaExpCheckoutAuthPayloadPopulator implements Populator<Abstract
 
 	private void addMerchantUrls(final PaymentsSession target)
 	{
-		LogHelper.debugLog(LOG, "entering KlarnaExpCheckoutAuthPayloadPopulator.addMerchantUrls ... ");
 		final BaseSiteModel currentBaseSite = baseSiteService.getCurrentBaseSite();
 		final String authorizationCallbackRelativeUrl = siteConfigService.getProperty(KLARNA_EXPCHECKOUT_AUTHORIZE_CALLBACK_URL);
 		if (StringUtils.isNotEmpty(authorizationCallbackRelativeUrl))
 		{
 			final String authorizationCallbackAbsoluteUrl = siteBaseUrlResolutionService.getWebsiteUrlForSite(currentBaseSite, true,
 					authorizationCallbackRelativeUrl);
-			LogHelper.debugLog(LOG, "Authorization callback url :: " + authorizationCallbackAbsoluteUrl);
 			final PaymentsMerchantUrls urls = new PaymentsMerchantUrls();
 			urls.setAuthorization(authorizationCallbackAbsoluteUrl);
 			target.setMerchantUrls(urls);
@@ -162,7 +158,6 @@ public class KlarnaExpCheckoutAuthPayloadPopulator implements Populator<Abstract
 
 	private void addKlarnaOrder(final AbstractOrderModel source, final PaymentsSession target)
 	{
-		LogHelper.debugLog(LOG, "entering KlarnaExpCheckoutAuthPayloadPopulator.addKlarnaOrder ... ");
 		final List<PaymentsOrderLine> orderLines = new ArrayList<>();
 		if (CollectionUtils.isNotEmpty(source.getEntries()))
 		{
@@ -190,7 +185,6 @@ public class KlarnaExpCheckoutAuthPayloadPopulator implements Populator<Abstract
 
 	private PaymentsOrderLine getGlobalDiscount(final AbstractOrderModel source)
 	{
-		LogHelper.debugLog(LOG, "entering KlarnaExpCheckoutAuthPayloadPopulator.getGlobalDiscount ... ");
 		final Double discountValue = getGlobalDiscountValue(source);
 		final PaymentsOrderLine orderLine = new PaymentsOrderLine();
 		orderLine.setType(KlarnaOrderTypeEnum.DISCOUNT.getValue());
@@ -221,7 +215,6 @@ public class KlarnaExpCheckoutAuthPayloadPopulator implements Populator<Abstract
 
 	protected String getCouponCodes(final AbstractOrderModel source)
 	{
-		LogHelper.debugLog(LOG, "entering KlarnaExpCheckoutAuthPayloadPopulator.getCouponCodes ... ");
 		final Collection<String> coupons = source.getAppliedCouponCodes();
 		String couponCodes = "";
 		if (coupons != null && !coupons.isEmpty())
@@ -238,7 +231,6 @@ public class KlarnaExpCheckoutAuthPayloadPopulator implements Populator<Abstract
 
 	protected Double getGlobalDiscountValue(final AbstractOrderModel source)
 	{
-		LogHelper.debugLog(LOG, "entering KlarnaExpCheckoutAuthPayloadPopulator.getGlobalDiscountValue ... ");
 		final List<DiscountValue> discounts = source.getGlobalDiscountValues();
 		double discountValue = 0.0;
 		for (final DiscountValue discount : discounts)
@@ -252,7 +244,6 @@ public class KlarnaExpCheckoutAuthPayloadPopulator implements Populator<Abstract
 
 	private Long calculateGlobalTotalTaxAmount(final AbstractOrderModel source)
 	{
-		LogHelper.debugLog(LOG, "entering KlarnaExpCheckoutAuthPayloadPopulator.calculateGlobalTotalTaxAmount ... ");
 		final Long totalDiscount = KlarnaConversionUtils.getKlarnaLongValue(getGlobalDiscountValue(source));
 		final Long taxRate = getTaxRate(getTaxValue(source.getTotalTaxValues(), source.getCurrency().getIsocode()));
 		if (klarnaConfigFacade.isNorthAmerianKlarnaPayment())
@@ -268,7 +259,6 @@ public class KlarnaExpCheckoutAuthPayloadPopulator implements Populator<Abstract
 
 	private PaymentsOrderLine getKlarnaOrderLine(final AbstractOrderEntryModel entry, final String currencyCode)
 	{
-		LogHelper.debugLog(LOG, "entering KlarnaExpCheckoutAuthPayloadPopulator.getKlarnaOrderLine ... ");
 		final ProductModel product = entry.getProduct();
 		final Double promotionEntryValue = getPromotionEntryValue(entry);
 		final PaymentsOrderLine orderLine = new PaymentsOrderLine();
@@ -317,7 +307,6 @@ public class KlarnaExpCheckoutAuthPayloadPopulator implements Populator<Abstract
 
 	private String getImageURL(final ProductModel product)
 	{
-		LogHelper.debugLog(LOG, "entering KlarnaExpCheckoutAuthPayloadPopulator.getImageURL ... ");
 		String imageURL = null;
 		final ProductData productData = new ProductData();
 		productPrimaryImagePopulator.populate(product, productData);
@@ -343,7 +332,6 @@ public class KlarnaExpCheckoutAuthPayloadPopulator implements Populator<Abstract
 	 */
 	private PaymentsProductIdentifiers getProductIdentifiers(final ProductModel product)
 	{
-		LogHelper.debugLog(LOG, "entering KlarnaExpCheckoutAuthPayloadPopulator.getProductIdentifiers ... ");
 		final PaymentsProductIdentifiers productIdentifiers = new PaymentsProductIdentifiers();
 		productIdentifiers.setGlobalTradeItemNumber(product.getEan());
 		productIdentifiers.setBrand(product.getManufacturerName());
@@ -355,7 +343,6 @@ public class KlarnaExpCheckoutAuthPayloadPopulator implements Populator<Abstract
 
 	protected Double getPromotionEntryValue(final AbstractOrderEntryModel entry)
 	{
-		LogHelper.debugLog(LOG, "entering KlarnaExpCheckoutAuthPayloadPopulator.getPromotionEntryValue ... ");
 		final double acctualPrice = entry.getBasePrice().doubleValue() * entry.getQuantity().intValue();
 		final double promotionValue = acctualPrice - entry.getTotalPrice().doubleValue();
 		return Double.valueOf(promotionValue);
@@ -363,7 +350,6 @@ public class KlarnaExpCheckoutAuthPayloadPopulator implements Populator<Abstract
 
 	protected PaymentsOrderLine getKlarnaSalesTaxLine(final AbstractOrderModel order)
 	{
-		LogHelper.debugLog(LOG, "entering KlarnaExpCheckoutAuthPayloadPopulator.getKlarnaSalesTaxLine ... ");
 		final PaymentsOrderLine orderLine = new PaymentsOrderLine();
 		orderLine.setType(KlarnaOrderTypeEnum.SALES_TAX.getValue());
 		orderLine.setReference(KlarnaOrderTypeEnum.SALES_TAX.getValue());
@@ -379,7 +365,6 @@ public class KlarnaExpCheckoutAuthPayloadPopulator implements Populator<Abstract
 
 	private void addKlarnOrderTotal(final AbstractOrderModel source, final PaymentsSession target)
 	{
-		LogHelper.debugLog(LOG, "entering addKlarnOrderTotal ... ");
 		if (CollectionUtils.isNotEmpty(source.getEntries()))
 		{
 			target.setOrderAmount(calculateTotalAmount(source));
@@ -394,14 +379,12 @@ public class KlarnaExpCheckoutAuthPayloadPopulator implements Populator<Abstract
 
 	private String getLocale(final String purchaseCountry)
 	{
-		LogHelper.debugLog(LOG, "entering KlarnaExpCheckoutAuthPayloadPopulator.getLocale ... ");
 		final Locale currentLocale = commonI18NService.getLocaleForLanguage(commonI18NService.getCurrentLanguage());
 		return currentLocale.getLanguage() + "-" + purchaseCountry;
 	}
 
 	private TaxValue getTaxValue(final Collection<TaxValue> taxes, final String currencyCode)
 	{
-		LogHelper.debugLog(LOG, "entering KlarnaExpCheckoutAuthPayloadPopulator.getTaxValue ... ");
 		if (taxes != null)
 		{
 			if (taxes.size() == 1)
@@ -409,7 +392,10 @@ public class KlarnaExpCheckoutAuthPayloadPopulator implements Populator<Abstract
 				final TaxValue tax = taxes.iterator().next();
 				if (tax.isAbsolute())
 				{
-					LogHelper.debugLog(LOG, "System does not accept absolute tax for the order");
+					if (LOG.isWarnEnabled())
+					{
+						LOG.warn("System does not accept absolute tax for the order");
+					}
 					throw new IllegalArgumentException("System does not accept absolute tax for the order");
 				}
 				return tax;
@@ -417,8 +403,10 @@ public class KlarnaExpCheckoutAuthPayloadPopulator implements Populator<Abstract
 			}
 			if (taxes.size() > 1)
 			{
-				LogHelper.debugLog(LOG, "System does not accept multiple tax for the order");
-
+				if (LOG.isWarnEnabled())
+				{
+					LOG.warn("System does not accept multiple tax for the order");
+				}
 				throw new IllegalArgumentException("System does not accept multiple tax for the order");
 			}
 		}
@@ -428,13 +416,11 @@ public class KlarnaExpCheckoutAuthPayloadPopulator implements Populator<Abstract
 
 	private Long getTaxRate(final TaxValue tax)
 	{
-		LogHelper.debugLog(LOG, "entering KlarnaExpCheckoutAuthPayloadPopulator.getTaxRate ... ");
 		return KlarnaConversionUtils.getKlarnaIntValue(Double.valueOf(tax.getValue()));
 	}
 
 	private Long calculateOrderEntryTaxAmount(final AbstractOrderEntryModel entry, final String currencyCode)
 	{
-		LogHelper.debugLog(LOG, "entering KlarnaExpCheckoutAuthPayloadPopulator.calculateOrderEntryTaxAmount ... ");
 		final TaxValue tax = getTaxValue(entry.getTaxValues(), currencyCode);
 		final Double appliedValue = Double.valueOf(tax.getAppliedValue());
 		return KlarnaConversionUtils.getKlarnaLongValue(appliedValue);
@@ -442,7 +428,6 @@ public class KlarnaExpCheckoutAuthPayloadPopulator implements Populator<Abstract
 
 	private Long calculateTotalAmount(final AbstractOrderModel source)
 	{
-		LogHelper.debugLog(LOG, "entering KlarnaExpCheckoutAuthPayloadPopulator.calculateTotalAmount ... ");
 		if (klarnaConfigFacade.isNorthAmerianKlarnaPayment())
 		{
 			final double grandTotalPrice = source.getTotalPrice().doubleValue() + source.getTotalTax().doubleValue();
@@ -458,14 +443,12 @@ public class KlarnaExpCheckoutAuthPayloadPopulator implements Populator<Abstract
 
 	private Long calculateTotalTaxAmount(final AbstractOrderModel source)
 	{
-		LogHelper.debugLog(LOG, "entering KlarnaExpCheckoutAuthPayloadPopulator.calculateTotalTaxAmount ... ");
 		return KlarnaConversionUtils.getKlarnaLongValue(source.getTotalTax());
 	}
 
 
 	private PaymentsOrderLine getKlarnaShipping(final AbstractOrderModel order)
 	{
-		LogHelper.debugLog(LOG, "entering KlarnaExpCheckoutAuthPayloadPopulator.getKlarnaShipping ... ");
 		final PaymentsOrderLine orderLine = new PaymentsOrderLine();
 		orderLine.setType(KlarnaOrderTypeEnum.SHIPPING_FEE.getValue());
 		if (StringUtils.isNotEmpty(order.getDeliveryMode().getName()))
@@ -498,7 +481,6 @@ public class KlarnaExpCheckoutAuthPayloadPopulator implements Populator<Abstract
 
 	private Long calculateDeliveryTaxAmount(final AbstractOrderModel order)
 	{
-		LogHelper.debugLog(LOG, "entering KlarnaExpCheckoutAuthPayloadPopulator.calculateDeliveryTaxAmount ... ");
 		final TaxValue tax = getTaxValue(order.getTotalTaxValues(), order.getCurrency().getIsocode());
 		final Long taxRate = getTaxRate(tax);
 		final Long deliveryCost = KlarnaConversionUtils.getKlarnaLongValue(order.getDeliveryCost());
