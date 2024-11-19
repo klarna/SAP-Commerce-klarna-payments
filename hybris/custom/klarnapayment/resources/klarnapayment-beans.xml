@@ -15,45 +15,6 @@
 
 <beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="beans.xsd">
 
-<!-- 	<bean class="com.klarna.payment.data.KlarnaConfigData">
-		<description>Data object of KlarnaConfig which has no equivalent on the type system</description>
-		<property name="code" type="String"/>
-		<property name="active" type="Boolean"/>
-		<property name="merchantID" type="String"/>
-		<property name="sharedSecret" type="String"/>
-		<property name="merchantEmail" type="String"/>
-		<property name="merchantReference2" type="String"/>
-		<property name="endpointType" type="String"/>
-		<property name="endPointUrl" type="String"/>
-		<property name="endpointMode" type="String"/>
-		<property name="purchaseCurrency" type="String"/>
-		<property name="purchaseCountry" type="String"/>
-		<property name="colorButton" type="String"/>
-		<property name="colorButtonText" type="String"/>
-		<property name="colorCheckbox" type="String"/>
-		<property name="colorCheckboxCheckMark" type="String"/>
-		<property name="colorHeader" type="String"/>
-		<property name="colorLink" type="String"/>
-		<property name="colorBorder" type="String"/>
-		<property name="colorBorderSelected" type="String"/>
-		<property name="colorText" type="String"/>
-		<property name="colorTextSecondary" type="String"/>
-		<property name="colorDetails" type="String"/>
-		<property name="radiusborder" type="String"/>
-		<property name="klarnaMerchantURLs" type="com.klarna.payment.data.KlarnaMerchantURLs"/>
-		<property name="productIdentifiers" type="com.klarna.payment.data.ProductIdentifiers"/>
-		<property name="autoCapture" type="Boolean"/>
-		<property name="isVCNEnabled" type="Boolean"/>
-		<property name="vcnPrivateKey" type="String"/>
-		<property name="klarnaPayDisplayName" type="String"/>
-		<property name="klarnaPayLogo" type="String"/>
-		<property name="preAssesmentFlag" type="Boolean"/>
-		<property name="attachementRequired" type="Boolean"/>
-		<property name="productUrlsRequired" type="Boolean"/>
-		<property name="paymentOption" type="String"/>
-		<property name="guiData" type="com.klarna.payment.data.GuiData"/>
-		<property name="vcnKeyID" type="String"/>
-	</bean> -->
 	<!-- Klarna Config Redesign - starts  -->
 	<bean class="com.klarna.data.KlarnaConfigData">
 		<description>KlarnaConfigData is a DTO equivalent of type KlarnaConfig</description>
@@ -172,33 +133,5 @@
 		<property name="kpIdentifier" type="String"/>
 		<property name="kpPaymentInfo" type="com.klarna.payment.data.KPPaymentInfoData"/>
 	</bean>
-	
-	<!-- <bean class="com.klarna.payment.data.KlarnaExpCheckoutConfigData">
-		<property name="code" type="String"/>
-		<property name="active" type="Boolean"/>
-		<property name="clientKey" type="String"/>
-		<property name="scriptUrl" type="String"/>
-		<property name="collectShippingAddress" type="Boolean"/>
-		<property name="autoFinalize" type="Boolean"/>
-		<property name="buttonTheme" type="String"/>
-		<property name="buttonShape" type="String"/>
-		<property name="country" type="String"/>
-	</bean> -->
-	
-	<!-- <bean class="com.klarna.payment.data.KlarnaSignInConfigData">
-		<property name="code" type="String"/>
-		<property name="active" type="Boolean"/>
-		<property name="autoMergeAccounts" type="Boolean"/>
-		<property name="autoLoginToKP" type="Boolean"/>
-		<property name="clientId" type="String"/>
-		<property name="environment" type="String"/>
-		<property name="scriptUrl" type="String"/>
-		<property name="country" type="String"/>
-		<property name="scopeData" type="String"/>
-		<property name="redirectUri" type="String"/>
-		<property name="hideOverlay" type="Boolean"/>
-		<property name="buttonTheme" type="String"/>
-		<property name="buttonShape" type="String"/>
-		<property name="buttonLogoAlignment" type="String"/>
-	</bean> -->
+
 </beans>

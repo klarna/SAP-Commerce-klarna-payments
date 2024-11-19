@@ -21,5 +21,11 @@
             <artifactId>javax.servlet.jsp.jstl</artifactId>
             <version>1.2.5</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/com.stripe/stripe-java -->
+		<dependency>
+		    <groupId>com.stripe</groupId>
+		    <artifactId>stripe-java</artifactId>
+		    <version>27.1.1</version>
+		</dependency>
     </dependencies>
 </project>

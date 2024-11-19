@@ -25,6 +25,7 @@ import com.klarna.api.order_management.OrderManagementOrdersApi;
 import com.klarna.api.order_management.OrderManagementRefundsApi;
 import com.klarna.api.payments.PaymentsOrdersApi;
 import com.klarna.api.payments.PaymentsSessionsApi;
+import com.klarna.api.shoppingdata.KlarnaShoppingDataAPI;
 
 
 /**
@@ -229,6 +230,18 @@ public class Client
 		return new KlarnaLoginApi(transport);
 	}
 
+	/*
+	 * Creates a new KlarnaShoppingDataAPI resource instance.
+	 *
+	 * @param sessionId Shopping Session Id returned from Shopping Data API
+	 *
+	 * @return new instance
+	 */
+
+	public KlarnaShoppingDataAPI newKlarnaShoppingDataAPI(final String sessionId)
+	{
+		return new KlarnaShoppingDataAPI(transport, sessionId);
+	}
 
 	/**
 	 * Creates a new SettlementsPayoutsApi resource instance.

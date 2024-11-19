@@ -45,6 +45,7 @@ import com.klarna.api.order_management.OrderManagementRefundsApi;
 import com.klarna.api.order_management.model.OrderManagementCaptureObject;
 import com.klarna.api.order_management.model.OrderManagementOrder;
 import com.klarna.api.order_management.model.OrderManagementRefundObject;
+import com.klarna.api.shoppingdata.KlarnaShoppingDataAPI;
 import com.klarna.data.KlarnaConfigData;
 import com.klarna.data.KlarnaCredentialData;
 import com.klarna.payment.constants.GeneratedKlarnapaymentConstants.Enumerations.KlarnaEnv;
@@ -642,6 +643,12 @@ public class DefaultKPOrderFacade implements KPOrderFacade
 	public OrderManagementRefundsApi getRefundKlarnaOrder(final String orderId)
 	{
 		return kpPaymentFacade.getKlarnaClient().newOrderManagementRefundsApi(orderId);
+	}
+	
+	@Override
+	public KlarnaShoppingDataAPI getKlarnaShoppingDataAPI(String sessionId)
+	{
+		return kpPaymentFacade.getKlarnaClient().newKlarnaShoppingDataAPI(sessionId);
 	}
 
 }

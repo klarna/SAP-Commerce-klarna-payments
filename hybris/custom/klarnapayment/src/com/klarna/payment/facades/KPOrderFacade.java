@@ -8,6 +8,7 @@ import com.klarna.api.Client;
 import com.klarna.api.model.ApiException;
 import com.klarna.api.order_management.OrderManagementCapturesApi;
 import com.klarna.api.order_management.OrderManagementRefundsApi;
+import com.klarna.api.shoppingdata.KlarnaShoppingDataAPI;
 
 
 public interface KPOrderFacade
@@ -25,5 +26,7 @@ public interface KPOrderFacade
 	OrderManagementRefundsApi getRefundKlarnaOrder(String orderId);
 
 	String refundKlarnaOrder(String orderId);
+	
+	KlarnaShoppingDataAPI getKlarnaShoppingDataAPI(String sessionId);
 
 }

@@ -1,5 +1,8 @@
 package com.klarnapayment.filters;
 
+import de.hybris.platform.commercefacades.order.CartFacade;
+import de.hybris.platform.servicelayer.session.SessionService;
+
 import java.io.IOException;
 
 import javax.annotation.Resource;
@@ -37,12 +40,19 @@ public class KlarnaPaymentActiveFilter extends OncePerRequestFilter
 	private static final String KLARNA_LOGO = "klarna_logo";
 	private static final String KLARNA_DISPLAYNAME = "klarna_displayname";
 	private static final String IS_KLARNA_ACTIVE = "is_klarna_active";
+	private static final String SHOP_SESSION_ID = "shopping_session_id";
 
 	@Resource(name = "klarnaConfigFacade")
 	private KlarnaConfigFacade klarnaConfigFacade;
 
 	@Resource(name = "kpPaymentCheckoutFacade")
 	private KPPaymentCheckoutFacade kpPaymentCheckoutFacade;
+
+	@Resource(name = "cartFacade")
+	private CartFacade cartFacade;
+
+	@Resource(name = "sessionService")
+	private SessionService sessionService;
 
 	/**
 	 * This filter is used to load config from KlarnaConfig Model, to analyze the environment checkout. If exist and is
@@ -88,13 +98,17 @@ public class KlarnaPaymentActiveFilter extends OncePerRequestFilter
 		response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
 		response.setHeader("Pragma", "no-cache");
 		response.setDateHeader("Expires", 0);
-
 		filterChain.doFilter(request, response);
+		if (!cartFacade.hasEntries())
+		{
+			sessionService.setAttribute(SHOP_SESSION_ID, null);
+		}
 	}
 
 	private void setRequestAttributes(final String requestURL, final KlarnaConfigData klarnaConfig,
 			final HttpServletRequest request)
 	{
+
 		if (requestURL.contains("/checkout/multi/payment-method"))
 		{
 			if (klarnaConfig != null && klarnaConfig.getActive().booleanValue())
@@ -127,5 +141,4 @@ public class KlarnaPaymentActiveFilter extends OncePerRequestFilter
 		final String encodedRedirectUrl = response.encodeRedirectURL(contextPath + url);
 		response.sendRedirect(encodedRedirectUrl);
 	}
-
 }

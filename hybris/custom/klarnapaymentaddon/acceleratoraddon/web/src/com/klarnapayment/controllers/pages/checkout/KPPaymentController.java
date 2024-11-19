@@ -6,6 +6,7 @@ package com.klarnapayment.controllers.pages.checkout;
 import de.hybris.platform.acceleratorstorefrontcommons.annotations.RequireHardLogIn;
 import de.hybris.platform.acceleratorstorefrontcommons.controllers.pages.AbstractPageController;
 import de.hybris.platform.commercefacades.i18n.I18NFacade;
+import de.hybris.platform.commercefacades.order.CartFacade;
 import de.hybris.platform.commercefacades.user.data.AddressData;
 import de.hybris.platform.core.model.order.CartModel;
 import de.hybris.platform.order.CartService;
@@ -13,8 +14,6 @@ import de.hybris.platform.order.CartService;
 import java.io.IOException;
 
 import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang.StringUtils;
@@ -30,6 +29,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.klarna.api.model.ApiException;
 import com.klarna.api.payments.model.KlarnaPaymentAuthCallbackResponse;
 import com.klarna.api.payments.model.PaymentsSession;
+import com.klarna.api.shoppingdata.KlarnaShoppingDataAPI;
+import com.klarna.api.shoppingdata.model.ShoppingCreateSessionRequest;
+import com.klarna.api.shoppingdata.model.ShoppingCreateSessionResponse;
+import com.klarna.payment.converter.populator.KlarnaCreateShoppingSessionPopulator;
+import com.klarna.payment.facades.KPOrderFacade;
 import com.klarna.payment.facades.KPPaymentCheckoutFacade;
 import com.klarna.payment.facades.KPPaymentFacade;
 import com.klarna.payment.model.KPPaymentInfoModel;
@@ -48,6 +52,8 @@ public class KPPaymentController extends AbstractPageController
 {
 	private static final Logger LOG = Logger.getLogger(KPPaymentController.class);
 
+	private static final String SHOP_SESSION_ID = "shopping_session_id";
+
 	@Resource(name = "kpPaymentFacade")
 	private KPPaymentFacade kpPaymentFacade;
 	@Resource(name = "kpPaymentCheckoutFacade")
@@ -57,6 +63,14 @@ public class KPPaymentController extends AbstractPageController
 	@Resource(name = "cartService")
 	private CartService cartService;
 
+	@Resource(name = "cartFacade")
+	private CartFacade cartFacade;
+
+	@Resource(name = "kpOrderFacade")
+	KPOrderFacade kpOrderFacade;
+
+	@Resource(name = "klarnaCreateShoppingSessionPopulator")
+	KlarnaCreateShoppingSessionPopulator klarnaCreateShoppingSessionPopulator;
 
 	@RequestMapping(value = "/session", method = RequestMethod.GET, produces = "application/json")
 
@@ -107,18 +121,11 @@ public class KPPaymentController extends AbstractPageController
 			try
 			{
 				LogHelper.debugLog(LOG, "Going to save Authorization for Klarna Payment ");
-				LOG.info("klarnaPaymentAuthCallbackResponse Token POST "
-						+ (klarnaPaymentAuthCallbackResponse != null
-								? klarnaPaymentAuthCallbackResponse.getAuthorizationToken() + " "
-										+ klarnaPaymentAuthCallbackResponse.getSessionId()
-								: klarnaPaymentAuthCallbackResponse));
 				if (klarnaPaymentAuthCallbackResponse.getAuthorizationToken() != null)
 				{
 					kpPaymentCheckoutFacade.saveAuthorization(klarnaPaymentAuthCallbackResponse.getAuthorizationToken(), null, null);
 					//Create payment transaction
 					kpPaymentFacade.createPaymentTransaction();
-					LogHelper.debugLog(LOG, "Saved Authorization Token for Klarna Payment with Session Id :: "
-							+ klarnaPaymentAuthCallbackResponse.getSessionId());
 					return "success";
 				}
 				return "failure";
@@ -221,7 +228,32 @@ public class KPPaymentController extends AbstractPageController
 		return "success";
 	}
 
+	@RequestMapping(value = "/updateShoppingSession", method = RequestMethod.GET)
+	@RequireHardLogIn
+	@ResponseBody
+	public ShoppingCreateSessionResponse updateShoppingSession(@RequestParam("shoppingSessionId")
+	final String shoppingSessionId)
+	{
+		getSessionService().setAttribute(SHOP_SESSION_ID, shoppingSessionId);
 
+		CartModel sessionCart = cartService.getSessionCart();
+		// Cart Created Shopping Session not initiated
+		if (sessionCart != null && cartFacade.hasEntries())
+		{
+			try
+			{
+				ShoppingCreateSessionRequest shoppingCreateRequest = new ShoppingCreateSessionRequest();
+				klarnaCreateShoppingSessionPopulator.populate(sessionCart, shoppingCreateRequest);
+				KlarnaShoppingDataAPI shoppingDataAPI = kpOrderFacade.getKlarnaShoppingDataAPI(shoppingSessionId);
+				return shoppingDataAPI.updateShoppingSession(shoppingCreateRequest);
 
+			}
+			catch (IOException e)
+			{
+				LOG.error(e);
+			}
+		}
+		return null;
+	}
 
 }

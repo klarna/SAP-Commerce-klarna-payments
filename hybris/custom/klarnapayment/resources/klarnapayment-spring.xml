@@ -597,4 +597,8 @@
     <bean id="defaultKlarnaSignInFacade" class="com.klarna.payment.facades.impl.DefaultKlarnaSignInFacade">
     </bean>
     
+    <alias name="defaultKlarnaCreateShoppingSessionPopulator" alias="klarnaCreateShoppingSessionPopulator" />
+    <bean id="defaultKlarnaCreateShoppingSessionPopulator" class="com.klarna.payment.converter.populator.KlarnaCreateShoppingSessionPopulator" />
+    
+    
 </beans>
