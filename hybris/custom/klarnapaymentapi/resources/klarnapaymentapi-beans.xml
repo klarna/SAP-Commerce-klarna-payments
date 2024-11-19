@@ -59,6 +59,10 @@
 	<enum class="com.klarna.api.payments.IntendedUseEnum">
 		<value>SUBSCRIPTION</value>
 	</enum>
+	
+	<enum class="com.klarna.api.enums.PaymentAcquiringChannel">
+		<value>ECOMMERCE</value>
+	</enum>
 
 	<bean class="com.klarna.api.payments.model.PaymentsSession">
 
