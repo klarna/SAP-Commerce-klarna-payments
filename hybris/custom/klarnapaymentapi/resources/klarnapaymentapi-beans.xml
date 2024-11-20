@@ -589,7 +589,7 @@
 			type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
 		<import type="com.fasterxml.jackson.annotation.JsonProperty" />
 
-		<property name="type" type="com.klarna.api.payments.TypeEnum">
+		<property name="type" type="String">
 			<annotations>@JsonProperty("type")</annotations>
 		</property>
 	</bean>
@@ -1008,8 +1008,7 @@
 			type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
 		<import type="com.fasterxml.jackson.annotation.JsonProperty" />
 
-		<property name="type"
-			type="com.klarna.api.order_management.model.TypeEnum">
+		<property name="type" type="String">
 			<annotations>@JsonProperty("type")</annotations>
 		</property>
 		<property name="description" type="String">

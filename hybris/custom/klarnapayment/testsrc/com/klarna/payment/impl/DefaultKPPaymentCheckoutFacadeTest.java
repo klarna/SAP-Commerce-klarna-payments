@@ -300,7 +300,7 @@ public class DefaultKPPaymentCheckoutFacadeTest
 
 		final OrderManagementOrder orderManagementOrder = new OrderManagementOrder();
 		final OrderManagementInitialPaymentMethodDto dto = new OrderManagementInitialPaymentMethodDto();
-		dto.setType(TypeEnum.CARD);
+		dto.setType("CARD");
 		dto.setDescription("Test");
 		dto.setNumberOfInstallments(7);
 		orderManagementOrder.setInitialPaymentMethod(dto);
