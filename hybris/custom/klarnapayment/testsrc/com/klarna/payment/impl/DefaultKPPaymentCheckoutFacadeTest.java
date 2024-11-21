@@ -38,7 +38,6 @@ import com.klarna.api.order_management.model.OrderManagementAddress;
 import com.klarna.api.order_management.model.OrderManagementInitialPaymentMethodDto;
 import com.klarna.api.order_management.model.OrderManagementOrder;
 import com.klarna.api.order_management.model.OrderManagementOrderLine;
-import com.klarna.api.order_management.model.TypeEnum;
 import com.klarna.api.payments.model.PaymentsOrder;
 import com.klarna.data.KlarnaConfigData;
 import com.klarna.data.KlarnaCredentialData;
