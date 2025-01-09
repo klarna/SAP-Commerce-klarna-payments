@@ -246,7 +246,6 @@ public class DefaultKlarnaSignInFacade implements KlarnaSignInFacade
 	{
 		if(klarnaSigninResponse != null && klarnaSigninResponse.getUserAccountLinking() != null &&  StringUtils.isNotBlank(klarnaSigninResponse.getUserAccountLinking().getUserAccountLinkingIdToken())) {
    		final boolean isValidIdToken = KlarnaTokenUtils.validateJWTToken(klarnaSigninResponse.getUserAccountLinking().getUserAccountLinkingIdToken(),environment);
-   		LOG.error("Is the Id " + klarnaSigninResponse.getUserAccountLinking().getUserAccountLinkingIdToken()+" token Valid ?"+isValidIdToken);
    		return isValidIdToken;
 		}
 		else

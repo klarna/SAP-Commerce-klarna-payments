@@ -78,7 +78,6 @@ public class DefaultKlarnaSignInLoginStrategy extends DefaultAutoLoginStrategy
 	public void login(final String userId, final String password, final HttpServletRequest request,
 			final HttpServletResponse response)
 	{
-		LOG.info("DefaultKlarnaSignInLoginStrategy :: Initiating Login for user " + userId);
 
 		try
 		{
@@ -96,17 +95,14 @@ public class DefaultKlarnaSignInLoginStrategy extends DefaultAutoLoginStrategy
 			customerConsentDataStrategy.populateCustomerConsentDataInSession();
 			cartService.changeCurrentCartUser(userService.getUserForUID(userId));
 			cartRestorationStrategy.restoreCart(request);
-			LOG.info("After  restore --- session cart details " + cartService.getSessionCart() + " cartService.hasSessionCart() "
-					+ cartService.hasSessionCart());
 			rememberMeServices.loginSuccess(request, response, token);
 			customerFacade.loginSuccess();
-			LOG.info("Login Successful for user " + userId);
-
+			LOG.debug("Login Successful for user " + userId);
 		}
 		catch (final Exception e)
 		{
 			SecurityContextHolder.getContext().setAuthentication(null);
-			LOG.info("Login Failed for user " + userId + " with error " + e.getMessage());
+			LOG.error("Login Failed for user " + userId + " with error " + e.getMessage());
 			throw e;
 		}
 	}
