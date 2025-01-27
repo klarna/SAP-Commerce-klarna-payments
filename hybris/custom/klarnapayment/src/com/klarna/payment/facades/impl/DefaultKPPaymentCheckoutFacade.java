@@ -786,7 +786,7 @@ public class DefaultKPPaymentCheckoutFacade implements KPPaymentCheckoutFacade
 		final KPPaymentInfoModel kpPaymentInfoModel = (KPPaymentInfoModel) transaction.getInfo();
 		final String currPaymentOption = kpPaymentInfoModel.getPaymentOption();
 
-		String init_pay_method = klarnaOrderData.getInitialPaymentMethod().getType().name();
+		String init_pay_method = klarnaOrderData.getInitialPaymentMethod().getType();
 		String description = klarnaOrderData.getInitialPaymentMethod().getDescription();
 		String installments = String.valueOf(klarnaOrderData.getInitialPaymentMethod().getNumberOfInstallments());
 

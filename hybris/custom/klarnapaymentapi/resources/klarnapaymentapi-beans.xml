@@ -6,38 +6,6 @@
 <beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="beans.xsd">
 
-	<enum class="com.klarna.api.payments.TypeEnum">
-		<value>invoice</value>
-		<value>fixed_amount</value>
-		<value>pix</value>
-		<value>base_account</value>
-		<value>deferred_interest</value>
-		<value>direct_debit</value>
-		<value>direct_bank_transfer</value>
-		<value>b2b_invoice</value>
-		<value>card</value>
-		<value>slice_it_by_card</value>
-		<value>pay_by_card</value>
-		<value>fixed_sum_credit</value>
-	</enum>
-
-	<enum class="com.klarna.api.order_management.model.TypeEnum">
-		<value>INVOICE</value>
-		<value>FIXED_AMOUNT</value>
-		<value>FIXED_AMOUNT_BY_CARD</value>
-		<value>ACCOUNT</value>
-		<value>DIRECT_DEBIT</value>
-		<value>CARD</value>
-		<value>BANK_TRANSFER</value>
-		<value>PAY_IN_X</value>
-		<value>INVOICE_BUSINESS</value>
-		<value>DEFERRED_INTEREST</value>
-		<value>FIXED_SUM_CREDIT</value>
-		<value>PAY_LATER_BY_CARD</value>
-		<value>PAY_BY_CARD</value>
-		<value>OTHER</value>
-	</enum>
-
 	<enum class="com.klarna.api.order_management.StatusEnum">
 		<value>AUTHORIZED</value>
 		<value>PART_CAPTURED</value>
@@ -589,7 +557,7 @@
 			type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
 		<import type="com.fasterxml.jackson.annotation.JsonProperty" />
 
-		<property name="type" type="com.klarna.api.payments.TypeEnum">
+		<property name="type" type="String">
 			<annotations>@JsonProperty("type")</annotations>
 		</property>
 	</bean>
@@ -1008,8 +976,7 @@
 			type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
 		<import type="com.fasterxml.jackson.annotation.JsonProperty" />
 
-		<property name="type"
-			type="com.klarna.api.order_management.model.TypeEnum">
+		<property name="type" type="String">
 			<annotations>@JsonProperty("type")</annotations>
 		</property>
 		<property name="description" type="String">

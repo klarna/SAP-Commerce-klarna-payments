@@ -165,8 +165,6 @@ public class KlarnaSigninController extends AbstractPageController
 	{
 		String prevPage = sessionService.getAttribute("signInRefererPage");
 		String reqMapping = LOGIN_URL;
-		LOG.info(" createCustomer - klarnaSigninResponse " + klarnaSigninResponse);
-		LOG.info(" createCustomer - signInRefererPage " + prevPage);
 
 		klarnaSigninResponse = (KlarnaSigninResponse) sessionService.getAttribute("klarnaSigninResponse");
 		try
@@ -192,8 +190,6 @@ public class KlarnaSigninController extends AbstractPageController
 	{
 		String prevPage = sessionService.getAttribute("signInRefererPage");
 		String reqMapping = LOGIN_URL;
-		LOG.info(" mergeAccount - klarnaSigninResponse " + klarnaSigninResponse);
-		LOG.info(" mergeAccount - signInRefererPage " + prevPage);
 
 		klarnaSigninResponse = (KlarnaSigninResponse) sessionService.getAttribute("klarnaSigninResponse");
 		if (klarnaSigninResponse != null && klarnaSigninResponse.getUserAccountProfile() != null
