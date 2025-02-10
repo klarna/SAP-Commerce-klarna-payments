@@ -1,3 +1,64 @@
 # Klarna payment info
 INSERT_UPDATE StandardPaymentMode;code[unique=true];name[lang=en];description[lang=en];active;paymentinfotype(code)
 ;klarnapayment;Klarna payment mode;payment with Klarna;true;KPPaymentInfo
+
+INSERT_UPDATE KlarnaMarketCountry;name[lang=en];isoCode[unique=true]
+;Australia;AU
+;Austria;AT
+;Belgium;BE
+;Canada;CA
+;Czech Republic;CZ
+;Denmark;DK
+;Finland;FI
+;France;FR
+;Germany;DE
+;Greece;GR
+;Hungary;HU
+;Ireland (Republic of Ireland);IE
+;Italy;IT
+;Mexico;MX
+;Netherlands;NL
+;New Zealand;NZ
+;Norway;NO
+;Poland;PL
+;Portugal;PT
+;Romania;RO
+;Slovakia;SK
+;Spain;ES
+;Sweden;SE
+;Switzerland;CH
+;United Kingdom;GB
+;United States;US
+
+INSERT_UPDATE KlarnaMarketRegion;code[unique=true];name[lang=en]
+;EU;Europe
+;NA;Americas
+;OC;Asia and Oceania
+
+UPDATE KlarnaMarketCountry;name[lang=en];isoCode[unique=true];region(code)
+;Australia;AU;OC
+;Austria;AT;EU
+;Belgium;BE;EU
+;Canada;CA;NA
+;Czech Republic;CZ;EU
+;Denmark;DK;EU
+;Finland;FI;EU
+;France;FR;EU
+;Germany;DE;EU
+;Greece;GR;EU
+;Hungary;HU;EU
+;Ireland (Republic of Ireland);IE;EU
+;Italy;IT;EU
+;Mexico;MX;NA
+;Netherlands;NL;EU
+;New Zealand;NZ;OC
+;Norway;NO;EU
+;Poland;PL;EU
+;Portugal;PT;EU
+;Romania;RO;EU
+;Slovakia;SK;EU
+;Spain;ES;EU
+;Sweden;SE;EU
+;Switzerland;CH;EU
+;United Kingdom;GB;EU
+;United States;US;NA

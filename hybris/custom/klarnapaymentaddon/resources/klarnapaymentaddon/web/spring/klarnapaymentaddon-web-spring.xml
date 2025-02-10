@@ -106,4 +106,8 @@
 	
 	<bean id="klarnaExpCheckoutHelper" class="com.klarnapayment.utils.KlarnaExpCheckoutHelper"/>
 	
+	<alias name="defaultKlarnaAutoLoginStrategy" alias="klarnaAutoLoginStrategy"/>
+    <bean id="defaultKlarnaAutoLoginStrategy" class="com.klarnapayment.strategy.impl.DefaultKlarnaSignInLoginStrategy">
+	</bean>
+	
 </beans>

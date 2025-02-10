@@ -23,10 +23,9 @@ import com.klarna.api.checkout.model.emd.CustomerAccountInformation;
 import com.klarna.api.checkout.model.emd.ExtraMerchantDataBody;
 import com.klarna.api.payments.model.PaymentsAttachment;
 import com.klarna.api.payments.model.PaymentsSession;
-import com.klarna.payment.data.KlarnaConfigData;
-import com.klarna.payment.facades.KPConfigFacade;
+import com.klarna.data.KlarnaConfigData;
 import com.klarna.payment.facades.KPCustomerFacade;
-import com.klarna.payment.util.LogHelper;
+import com.klarna.payment.facades.KlarnaConfigFacade;
 
 
 public class KPCreditSessionAttPopulator implements Populator<AbstractOrderModel, PaymentsSession>
@@ -35,7 +34,7 @@ public class KPCreditSessionAttPopulator implements Populator<AbstractOrderModel
 	protected static final Logger LOG = Logger.getLogger(KPCreditSessionAttPopulator.class);
 
 
-	private KPConfigFacade kpConfigFacade;
+	private KlarnaConfigFacade klarnaConfigFacade;
 
 
 	private KPCreditSessionPopulator kpCreditSessionPopulator;
@@ -45,20 +44,20 @@ public class KPCreditSessionAttPopulator implements Populator<AbstractOrderModel
 
 
 	/**
-	 * @return the kpConfigFacade
+	 * @return the klarnaConfigFacade
 	 */
-	public KPConfigFacade getKpConfigFacade()
+	public KlarnaConfigFacade getKlarnaConfigFacade()
 	{
-		return kpConfigFacade;
+		return klarnaConfigFacade;
 	}
 
 	/**
-	 * @param kpConfigFacade
-	 *           the kpConfigFacade to set
+	 * @param klarnaConfigFacade
+	 *           the klarnaConfigFacade to set
 	 */
-	public void setKpConfigFacade(final KPConfigFacade kpConfigFacade)
+	public void setKlarnaConfigFacade(final KlarnaConfigFacade klarnaConfigFacade)
 	{
-		this.kpConfigFacade = kpConfigFacade;
+		this.klarnaConfigFacade = klarnaConfigFacade;
 	}
 
 	/**
@@ -132,10 +131,9 @@ public class KPCreditSessionAttPopulator implements Populator<AbstractOrderModel
 	@Override
 	public void populate(final AbstractOrderModel source, final PaymentsSession target) throws ConversionException
 	{
-		LogHelper.debugLog(LOG, "inside full populator");
 		Assert.notNull(source, "Parameter source cannot be null.");
 		Assert.notNull(target, "Parameter target cannot be null.");
-		final KlarnaConfigData klarnaConfig = kpConfigFacade.getKlarnaConfig();
+		final KlarnaConfigData klarnaConfig = klarnaConfigFacade.getKlarnaConfig();
 		kpCreditSessionPopulator.populate(source, target);
 		addAttachment(target, klarnaConfig);
 
@@ -143,9 +141,9 @@ public class KPCreditSessionAttPopulator implements Populator<AbstractOrderModel
 
 	private void addAttachment(final PaymentsSession target, final KlarnaConfigData klarnaConfig)
 	{
-		if (klarnaConfig.getAttachementRequired() != null && klarnaConfig.getAttachementRequired().booleanValue())
+		if (klarnaConfig != null && klarnaConfig.getKpConfig() != null
+				&& Boolean.TRUE.equals(klarnaConfig.getKpConfig().getSendEMD()))
 		{
-			LogHelper.debugLog(LOG, "inside attachemnt creation");
 			final CustomerAccountInformation customerAccountInformation = new CustomerAccountInformation();
 
 			if (!kpCustomerFacade.isAnonymousCheckout())
@@ -174,14 +172,10 @@ public class KPCreditSessionAttPopulator implements Populator<AbstractOrderModel
 				}
 				catch (final JsonProcessingException e1)
 				{
-					// YTODO Auto-generated catch block
 					LOG.error(e1);
 				}
-
 				target.setAttachment(paymentsAttachment);
 			}
-
-
 		}
 
 	}

@@ -82,7 +82,7 @@
         <!-- constructor arg injection example -->
         <constructor-arg ref="klarnapaymentService"/>
     </bean>
-    <alias name="defaultKlarnaPaymentConfigConverter" alias="klarnaPaymentConfigConverter"/>
+<!--     <alias name="defaultKlarnaPaymentConfigConverter" alias="klarnaPaymentConfigConverter"/>
      <bean id="defaultKlarnaPaymentConfigConverter" parent="abstractPopulatingConverter">
         <property name="targetClass" value="com.klarna.payment.data.KlarnaConfigData"/>
         <property name="populators">
@@ -95,7 +95,104 @@
     <alias name="defaultKlarnaPaymentConfigPopulator" alias="klarnaPaymentConfigPopulator"/>
     <bean id="defaultKlarnaPaymentConfigPopulator" class="com.klarna.payment.converter.populator.KPConfigPopulator">
         <property name="siteConfigService" ref="siteConfigService"/>
+    </bean> -->
+    <!-- Klarna config Redesign - start -->
+    
+    <!-- KlarnaConfig -->
+    <alias name="defaultKlarnaConfigConverter" alias="klarnaConfigConverter"/>
+     <bean id="defaultKlarnaConfigConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.klarna.data.KlarnaConfigData"/>
+        <property name="populators">
+            <list>
+                <ref bean="klarnaConfigPopulator"/>
+            </list>
+        </property>
     </bean>
+
+    <alias name="defaultKlarnaConfigPopulator" alias="klarnaConfigPopulator"/>
+    <bean id="defaultKlarnaConfigPopulator" class="com.klarna.converter.populator.KlarnaConfigPopulator">
+    	<property name="klarnaCredentialConverter" ref="klarnaCredentialConverter"/>
+    	<property name="klarnaKPConfigConverter" ref="klarnaKPConfigConverter"/>
+    	<property name="klarnaKECConfigConverter" ref="klarnaKECConfigConverter"/>
+    	<property name="klarnaSIWKConfigConverter" ref="klarnaSIWKConfigConverter"/>
+    	<property name="klarnaKOSMConfigConverter" ref="klarnaKOSMConfigConverter"/>
+    </bean>
+
+	<!-- KlarnaCredential -->
+    <alias name="defaultKlarnaCredentialConverter" alias="klarnaCredentialConverter"/>
+     <bean id="defaultKlarnaCredentialConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.klarna.data.KlarnaCredentialData"/>
+        <property name="populators">
+            <list>
+                <ref bean="klarnaCredentialPopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <alias name="defaultKlarnaCredentialPopulator" alias="klarnaCredentialPopulator"/>
+    <bean id="defaultKlarnaCredentialPopulator" class="com.klarna.converter.populator.KlarnaCredentialPopulator">
+    </bean>
+    
+    <!-- KPConfig -->
+   	<alias name="defaultKlarnaKPConfigConverter" alias="klarnaKPConfigConverter"/>
+     <bean id="defaultKlarnaKPConfigConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.klarna.data.KlarnaKPConfigData"/>
+        <property name="populators">
+            <list>
+                <ref bean="klarnaKPConfigPopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <alias name="defaultKlarnaKPConfigPopulator" alias="klarnaKPConfigPopulator"/>
+    <bean id="defaultKlarnaKPConfigPopulator" class="com.klarna.converter.populator.KlarnaKPConfigPopulator">
+    </bean>
+    
+    <!-- KECConfig --> 
+     <alias name="defaultKlarnaKECConfigConverter" alias="klarnaKECConfigConverter"/>
+     <bean id="defaultKlarnaKECConfigConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.klarna.data.KlarnaKECConfigData"/>
+        <property name="populators">
+            <list>
+                <ref bean="klarnaKECConfigPopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <alias name="defaultKlarnaKECConfigPopulator" alias="klarnaKECConfigPopulator"/>
+    <bean id="defaultKlarnaKECConfigPopulator" class="com.klarna.converter.populator.KlarnaKECConfigPopulator">
+    </bean>
+    
+    <!-- KlarnaSIWKConfig -->
+     <alias name="defaultKlarnaSIWKConfigConverter" alias="klarnaSIWKConfigConverter"/>
+     <bean id="defaultKlarnaSIWKConfigConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.klarna.data.KlarnaSIWKConfigData"/>
+        <property name="populators">
+            <list>
+                <ref bean="klarnaSIWKConfigPopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <alias name="defaultKlarnaSIWKConfigPopulator" alias="klarnaSIWKConfigPopulator"/>
+    <bean id="defaultKlarnaSIWKConfigPopulator" class="com.klarna.converter.populator.KlarnaSIWKConfigPopulator">
+    </bean>
+    
+    <alias name="defaultKlarnaKOSMConfigConverter" alias="klarnaKOSMConfigConverter"/>
+    <bean id="defaultKlarnaKOSMConfigConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.klarna.data.KlarnaKOSMConfigData"/>
+        <property name="populators">
+            <list>
+                <ref bean="klarnaKOSMConfigPopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <alias name="defaultKlarnaKOSMConfigPopulator" alias="klarnaKOSMConfigPopulator"/>
+    <bean id="defaultKlarnaKOSMConfigPopulator" class="com.klarna.converter.populator.KlarnaKOSMConfigPopulator">
+    </bean>
+    
+    <!-- Klarna config Redesign - end -->
     
     <bean id="hexValueOfRBGAttributeHandler" class="com.klarna.payment.attributehandlers.HexValueOfRBGAttributeHandler"/>
     
@@ -165,20 +262,21 @@
         <property name="customerAccountService" ref="customerAccountService"/>
         <property name="addressConverter" ref="addressConverter" />
         <property name="kpCustomerFacade" ref="kpCustomerFacade"/>
-        <property name="kpConfigFacade" ref="kpConfigFacade"/>
+        <property name="klarnaConfigFacade" ref="klarnaConfigFacade"/>
         <property name="kpCreditSessionInitialPopulator" ref="kpCreditSessionInitialPopulator"/>
+        <property name="siteConfigService" ref="siteConfigService"/>
     </bean>
     <alias name="defaultKPCreditSessionAttPopulator" alias="kpCreditSessionAttPopulator"/>
     <bean id="defaultKPCreditSessionAttPopulator" class="com.klarna.payment.converter.populator.KPCreditSessionAttPopulator">
         <property name="userService" ref="userService"/>
         <property name="customerFacade" ref="customerFacade"/>
         <property name="kpCustomerFacade" ref="kpCustomerFacade"/>
-        <property name="kpConfigFacade" ref="kpConfigFacade"/>
+        <property name="klarnaConfigFacade" ref="klarnaConfigFacade"/>
         <property name="kpCreditSessionPopulator" ref="kpCreditSessionPopulator"/>
     </bean>
     <alias name="defaultKPCreditSessionInitialPopulator" alias="kpCreditSessionInitialPopulator"/>
     <bean id="defaultKPCreditSessionInitialPopulator" class="com.klarna.payment.converter.populator.KPCreditSessionInitialPopulator">
-        <property name="kpConfigFacade" ref="kpConfigFacade"/>
+        <property name="klarnaConfigFacade" ref="klarnaConfigFacade"/>
         <property name="productModelUrlResolver" ref="productModelUrlResolver" />
         <property name="pageTitleResolver" ref="pageTitleResolver" />
         <property name="baseSiteService" ref="baseSiteService" />
@@ -193,7 +291,7 @@
     <alias name="defaultKPCurrencyConversionService" alias="kpCurrencyConversionService"/>
     <bean id="defaultKPCurrencyConversionService" class="com.klarna.payment.services.impl.DefaultKPCurrencyConversionService">
         <property name="commonI18NService" ref="commonI18NService"/>
-        <property name="kpConfigFacade" ref="kpConfigFacade"/>
+        <property name="klarnaConfigFacade" ref="klarnaConfigFacade"/>
     </bean>
     <bean id="pageTitleResolver" class="de.hybris.platform.acceleratorservices.storefront.util.PageTitleResolver" >
 		<property name="cmsSiteService" ref="cmsSiteService"/>
@@ -216,7 +314,7 @@
     <bean id="defaultKPPaymentFacade" class="com.klarna.payment.facades.impl.DefaultKPPaymentFacade">
         <property name="cartService" ref="cartService"/>
         <property name="modelService" ref="modelService"/>
-        <property name="kpConfigFacade" ref="kpConfigFacade"/>
+        <property name="klarnaConfigFacade" ref="klarnaConfigFacade"/>
         <property name="klarnaCreditSessionConverter" ref="klarnaCreditSessionConverter"/>
         <property name="klarnaCreditSessionAttConverter" ref="klarnaCreditSessionAttConverter"/>
         <property name="klarnaCreditSessionInitialConverter" ref="klarnaCreditSessionInitialConverter"/>
@@ -248,7 +346,7 @@
         <property name="kpAddressReverseConverter" ref="kpAddressReverseConverter"/>
         <property name="cartService" ref="cartService"/>
         <property name="modelService" ref="modelService"/>
-        <property name="kpConfigFacade" ref="kpConfigFacade"/>
+        <property name="klarnaConfigFacade" ref="klarnaConfigFacade"/>
         <property name="kpPaymentFacade" ref="kpPaymentFacade"/>
         <property name="paymentModeService" ref="paymentModeService"/>
         <property name="kpCurrencyConversionService" ref="kpCurrencyConversionService" />
@@ -272,7 +370,7 @@
         <property name="userService" ref="userService"/>
         <property name="cartService" ref="cartService"/>
         <property name="businessProcessService" ref="businessProcessService"/>
-        <property name="kpConfigFacade" ref="kpConfigFacade"/>
+        <property name="klarnaConfigFacade" ref="klarnaConfigFacade"/>
         <property name="kpPaymentFacade" ref="kpPaymentFacade"/>
    		<property name="baseStoreService" ref="baseStoreService"/>
    		<property name="customerAccountService" ref="customerAccountService"/>
@@ -287,11 +385,10 @@
         <property name="cartService" ref="cartService"/>
         <property name="customerEmailResolutionService" ref="customerEmailResolutionService"/>
     </bean>
-	<alias name="defaultKPConfigFacade" alias="kpConfigFacade"/>
-    <bean id="defaultKPConfigFacade" class="com.klarna.payment.facades.impl.DefaultKPConfigFacade">
-        <!-- setter injection example -->
+	<alias name="defaultKlarnaConfigFacade" alias="klarnaConfigFacade"/>
+    <bean id="defaultKlarnaConfigFacade" class="com.klarna.payment.facades.impl.DefaultKlarnaConfigFacade">
         <property name="baseStoreService" ref="baseStoreService"/>
-        <property name="klarnaPaymentConfigConverter" ref="klarnaPaymentConfigConverter"/>
+        <property name="klarnaConfigConverter" ref="klarnaConfigConverter"/>
     </bean>	
     
     <alias name="eventPublishingSubmitOrderStrategy" alias="eventPublishingSubmitOrderStrategy"/>
@@ -343,7 +440,6 @@
     <!-- Populator for Payment order request after sdk upgrade -->
     <alias name="defaultKlarnaPaymentOrderPopulator" alias="kpPaymentOrderPopulator"/>
     <bean id="defaultKlarnaPaymentOrderPopulator" class="com.klarna.payment.converter.populator.KlarnaPaymentOrderPopulator">
-    <property name="kpConfigFacade" ref="kpConfigFacade"/>
     </bean>
      <alias name="defaultKlarnaPaymentOrderConverter" alias="klarnaPaymentOrderConverter"/>
     <bean id="defaultKlarnaPaymentOrderConverter" parent="abstractPopulatingConverter">
@@ -378,6 +474,7 @@
     <bean id="defaultKlarnaOrderCapturePopulator" class="com.klarna.payment.converter.populator.KlarnaOrderCapturePopulator">
     <property name="klarnaCaptureShippingInfoConverter" ref="klarnaCaptureShippingInfoConverter"/>
 	<property name="commonI18NService" ref="commonI18NService"/>
+	<property name="klarnaConfigFacade" ref="klarnaConfigFacade"/>
     </bean>
     
     
@@ -408,7 +505,7 @@
 	</bean>
 	
 	
-	<alias name="defaultKlarnaExpCheckoutConfigConverter" alias="klarnaExpCheckoutConfigConverter"/>
+<!-- 	<alias name="defaultKlarnaExpCheckoutConfigConverter" alias="klarnaExpCheckoutConfigConverter"/>
     <bean id="defaultKlarnaExpCheckoutConfigConverter" parent="abstractPopulatingConverter">
         <property name="targetClass" value="com.klarna.payment.data.KlarnaExpCheckoutConfigData"/>
         <property name="populators">
@@ -420,7 +517,7 @@
     
     <alias name="defaultKlarnaExpCheckoutConfigPopulator" alias="klarnaExpCheckoutConfigPopulator"/>
     <bean id="defaultKlarnaExpCheckoutConfigPopulator" class="com.klarna.payment.converter.populator.KlarnaExpCheckoutConfigPopulator">
-    </bean>
+    </bean> -->
     
 	<alias name="defaultKlarnaExpCheckoutFacade" alias="klarnaExpCheckoutFacade"/>
     <bean id="defaultKlarnaExpCheckoutFacade" class="com.klarna.payment.facades.impl.DefaultKlarnaExpCheckoutFacade">
@@ -466,6 +563,38 @@
     
     <alias name="defaultKlarnaPaymentsAddressPopulator" alias="klarnaPaymentsAddressPopulator"/>
     <bean id="defaultKlarnaPaymentsAddressPopulator" class="com.klarna.payment.converter.populator.KlarnaPaymentsAddressPopulator">
+    </bean>
+    
+<!--     <alias name="defaultKlarnaSignInConfigPopulator" alias="klarnaSignInConfigPopulator"/>
+    <bean id="defaultKlarnaSignInConfigPopulator" class="com.klarna.payment.converter.populator.KlarnaSignInConfigPopulator">
+    </bean>
+    
+    <alias name="defaultKlarnaSignInConfigConverter" alias="klarnaSignInConfigConverter"/>
+    <bean id="defaultKlarnaSignInConfigConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.klarna.payment.data.KlarnaSignInConfigData"/>
+        <property name="populators">
+            <list>
+                <ref bean="klarnaSignInConfigPopulator"/>
+            </list>
+        </property>
+    </bean> -->
+    
+    <alias name="defaultKlarnaCustomerProfileReverseConverter" alias="klarnaCustomerProfileReverseConverter"/>
+    <bean id="defaultKlarnaCustomerProfileReverseConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.klarna.payment.model.KlarnaCustomerProfileModel"/>
+        <property name="populators">
+            <list>
+                <ref bean="klarnaCustomerProfileReversePopulator"/>
+            </list>
+        </property>
+    </bean>   
+    
+    <alias name="defaultKlarnaCustomerProfileReversePopulator" alias="klarnaCustomerProfileReversePopulator"/>
+    <bean id="defaultKlarnaCustomerProfileReversePopulator" class="com.klarna.payment.converter.populator.KlarnaCustomerProfileReversePopulator">
+    </bean>
+    
+	<alias name="defaultKlarnaSignInFacade" alias="klarnaSignInFacade"/>
+    <bean id="defaultKlarnaSignInFacade" class="com.klarna.payment.facades.impl.DefaultKlarnaSignInFacade">
     </bean>
     
 </beans>

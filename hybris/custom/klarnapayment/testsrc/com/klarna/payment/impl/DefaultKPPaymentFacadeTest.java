@@ -42,8 +42,10 @@ import com.klarna.api.payments.PaymentsSessionsApi;
 import com.klarna.api.payments.model.PaymentsCreateOrderRequest;
 import com.klarna.api.payments.model.PaymentsMerchantSession;
 import com.klarna.api.payments.model.PaymentsSession;
-import com.klarna.payment.data.KlarnaConfigData;
-import com.klarna.payment.facades.KPConfigFacade;
+import com.klarna.data.KlarnaConfigData;
+import com.klarna.payment.constants.KlarnapaymentConstants;
+import com.klarna.payment.enums.KlarnaEnv;
+import com.klarna.payment.facades.KlarnaConfigFacade;
 import com.klarna.payment.facades.impl.DefaultKPPaymentFacade;
 import com.klarna.payment.model.KPPaymentInfoModel;
 import com.klarna.payment.services.KPOrderService;
@@ -53,7 +55,7 @@ import com.klarna.payment.services.KPOrderService;
 public class DefaultKPPaymentFacadeTest
 {
 	@Mock
-	private KPConfigFacade kpConfigFacade;
+	private KlarnaConfigFacade klarnaConfigFacade;
 	@Mock
 	private CartService cartService;
 	@Mock
@@ -96,7 +98,7 @@ public class DefaultKPPaymentFacadeTest
 		Mockito.doReturn(klarnaCreditSessionInitialConverter).when(defaultKPPaymentFacade).getKlarnaCreditSessionInitialConverter();
 		Mockito.doReturn(kpOrderService).when(defaultKPPaymentFacade).getKpOrderService();
 		Mockito.doReturn(kpAddressReverseConverter).when(defaultKPPaymentFacade).getKpAddressReverseConverter();
-		Mockito.doReturn(kpConfigFacade).when(defaultKPPaymentFacade).getKpConfigFacade();
+		Mockito.doReturn(klarnaConfigFacade).when(defaultKPPaymentFacade).getKlarnaConfigFacade();
 		Mockito.doReturn(kpAddressReverseConverter).when(defaultKPPaymentFacade).getKpAddressReverseConverter();
 		Mockito.doReturn(klarnaPaymentOrderConverter).when(defaultKPPaymentFacade).getKlarnaPaymentOrderConverter();
 		Mockito.doReturn(commerceCartCalculationStrategy).when(defaultKPPaymentFacade).getCommerceCartCalculationStrategy();
@@ -115,17 +117,17 @@ public class DefaultKPPaymentFacadeTest
 		cartmodel.setPaymentInfo(paymentInfoModel);
 
 		final KlarnaConfigData klarnConfig = new KlarnaConfigData();
-		klarnConfig.setMerchantID("ABCD");
-		klarnConfig.setSharedSecret("1234");
-		klarnConfig.setEndpointMode("LIVE");
-		klarnConfig.setEndpointType("KPEndpointType.NORTH_AMERICA");
+		klarnConfig.getCredential().setApiUserName(("ABCD"));
+		klarnConfig.getCredential().setApiPassword(("ABCD"));
+		klarnConfig.setEnvironment(KlarnaEnv.PRODUCTION.getCode());
+		klarnConfig.getCredential().setMarketRegion(KlarnapaymentConstants.KLARNA_MARKET_REGION_EUROPE);
 
 		final PaymentsSession result = new PaymentsSession();
 		result.setClientToken("1234");
 
 		Mockito.doReturn(session).when(defaultKPPaymentFacade).getKlarnaCreditSession(Mockito.anyString());
 		Mockito.doReturn(cartmodel).when(cartService).getSessionCart();
-		Mockito.doReturn(klarnConfig).when(kpConfigFacade).getKlarnaConfig();
+		Mockito.doReturn(klarnConfig).when(klarnaConfigFacade).getKlarnaConfig();
 		Mockito.doReturn(new AddressModel()).when(kpAddressReverseConverter).convert(Mockito.any(AddressData.class));
 		Mockito.doReturn(klarnaCreditSessionData).when(klarnaCreditSessionConverter).convert(Mockito.any(CartModel.class));
 		Mockito.doReturn(sessionResponse).when(session).create(Mockito.any(PaymentsSession.class));
@@ -149,17 +151,17 @@ public class DefaultKPPaymentFacadeTest
 		cartmodel.setPaymentInfo(paymentInfoModel);
 
 		final KlarnaConfigData klarnConfig = new KlarnaConfigData();
-		klarnConfig.setMerchantID("ABCD");
-		klarnConfig.setSharedSecret("1234");
-		klarnConfig.setEndpointMode("LIVE");
-		klarnConfig.setEndpointType("KPEndpointType.NORTH_AMERICA");
+		klarnConfig.getCredential().setApiUserName(("ABCD"));
+		klarnConfig.getCredential().setApiPassword(("ABCD"));
+		klarnConfig.setEnvironment(KlarnaEnv.PRODUCTION.getCode());
+		klarnConfig.getCredential().setMarketRegion(KlarnapaymentConstants.KLARNA_MARKET_REGION_EUROPE);
 
 		final PaymentsSession result = new PaymentsSession();
 		result.setClientToken("1234");
 
 		Mockito.doReturn(session).when(defaultKPPaymentFacade).getKlarnaCreditSession(Mockito.anyString());
 		Mockito.doReturn(cartmodel).when(cartService).getSessionCart();
-		Mockito.doReturn(klarnConfig).when(kpConfigFacade).getKlarnaConfig();
+		Mockito.doReturn(klarnConfig).when(klarnaConfigFacade).getKlarnaConfig();
 		Mockito.doReturn(new AddressModel()).when(kpAddressReverseConverter).convert(Mockito.any(AddressData.class));
 		Mockito.doReturn(klarnaCreditSessionData).when(klarnaCreditSessionConverter).convert(Mockito.any(CartModel.class));
 		Mockito.doReturn(sessionResponse).when(session).create(Mockito.any(PaymentsSession.class));
@@ -183,17 +185,17 @@ public class DefaultKPPaymentFacadeTest
 		cartmodel.setPaymentInfo(paymentInfoModel);
 
 		final KlarnaConfigData klarnConfig = new KlarnaConfigData();
-		klarnConfig.setMerchantID("ABCD");
-		klarnConfig.setSharedSecret("1234");
-		klarnConfig.setEndpointMode("LIVE");
-		klarnConfig.setEndpointType("KPEndpointType.EUROPE");
+		klarnConfig.getCredential().setApiUserName(("ABCD"));
+		klarnConfig.getCredential().setApiPassword(("ABCD"));
+		klarnConfig.setEnvironment(KlarnaEnv.PRODUCTION.getCode());
+		klarnConfig.getCredential().setMarketRegion(KlarnapaymentConstants.KLARNA_MARKET_REGION_EUROPE);
 
 		final PaymentsSession result = new PaymentsSession();
 		result.setClientToken("1234");
 
 		Mockito.doReturn(session).when(defaultKPPaymentFacade).getKlarnaCreditSession(Mockito.anyString());
 		Mockito.doReturn(cartmodel).when(cartService).getSessionCart();
-		Mockito.doReturn(klarnConfig).when(kpConfigFacade).getKlarnaConfig();
+		Mockito.doReturn(klarnConfig).when(klarnaConfigFacade).getKlarnaConfig();
 		Mockito.doReturn(new AddressModel()).when(kpAddressReverseConverter).convert(Mockito.any(AddressData.class));
 		Mockito.doReturn(klarnaCreditSessionData).when(klarnaCreditSessionConverter).convert(Mockito.any(CartModel.class));
 		Mockito.doReturn(sessionResponse).when(session).create(Mockito.any(PaymentsSession.class));
@@ -218,13 +220,13 @@ public class DefaultKPPaymentFacadeTest
 		cartmodel.setPaymentInfo(paymentInfoModel);
 
 		final KlarnaConfigData klarnConfig = new KlarnaConfigData();
-		klarnConfig.setMerchantID("ABCD");
-		klarnConfig.setSharedSecret("1234");
-		klarnConfig.setEndpointMode("LIVE");
-		klarnConfig.setEndpointType("KPEndpointType.EUROPE");
-		klarnConfig.setMerchantReference2("guid");
+		klarnConfig.getCredential().setApiUserName(("ABCD"));
+		klarnConfig.getCredential().setApiPassword(("ABCD"));
+		klarnConfig.setEnvironment(KlarnaEnv.PRODUCTION.getCode());
+		klarnConfig.getCredential().setMarketRegion(KlarnapaymentConstants.KLARNA_MARKET_REGION_EUROPE);
+		klarnConfig.getKpConfig().setMerchantReference2("guid");
 
-		Mockito.doReturn(klarnConfig).when(kpConfigFacade).getKlarnaConfig();
+		Mockito.doReturn(klarnConfig).when(klarnaConfigFacade).getKlarnaConfig();
 		Mockito.doReturn(cartmodel).when(kpOrderService).getOderForKlarnaOrderId(Mockito.anyString());
 		Mockito.doReturn(cartmodel).when(modelService).getAttributeValue(Mockito.any(), Mockito.anyString());
 		Mockito.doNothing().when(klarnaOrder).updateMerchantReferences(Mockito.anyString(),

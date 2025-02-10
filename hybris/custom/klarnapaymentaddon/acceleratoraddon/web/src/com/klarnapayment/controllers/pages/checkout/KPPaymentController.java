@@ -13,6 +13,8 @@ import de.hybris.platform.order.CartService;
 import java.io.IOException;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang.StringUtils;
@@ -26,8 +28,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.klarna.api.model.ApiException;
+import com.klarna.api.payments.model.KlarnaPaymentAuthCallbackResponse;
 import com.klarna.api.payments.model.PaymentsSession;
-import com.klarna.payment.facades.KPConfigFacade;
 import com.klarna.payment.facades.KPPaymentCheckoutFacade;
 import com.klarna.payment.facades.KPPaymentFacade;
 import com.klarna.payment.model.KPPaymentInfoModel;
@@ -52,8 +54,6 @@ public class KPPaymentController extends AbstractPageController
 	private KPPaymentCheckoutFacade kpPaymentCheckoutFacade;
 	@Resource(name = "i18NFacade")
 	private I18NFacade i18NFacade;
-	@Resource(name = "kpConfigFacade")
-	private KPConfigFacade kpConfigFacade;
 	@Resource(name = "cartService")
 	private CartService cartService;
 
@@ -96,6 +96,39 @@ public class KPPaymentController extends AbstractPageController
 
 		}
 		return creditSessionData;
+	}
+
+	@RequestMapping(value = "/auth-callback", method = RequestMethod.POST)
+	public @ResponseBody String authCallback(@RequestBody
+	final KlarnaPaymentAuthCallbackResponse klarnaPaymentAuthCallbackResponse) throws ApiException, IOException
+	{
+		if (klarnaPaymentAuthCallbackResponse != null)
+		{
+			try
+			{
+				LogHelper.debugLog(LOG, "Going to save Authorization for Klarna Payment ");
+				LOG.info("klarnaPaymentAuthCallbackResponse Token POST "
+						+ (klarnaPaymentAuthCallbackResponse != null
+								? klarnaPaymentAuthCallbackResponse.getAuthorizationToken() + " "
+										+ klarnaPaymentAuthCallbackResponse.getSessionId()
+								: klarnaPaymentAuthCallbackResponse));
+				if (klarnaPaymentAuthCallbackResponse.getAuthorizationToken() != null)
+				{
+					kpPaymentCheckoutFacade.saveAuthorization(klarnaPaymentAuthCallbackResponse.getAuthorizationToken(), null, null);
+					//Create payment transaction
+					kpPaymentFacade.createPaymentTransaction();
+					LogHelper.debugLog(LOG, "Saved Authorization Token for Klarna Payment with Session Id :: "
+							+ klarnaPaymentAuthCallbackResponse.getSessionId());
+					return "success";
+				}
+				return "failure";
+			}
+			catch (Exception e)
+			{
+				LOG.error("Error in while processing  /payment ", e);
+			}
+		}
+		return "failure";
 	}
 
 	protected AddressData getBillingAddressData(final KPAddressForm billingAddress)
@@ -171,7 +204,7 @@ public class KPPaymentController extends AbstractPageController
 			{
 				KPPaymentInfoModel kpPaymentInfo = (KPPaymentInfoModel) cart.getPaymentInfo();
 				String authToken = kpPaymentInfo.getAuthToken();
-				if (authToken != null || !authToken.equals(""))
+				if (StringUtils.isNotBlank(authToken))
 				{
 					//Cancel Klarna Authorzation
 					kpPaymentFacade.getKlarnaDeleteAuthorization(authToken);

@@ -1,5 +1,6 @@
 package com.klarna.payment.converter.populator;
 
+import de.hybris.platform.acceleratorservices.config.SiteConfigService;
 import de.hybris.platform.commercefacades.customer.CustomerFacade;
 import de.hybris.platform.commercefacades.user.data.AddressData;
 import de.hybris.platform.commerceservices.customer.CustomerAccountService;
@@ -19,10 +20,12 @@ import com.klarna.api.payments.model.PaymentsAddress;
 import com.klarna.api.payments.model.PaymentsCustomer;
 import com.klarna.api.payments.model.PaymentsMerchantUrls;
 import com.klarna.api.payments.model.PaymentsSession;
-import com.klarna.payment.data.KlarnaConfigData;
+import com.klarna.data.KlarnaConfigData;
+import com.klarna.payment.constants.KlarnapaymentConstants;
 import com.klarna.payment.data.KlarnaMerchantURLs;
-import com.klarna.payment.facades.KPConfigFacade;
+import com.klarna.payment.exceptions.MissingMerchantURLException;
 import com.klarna.payment.facades.KPCustomerFacade;
+import com.klarna.payment.facades.KlarnaConfigFacade;
 import com.klarna.payment.util.KlarnaDateFormatterUtil;
 import com.klarna.payment.util.LogHelper;
 
@@ -32,8 +35,7 @@ public class KPCreditSessionPopulator implements Populator<AbstractOrderModel, P
 
 	protected static final Logger LOG = Logger.getLogger(KPCreditSessionPopulator.class);
 
-
-	private KPConfigFacade kpConfigFacade;
+	private KlarnaConfigFacade klarnaConfigFacade;
 
 
 	private KPCreditSessionInitialPopulator kpCreditSessionInitialPopulator;
@@ -43,6 +45,7 @@ public class KPCreditSessionPopulator implements Populator<AbstractOrderModel, P
 	private UserService userService;
 	private Converter<AddressModel, AddressData> addressConverter;
 	private ModelService modelService;
+	private SiteConfigService siteConfigService;
 
 
 	@Override
@@ -51,7 +54,7 @@ public class KPCreditSessionPopulator implements Populator<AbstractOrderModel, P
 		LogHelper.debugLog(LOG, "inside full populator");
 		Assert.notNull(source, "Parameter source cannot be null.");
 		Assert.notNull(target, "Parameter target cannot be null.");
-		final KlarnaConfigData klarnaConfig = kpConfigFacade.getKlarnaConfig();
+		final KlarnaConfigData klarnaConfig = klarnaConfigFacade.getKlarnaConfig();
 		kpCreditSessionInitialPopulator.populate(source, target);
 		addKlarnaOthers(source, target);
 		addMerchantReferences(source, target, klarnaConfig);
@@ -71,11 +74,13 @@ public class KPCreditSessionPopulator implements Populator<AbstractOrderModel, P
 			final KlarnaConfigData klarnaConfig)
 	{
 		target.setMerchantReference1(source.getCode());
-		if (klarnaConfig.getMerchantReference2() != null)
+		if (klarnaConfig != null && klarnaConfig.getKpConfig() != null
+				&& klarnaConfig.getKpConfig().getMerchantReference2() != null)
 		{
-			if (modelService.getAttributeValue(source, klarnaConfig.getMerchantReference2()) != null)
+			if (modelService.getAttributeValue(source, klarnaConfig.getKpConfig().getMerchantReference2()) != null)
 			{
-				final String reference2 = modelService.getAttributeValue(source, klarnaConfig.getMerchantReference2()).toString();
+				final String reference2 = modelService.getAttributeValue(source, klarnaConfig.getKpConfig().getMerchantReference2())
+						.toString();
 				target.setMerchantReference2(reference2);
 			}
 		}
@@ -117,14 +122,16 @@ public class KPCreditSessionPopulator implements Populator<AbstractOrderModel, P
 	private PaymentsMerchantUrls getMerchantUrl(final String kid)
 	{
 		LogHelper.debugLog(LOG, "Entering getMerchantUrl ");
-		final KlarnaConfigData klarnaConfig = kpConfigFacade.getKlarnaConfig();
-		final KlarnaMerchantURLs merchantUrl = klarnaConfig.getKlarnaMerchantURLs();
+		final KlarnaMerchantURLs merchantUrl = createMerchantURLs();
 		final PaymentsMerchantUrls urls = new PaymentsMerchantUrls();
 
 		String confirmationUrl = StringUtils.isNotBlank(merchantUrl.getConfirmationURL()) ? merchantUrl.getConfirmationURL()
 				: StringUtils.EMPTY;
 		String notificationUrl = StringUtils.isNotBlank(merchantUrl.getNotificationUpdateURL())
 				? merchantUrl.getNotificationUpdateURL()
+				: StringUtils.EMPTY;
+		final String authUrl = StringUtils.isNotBlank(merchantUrl.getAuthorizationUpdateURL())
+				? merchantUrl.getAuthorizationUpdateURL()
 				: StringUtils.EMPTY;
 		if (StringUtils.isNotBlank(kid) && StringUtils.isNotBlank(confirmationUrl))
 		{
@@ -135,9 +142,32 @@ public class KPCreditSessionPopulator implements Populator<AbstractOrderModel, P
 		{
 			notificationUrl = notificationUrl + "?kid=" + kid;
 		}
+
 		urls.setConfirmation(confirmationUrl);
 		urls.setNotification(notificationUrl);
+		if (StringUtils.isNotBlank(authUrl))
+		{
+			urls.setAuthorization(authUrl);
+		}
 		return urls;
+	}
+
+	private KlarnaMerchantURLs createMerchantURLs()
+	{
+		final KlarnaMerchantURLs klarnaMerchantURLs = new KlarnaMerchantURLs();
+
+		if (StringUtils.isEmpty(getSiteConfigService().getProperty(KlarnapaymentConstants.KP_MERCHANT_URL_CONFIRMATION)))
+		{
+			throw new MissingMerchantURLException(KlarnapaymentConstants.MERCHANT_CONFIRM_PAGE_URL_NOT_FIND);
+		}
+		klarnaMerchantURLs
+				.setConfirmationURL(getSiteConfigService().getProperty(KlarnapaymentConstants.KP_MERCHANT_URL_CONFIRMATION));
+
+		klarnaMerchantURLs
+				.setNotificationUpdateURL(getSiteConfigService().getProperty(KlarnapaymentConstants.KP_MERCHANT_URL_NOTIFICATION));
+		klarnaMerchantURLs
+				.setAuthorizationUpdateURL(getSiteConfigService().getProperty(KlarnapaymentConstants.KP_MERCHANT_URL_AUTHORIZATION));
+		return klarnaMerchantURLs;
 	}
 
 	private PaymentsAddress getKlarnaAddress(final AddressData addressData)
@@ -254,12 +284,12 @@ public class KPCreditSessionPopulator implements Populator<AbstractOrderModel, P
 	}
 
 	/**
-	 * @param kpConfigFacade
-	 *           the kpConfigFacade to set
+	 * @param klarnaConfigFacade
+	 *           the klarnaConfigFacade to set
 	 */
-	public void setKpConfigFacade(final KPConfigFacade kpConfigFacade)
+	public void setKlarnaConfigFacade(final KlarnaConfigFacade klarnaConfigFacade)
 	{
-		this.kpConfigFacade = kpConfigFacade;
+		this.klarnaConfigFacade = klarnaConfigFacade;
 	}
 
 	/**
@@ -269,6 +299,23 @@ public class KPCreditSessionPopulator implements Populator<AbstractOrderModel, P
 	public void setModelService(final ModelService modelService)
 	{
 		this.modelService = modelService;
+	}
+
+	/**
+	 * @return the siteConfigService
+	 */
+	public SiteConfigService getSiteConfigService()
+	{
+		return siteConfigService;
+	}
+
+	/**
+	 * @param siteConfigService
+	 *           the siteConfigService to set
+	 */
+	public void setSiteConfigService(final SiteConfigService siteConfigService)
+	{
+		this.siteConfigService = siteConfigService;
 	}
 
 }

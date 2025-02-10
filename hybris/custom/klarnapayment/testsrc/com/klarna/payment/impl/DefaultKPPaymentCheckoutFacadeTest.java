@@ -38,13 +38,14 @@ import com.klarna.api.order_management.model.OrderManagementAddress;
 import com.klarna.api.order_management.model.OrderManagementInitialPaymentMethodDto;
 import com.klarna.api.order_management.model.OrderManagementOrder;
 import com.klarna.api.order_management.model.OrderManagementOrderLine;
-import com.klarna.api.order_management.model.TypeEnum;
 import com.klarna.api.payments.model.PaymentsOrder;
-import com.klarna.payment.data.KlarnaConfigData;
+import com.klarna.data.KlarnaConfigData;
+import com.klarna.data.KlarnaCredentialData;
+import com.klarna.data.KlarnaKPConfigData;
 import com.klarna.payment.enums.KlarnaFraudStatusEnum;
 import com.klarna.payment.enums.KlarnaOrderTypeEnum;
-import com.klarna.payment.facades.KPConfigFacade;
 import com.klarna.payment.facades.KPPaymentFacade;
+import com.klarna.payment.facades.KlarnaConfigFacade;
 import com.klarna.payment.facades.impl.DefaultKPPaymentCheckoutFacade;
 import com.klarna.payment.model.KPPaymentInfoModel;
 import com.klarna.payment.services.KPCurrencyConversionService;
@@ -61,7 +62,7 @@ public class DefaultKPPaymentCheckoutFacadeTest
 	@Mock
 	private ModelService modelService;
 	@Mock
-	private KPConfigFacade kpConfigFacade;
+	private KlarnaConfigFacade klarnaConfigFacade;
 	@Mock
 	private CommerceCheckoutService commerceCheckoutService;
 	@Mock
@@ -95,7 +96,7 @@ public class DefaultKPPaymentCheckoutFacadeTest
 		Mockito.doReturn(commonI18NService).when(defaultKPPaymentCheckoutFacade).getCommonI18NService();
 		Mockito.doReturn(deliveryService).when(defaultKPPaymentCheckoutFacade).getDeliveryService();
 		Mockito.doReturn(kpAddressReverseConverter).when(defaultKPPaymentCheckoutFacade).getKpAddressReverseConverter();
-		Mockito.doReturn(kpConfigFacade).when(defaultKPPaymentCheckoutFacade).getKpConfigFacade();
+		//Mockito.doReturn(klarnaConfigFacade).when(defaultKPPaymentCheckoutFacade).getKlarnaConfigFacade();
 		Mockito.doReturn(kpCurrencyConversionService).when(defaultKPPaymentCheckoutFacade).getKpCurrencyConversionService();
 		Mockito.doReturn(kpPaymentFacade).when(defaultKPPaymentCheckoutFacade).getKpPaymentFacade();
 		Mockito.doReturn(kpPaymentInfoService).when(defaultKPPaymentCheckoutFacade).getKpPaymentInfoService();
@@ -132,10 +133,14 @@ public class DefaultKPPaymentCheckoutFacadeTest
 	public void testSaveKlarnaOrderId()
 	{
 		final KlarnaConfigData klarnaConfig = new KlarnaConfigData();
-		klarnaConfig.setIsVCNEnabled(true);
-		klarnaConfig.setVcnKeyID("1234");
-		klarnaConfig.setAutoCapture(Boolean.FALSE);
-		Mockito.doReturn(klarnaConfig).when(kpConfigFacade).getKlarnaConfig();
+		final KlarnaKPConfigData kpConfig = new KlarnaKPConfigData();
+		final KlarnaCredentialData cred = new KlarnaCredentialData();
+		cred.setVcnEnabled(true);
+		cred.setVcnKey("1234");
+		kpConfig.setAutoCapture(Boolean.FALSE);
+		klarnaConfig.setCredential(cred);
+		klarnaConfig.setKpConfig(kpConfig);
+		Mockito.doReturn(klarnaConfig).when(klarnaConfigFacade).getKlarnaConfig();
 
 		final CartModel cartmodel = new CartModel();
 		final KPPaymentInfoModel paymentInfoModel = new KPPaymentInfoModel();
@@ -147,16 +152,13 @@ public class DefaultKPPaymentCheckoutFacadeTest
 
 		try
 		{
-			Mockito.doNothing().when(defaultKPPaymentCheckoutFacade)
-					.handleSettlement(Mockito.any(CartModel.class), Mockito.anyString());
+			Mockito.doNothing().when(defaultKPPaymentCheckoutFacade).handleSettlement(Mockito.any(CartModel.class),
+					Mockito.anyString());
 			Mockito.doNothing().when(modelService).save(Mockito.any(CartModel.class));
 			Mockito.doReturn(new PaymentTransactionModel()).when(kpPaymentInfoService).findKpPaymentTransaction(Mockito.anyString());
-			Mockito
-					.doNothing()
-					.when(kpPaymentFacade)
-					.createTransactionEntry(Mockito.anyString(), Mockito.any(KPPaymentInfoModel.class),
-							Mockito.any(PaymentTransactionModel.class), Mockito.any(PaymentTransactionType.class), Mockito.anyString(),
-							Mockito.anyString());
+			Mockito.doNothing().when(kpPaymentFacade).createTransactionEntry(Mockito.anyString(),
+					Mockito.any(KPPaymentInfoModel.class), Mockito.any(PaymentTransactionModel.class),
+					Mockito.any(PaymentTransactionType.class), Mockito.anyString(), Mockito.anyString());
 			defaultKPPaymentCheckoutFacade.saveKlarnaOrderId(authorizationResponse);
 			System.out.println(cartmodel.getKpOrderId());
 			Assert.assertEquals("12345", cartmodel.getKpOrderId());
@@ -176,10 +178,10 @@ public class DefaultKPPaymentCheckoutFacadeTest
 		cartmodel.setPaymentInfo(paymentInfoModel);
 
 		final KlarnaConfigData klarnaConfig = new KlarnaConfigData();
-		klarnaConfig.setIsVCNEnabled(true);
-		klarnaConfig.setVcnKeyID("1234");
+		klarnaConfig.getCredential().setVcnEnabled(true);
+		klarnaConfig.getCredential().setVcnKey("1234");
 
-		Mockito.doReturn(klarnaConfig).when(kpConfigFacade).getKlarnaConfig();
+		Mockito.doReturn(klarnaConfig).when(klarnaConfigFacade).getKlarnaConfig();
 
 		try
 		{
@@ -297,7 +299,7 @@ public class DefaultKPPaymentCheckoutFacadeTest
 
 		final OrderManagementOrder orderManagementOrder = new OrderManagementOrder();
 		final OrderManagementInitialPaymentMethodDto dto = new OrderManagementInitialPaymentMethodDto();
-		dto.setType(TypeEnum.CARD);
+		dto.setType("CARD");
 		dto.setDescription("Test");
 		dto.setNumberOfInstallments(7);
 		orderManagementOrder.setInitialPaymentMethod(dto);

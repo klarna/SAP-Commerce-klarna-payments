@@ -19,6 +19,4 @@ public final class KlarnaosmaddonWebConstants // NOSONAR
 	{
 		//empty to avoid instantiating this constant class
 	}
-
-	// implement here constants used by this extension
 }

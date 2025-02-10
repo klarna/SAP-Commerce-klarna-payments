@@ -16,7 +16,8 @@
 	<!--<context component="component-code" module="klarnapaymentbackoffice">-->
 		<!--Please check documentation for code snippets for specific components-->
 	<!--</context>-->
-<context component="explorer-tree" merge-by="module">
+	
+	<context component="explorer-tree" merge-by="module">
       <n:explorer-tree xmlns:n="http://www.hybris.com/cockpitng/config/explorertree">
             <n:navigation-node id="Klarna">
                 <n:type-node id="KlarnaPayConfig" code="KlarnaPayConfig" />
@@ -41,7 +42,7 @@
 	            <as:field name="merchantID" selected="true" sortable="true"/>
 	            <as:field name="active" operator="equal" selected="false" sortable="false"/>
 	            <as:field name="merchantEmail" operator="equal" selected="false" sortable="false"/>
-	            <!-- <as:field name="endPointUrl" operator="equal" selected="false" sortable="false"/>  -->
+	            <as:field name="endPointUrl" operator="equal" selected="false" sortable="false"/> 
 	            <as:field name="endpointType" operator="equal" selected="false" sortable="false"/> 
 	            <as:field name="endpointMode" operator="equal" selected="false" sortable="false"/>
 	            <as:field name="purchaseCurrency" operator="equal" selected="false" sortable="false"/>
@@ -77,7 +78,7 @@
 	            <editorArea:section name="klarna.main">
 	                <editorArea:attribute qualifier="merchantID"/>
 	                <editorArea:attribute qualifier="endpointType"/>
-	               <!--  <editorArea:attribute qualifier="endPointUrl"/> -->
+	                <editorArea:attribute qualifier="endPointUrl"/>
 	                <editorArea:attribute qualifier="sharedSecret"/>
 	                <editorArea:attribute qualifier="endpointMode"/>
 	                <editorArea:attribute qualifier="merchantEmail"/>
@@ -126,7 +127,7 @@
 	                    <wz:property qualifier="merchantEmail" type="java.lang.String"/>
 	                    <wz:property qualifier="sharedSecret" type="java.lang.String"/>
 	                    <wz:property qualifier="endpointType"/>
-	                    <!-- <wz:property qualifier="endPointUrl" type="java.lang.String"/> -->
+	                    <wz:property qualifier="endPointUrl" type="java.lang.String"/>
 	                    <wz:property qualifier="endpointMode"/>
 	                </wz:property-list>
 	            </wz:content>
@@ -194,14 +195,29 @@
 	            </y:labels>
 	        </y:base>
 	</context>
+	
 	<context merge-by="type" parent="GenericItem" type="BaseStore" component="editor-area">
 	        <editorArea:editorArea xmlns:editorArea="http://www.hybris.com/cockpitng/component/editorArea">
 	            <editorArea:tab name="hmc.properties">
-	                <editorArea:section name="kp.basestore.config">
-	                    <editorArea:attribute xmlns="http://www.hybris.com/cockpitng/component/editorArea" qualifier="klarnaPayConfig"/>
+	            	<editorArea:section name="kp.basestore.config">
+							<editorArea:attribute xmlns="http://www.hybris.com/cockpitng/component/editorArea" qualifier="klarnaPayConfig"/>
+					</editorArea:section>
+					<editorArea:section name="klarnaexpcheckoutconfig.basestore.config">
+							<editorArea:attribute xmlns="http://www.hybris.com/cockpitng/component/editorArea" qualifier="klarnaExpCheckoutConfig"/>
+					</editorArea:section>
+	                <editorArea:section name="klarna.config.section">
+	                    <editorArea:attribute xmlns="http://www.hybris.com/cockpitng/component/editorArea" qualifier="KlarnaConfig"/>
 	                </editorArea:section>
-	                <editorArea:section name="klarnaexpcheckoutconfig.basestore.config">
-	                    <editorArea:attribute xmlns="http://www.hybris.com/cockpitng/component/editorArea" qualifier="klarnaExpCheckoutConfig"/>
+	            </editorArea:tab>
+	        </editorArea:editorArea>
+     </context> 
+     
+     
+     <context merge-by="type" parent="User" type="Customer" component="editor-area">
+	        <editorArea:editorArea xmlns:editorArea="http://www.hybris.com/cockpitng/component/editorArea">
+	            <editorArea:tab name="hmc.properties">
+	                <editorArea:section name="klarnasigninconfi.customer.config">
+	                    <editorArea:attribute xmlns="http://www.hybris.com/cockpitng/component/editorArea" qualifier="klarnaCustomerProfile"/>
 	                </editorArea:section>
 	            </editorArea:tab>
 	        </editorArea:editorArea>
@@ -315,5 +331,709 @@
 	                <y:label>code</y:label>
 	            </y:labels>
 	        </y:base>
-	</context> 
+	</context>
+	<!-- ######### Klarna Config Redesign ######### -->
+	<!-- Klarna Config - starts -->
+	<context component="explorer-tree" merge-by="module">
+      <n:explorer-tree xmlns:n="http://www.hybris.com/cockpitng/config/explorertree">
+            <n:navigation-node id="Klarna">
+                <n:type-node id="KlarnaConfig" code="KlarnaConfig" name="Klarna Config"/>
+            </n:navigation-node>
+        </n:explorer-tree>
+	</context>
+	<context type="KlarnaConfig" component="listview">
+	    <list:list-view xmlns:list="http://www.hybris.com/cockpitng/component/listView">
+	        <list:column qualifier="code"/>
+	        <list:column qualifier="active"/>
+	    </list:list-view>
+	</context>
+	<context type="KlarnaConfig" component="simple-search">
+	    <yss:simple-search xmlns:yss="http://www.hybris.com/cockpitng/config/simplesearch">
+	        <yss:field name="code"/>
+	    </yss:simple-search>
+	</context>
+	<context type="KlarnaConfig" component="advanced-search">
+	    <as:advanced-search xmlns:as="http://www.hybris.com/cockpitng/config/advancedsearch" connection-operator="AND">
+	        <as:field-list>
+	            <as:field name="code"			operator="contains"	selected="true"/>
+	            <as:field name="active"			operator="equal"	selected="true" sortable="false"/>
+	            <as:field name="environment"	operator="equal" 	selected="true" sortable="false"/>
+	        </as:field-list>
+	        <as:sort-field name="code" asc="true" />     
+	    </as:advanced-search>
+	</context>
+	<context merge-by="module" component="editor-area" type="KlarnaConfig" module="commerceservicesbackoffice">
+	    <editorArea:editorArea xmlns:editorArea="http://www.hybris.com/cockpitng/component/editorArea">
+	        <editorArea:tab name="klarna.general">
+	            <editorArea:section name="klarna.essentials">
+	                <editorArea:attribute qualifier="code"/>
+	                <editorArea:attribute qualifier="active"/>
+					<editorArea:attribute qualifier="environment"/>
+					<editorArea:attribute qualifier="baseStores"/>
+	            </editorArea:section>
+	            <editorArea:section name="klarna.credentials">
+	                <editorArea:attribute qualifier="credentials"/>
+	            </editorArea:section>
+	            <editorArea:section name="klarna.kp.section.label">
+	                <editorArea:attribute qualifier="kpConfig"/>
+	            </editorArea:section>
+	            <editorArea:section name="klarna.kec.section.label">
+	            	<editorArea:attribute qualifier="kecConfig"/>
+	            </editorArea:section>
+	            <editorArea:section name="klarna.siwk.section.label">
+	            	<editorArea:attribute qualifier="siwkConfig"/>
+	            </editorArea:section>
+	            <editorArea:section name="klarna.osm.section.label">
+	                <editorArea:attribute qualifier="osmConfig"/>
+	            </editorArea:section>
+	        </editorArea:tab>
+	    </editorArea:editorArea>
+	</context>
+	<context component="create-wizard" type="KlarnaConfig" merge-by="module">
+	    <wz:flow xmlns:wz="http://www.hybris.com/cockpitng/config/wizard-config" id="KlarnaConfigWizard" title="create.title(ctx.TYPE_CODE)">
+	        <wz:prepare id="KlarnaConfigPrepare">
+	             <wz:initialize property="newKlarnaConfig" type="ctx.TYPE_CODE"/>	            
+	        </wz:prepare>
+	        <wz:step id="step1" label="create.klarnaconfig.maininfo.label" sublabel="create.klarnaconfig.maininfo.sublabel">
+	            <wz:content id="step1.content">
+	                <wz:property-list root="newKlarnaConfig">
+	                    <wz:property qualifier="code" type="java.lang.String"/>
+	                    <wz:property qualifier="active" type="java.lang.Boolean"/>
+	                    <wz:property qualifier="environment" editor="com.klarna.payment.editor.attributenameenum(KlarnaEnv)"/>
+						<wz:property qualifier="credentials"/>
+						<wz:property qualifier="baseStores"/>
+	                </wz:property-list>
+	            </wz:content>
+	            <wz:navigation id="step1.navigation">
+					<wz:cancel/>
+					<wz:next visible="!#empty(newKlarnaConfig.code) and  (newKlarnaConfig.active!=null) and (newKlarnaConfig.environment!=null) and (newKlarnaConfig.baseStores!=null)"/>
+					<wz:done visible="!#empty(newKlarnaConfig.code) and  (newKlarnaConfig.active!=null) and (newKlarnaConfig.environment!=null) and (newKlarnaConfig.baseStores!=null)">
+	               		<wz:save property="newKlarnaConfig"/>
+					</wz:done>
+	            </wz:navigation>
+	        </wz:step>
+			<wz:step id="step2" label="create.klarnaconfig.subinfo.label" sublabel="create.klarnaconfig.subinfo.sublabel">
+	            <wz:content id="step2.content">
+	                <wz:property-list root="newKlarnaConfig">
+	                    <wz:property qualifier="kpConfig"/>
+	                    <wz:property qualifier="kecConfig"/>
+	                    <wz:property qualifier="siwkConfig"/>
+	                    <wz:property qualifier="osmConfig"/>
+	                </wz:property-list>
+	            </wz:content>
+	            <wz:navigation id="step2.navigation">
+		            <wz:cancel />
+					<wz:back />
+	                <wz:done>
+	                    <wz:save property="newKlarnaConfig"/>
+	                </wz:done>   
+	            </wz:navigation>
+	        </wz:step>
+	    </wz:flow>
+	</context>
+	<context type="KlarnaConfig" component="base" merge-by="type" parent="GenericItem">
+	        <y:base xmlns:y="http://www.hybris.com/cockpit/config/hybris">
+	            <y:labels>
+	                <y:label>code</y:label>
+	            </y:labels>
+	        </y:base>
+	</context>
+	<!-- Klarna Config - ends   -->
+	<!-- Klarna Credentials - starts -->
+	<context component="explorer-tree" merge-by="module">
+      <n:explorer-tree xmlns:n="http://www.hybris.com/cockpitng/config/explorertree">
+            <n:navigation-node id="Klarna">
+                <n:type-node id="KlarnaCredential" code="KlarnaCredential" />
+            </n:navigation-node>
+        </n:explorer-tree>
+	</context>
+	<context type="KlarnaCredential" component="listview">
+	    <list:list-view xmlns:list="http://www.hybris.com/cockpitng/component/listView">
+	        <list:column qualifier="code"/>
+	        <list:column qualifier="clientId"/>
+			<list:column qualifier="marketRegion"/>
+	    </list:list-view>
+	</context>
+	<context type="KlarnaCredential" component="simple-search">
+	    <yss:simple-search xmlns:yss="http://www.hybris.com/cockpitng/config/simplesearch">
+	        <yss:field name="code"/>
+	    </yss:simple-search>
+	</context>
+	<context type="KlarnaCredential" component="advanced-search">
+	    <as:advanced-search xmlns:as="http://www.hybris.com/cockpitng/config/advancedsearch" connection-operator="AND">
+	        <as:field-list>
+	            <as:field name="code"				operator="contains"	selected="true"/>
+	            <as:field name="clientId"			operator="equal"	selected="true" sortable="false"/>
+	            <as:field name="marketRegion"		operator="equal" 	selected="true" sortable="false"/>
+				<as:field name="apiUserName"		operator="contains" selected="true" sortable="false"/>
+				<as:field name="marketCountries"	operator="contains" selected="true" sortable="true"/>
+				<as:field name="vcnEnabled"			operator="equal"	selected="true" sortable="false"/>
+				<as:field name="vcnKey"				operator="equal"	selected="true" sortable="false"/>
+	        </as:field-list>
+	        <as:sort-field name="code" asc="true" />     
+	    </as:advanced-search>
+	</context>
+	<context merge-by="module" component="editor-area" type="KlarnaCredential" module="commerceservicesbackoffice">
+	    <editorArea:editorArea xmlns:editorArea="http://www.hybris.com/cockpitng/component/editorArea">
+	        <editorArea:tab name="klarna.general">
+	            <editorArea:section name="klarna.credential.sectiona">
+	                <editorArea:attribute qualifier="code"/>
+	                <editorArea:attribute qualifier="clientId"/>
+					<editorArea:attribute qualifier="apiUserName"/>
+					<editorArea:attribute qualifier="apiPassword"/>
+	            </editorArea:section>
+	            <editorArea:section name="klarna.credential.sectionb">
+	                <editorArea:attribute qualifier="marketRegion"/>
+	                <editorArea:attribute qualifier="marketCountries"/>
+	                <editorArea:attribute qualifier="vcnEnabled"/>
+	                <editorArea:attribute qualifier="vcnKey"/>
+	            </editorArea:section>
+	        </editorArea:tab>
+	    </editorArea:editorArea>
+	</context>
+	<context component="create-wizard" type="KlarnaCredential" merge-by="module">
+	    <wz:flow xmlns:wz="http://www.hybris.com/cockpitng/config/wizard-config" id="KlarnaCredentialWizard" title="create.title(ctx.TYPE_CODE)">
+	        <wz:prepare id="KlarnaCredentialPrepare">
+	             <wz:initialize property="newKlarnaCredential" type="ctx.TYPE_CODE"/>	            
+	        </wz:prepare>
+	        <wz:step id="step1" label="create.klarnacredential.maininfo.label" sublabel="create.klarnacredential.maininfo.sublabel">
+	            <wz:content id="step1.content">
+	                <wz:property-list root="newKlarnaCredential">
+	                    <wz:property qualifier="code"			type="java.lang.String"/>
+						<wz:property qualifier="clientId"		type="java.lang.String"/>
+						<wz:property qualifier="apiUserName"	type="java.lang.String"/>
+						<wz:property qualifier="apiPassword"	type="java.lang.String"/>
+	                </wz:property-list>
+	            </wz:content>
+	            <wz:navigation id="step1.navigation">
+					<wz:cancel/>
+					<wz:next visible="!#empty(newKlarnaCredential.code) and  !#empty(newKlarnaCredential.clientId) and !#empty(newKlarnaCredential.apiUserName) "/>
+	               	<wz:done visible="false">
+	               </wz:done>
+	            </wz:navigation>
+	        </wz:step>
+			<wz:step id="step2" label="create.klarnacredential.subinfo.label" sublabel="create.klarnacredential.subinfo.sublabel">
+	            <wz:content id="step2.content">
+	                <wz:property-list root="newKlarnaCredential">
+	                    <wz:property qualifier="marketRegion"/>
+	                    <wz:property qualifier="marketCountries"/>
+	                    <wz:property qualifier="vcnEnabled"/>
+						<wz:property qualifier="vcnKey"/>
+	                </wz:property-list>
+	            </wz:content>
+	            <wz:navigation id="step2.navigation">
+		            <wz:cancel />
+					<wz:back />
+	                <wz:done visible="(newKlarnaCredential.marketCountries != null) ">
+	                    <wz:save property="newKlarnaCredential"/>
+	                </wz:done>   
+	            </wz:navigation>
+	        </wz:step>
+	    </wz:flow>
+	</context>
+	<context type="KlarnaCredential" component="base" merge-by="type" parent="GenericItem">
+	        <y:base xmlns:y="http://www.hybris.com/cockpit/config/hybris">
+	            <y:labels>
+	                <y:label>code</y:label>
+	            </y:labels>
+	        </y:base>
+	</context>
+	<!-- Klarna Credentials - ends   -->
+	<!-- KlarnaMarketRegion - starts -->
+	<context component="explorer-tree" merge-by="module">
+      <n:explorer-tree xmlns:n="http://www.hybris.com/cockpitng/config/explorertree">
+            <n:navigation-node id="Klarna">
+                <n:type-node id="KlarnaMarketRegion" code="KlarnaMarketRegion" />
+            </n:navigation-node>
+        </n:explorer-tree>
+	</context>
+	<context type="KlarnaMarketRegion" component="listview">
+	    <list:list-view xmlns:list="http://www.hybris.com/cockpitng/component/listView">
+	        <list:column qualifier="code"/>
+	        <list:column qualifier="name"/>
+	    </list:list-view>
+	</context>
+	<context type="KlarnaMarketRegion" component="simple-search">
+	    <yss:simple-search xmlns:yss="http://www.hybris.com/cockpitng/config/simplesearch">
+	        <yss:field name="code"/>
+	        <yss:field name="name"/>
+	    </yss:simple-search>
+	</context>
+	<context type="KlarnaMarketRegion" component="advanced-search">
+	    <as:advanced-search xmlns:as="http://www.hybris.com/cockpitng/config/advancedsearch" connection-operator="AND">
+	        <as:field-list>
+	            <as:field name="code"	operator="contains"	selected="true"/>
+				<as:field name="name"	operator="contains" selected="true"/>
+				<as:field name="countries"	operator="contains" selected="true"/>
+	        </as:field-list>
+	        <as:sort-field name="code" asc="true" />     
+	    </as:advanced-search>
+	</context>
+	<context merge-by="module" component="editor-area" type="KlarnaMarketRegion" module="commerceservicesbackoffice">
+	    <editorArea:editorArea xmlns:editorArea="http://www.hybris.com/cockpitng/component/editorArea">
+	        <editorArea:tab name="klarna.general">
+	            <editorArea:section name="klarna.essentials">
+	                <editorArea:attribute qualifier="code"/>
+	                <editorArea:attribute qualifier="name"/>
+					<editorArea:attribute qualifier="countries"/>
+	            </editorArea:section>
+	        </editorArea:tab>
+	    </editorArea:editorArea>
+	</context>
+	<context component="create-wizard" type="KlarnaMarketRegion" merge-by="module">
+	    <wz:flow xmlns:wz="http://www.hybris.com/cockpitng/config/wizard-config" id="KlarnaMarketRegionWizard" title="create.title(ctx.TYPE_CODE)">
+	        <wz:prepare id="KlarnaMarketRegionPrepare">
+	             <wz:initialize property="newKlarnaMarketRegion" type="ctx.TYPE_CODE"/>	            
+	        </wz:prepare>
+	        <wz:step id="step1" label="create.klarnamarketregion.maininfo.label" sublabel="create.klarnamarketregion.maininfo.sublabel">
+	            <wz:content id="step1.content">
+	                <wz:property-list root="newKlarnaMarketRegion">
+	                    <wz:property qualifier="code"		type="java.lang.String"/>
+						<wz:property qualifier="name"		type="java.lang.String"/>
+						<wz:property qualifier="countries"	/>
+	                </wz:property-list>
+	            </wz:content>
+				 <wz:navigation id="step1.navigation">
+					<wz:cancel/>
+					<wz:next visible="false"/>
+	               	<wz:done visible="!#empty(newKlarnaMarketRegion.code) and  (newKlarnaMarketRegion.countries != null)">
+	               		<wz:save property="newKlarnaMarketRegion"/>
+	               	</wz:done>
+	            </wz:navigation>
+	        </wz:step>
+	    </wz:flow>
+	</context>
+	<context type="KlarnaMarketRegion" component="base" merge-by="type" parent="GenericItem">
+	        <y:base xmlns:y="http://www.hybris.com/cockpit/config/hybris">
+	            <y:labels>
+	                <y:label>code</y:label>
+	                <y:label>name</y:label>
+	            </y:labels>
+	        </y:base>
+	</context>
+	<!-- KlarnaMarketRegion - ends   -->
+	<!-- KlarnaMarketCountry - starts -->
+	<context component="explorer-tree" merge-by="module">
+      <n:explorer-tree xmlns:n="http://www.hybris.com/cockpitng/config/explorertree">
+            <n:navigation-node id="Klarna">
+                <n:type-node id="KlarnaMarketCountry" code="KlarnaMarketCountry" />
+            </n:navigation-node>
+        </n:explorer-tree>
+	</context>
+	<context type="KlarnaMarketCountry" component="listview">
+	    <list:list-view xmlns:list="http://www.hybris.com/cockpitng/component/listView">
+	        <list:column qualifier="isoCode"/>
+	        <list:column qualifier="name"/>
+			<list:column qualifier="region"/>
+	    </list:list-view>
+	</context>
+	<context type="KlarnaMarketCountry" component="simple-search">
+	    <yss:simple-search xmlns:yss="http://www.hybris.com/cockpitng/config/simplesearch">
+	        <yss:field name="isoCode"/>
+	        <yss:field name="name"/>
+	    </yss:simple-search>
+	</context>
+	<context type="KlarnaMarketCountry" component="advanced-search">
+	    <as:advanced-search xmlns:as="http://www.hybris.com/cockpitng/config/advancedsearch" connection-operator="AND">
+	        <as:field-list>
+	            <as:field name="isoCode"	operator="contains"	selected="true"/>
+				<as:field name="name"		operator="contains" selected="true"/>
+				<as:field name="region"		operator="contains" selected="true"/>
+	        </as:field-list>
+	        <as:sort-field name="isoCode" asc="true" />     
+	    </as:advanced-search>
+	</context>
+	<context merge-by="module" component="editor-area" type="KlarnaMarketCountry" module="commerceservicesbackoffice">
+	    <editorArea:editorArea xmlns:editorArea="http://www.hybris.com/cockpitng/component/editorArea">
+	        <editorArea:tab name="klarna.general">
+	            <editorArea:section name="klarna.essentials">
+	                <editorArea:attribute qualifier="isoCode"/>
+	                <editorArea:attribute qualifier="name"/>
+					<editorArea:attribute qualifier="region"/>
+	            </editorArea:section>
+	        </editorArea:tab>
+	    </editorArea:editorArea>
+	</context>
+	<context component="create-wizard" type="KlarnaMarketCountry" merge-by="module">
+	    <wz:flow xmlns:wz="http://www.hybris.com/cockpitng/config/wizard-config" id="KlarnaMarketCountryWizard" title="create.title(ctx.TYPE_CODE)">
+	        <wz:prepare id="KlarnaMarketCountryPrepare">
+	             <wz:initialize property="newKlarnaMarketCountry" type="ctx.TYPE_CODE"/>	            
+	        </wz:prepare>
+	        <wz:step id="step1" label="create.klarnamarketcountry.maininfo.label" sublabel="create.klarnamarketcountry.maininfo.sublabel">
+	            <wz:content id="step1.content">
+	                <wz:property-list root="newKlarnaMarketCountry">
+	                    <wz:property qualifier="isoCode"	type="java.lang.String"/>
+						<wz:property qualifier="name"		type="java.lang.String"/>
+						<wz:property qualifier="region"	/>
+	                </wz:property-list>
+	            </wz:content>
+	            <wz:navigation id="step1.navigation">
+	            	<wz:cancel/>
+					<wz:next visible="false"/>
+	               	<wz:done visible="!#empty(newKlarnaMarketCountry.isoCode) and  !#empty(newKlarnaMarketCountry.name) ">
+	               		<wz:save property="newKlarnaMarketRegion"/>
+	               	</wz:done>
+	            </wz:navigation>
+	        </wz:step>
+	    </wz:flow>
+	</context>
+	<context type="KlarnaMarketCountry" component="base" merge-by="type" parent="GenericItem">
+	        <y:base xmlns:y="http://www.hybris.com/cockpit/config/hybris">
+	            <y:labels>
+	                <y:label>isoCode</y:label>
+	                <y:label>name</y:label>
+	            </y:labels>
+	        </y:base>
+	</context>
+	<!-- KlarnaMarketCountry - ends   -->
+	<!-- KlarnaKPConfig - starts -->
+	<context component="explorer-tree" merge-by="module">
+      <n:explorer-tree xmlns:n="http://www.hybris.com/cockpitng/config/explorertree">
+            <n:navigation-node id="Klarna">
+                <n:type-node id="KlarnaKPConfig" code="KlarnaKPConfig" />
+            </n:navigation-node>
+        </n:explorer-tree>
+	</context>
+	<context type="KlarnaKPConfig" component="listview">
+	    <list:list-view xmlns:list="http://www.hybris.com/cockpitng/component/listView">
+	        <list:column qualifier="code"/>
+	        <list:column qualifier="active"/>
+	        <list:column qualifier="merchantEmail"/>
+	    </list:list-view>
+	</context>
+	<context type="KlarnaKPConfig" component="simple-search">
+	    <yss:simple-search xmlns:yss="http://www.hybris.com/cockpitng/config/simplesearch">
+	        <yss:field name="code"/>
+	    </yss:simple-search>
+	</context>
+	<context type="KlarnaKPConfig" component="advanced-search">
+	    <as:advanced-search xmlns:as="http://www.hybris.com/cockpitng/config/advancedsearch" connection-operator="AND">
+	        <as:field-list>
+	            <as:field name="code" operator="contains" selected="true"/>
+	            <as:field name="active" operator="equal" selected="false" sortable="false"/>
+	            <as:field name="merchantEmail" operator="equal" selected="false" sortable="false"/>
+	            <as:field name="autoCapture" operator="equal" selected="false" sortable="false"/>
+	            <as:field name="sendEMD" operator="equal" selected="false" sortable="false"/>
+	        </as:field-list>
+	        <as:sort-field name="code" asc="true" />     
+	    </as:advanced-search>
+	</context>
+	<context merge-by="module" component="editor-area" type="KlarnaKPConfig" module="commerceservicesbackoffice">
+	    <editorArea:editorArea xmlns:editorArea="http://www.hybris.com/cockpitng/component/editorArea">
+	        <editorArea:tab name="klarna.general">
+	            <editorArea:section name="klarna.kp.sectiona">
+	                <editorArea:attribute qualifier="code"/>
+	                <editorArea:attribute qualifier="active"/>
+	            </editorArea:section>
+	            <editorArea:section name="klarna.kp.sectionb">
+	                <editorArea:attribute qualifier="merchantEmail"/>
+	                <editorArea:attribute qualifier="sendEMD"/>
+	                <editorArea:attribute qualifier="autoCapture"/>
+	                <editorArea:attribute qualifier="customStyle"/>
+	                <editorArea:attribute qualifier="merchantReference2" editor="com.klarna.payment.editor.attributenameenum(order)"/>
+	            </editorArea:section>
+	        </editorArea:tab>
+	    </editorArea:editorArea>
+	</context>
+	<context component="create-wizard" type="KlarnaKPConfig" merge-by="module">
+	    <wz:flow xmlns:wz="http://www.hybris.com/cockpitng/config/wizard-config" id="KlarnaKPConfigWizard" title="create.title(ctx.TYPE_CODE)">
+	        <wz:prepare id="KlarnaKPConfigPrepare">
+	             <wz:initialize property="newKlarnaKPConfig" type="ctx.TYPE_CODE"/>	            
+	        </wz:prepare>
+	        <wz:step id="step1" label="create.klarnakpconfig.maininfo.label" sublabel="create.klarnakpconfig.maininfo.sublabel">
+	            <wz:content id="step1.content">
+	                <wz:property-list root="newKlarnaKPConfig">
+	                    <wz:property qualifier="code" type="java.lang.String"/>
+	                    <wz:property qualifier="active" type="java.lang.Boolean"/>
+	                    <wz:property qualifier="merchantEmail" type="java.lang.String"/>
+	                </wz:property-list>
+	            </wz:content>
+	            <wz:navigation id="step1.navigation">
+	                <wz:cancel/>
+				<wz:next visible="!#empty(newKlarnaKPConfig.code) and !#empty(newKlarnaKPConfig.merchantEmail)"/>
+	               <wz:done visible="false">
+	               </wz:done>
+	            </wz:navigation>
+	        </wz:step>
+			<wz:step id="step2" label="create.klarnakpconfig.subinfo.label" sublabel="create.klarnakpconfig.subinfo.sublabel">
+	            <wz:content id="step2.content">
+	                <wz:property-list root="newKlarnaKPConfig">
+	                    <wz:property qualifier="autoCapture" type="java.lang.Boolean"/>
+	                    <wz:property qualifier="sendEMD" type="java.lang.Boolean"/>
+	                    <wz:property qualifier="merchantReference2" editor="com.klarna.payment.editor.attributenameenum(order)"/>
+	                    <wz:property qualifier="customStyle" type="java.lang.String"/>
+	                </wz:property-list>
+	            </wz:content>
+	            <wz:navigation id="step2.navigation">
+		            <wz:cancel/>
+					<wz:back />
+					<wz:next visible="false"/>
+					<wz:done visible="true">
+	                    <wz:save property="newKlarnaKPConfig"/>
+	                </wz:done>      
+	            </wz:navigation>
+	        </wz:step>
+	    </wz:flow>
+	</context>
+	<context type="KlarnaKPConfig" component="base" merge-by="type" parent="GenericItem">
+	        <y:base xmlns:y="http://www.hybris.com/cockpit/config/hybris">
+	            <y:labels>
+	                <y:label>code</y:label>
+	            </y:labels>
+	        </y:base>
+	</context>
+	<!-- KlarnaKPConfig - ends   -->
+
+	<!-- KlarnaKECConfig - starts   -->
+	<context component="explorer-tree" merge-by="module">
+      	<n:explorer-tree xmlns:n="http://www.hybris.com/cockpitng/config/explorertree">
+            <n:navigation-node id="Klarna">
+               <n:type-node id="KlarnaKECConfig" code="KlarnaKECConfig" />
+            </n:navigation-node>
+        </n:explorer-tree>
+	</context>
+	<context type="KlarnaKECConfig" component="listview">
+	    <list:list-view xmlns:list="http://www.hybris.com/cockpitng/component/listView">
+	        <list:column qualifier="code"/>
+	        <list:column qualifier="active"/>
+	        <list:column qualifier="placements"/>
+	    </list:list-view>
+	</context>
+	<context type="KlarnaKECConfig" component="simple-search">
+	    <yss:simple-search xmlns:yss="http://www.hybris.com/cockpitng/config/simplesearch">
+	        <yss:field name="code"/>
+	    </yss:simple-search>
+	</context>
+	<context type="KlarnaKECConfig" component="advanced-search">
+	    <as:advanced-search xmlns:as="http://www.hybris.com/cockpitng/config/advancedsearch" connection-operator="AND">
+	        <as:field-list>
+	            <as:field name="code" operator="contains" selected="true"/>
+	            <as:field name="active" operator="equal" selected="false" sortable="false"/>
+	        </as:field-list>
+	        <as:sort-field name="code" asc="true" />     
+	    </as:advanced-search>
+	</context>
+	<context merge-by="module" component="editor-area" type="KlarnaKECConfig" module="commerceservicesbackoffice">
+	    <editorArea:editorArea xmlns:editorArea="http://www.hybris.com/cockpitng/component/editorArea">
+	        <editorArea:tab name="klarna.general">
+	            <editorArea:section name="klarna.kec.sectiona">
+	                <editorArea:attribute qualifier="code"/>
+	                <editorArea:attribute qualifier="active"/>
+	            </editorArea:section>
+	            <editorArea:section name="klarna.kec.sectionb">
+	                <editorArea:attribute qualifier="buttonTheme" editor="com.klarna.payment.editor.attributenameenum(KlarnaButtonTheme)"/>
+	                <editorArea:attribute qualifier="buttonShape" editor="com.klarna.payment.editor.attributenameenum(KlarnaButtonShape)"/>
+	                <editorArea:attribute qualifier="placements" />
+	            </editorArea:section>
+	        </editorArea:tab>
+	    </editorArea:editorArea>
+	</context>
+	<context component="create-wizard" type="KlarnaKECConfig" merge-by="module">
+	    <wz:flow xmlns:wz="http://www.hybris.com/cockpitng/config/wizard-config" id="KlarnaKECConfigWizard" title="create.title(ctx.TYPE_CODE)">
+	        <wz:prepare id="KlarnaKECConfigPrepare">
+	             <wz:initialize property="newKlarnaKECConfig" type="ctx.TYPE_CODE"/>	            
+	        </wz:prepare>
+	        <wz:step id="step1" label="create.klarnakecconfig.maininfo.label" sublabel="create.klarnakecconfig.maininfo.sublabel">
+	            <wz:content id="step1.content">
+	                <wz:property-list root="newKlarnaKECConfig">
+	                    <wz:property qualifier="code" type="java.lang.String"/>
+	                    <wz:property qualifier="active" type="java.lang.Boolean"/>
+	                    <wz:property qualifier="placements" />
+						<wz:property qualifier="buttonTheme"/>
+						<wz:property qualifier="buttonShape"/>
+					</wz:property-list>
+	            </wz:content>
+	            <wz:navigation id="step1.navigation">
+	            	<wz:cancel/>
+	               	<wz:done visible="!#empty(newKlarnaKECConfig.code) and (newKlarnaKECConfig.placements != null)">
+	               	<wz:save property="newKlarnaKECConfig"/>
+	               	</wz:done>
+	            </wz:navigation>
+	        </wz:step>
+	    </wz:flow>
+	</context>
+	<context type="KlarnaKECConfig" component="base" merge-by="type" parent="GenericItem">
+	        <y:base xmlns:y="http://www.hybris.com/cockpit/config/hybris">
+	            <y:labels>
+	                <y:label>code</y:label>
+	            </y:labels>
+	        </y:base>
+	</context>
+	<!-- KlarnaKECConfig - ends   -->
+	<!-- KlarnaSIWKConfig - starts -->
+	<context component="explorer-tree" merge-by="module">
+      <n:explorer-tree xmlns:n="http://www.hybris.com/cockpitng/config/explorertree">
+            <n:navigation-node id="Klarna">
+                <n:type-node id="KlarnaSIWKConfig" code="KlarnaSIWKConfig" />
+            </n:navigation-node>
+        </n:explorer-tree>
+	</context>
+	<context type="KlarnaSIWKConfig" component="listview">
+	    <list:list-view xmlns:list="http://www.hybris.com/cockpitng/component/listView">
+	        <list:column qualifier="code"/>
+	        <list:column qualifier="active"/>
+	        <list:column qualifier="scopeData"/>
+	    </list:list-view>
+	</context>
+	<context type="KlarnaSIWKConfig" component="simple-search">
+	    <yss:simple-search xmlns:yss="http://www.hybris.com/cockpitng/config/simplesearch">
+	        <yss:field name="code"/>
+	    </yss:simple-search>
+	</context>
+	<context type="KlarnaSIWKConfig" component="advanced-search">
+	    <as:advanced-search xmlns:as="http://www.hybris.com/cockpitng/config/advancedsearch" connection-operator="AND">
+	        <as:field-list>
+	            <as:field name="code"			operator="contains"	selected="true"/>
+	            <as:field name="active"			operator="equal"	selected="false" sortable="false"/>
+	            <as:field name="scopeData"		operator="equal" 	selected="true" sortable="false"/>
+	            <as:field name="redirectUri" 	operator="equal" 	selected="false" sortable="false"/> 
+	            <as:field name="placements" 	operator="equal" 	selected="false" sortable="false"/>
+	        </as:field-list>
+	        <as:sort-field name="code" asc="true" />     
+	    </as:advanced-search>
+	</context>
+	<context merge-by="module" component="editor-area" type="KlarnaSIWKConfig" module="commerceservicesbackoffice">
+	    <editorArea:editorArea xmlns:editorArea="http://www.hybris.com/cockpitng/component/editorArea">
+	        <editorArea:tab name="klarna.general">
+	            <editorArea:section name="klarna.siwk.sectiona">
+	                <editorArea:attribute qualifier="code"/>
+	                <editorArea:attribute qualifier="active"/>
+	                <editorArea:attribute qualifier="scopeData"/>
+	                <editorArea:attribute qualifier="redirectUri"/>
+				</editorArea:section>
+				<editorArea:section name="klarna.siwk.sectionb">
+	                <editorArea:attribute qualifier="buttonTheme" editor="com.klarna.payment.editor.attributenameenum(KlarnaButtonTheme)"/>
+	                <editorArea:attribute qualifier="buttonShape" editor="com.klarna.payment.editor.attributenameenum(KlarnaButtonShape)"/>
+	                <editorArea:attribute qualifier="buttonLogoAlignment" editor="com.klarna.payment.editor.attributenameenum(KlarnaButtonLogoAlignment)"/>
+	                <editorArea:attribute qualifier="placements"/>
+	            </editorArea:section>
+	        </editorArea:tab>
+	    </editorArea:editorArea>
+	</context>
+	<context component="create-wizard" type="KlarnaSIWKConfig" merge-by="module">
+	    <wz:flow xmlns:wz="http://www.hybris.com/cockpitng/config/wizard-config" id="KlarnaSIWKConfigWizard" title="create.title(ctx.TYPE_CODE)">
+	        <wz:prepare id="KlarnaSIWKConfigPrepare">
+	             <wz:initialize property="newKlarnaSIWKConfig" type="ctx.TYPE_CODE"/>	            
+	        </wz:prepare>
+	        <wz:step id="step1" label="create.klarnasiwkconfig.maininfo.label" sublabel="create.klarnasiwkconfig.maininfo.sublabel">
+	            <wz:content id="step1.content">
+	                <wz:property-list root="newKlarnaSIWKConfig">
+	                    <wz:property qualifier="code" type="java.lang.String"/>
+	                    <wz:property qualifier="active" type="java.lang.Boolean"/>
+	                    <wz:property qualifier="scopeData"/>
+	                    <wz:property qualifier="redirectUri" type="java.lang.String"/>
+	                    <wz:property qualifier="placements"/>
+	                </wz:property-list>
+	            </wz:content>
+	            <wz:navigation id="step1.navigation">
+					<wz:cancel/>
+					<wz:next visible="!#empty(newKlarnaSIWKConfig.code) and (newKlarnaSIWKConfig.scopeData != null) and (newKlarnaSIWKConfig.redirectUri != null) and (newKlarnaSIWKConfig.placements != null)" />
+	               	<wz:done visible="false">
+	               </wz:done>
+	            </wz:navigation>
+	        </wz:step>
+			<wz:step id="step2" label="create.klarnasiwkconfig.subinfo.label" sublabel="create.klarnasiwkconfig.subinfo.sublabel">
+	            <wz:content id="step2.content">
+	                <wz:property-list root="newKlarnaSIWKConfig">
+	                    <wz:property qualifier="buttonTheme"/>
+	                    <wz:property qualifier="buttonShape"/>
+	                    <wz:property qualifier="buttonLogoAlignment"/>
+	                </wz:property-list>
+	            </wz:content>
+	            <wz:navigation id="step2.navigation">
+		            <wz:cancel />
+					<wz:back />
+	                <wz:done>
+	                    <wz:save property="newKlarnaSIWKConfig"/>
+	                </wz:done>   
+	            </wz:navigation>
+	        </wz:step>
+	    </wz:flow>
+	</context>
+	<context type="KlarnaSIWKConfig" component="base" merge-by="type" parent="GenericItem">
+	        <y:base xmlns:y="http://www.hybris.com/cockpit/config/hybris">
+	            <y:labels>
+	                <y:label>code</y:label>
+	            </y:labels>
+	        </y:base>
+	</context>
+	<!-- KlarnaSIWKConfig - ends   -->
+    <!-- KlarnaKOSMConfig - starts -->
+	<context component="explorer-tree" merge-by="module">
+      <n:explorer-tree xmlns:n="http://www.hybris.com/cockpitng/config/explorertree">
+            <n:navigation-node id="Klarna">
+                <n:type-node id="KlarnaKOSMConfig" code="KlarnaKOSMConfig" />
+            </n:navigation-node>
+        </n:explorer-tree>
+	</context>
+	<context type="KlarnaKOSMConfig" component="listview">
+	    <list:list-view xmlns:list="http://www.hybris.com/cockpitng/component/listView">
+	        <list:column qualifier="code"/>
+	        <list:column qualifier="active"/>
+	        <list:column qualifier="placements"/>
+	    </list:list-view>
+	</context>
+	<context type="KlarnaKOSMConfig" component="simple-search">
+	    <yss:simple-search xmlns:yss="http://www.hybris.com/cockpitng/config/simplesearch">
+	        <yss:field name="code"/>
+	    </yss:simple-search>
+	</context>
+	<context type="KlarnaKOSMConfig" component="advanced-search">
+	    <as:advanced-search xmlns:as="http://www.hybris.com/cockpitng/config/advancedsearch" connection-operator="AND">
+	        <as:field-list>
+	            <as:field name="code" operator="contains" selected="true"/>
+	            <as:field name="active" selected="true" sortable="true"/>
+	            <as:field name="placements" operator="equal" selected="false" sortable="false"/>
+	           </as:field-list>
+	        <as:sort-field name="code" asc="true" />     
+	    </as:advanced-search>
+	</context>
+	<context merge-by="module" component="editor-area" type="KlarnaKOSMConfig" module="commerceservicesbackoffice">
+	    <editorArea:editorArea xmlns:editorArea="http://www.hybris.com/cockpitng/component/editorArea">
+	        <editorArea:tab name="klarna.general">
+	            <editorArea:section name="klarna.essentials">
+	                <editorArea:attribute qualifier="code"/>
+	                <editorArea:attribute qualifier="active"/>
+	            </editorArea:section>
+	            <editorArea:section name="klarna.osm.sectionb">
+	                <editorArea:attribute qualifier="placements"/>
+	                <editorArea:attribute qualifier="theme"/>
+	                <editorArea:attribute qualifier="customStyle"/>
+	            </editorArea:section>
+	        </editorArea:tab>
+	    </editorArea:editorArea>
+	</context>
+	<context component="create-wizard" type="KlarnaKOSMConfig" merge-by="module">
+	    <wz:flow xmlns:wz="http://www.hybris.com/cockpitng/config/wizard-config" id="KlarnaKOSMConfigWizard" title="create.title(ctx.TYPE_CODE)">
+	        <wz:prepare id="klarnaOSMConfigPrepare">
+	             <wz:initialize property="newKlarnaKOSMConfig" type="ctx.TYPE_CODE"/>	            
+	        </wz:prepare>
+	        <wz:step id="step1" label="create.klarnakosmconfig.maininfo.label" sublabel="create.klarnakosmconfig.maininfo.sublabel">
+	            <wz:content id="step1.content">
+	                <wz:property-list root="newKlarnaKOSMConfig">
+	                    <wz:property qualifier="code" type="java.lang.String"/>
+	                    <wz:property qualifier="active" type="java.lang.Boolean"/>
+	                    <wz:property qualifier="placements"/>
+	                    <wz:property qualifier="theme"  editor="com.klarna.payment.editor.attributenameenum(OsmTheme)"/>
+	                    <wz:property qualifier="customStyle" type="java.lang.String"/>
+	                </wz:property-list>
+	            </wz:content>
+	            <wz:navigation id="step1.navigation">
+	                <wz:cancel/>
+					<wz:done visible="!#empty(newKlarnaKOSMConfig.code) and (newKlarnaKOSMConfig.placements != null )">
+	                    <wz:save property="newKlarnaKOSMConfig"/>
+	                </wz:done>      
+	            </wz:navigation>
+	        </wz:step>
+			
+	    </wz:flow>
+	</context>
+	<context type="KlarnaKOSMConfig" component="base" merge-by="type" parent="GenericItem">
+	        <y:base xmlns:y="http://www.hybris.com/cockpit/config/hybris">
+	            <y:labels>
+	                <y:label>code</y:label>
+	            </y:labels>
+	        </y:base>
+	</context>
+	<!-- KlarnaKOSMConfig - ends -->
 </config>

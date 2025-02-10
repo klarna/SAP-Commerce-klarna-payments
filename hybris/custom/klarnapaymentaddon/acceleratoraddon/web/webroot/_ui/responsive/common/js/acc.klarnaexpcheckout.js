@@ -1,19 +1,19 @@
 ACC.klarnaexpcheckout = {
 	klarnaButtonLoad : function(containerId) {
-		var buttonTheme = $("#klarnaButtonTheme").val();
-		var buttonShape = $("#klarnaButtonShape").val();
-		var currentLocale = $("#currentLocale").val();
+		var buttonTheme = $("#kecButtonTheme").val();
+		var buttonShape = $("#kecButtonShape").val();
+		var klarnaLocale = $("#klarnaLocale").val();
 		window.Klarna.Payments.Buttons.load(
 	   	{
 	        container: containerId,
 	        theme: buttonTheme,
 	        shape: buttonShape,
-	        locale: currentLocale,
+	        locale: klarnaLocale,
 	        on_click: (authorize) => {
 			  	ACC.klarnaexpcheckout.getOrderPayload().done(function(payLoadResult) {
 				    var payload = payLoadResult;
 				    //console.log("Payload: ", JSON.stringify(payLoadResult));
-				    var collectShippingAddress = $("#klarnaCollectShippingAddress").val();
+				    var collectShippingAddress = true;
 					var autoFinalize = false; // autoFinalize should always be false as order review step is mandatory			
 					
 			        authorize(					
@@ -112,7 +112,7 @@ ACC.klarnaexpcheckout = {
 };	
 
 window.klarnaAsyncCallback = function () {
-	var clientKey = $("#klarnaClientKey").val();
+	var clientKey = $("#klarnaClientId").val();
 	//console.log("clientKey", clientKey);
 	window.Klarna.Payments.Buttons.init({
       client_key: clientKey,

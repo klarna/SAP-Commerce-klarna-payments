@@ -59,23 +59,22 @@ import com.klarna.api.order_management.model.OrderManagementCaptureObject;
 import com.klarna.api.order_management.model.OrderManagementOrder;
 import com.klarna.api.order_management.model.OrderManagementOrderLine;
 import com.klarna.api.payments.model.PaymentsOrder;
+import com.klarna.data.KlarnaConfigData;
+import com.klarna.model.KlarnaConfigModel;
 import com.klarna.payment.data.KPPaymentInfoData;
-import com.klarna.payment.data.KlarnaConfigData;
 import com.klarna.payment.enums.KlarnaFraudStatusEnum;
 import com.klarna.payment.enums.KlarnaOrderTypeEnum;
-import com.klarna.payment.facades.KPConfigFacade;
 import com.klarna.payment.facades.KPOrderFacade;
 import com.klarna.payment.facades.KPPaymentCheckoutFacade;
 import com.klarna.payment.facades.KPPaymentFacade;
+import com.klarna.payment.facades.KlarnaConfigFacade;
 import com.klarna.payment.model.KPPaymentInfoModel;
-import com.klarna.payment.model.KlarnaPayConfigModel;
 import com.klarna.payment.model.OrderFailedEmailProcessModel;
 import com.klarna.payment.services.KPCurrencyConversionService;
 import com.klarna.payment.services.KPOrderService;
 import com.klarna.payment.services.KPPaymentInfoService;
 import com.klarna.payment.services.KPTitleService;
 import com.klarna.payment.util.KlarnaConversionUtils;
-import com.klarna.payment.util.LogHelper;
 
 
 public class DefaultKPPaymentCheckoutFacade implements KPPaymentCheckoutFacade
@@ -86,7 +85,7 @@ public class DefaultKPPaymentCheckoutFacade implements KPPaymentCheckoutFacade
 
 	private CartService cartService;
 	private ModelService modelService;
-	private KPConfigFacade kpConfigFacade;
+	private KlarnaConfigFacade klarnaConfigFacade;
 	private CommerceCheckoutService commerceCheckoutService;
 
 	private UserService userService;
@@ -140,11 +139,11 @@ public class DefaultKPPaymentCheckoutFacade implements KPPaymentCheckoutFacade
 	}
 
 	/**
-	 * @return the kpConfigFacade
+	 * @return the klarnaConfigFacade
 	 */
-	public KPConfigFacade getKpConfigFacade()
+	public KlarnaConfigFacade getklarnaConfigFacade()
 	{
-		return kpConfigFacade;
+		return klarnaConfigFacade;
 	}
 
 	/**
@@ -318,12 +317,12 @@ public class DefaultKPPaymentCheckoutFacade implements KPPaymentCheckoutFacade
 	}
 
 	/**
-	 * @param kpConfigFacade
-	 *           the kpConfigFacade to set
+	 * @param klarnaConfigFacade
+	 *           the klarnaConfigFacade to set
 	 */
-	public void setKpConfigFacade(final KPConfigFacade kpConfigFacade)
+	public void setklarnaConfigFacade(final KlarnaConfigFacade klarnaConfigFacade)
 	{
-		this.kpConfigFacade = kpConfigFacade;
+		this.klarnaConfigFacade = klarnaConfigFacade;
 	}
 
 	/**
@@ -424,7 +423,6 @@ public class DefaultKPPaymentCheckoutFacade implements KPPaymentCheckoutFacade
 	@Override
 	public void saveKlarnaOrderId(final PaymentsOrder authorizationResponse) throws ApiException, IOException
 	{
-		LogHelper.debugLog(LOG, "Entering saveKlarnaOderID");
 		final CartModel cartModel = getCartService().getSessionCart();
 		if (cartModel != null)
 		{
@@ -440,24 +438,34 @@ public class DefaultKPPaymentCheckoutFacade implements KPPaymentCheckoutFacade
 				cartModel.setIsKpPendingOrder(Boolean.TRUE);
 
 			}
+
+			final KlarnaConfigData klarnaConfig = getklarnaConfigFacade().getKlarnaConfig();
+			PaymentTransactionType transactionType;
+			if (BooleanUtils.isTrue(klarnaConfig.getKpConfig().getAutoCapture())
+					&& BooleanUtils.isFalse(klarnaConfig.getCredential().getVcnEnabled()))
+			{
+				transactionType = PaymentTransactionType.CAPTURE;
+			}
+			else
+			{
+				transactionType = PaymentTransactionType.AUTHORIZATION;
+			}
 			/************************ KLARNAPII-952 **************************/
 			getKpPaymentFacade().createTransactionEntry(paymentInfo.getAuthToken(), paymentInfo, transaction,
-					PaymentTransactionType.AUTHORIZATION, TransactionStatus.ACCEPTED.name(),
+					transactionType, TransactionStatus.ACCEPTED.name(),
 					TransactionStatusDetails.SUCCESFULL.name());
 			//if vcn enabled, ignore autocapture mode, go with handle settlement
 
 			//else if autocapture, do catpure
 
-			final KlarnaConfigData klarnaConfig = getKpConfigFacade().getKlarnaConfig();
 			/* Creating settlement request only when fraud status is accepted or FRAUD_RISK_ACCEPTED */
 			if (fraudStatus.equals(KlarnaFraudStatusEnum.ACCEPTED.getValue())
 					|| fraudStatus.equals(KlarnaFraudStatusEnum.FRAUD_RISK_ACCEPTED.getValue()))
 			{
 
-				if (BooleanUtils.isTrue(klarnaConfig.getIsVCNEnabled()))
+				if (klarnaConfig.getCredential() != null && BooleanUtils.isTrue(klarnaConfig.getCredential().getVcnEnabled()))
 				{
-					final String vcnKey = klarnaConfig.getVcnKeyID();
-					LogHelper.debugLog(LOG, "Going for handle settlement");
+					final String vcnKey = klarnaConfig.getCredential().getVcnKey();
 					handleSettlement(cartModel, vcnKey);
 
 				}
@@ -467,16 +475,15 @@ public class DefaultKPPaymentCheckoutFacade implements KPPaymentCheckoutFacade
 			}
 			getModelService().save(cartModel);
 			getCartService().setSessionCart(cartModel);
-			LogHelper.debugLog(LOG, "Saved Klarna Order ID");
-
 		}
 	}
 
 	@Override
 	public void doAutoCapture(final String kpOrderId) throws ApiException, IOException
 	{
-		final KlarnaConfigData klarnaConfig = getKpConfigFacade().getKlarnaConfig();
-		if (BooleanUtils.isFalse(klarnaConfig.getIsVCNEnabled()) && BooleanUtils.isTrue(klarnaConfig.getAutoCapture()))
+		final KlarnaConfigData klarnaConfig = getklarnaConfigFacade().getKlarnaConfig();
+		if (klarnaConfig.getCredential() != null && BooleanUtils.isFalse(klarnaConfig.getCredential().getVcnEnabled())
+				&& (klarnaConfig.getKpConfig() != null && BooleanUtils.isTrue(klarnaConfig.getKpConfig().getAutoCapture())))
 		{
 			final OrderModel orderModel = kpOrderService.getOderForKlarnaOrderId(kpOrderId);
 			final String fraudStatus = orderModel.getKpFraudStatus();
@@ -500,11 +507,7 @@ public class DefaultKPPaymentCheckoutFacade implements KPPaymentCheckoutFacade
 
 	public void handleSettlement(final CartModel cartModel, final String vcnKey) throws ApiException, IOException
 	{
-		LogHelper.debugLog(LOG, "Entering handleSettlement");
 		final KPPaymentInfoModel klarnaPaymentInfo = (KPPaymentInfoModel) cartModel.getPaymentInfo();
-
-
-		LogHelper.debugLog(LOG, "VCN Eanabled");
 		klarnaPaymentInfo.setIsVCNUsed(Boolean.TRUE);
 		final CardServiceSettlementRequest settlementData = new CardServiceSettlementRequest();
 		settlementData.setOrderId(cartModel.getKpOrderId());
@@ -521,10 +524,7 @@ public class DefaultKPPaymentCheckoutFacade implements KPPaymentCheckoutFacade
 			klarnaPaymentInfo.setKpVCNIV(cardData.getIv());
 			klarnaPaymentInfo.setKpVCNAESKey(cardData.getAesKey());
 			klarnaPaymentInfo.setKpVCNCardID(cardData.getCardId());
-
-
 			getModelService().saveAll();
-			LogHelper.debugLog(LOG, "VCN data Saved");
 		}
 		catch (final Exception e)
 		{
@@ -546,7 +546,6 @@ public class DefaultKPPaymentCheckoutFacade implements KPPaymentCheckoutFacade
 	@Override
 	public boolean isCartSynchronization(final CartData cartData, final OrderManagementOrder orderData)
 	{
-		LogHelper.debugLog(LOG, "Entering isCartSynchronization");
 		final BigDecimal totalPrice = cartData.isNet() ? cartData.getTotalPriceWithTax().getValue()
 				: cartData.getTotalPrice().getValue();
 		if (!KlarnaConversionUtils
@@ -554,7 +553,10 @@ public class DefaultKPPaymentCheckoutFacade implements KPPaymentCheckoutFacade
 						kpCurrencyConversionService.convertToPurchaseCurrencyPrice(Double.valueOf(totalPrice.doubleValue())))
 				.equals(orderData.getOrderAmount()))
 		{
-			LogHelper.debugLog(LOG, "Cart is not In Synch");
+			if (LOG.isWarnEnabled())
+			{
+				LOG.warn("Cart is not In Synch");
+			}
 			return false;
 		}
 		final HashMap<String, Long> productMap = new HashMap<String, Long>();
@@ -570,11 +572,13 @@ public class DefaultKPPaymentCheckoutFacade implements KPPaymentCheckoutFacade
 			if (!(productMap.containsKey(orderEntry.getProduct().getCode())
 					&& productMap.get(orderEntry.getProduct().getCode()).equals(orderEntry.getQuantity())))
 			{
-				LogHelper.debugLog(LOG, "Cart is not In Synch");
+				if (LOG.isWarnEnabled())
+				{
+					LOG.warn("Cart is not In Synch");
+				}
 				return false;
 			}
 		}
-		LogHelper.debugLog(LOG, "Cart is Synch");
 		return true;
 	}
 
@@ -599,8 +603,10 @@ public class DefaultKPPaymentCheckoutFacade implements KPPaymentCheckoutFacade
 			kpPaymentInfo.setFinalizeRequired(finalizeRequired);
 		}
 
-		kpPaymentInfo.setAuthToken(authorizationToken);
-
+		// Auth Token to be set freshly
+		if(authorizationToken != null && !StringUtils.equals(authorizationToken, kpPaymentInfo.getAuthToken())) {
+			kpPaymentInfo.setAuthToken(authorizationToken);
+		}
 		cart.setPaymentInfo(kpPaymentInfo);
 		if (getUserService().isAnonymousUser(getUserService().getCurrentUser()))
 		{
@@ -608,6 +614,8 @@ public class DefaultKPPaymentCheckoutFacade implements KPPaymentCheckoutFacade
 		}
 		getModelService().saveAll();
 	}
+
+
 
 	@Override
 	public void processPayment(final AddressData addressData, final String sessionId)
@@ -778,7 +786,7 @@ public class DefaultKPPaymentCheckoutFacade implements KPPaymentCheckoutFacade
 		final KPPaymentInfoModel kpPaymentInfoModel = (KPPaymentInfoModel) transaction.getInfo();
 		final String currPaymentOption = kpPaymentInfoModel.getPaymentOption();
 
-		String init_pay_method = klarnaOrderData.getInitialPaymentMethod().getType().name();
+		String init_pay_method = klarnaOrderData.getInitialPaymentMethod().getType();
 		String description = klarnaOrderData.getInitialPaymentMethod().getDescription();
 		String installments = String.valueOf(klarnaOrderData.getInitialPaymentMethod().getNumberOfInstallments());
 
@@ -798,8 +806,8 @@ public class DefaultKPPaymentCheckoutFacade implements KPPaymentCheckoutFacade
 	{
 
 		final CartModel cart = cartService.getSessionCart();
-		final KlarnaPayConfigModel config = cart.getStore().getKlarnaPayConfig();
-		if (config != null && StringUtils.isNotEmpty(config.getMerchantEmail()))
+		final KlarnaConfigModel config = cart.getStore().getKlarnaConfig();
+		if (config != null && config.getKpConfig() != null && StringUtils.isNotEmpty(config.getKpConfig().getMerchantEmail()))
 		{
 			final OrderFailedEmailProcessModel orderFailedEmailProcessModel = (OrderFailedEmailProcessModel) getBusinessProcessService()
 					.createProcess("OrderFailedEmailProcess-" + cart.getCode() + "-" + System.currentTimeMillis(),

@@ -15,15 +15,10 @@
 
 <items 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
 			xsi:noNamespaceSchemaLocation="items.xsd">
-
+<collectiontypes>
+	
+</collectiontypes>
 <enumtypes>
-		
-		<enumtype code="OsmTheme" generate="true" autocreate="true" dynamic="false">
-			<description>This enumeration denotes the OSM Themes</description>
-			<value code="Default" />
-			<value code="Dark" />
-			<value code="Custom" />
-		</enumtype>
 </enumtypes>
 	<itemtypes>
 <!--
@@ -141,7 +136,6 @@
 					</attribute>
 				</attributes>
 			</itemtype>
-			
 			<itemtype code="BaseStore" generate="false" autocreate="false">
 				<attributes>
 					<attribute type="KlarnaOSMConfig" qualifier="klarnaOsmConfig">

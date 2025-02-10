@@ -23,7 +23,7 @@
 		<property name="flag" type="boolean"/>
 	</bean>
 	-->
-	<bean class="com.klarna.data.KlarnaOSMConfigData">
+	<!-- <bean class="com.klarna.data.KlarnaOSMConfigData">
 		<description>Data object of KlarnaConfig which has no equivalent on the type system</description>
 		<property name="code" type="String"/>
 		<property name="pdpEnabled" type="Boolean"/>
@@ -37,5 +37,5 @@
 		<property name="cartTheme" type="String"/>
 		<property name="pdpTheme" type="String"/>
 		<property name="customStyle" type="String"/>
-	</bean>
+	</bean> -->
 </beans>
