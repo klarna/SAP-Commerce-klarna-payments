@@ -60,6 +60,10 @@
 		<property name="code"			type="String"/>
 		<property name="active"			type="Boolean"/>
 		<property name="environment"	type="String"/>
+		<property name="integratedViaPSP"	type="Boolean"	/>
+		<property name="shareShoppingData"	type="Boolean"	/>
+		<property name="sendEMD"			type="Boolean"	/>
+		<property name="sendOrderHistory"	type="Boolean"	/>
 		<property name="kpConfig"		type="com.klarna.data.KlarnaKPConfigData"/>
 		<property name="kecConfig"		type="com.klarna.data.KlarnaKECConfigData"/>
 		<property name="siwkConfig"		type="com.klarna.data.KlarnaSIWKConfigData"/>
@@ -85,7 +89,6 @@
 		<property name="active"				type="Boolean"	/>
 		<property name="merchantEmail"		type="String"	/>
 		<property name="merchantReference2"	type="String"	/>
-		<property name="sendEMD"			type="Boolean"	/>
 		<property name="autoCapture"		type="Boolean"	/>
 		<property name="customStyle"		type="String"	/>
 	</bean>
