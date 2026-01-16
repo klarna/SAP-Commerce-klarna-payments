@@ -9,7 +9,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.apache.commons.lang.BooleanUtils;
 import org.apache.log4j.Logger;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -30,6 +29,8 @@ public class KlarnaPaymentActiveFilter extends OncePerRequestFilter
 
 
 	public final static String KLARNA_PAYMENT = "/klarna/payment";
+	public final static String DEFAULT_PAYMENT_METHOD_URL = "/checkout/multi/payment-method/add";
+	public final static String KLARNA_PAYMENT_METHOD_URL = "/checkout/multi/klarna-payment-method/payments";
 	public final static String DEFAULT_CHECKOUT_URL = "/checkout/multi/summary/placeOrder";
 	public final static String KLARNA_CHECKOUT_URL = "/checkout/multi/summary/klarna/placeOrder";
 	public final static String DEFAULT_CONFIRMATION = "/checkout/orderConfirmation/";
@@ -60,29 +61,29 @@ public class KlarnaPaymentActiveFilter extends OncePerRequestFilter
 	{
 
 		final String requestURL = request.getServletPath();
-		final KlarnaConfigData klarnaConfig = klarnaConfigFacade.getKlarnaConfig();
 		final HttpSession session = request.getSession();
-		if (requestURL.contains(DEFAULT_CONFIRMATION))
-		{
-			LogHelper.debugLog(LOG, "Remiving the klaran secific session attributes ...");
-			session.removeAttribute("sessionId");
-			session.removeAttribute("clientToken");
-		}
+
 		LogHelper.debugLog(LOG, "The current request URL [" + requestURL + "] ...");
 
-		if (requestURL.contains(DEFAULT_CHECKOUT_URL) && klarnaConfig != null && BooleanUtils.isTrue(klarnaConfig.getActive())
-				&& kpPaymentCheckoutFacade.isKlarnaPayment())
-		{
+		final KlarnaConfigData klarnaConfig = klarnaConfigFacade.getKlarnaConfig();
+		if (requestURL.contains(DEFAULT_CHECKOUT_URL) & isKlarnaPayment(klarnaConfig)) {
 			LogHelper.debugLog(LOG, "Redirecting to Klarna Checkout URL");
-
 			sendRedirect(KLARNA_CHECKOUT_URL, request, response);
 			return;
-		}
-		if (requestURL.contains(KLARNA_CHECKOUT_URL) && !kpPaymentCheckoutFacade.isKlarnaPayment())
-		{
+		} else if(requestURL.contains(KLARNA_CHECKOUT_URL) && !isKlarnaPayment(klarnaConfig)) {
 			LogHelper.debugLog(LOG, "Redirecting to Default Checkout URL");
 			sendRedirect(DEFAULT_CHECKOUT_URL, request, response);
 			return;
+		} else if((requestURL.contains(KLARNA_PAYMENT_METHOD_URL)) && (!isKlarnaActive(klarnaConfig)
+				|| isKlarnaIntegratedViaPSP(klarnaConfig)))
+		{
+			LogHelper.debugLog(LOG, "Redirecting to Default Checkout URL");
+			sendRedirect(DEFAULT_PAYMENT_METHOD_URL, request, response);
+			return;
+		} else if (requestURL.contains(DEFAULT_CONFIRMATION))	{
+			LogHelper.debugLog(LOG, "Remiving the klaran secific session attributes ...");
+			session.removeAttribute("sessionId");
+			session.removeAttribute("clientToken");
 		}
 		setRequestAttributes(requestURL, klarnaConfig, request);
 		response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
@@ -128,4 +129,18 @@ public class KlarnaPaymentActiveFilter extends OncePerRequestFilter
 		response.sendRedirect(encodedRedirectUrl);
 	}
 
+	private boolean isKlarnaActive(final KlarnaConfigData klarnaConfig)
+	{
+		return (klarnaConfig != null && Boolean.TRUE.equals(klarnaConfig.getActive()));
+	}
+
+	private boolean isKlarnaPayment(final KlarnaConfigData klarnaConfig)
+	{
+		return (isKlarnaActive(klarnaConfig) && kpPaymentCheckoutFacade.isKlarnaPayment());
+	}
+
+	private boolean isKlarnaIntegratedViaPSP(final KlarnaConfigData klarnaConfig)
+	{
+		return (isKlarnaActive(klarnaConfig) && Boolean.TRUE.equals(klarnaConfig.getIntegratedViaPSP()));
+	}
 }

@@ -56,6 +56,7 @@ import com.klarna.payment.facades.KPPaymentCheckoutFacade;
 import com.klarna.payment.facades.KPPaymentFacade;
 import com.klarna.payment.services.KPPaymentInfoService;
 import com.klarna.payment.util.LogHelper;
+import com.klarnapayment.constants.KlarnapaymentaddonWebConstants;
 import com.klarnapayment.controllers.KlarnapaymentaddonControllerConstants;
 
 
@@ -128,6 +129,8 @@ public class KPSummaryCheckoutStepController extends AbstractCheckoutStepControl
 			LogHelper.debugLog(LOG, "Setting client token for Klarna Express Checkout finalize call.. ");
 			model.addAttribute(IS_KLARNA_EXP_CHECKOUT, Boolean.TRUE);
 			model.addAttribute(CLIENT_TOKEN, getSessionService().getAttribute("clientToken"));
+			model.addAttribute(KlarnapaymentaddonWebConstants.KLARNA_SELECTED_PAYMENT_METHOD, 
+					getSessionService().getAttribute(KlarnapaymentaddonWebConstants.KLARNA_SELECTED_PAYMENT_METHOD));
 		}
 
 		storeCmsPageInModel(model, getContentPageForLabelOrId(MULTI_CHECKOUT_SUMMARY_CMS_PAGE_LABEL));

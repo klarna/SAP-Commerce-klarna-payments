@@ -20,6 +20,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;
@@ -37,6 +38,7 @@ import com.klarna.payment.facades.KPPaymentCheckoutFacade;
 import com.klarna.payment.facades.KPPaymentFacade;
 import com.klarna.payment.facades.KlarnaExpCheckoutFacade;
 import com.klarna.payment.util.LogHelper;
+import com.klarnapayment.constants.KlarnapaymentaddonWebConstants;
 import com.klarnapayment.utils.KlarnaExpCheckoutHelper;
 import com.klarnapayment.utils.KlarnaPaymentHelper;
 
@@ -156,6 +158,7 @@ public class KlarnaExpCheckoutController extends AbstractPageController
 								(isValidAddress) ? addressData : null);
 						if (isDeliveryDetailsSet && isPaymentDetailsSet)
 						{
+							storeSelectedPaymentMethodInSession(authorizationResponse);
 							LogHelper.debugLog(LOG, "Cart set for express checkout! Cart Id : " + cartFacade.getSessionCart().getCode());
 							LogHelper.debugLog(LOG, "Redirecting to checkout summary page");
 							return StringUtils.substringAfter(redirectToSummary, REDIRECT_PREFIX);
@@ -318,6 +321,16 @@ public class KlarnaExpCheckoutController extends AbstractPageController
 			LOG.error("Payment info could not be set.");
 		}
 		return isSuccess;
+	}
+	
+	private void storeSelectedPaymentMethodInSession(final
+			KlarnaExpCheckoutAuthorizationResponse authorizationResponse) {
+		if(CollectionUtils.isNotEmpty(authorizationResponse.getPaymentMethodCategories())) {
+			if(StringUtils.isNotEmpty(authorizationResponse.getPaymentMethodCategories().get(0).getIdentifier())) {
+				getSessionService().setAttribute(KlarnapaymentaddonWebConstants.KLARNA_SELECTED_PAYMENT_METHOD, 
+						authorizationResponse.getPaymentMethodCategories().get(0).getIdentifier());
+			}
+		}
 	}
 
 }
