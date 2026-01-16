@@ -1077,8 +1077,14 @@
 
 	<bean
 		class="com.klarna.api.checkout.model.emd.ExtraMerchantDataBody">
+		<import type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
+		<import type="com.fasterxml.jackson.annotation.JsonProperty" />
 		<property name="customerAccountInfo"
 			type="java.util.List&lt;com.klarna.api.checkout.model.emd.CustomerAccountInformation&gt;"></property>
+		<property name="paymentHistoryFull"
+			type="java.util.List&lt;com.klarna.api.custom.model.PaymentHistoryFull&gt;">
+			<annotations>@JsonProperty("payment_history_full")</annotations>	
+		</property>	
 	</bean>
 
 	<bean
@@ -1183,7 +1189,10 @@
 			type="com.klarna.api.payments.model.PaymentsAddress">
 			<annotations>@JsonProperty("collected_shipping_address")</annotations>
 		</property>
-
+		<property name="paymentMethodCategories"
+			type="java.util.List&lt;com.klarna.api.payments.model.PaymentsPaymentMethodCategory&gt;">
+			<annotations>@JsonProperty("payment_method_categories")</annotations>
+		</property>
 	</bean>
 
 	<bean
@@ -1427,6 +1436,26 @@
 		</property>
 		<property name="expiresAt" type="java.time.OffsetDateTime">
 			<annotations>@JsonProperty("expires_at")</annotations>
+		</property>
+	</bean>
+	
+	<bean class="com.klarna.api.custom.model.PaymentHistoryFull">
+		<import type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
+		<import type="com.fasterxml.jackson.annotation.JsonProperty" />
+		<property name="uniqueAccountIdentifier" type="String">
+			<annotations>@JsonProperty("unique_account_identifier")</annotations>
+		</property>
+		<property name="paymentOption" type="String">
+			<annotations>@JsonProperty("payment_option")</annotations>
+		</property>
+		<property name="numberPaidPurchases" type="Integer">
+			<annotations>@JsonProperty("number_paid_purchases")</annotations>
+		</property>
+		<property name="totalAmountPaidPurchases" type="Long">
+			<annotations>@JsonProperty("total_amount_paid_purchases")</annotations>
+		</property>
+		<property name="dateOfLastPaidPurchase" type="java.time.OffsetDateTime">
+			<annotations>@JsonProperty("date_of_last_paid_purchase")</annotations>
 		</property>
 	</bean>
 	

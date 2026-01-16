@@ -845,6 +845,30 @@
 							<description>Determines the environment of the merchant</description>
 							<modifiers read="true" write="true" search="true" optional="false" initial="true"/>
 							<persistence type="property" />
+					</attribute>				
+					<attribute qualifier="integratedViaPSP" type="java.lang.Boolean">
+						<defaultvalue>Boolean.FALSE</defaultvalue>
+						<description>Indicates if Klarna is integrated via external Payment Service Provider</description>
+						<modifiers read="true" write="true" search="true" optional="false"/>
+						<persistence type="property" />
+					</attribute>								
+					<attribute qualifier="shareShoppingData" type="java.lang.Boolean">
+						<defaultvalue>Boolean.FALSE</defaultvalue>
+						<description>Indicates if shopping data should be shared with Klarna in the case of integration via external PSP</description>
+						<modifiers read="true" write="true" optional="false"/>
+						<persistence type="property" />
+					</attribute>
+					<attribute qualifier="sendEMD" type="java.lang.Boolean">
+						<defaultvalue>Boolean.FALSE</defaultvalue>
+						<description>send EMD</description>
+						<modifiers write="true" read="true" optional="true" initial="true" />
+						<persistence type="property" />
+					</attribute>
+					<attribute qualifier="sendOrderHistory" type="java.lang.Boolean">
+						<defaultvalue>Boolean.FALSE</defaultvalue>
+						<description>Indicates if order history should be sent as part of EMD</description>
+						<modifiers write="true" read="true" optional="true" />
+						<persistence type="property" />
 					</attribute>
 					<attribute qualifier="kpConfig" type="KlarnaKPConfig">
 							<description>Determines the Klarna Payment Config</description>
@@ -993,12 +1017,6 @@
 						<modifiers write="true" read="true" optional="true" initial="true" />
 						<persistence type="property" />
 					</attribute>
-					<attribute qualifier="sendEMD" type="java.lang.Boolean">
-						<defaultvalue>Boolean.FALSE</defaultvalue>
-						<description>send EMD</description>
-						<modifiers write="true" read="true" optional="true" initial="true" />
-						<persistence type="property" />
-					</attribute>
 					<attribute qualifier="autoCapture" type="java.lang.Boolean">
 						<defaultvalue>Boolean.FALSE</defaultvalue>
 						<description>Payment capture automatically</description>
@@ -1058,6 +1076,12 @@
 						<defaultvalue>em().getEnumerationValue("KlarnaButtonShape", "default")</defaultvalue>
 						<description>Determines the button shape</description>
 						<modifiers write="true" read="true"/>
+						<persistence type="property" />
+					</attribute>				
+					<attribute qualifier="oneStepCheckout" type="java.lang.Boolean">
+						<defaultvalue>Boolean.FALSE</defaultvalue>
+						<description>Indicates if one-step or multi-step checkout flow should be used</description>
+						<modifiers read="true" write="true" optional="false"/>
 						<persistence type="property" />
 					</attribute>
 				</attributes>

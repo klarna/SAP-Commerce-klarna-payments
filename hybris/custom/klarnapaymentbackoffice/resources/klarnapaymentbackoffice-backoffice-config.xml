@@ -216,7 +216,7 @@
      <context merge-by="type" parent="User" type="Customer" component="editor-area">
 	        <editorArea:editorArea xmlns:editorArea="http://www.hybris.com/cockpitng/component/editorArea">
 	            <editorArea:tab name="hmc.properties">
-	                <editorArea:section name="klarnasigninconfi.customer.config">
+	                <editorArea:section name="klarna.customer.profile.section">
 	                    <editorArea:attribute xmlns="http://www.hybris.com/cockpitng/component/editorArea" qualifier="klarnaCustomerProfile"/>
 	                </editorArea:section>
 	            </editorArea:tab>
@@ -370,6 +370,10 @@
 	                <editorArea:attribute qualifier="active"/>
 					<editorArea:attribute qualifier="environment"/>
 					<editorArea:attribute qualifier="baseStores"/>
+					<editorArea:attribute qualifier="integratedViaPSP"/>
+					<editorArea:attribute qualifier="shareShoppingData"/>
+					<editorArea:attribute qualifier="sendEMD"/>
+					<editorArea:attribute qualifier="sendOrderHistory"/>
 	            </editorArea:section>
 	            <editorArea:section name="klarna.credentials">
 	                <editorArea:attribute qualifier="credentials"/>
@@ -402,6 +406,10 @@
 	                    <wz:property qualifier="environment" editor="com.klarna.payment.editor.attributenameenum(KlarnaEnv)"/>
 						<wz:property qualifier="credentials"/>
 						<wz:property qualifier="baseStores"/>
+	                    <wz:property qualifier="integratedViaPSP" type="java.lang.Boolean"/>
+	                    <wz:property qualifier="shareShoppingData" type="java.lang.Boolean"/>
+	                    <wz:property qualifier="sendEMD" type="java.lang.Boolean"/>
+	                    <wz:property qualifier="sendOrderHistory" type="java.lang.Boolean"/>
 	                </wz:property-list>
 	            </wz:content>
 	            <wz:navigation id="step1.navigation">
@@ -713,7 +721,6 @@
 	            <as:field name="active" operator="equal" selected="false" sortable="false"/>
 	            <as:field name="merchantEmail" operator="equal" selected="false" sortable="false"/>
 	            <as:field name="autoCapture" operator="equal" selected="false" sortable="false"/>
-	            <as:field name="sendEMD" operator="equal" selected="false" sortable="false"/>
 	        </as:field-list>
 	        <as:sort-field name="code" asc="true" />     
 	    </as:advanced-search>
@@ -727,7 +734,6 @@
 	            </editorArea:section>
 	            <editorArea:section name="klarna.kp.sectionb">
 	                <editorArea:attribute qualifier="merchantEmail"/>
-	                <editorArea:attribute qualifier="sendEMD"/>
 	                <editorArea:attribute qualifier="autoCapture"/>
 	                <editorArea:attribute qualifier="customStyle"/>
 	                <editorArea:attribute qualifier="merchantReference2" editor="com.klarna.payment.editor.attributenameenum(order)"/>
@@ -759,7 +765,6 @@
 	            <wz:content id="step2.content">
 	                <wz:property-list root="newKlarnaKPConfig">
 	                    <wz:property qualifier="autoCapture" type="java.lang.Boolean"/>
-	                    <wz:property qualifier="sendEMD" type="java.lang.Boolean"/>
 	                    <wz:property qualifier="merchantReference2" editor="com.klarna.payment.editor.attributenameenum(order)"/>
 	                    <wz:property qualifier="customStyle" type="java.lang.String"/>
 	                </wz:property-list>
@@ -819,6 +824,7 @@
 	            <editorArea:section name="klarna.kec.sectiona">
 	                <editorArea:attribute qualifier="code"/>
 	                <editorArea:attribute qualifier="active"/>
+	                <editorArea:attribute qualifier="oneStepCheckout"/>
 	            </editorArea:section>
 	            <editorArea:section name="klarna.kec.sectionb">
 	                <editorArea:attribute qualifier="buttonTheme" editor="com.klarna.payment.editor.attributenameenum(KlarnaButtonTheme)"/>
@@ -838,6 +844,7 @@
 	                <wz:property-list root="newKlarnaKECConfig">
 	                    <wz:property qualifier="code" type="java.lang.String"/>
 	                    <wz:property qualifier="active" type="java.lang.Boolean"/>
+	                    <wz:property qualifier="oneStepCheckout" type="java.lang.Boolean"/>
 	                    <wz:property qualifier="placements" />
 						<wz:property qualifier="buttonTheme"/>
 						<wz:property qualifier="buttonShape"/>
