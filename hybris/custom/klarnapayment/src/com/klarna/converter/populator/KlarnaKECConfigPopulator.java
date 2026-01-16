@@ -18,8 +18,8 @@ import java.util.List;
 
 import com.klarna.data.KlarnaKECConfigData;
 import com.klarna.model.KlarnaKECConfigModel;
-import com.klarna.payment.constants.GeneratedKlarnapaymentConstants.Enumerations.KlarnaButtonShape;
-import com.klarna.payment.constants.GeneratedKlarnapaymentConstants.Enumerations.KlarnaButtonTheme;
+import com.klarna.payment.enums.KlarnaButtonShape;
+import com.klarna.payment.enums.KlarnaButtonTheme;
 import com.klarna.payment.enums.KlarnaKECPlacement;
 
 
@@ -33,6 +33,7 @@ public class KlarnaKECConfigPopulator implements Populator<KlarnaKECConfigModel,
 	{
 		target.setCode(source.getCode());
 		target.setActive(source.getActive());
+		target.setOneStepCheckout(source.getOneStepCheckout());
 		setKECPlacements(source.getPlacements(), target);
 		target.setButtonShape(source.getButtonShape() != null ? source.getButtonShape().getCode() : KlarnaButtonShape.DEFAULT);
 		target.setButtonTheme(source.getButtonTheme() != null ? source.getButtonTheme().getCode() : KlarnaButtonTheme.DEFAULT);

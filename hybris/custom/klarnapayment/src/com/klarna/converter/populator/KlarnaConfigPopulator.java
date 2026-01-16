@@ -63,6 +63,10 @@ public class KlarnaConfigPopulator implements Populator<KlarnaConfigModel, Klarn
 			target.setCode(source.getCode());
 			target.setActive(source.getActive());
 			target.setEnvironment(source.getEnvironment() != null ? source.getEnvironment().getCode() : null);
+			target.setIntegratedViaPSP(source.getIntegratedViaPSP());
+			target.setShareShoppingData(source.getShareShoppingData());
+			target.setSendEMD(source.getSendEMD());
+			target.setSendOrderHistory(source.getSendOrderHistory());
 			final KlarnaCredentialData credential = new KlarnaCredentialData();
 			klarnaCredentialConverter.convert(credentialModel, credential);
 			target.setCredential(credential);

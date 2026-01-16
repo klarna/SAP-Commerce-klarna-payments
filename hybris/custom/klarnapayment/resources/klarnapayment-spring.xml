@@ -268,9 +268,6 @@
     </bean>
     <alias name="defaultKPCreditSessionAttPopulator" alias="kpCreditSessionAttPopulator"/>
     <bean id="defaultKPCreditSessionAttPopulator" class="com.klarna.payment.converter.populator.KPCreditSessionAttPopulator">
-        <property name="userService" ref="userService"/>
-        <property name="customerFacade" ref="customerFacade"/>
-        <property name="kpCustomerFacade" ref="kpCustomerFacade"/>
         <property name="klarnaConfigFacade" ref="klarnaConfigFacade"/>
         <property name="kpCreditSessionPopulator" ref="kpCreditSessionPopulator"/>
     </bean>
@@ -595,6 +592,20 @@
     
 	<alias name="defaultKlarnaSignInFacade" alias="klarnaSignInFacade"/>
     <bean id="defaultKlarnaSignInFacade" class="com.klarna.payment.facades.impl.DefaultKlarnaSignInFacade">
+    </bean>
+    
+    <alias name="defaultKlarnaAttachmentConverter" alias="klarnaAttachmentConverter"/>
+     <bean id="defaultKlarnaAttachmentConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.klarna.api.payments.model.PaymentsAttachment"/>
+        <property name="populators">
+            <list>
+                <ref bean="klarnaAttachmentPopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <alias name="defaultKlarnaAttachmentPopulator" alias="klarnaAttachmentPopulator"/>
+    <bean id="defaultKlarnaAttachmentPopulator" class="com.klarna.payment.converter.populator.KlarnaAttachmentPopulator">
     </bean>
     
 </beans>
