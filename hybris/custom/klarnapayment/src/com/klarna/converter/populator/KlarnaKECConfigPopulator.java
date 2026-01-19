@@ -35,8 +35,10 @@ public class KlarnaKECConfigPopulator implements Populator<KlarnaKECConfigModel,
 		target.setActive(source.getActive());
 		target.setOneStepCheckout(source.getOneStepCheckout());
 		setKECPlacements(source.getPlacements(), target);
-		target.setButtonShape(source.getButtonShape() != null ? source.getButtonShape().getCode() : KlarnaButtonShape.DEFAULT);
-		target.setButtonTheme(source.getButtonTheme() != null ? source.getButtonTheme().getCode() : KlarnaButtonTheme.DEFAULT);
+		target.setButtonShape(
+				source.getButtonShape() != null ? source.getButtonShape().getCode() : KlarnaButtonShape.DEFAULT.getCode());
+		target.setButtonTheme(
+				source.getButtonTheme() != null ? source.getButtonTheme().getCode() : KlarnaButtonTheme.DEFAULT.getCode());
 	}
 
 	private void setKECPlacements(final List<KlarnaKECPlacement> list, final KlarnaKECConfigData target)

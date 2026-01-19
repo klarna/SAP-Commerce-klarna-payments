@@ -102,6 +102,7 @@
 		<property name="showInPDPPage"		type="Boolean"	/>
 		<property name="buttonTheme"		type="String"	/>
 		<property name="buttonShape"		type="String"	/>
+		<property name="oneStepCheckout"	type="Boolean"	/>
 	</bean>
 	
 	<bean class="com.klarna.data.KlarnaSIWKConfigData">
@@ -153,9 +154,9 @@
 		<property name="dateOfBirth" type="java.util.Date"/>
 	</bean>
 	<bean class="com.klarna.payment.data.KPPaymentInfoData" extends="de.hybris.platform.commercefacades.order.data.CCPaymentInfoData">
-		<property name="id" type="String"/>
+		<property name="id" type="String"/> 
 		<property name="authToken" type="String"/>
-		<property name="billingAddress" type="de.hybris.platform.commercefacades.user.data.AddressData"/>
+		<property name="billingAddress" type="de.hybris.platform.commercefacades.user.data.AddressData"/> 
 		<property name="paymentOption" type="String"/>
 		<property name="finalizeRequired" type="Boolean"/>
 		<property name="description" type="String"/>
