@@ -26,5 +26,59 @@
 	<bean id="defaultKlarnaClientConnection" class="com.klarna.api.KlarnaClientConnectionTest">
 	<property name="flexibleSearchService" ref="flexibleSearchService"/>
 	</bean>
+	
+	<bean id="klarnaObjectMapper" class="com.fasterxml.jackson.databind.ObjectMapper" >
+	</bean>
+	
+	<bean id="klarnaObjectMapperConfigure" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+	    <property name="targetObject" ref="klarnaObjectMapper" />
+	    <property name="targetMethod" value="configure" />
+	    <property name="arguments"> 
+	        <list>
+	            <value type="com.fasterxml.jackson.databind.DeserializationFeature">FAIL_ON_UNKNOWN_PROPERTIES</value>
+	            <value>false</value>
+	        </list>   
+	    </property>
+	</bean>
+    
+    <bean id="klarnaRestTemplate" class="org.springframework.web.client.RestTemplate">
+        <property name="messageConverters" ref="defaultMessageConverters"/>
+    </bean>
+    
+    <util:list id="defaultMessageConverters" value-type="HttpMessageConverter">
+        <bean class="org.springframework.http.converter.StringHttpMessageConverter"/>
+        <bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter"/>
+        <bean class="org.springframework.http.converter.FormHttpMessageConverter"/>
+    </util:list>
+    
+	<alias name="defaultklarnaRestClientService" alias="klarnaRestClientService"/>
+	<bean id="defaultklarnaRestClientService" class="com.klarna.integration.service.impl.DefaultklarnaRestClientService">
+		<property name="restTemplate" ref="klarnaRestTemplate"/>
+	</bean>	    
+	
+	<alias name="defaultKlarnaIntegrationService" alias="klarnaIntegrationService"/>
+    <bean id="defaultklarnaIntegrationService"
+          class="com.klarna.integration.service.impl.DefaultKlarnaIntegrationService">
+    </bean>
+	
+	<bean id="klarnaLoggerUtil" class="com.klarna.integration.util.klarnaLoggerUtil">
+    </bean>
+    
+    <bean id="klarnaIntegrationUtil" class="com.klarna.integration.util.KlarnaIntegrationUtil">
+    </bean>
+    
+    <alias name="defaultKlarnaAPIRequestConverter" alias="klarnaAPIRequestConverter"/>
+    <bean id="defaultKlarnaAPIRequestConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.klarna.integration.dto.KlarnaAPIRequestDTO"/>
+        <property name="populators">
+            <list>
+                <ref bean="klarnaAPIRequestPopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <alias name="defaultKlarnaAPIRequestPopulator" alias="klarnaAPIRequestPopulator"/>
+    <bean id="defaultKlarnaAPIRequestPopulator" class="com.klarna.integration.populator.KlarnaAPIRequestPopulator">
+    </bean>
 			
 </beans>

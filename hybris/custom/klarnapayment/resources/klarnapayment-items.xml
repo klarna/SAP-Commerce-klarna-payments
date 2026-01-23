@@ -1187,7 +1187,56 @@
 					</attribute>
 				</attributes>
 			</itemtype>
-			
 		</typegroup>
+		
+		<typegroup name="KlarnaWebhooks">
+			<itemtype code="KlarnaWebhook" generate="true" autocreate="true" jaloclass="com.klarna.jalo.KlarnaWebhook">
+	            <description>Holds the details of the Webhooks created in Klarna </description>
+				<deployment table="KlarnaWebhooks" typecode="12115" />
+	            <attributes>
+					<attribute qualifier="webhookId" type="java.lang.String">
+						<description>Webhook Id</description>
+						<modifiers read="true" write="true" search="true" optional="false" unique="true"/>
+						<persistence type="property" />
+					</attribute>
+					<attribute qualifier="signingKeyId" type="java.lang.String">
+						<description>Signing Key Id</description>
+						<modifiers read="true" write="true" optional="true"/>
+						<persistence type="property" />
+					</attribute>
+					<attribute qualifier="signingKey" type="java.lang.String">
+						<description>Signing Key</description>
+						<modifiers read="true" write="true" optional="true"/>
+						<persistence type="property" />
+					</attribute>
+					<attribute qualifier="status" type="java.lang.String">
+						<description>Webhook Status</description>
+						<modifiers read="true" write="true" optional="true"/>
+						<persistence type="property" />
+					</attribute>
+		            <attribute qualifier="baseSite" type="BaseSite">
+		                <description>Base Site</description>
+		                <modifiers read="true" write="true" optional="false"/>
+						<persistence type="property" />
+		            </attribute>			
+	            </attributes>
+        	</itemtype>
+			<itemtype code="KlarnaWebhookCronJob" extends="CronJob" generate="true" autocreate="true" >
+				<description>Create, Get, Update, Delete, Simulate Webhooks</description>
+				<attributes>
+		            <attribute qualifier="baseSite" type="BaseSite">
+		                <description>BaseSite on which the job runs</description>
+		                <modifiers read="true" write="true" optional="false"/>
+						<persistence type="property" />
+		            </attribute>
+		            <attribute qualifier="action" type="java.lang.String">
+		                <description>Action: CREATE or UPDATE or DELETE or SIMULATE </description>
+		                <modifiers read="true" write="true" optional="false"/>
+						<persistence type="property" />
+		            </attribute>
+				</attributes>
+			</itemtype>		
+		</typegroup>
+		
 	</itemtypes>
 </items>

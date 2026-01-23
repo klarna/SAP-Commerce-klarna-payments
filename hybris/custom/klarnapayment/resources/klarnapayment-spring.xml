@@ -608,4 +608,18 @@
     <bean id="defaultKlarnaAttachmentPopulator" class="com.klarna.payment.converter.populator.KlarnaAttachmentPopulator">
     </bean>
     
+    <bean id="klarnaWebhookJob" class="com.klarna.payment.cronjob.KlarnaWebhookJob" parent="abstractJobPerformable">
+    </bean>
+    
+    <alias name="defaultKlarnaWebhookFacade" alias="klarnaWebhookFacade"/>
+    <bean id="defaultKlarnaWebhookFacade" class="com.klarna.payment.facades.impl.DefaultKlarnaWebhookFacade">
+    </bean>
+    
+    <alias name="defaultKlarnaWebhookService" alias="klarnaWebhookService"/>
+    <bean id="defaultKlarnaWebhookService" class="com.klarna.payment.services.impl.DefaultKlarnaWebhookService">
+    </bean>
+    
+    <bean id="klarnaServicesUtil" class="com.klarna.payment.util.KlarnaServicesUtil">
+    </bean>
+    
 </beans>
