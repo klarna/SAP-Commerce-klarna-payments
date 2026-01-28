@@ -40,28 +40,27 @@
 	        </list>   
 	    </property>
 	</bean>
+    	    
+	<bean id="httpRequestFactory" class="org.springframework.http.client.HttpComponentsClientHttpRequestFactory">
+	    <property name="connectTimeout" value="10000"/>
+	    <property name="readTimeout" value="10000"/>
+	</bean>
+	
+	<bean id="klarnaRestTemplate" class="org.springframework.web.client.RestTemplate">
+	    <constructor-arg ref="httpRequestFactory"/>
+	</bean>   
     
-    <bean id="klarnaRestTemplate" class="org.springframework.web.client.RestTemplate">
-        <property name="messageConverters" ref="defaultMessageConverters"/>
-    </bean>
-    
-    <util:list id="defaultMessageConverters" value-type="HttpMessageConverter">
-        <bean class="org.springframework.http.converter.StringHttpMessageConverter"/>
-        <bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter"/>
-        <bean class="org.springframework.http.converter.FormHttpMessageConverter"/>
-    </util:list>
-    
-	<alias name="defaultklarnaRestClientService" alias="klarnaRestClientService"/>
-	<bean id="defaultklarnaRestClientService" class="com.klarna.integration.service.impl.DefaultklarnaRestClientService">
+	<alias name="defaultKlarnaRestClientService" alias="klarnaRestClientService"/>
+	<bean id="defaultKlarnaRestClientService" class="com.klarna.integration.service.impl.DefaultKlarnaRestClientService">
 		<property name="restTemplate" ref="klarnaRestTemplate"/>
 	</bean>	    
 	
 	<alias name="defaultKlarnaIntegrationService" alias="klarnaIntegrationService"/>
-    <bean id="defaultklarnaIntegrationService"
+    <bean id="defaultKlarnaIntegrationService"
           class="com.klarna.integration.service.impl.DefaultKlarnaIntegrationService">
     </bean>
 	
-	<bean id="klarnaLoggerUtil" class="com.klarna.integration.util.klarnaLoggerUtil">
+	<bean id="klarnaLoggerUtil" class="com.klarna.integration.util.KlarnaLoggerUtil">
     </bean>
     
     <bean id="klarnaIntegrationUtil" class="com.klarna.integration.util.KlarnaIntegrationUtil">

@@ -1235,7 +1235,54 @@
 						<persistence type="property" />
 		            </attribute>
 				</attributes>
-			</itemtype>		
+			</itemtype>	
+			<itemtype code="KlarnaWebhookNotification" generate="true" autocreate="true" jaloclass="com.klarna.jalo.KlarnaWebhookNotification">
+	            <description>Holds the details of the Webhooks created in Klarna </description>
+				<deployment table="KlarnaNotification" typecode="12116" />
+	            <attributes>
+					<attribute qualifier="eventId" type="java.lang.String">
+						<description>Notification Id</description>
+						<modifiers read="true" write="true" search="true" optional="false" unique="true"/>
+						<persistence type="property" />
+					</attribute>
+					<attribute qualifier="eventType" type="java.lang.String">
+						<description>Notification Type</description>
+						<modifiers read="true" write="true" optional="true"/>
+						<persistence type="property" />
+					</attribute>
+					<attribute qualifier="eventStatus" type="java.lang.String">
+						<description>Notification Status</description>
+						<modifiers read="true" write="true" optional="true"/>
+						<persistence type="property" />
+					</attribute>
+					<attribute qualifier="requestReference" type="java.lang.String">
+						<description>Reference id to link to local object </description>
+						<modifiers read="true" write="true" optional="true"/>
+						<persistence type="property" />
+					</attribute>
+					<attribute qualifier="payload" type="java.lang.String">
+						<description>Notification request payload</description>
+						<modifiers write="true" read="true" optional="true" initial="true"/>
+						<persistence type="property">
+							<columntype database="oracle">
+								<value>CLOB</value>
+							</columntype>
+							<columntype database="sap">
+								<value>NCLOB</value>
+							</columntype>
+							<columntype database="mysql">
+								<value>TEXT</value>
+							</columntype>
+							<columntype database="sqlserver">
+								<value>TEXT</value>
+							</columntype>
+							<columntype>
+								<value>HYBRIS.LONG_STRING</value>
+							</columntype>
+						</persistence>
+					</attribute>			
+	            </attributes>
+        	</itemtype>	
 		</typegroup>
 		
 	</itemtypes>

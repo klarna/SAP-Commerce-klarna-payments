@@ -2,6 +2,7 @@ package com.klarna.payment.facades.impl;
 
 import de.hybris.platform.basecommerce.model.site.BaseSiteModel;
 import de.hybris.platform.servicelayer.model.ModelService;
+import de.hybris.platform.site.BaseSiteService;
 
 import javax.annotation.Resource;
 
@@ -10,12 +11,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.klarna.data.KlarnaConfigData;
+import com.klarna.integration.dto.KlarnaCreateWebhookResponseDTO;
 import com.klarna.integration.dto.KlarnaSigningKeyResponseDTO;
-import com.klarna.integration.dto.KlarnaWebhookResponseDTO;
 import com.klarna.model.KlarnaWebhookModel;
 import com.klarna.payment.facades.KlarnaConfigFacade;
 import com.klarna.payment.facades.KlarnaWebhookFacade;
 import com.klarna.payment.services.KlarnaWebhookService;
+import com.klarna.payment.util.KlarnaValidationUtil;
 
 
 public class DefaultKlarnaWebhookFacade implements KlarnaWebhookFacade
@@ -31,6 +33,12 @@ public class DefaultKlarnaWebhookFacade implements KlarnaWebhookFacade
 
 	@Resource
 	private ModelService modelService;
+
+	@Resource
+	private BaseSiteService baseSiteService;
+
+	@Resource
+	private KlarnaValidationUtil klarnaValidationUtil;
 
 
 	@Override
@@ -50,7 +58,7 @@ public class DefaultKlarnaWebhookFacade implements KlarnaWebhookFacade
 				return false;
 			}
 		}
-		final KlarnaWebhookResponseDTO responseDTO = klarnaWebhookService.createWebhook(baseSite, klarnaConfig);
+		final KlarnaCreateWebhookResponseDTO responseDTO = klarnaWebhookService.createWebhook(baseSite, klarnaConfig);
 		if (responseDTO.getWebhoookPayload() != null && StringUtils.isNotEmpty(responseDTO.getWebhoookPayload().getWebhookId()))
 		{
 			klarnaWebhookModel.setWebhookId(responseDTO.getWebhoookPayload().getWebhookId());
@@ -84,7 +92,7 @@ public class DefaultKlarnaWebhookFacade implements KlarnaWebhookFacade
 		}
 		if (StringUtils.isNotEmpty(klarnaWebhookModel.getWebhookId()))
 		{
-			final KlarnaWebhookResponseDTO responseDTO = klarnaWebhookService.deleteWebhook(klarnaWebhookModel, klarnaConfig);
+			final KlarnaCreateWebhookResponseDTO responseDTO = klarnaWebhookService.deleteWebhook(klarnaWebhookModel, klarnaConfig);
 			if (responseDTO.getError() != null)
 			{
 				LOG.error("Webhook deletion failed! Error Code: " + responseDTO.getError().getErrorCode() + " Error Message: "
@@ -138,5 +146,37 @@ public class DefaultKlarnaWebhookFacade implements KlarnaWebhookFacade
 		return true;
 	}
 
+	@Override
+	public boolean processWebhookNotification(final String requestBody, final String signature)
+	{
+		if (StringUtils.isEmpty(signature))
+		{
+			LOG.error("Invalid webhook notification. Signature is missing.");
+			return false;
+		}
+		if (StringUtils.isEmpty(requestBody))
+		{
+			LOG.error("Invalid webhook notification. Request body is empty.");
+			return false;
+		}
+		if (klarnaValidationUtil.validateSignature(requestBody, signature, getSavedSigningKey()))
+		{
+			LOG.debug("Signature validation success!");
+			return klarnaWebhookService.saveWebhookNotification(requestBody);
+		}
+
+		return false;
+	}
+
+	protected String getSavedSigningKey()
+	{
+		final BaseSiteModel currentSite = baseSiteService.getCurrentBaseSite();
+		final KlarnaWebhookModel klarnaWebhookModel = klarnaWebhookService.getWebhookForBaseSite(currentSite);
+		if (klarnaWebhookModel != null)
+		{
+			return klarnaWebhookModel.getSigningKey();
+		}
+		return null;
+	}
 
 }

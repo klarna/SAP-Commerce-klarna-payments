@@ -619,7 +619,14 @@
     <bean id="defaultKlarnaWebhookService" class="com.klarna.payment.services.impl.DefaultKlarnaWebhookService">
     </bean>
     
+    <alias name="defaultKlarnaWebhookDAO" alias="klarnaWebhookDAO"/>
+    <bean id="defaultKlarnaWebhookDAO" class="com.klarna.payment.daos.impl.DefaultKlarnaWebhookDAO">
+    </bean>
+    
     <bean id="klarnaServicesUtil" class="com.klarna.payment.util.KlarnaServicesUtil">
+    </bean>
+    
+    <bean id="klarnaValidationUtil" class="com.klarna.payment.util.KlarnaValidationUtil">
     </bean>
     
 </beans>

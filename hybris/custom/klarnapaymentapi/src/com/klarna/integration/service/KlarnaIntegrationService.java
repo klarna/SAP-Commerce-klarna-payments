@@ -1,9 +1,9 @@
 package com.klarna.integration.service;
 
+import com.klarna.integration.dto.KlarnaCreateWebhookRequestDTO;
+import com.klarna.integration.dto.KlarnaCreateWebhookResponseDTO;
 import com.klarna.integration.dto.KlarnaSigningKeyRequestDTO;
 import com.klarna.integration.dto.KlarnaSigningKeyResponseDTO;
-import com.klarna.integration.dto.KlarnaWebhookRequestDTO;
-import com.klarna.integration.dto.KlarnaWebhookResponseDTO;
 
 
 public interface KlarnaIntegrationService
@@ -12,9 +12,9 @@ public interface KlarnaIntegrationService
 
 	KlarnaSigningKeyResponseDTO deleteSigningKey(final KlarnaSigningKeyRequestDTO requestDTO);
 
-	KlarnaWebhookResponseDTO createWebhook(final KlarnaWebhookRequestDTO requestDTO);
+	KlarnaCreateWebhookResponseDTO createWebhook(final KlarnaCreateWebhookRequestDTO requestDTO);
 
-	KlarnaWebhookResponseDTO updateWebhook(final KlarnaWebhookRequestDTO requestDTO);
+	KlarnaCreateWebhookResponseDTO updateWebhook(final KlarnaCreateWebhookRequestDTO requestDTO);
 
-	KlarnaWebhookResponseDTO deleteWebhook(final KlarnaWebhookRequestDTO requestDTO);
+	KlarnaCreateWebhookResponseDTO deleteWebhook(final KlarnaCreateWebhookRequestDTO requestDTO);
 }

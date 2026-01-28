@@ -1533,7 +1533,7 @@
     	</property>
 	</bean>
 	
-	<bean class="com.klarna.integration.dto.KlarnaWebhookPayloadDTO" >
+	<bean class="com.klarna.integration.dto.KlarnaCreateWebhookPayloadDTO" >
 		<import	type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
 		<import type="com.fasterxml.jackson.annotation.JsonProperty" />	
 		<property name="webhookId" type="String">
@@ -1593,10 +1593,10 @@
 		</property>
 	</bean>
 	
-	<bean class="com.klarna.integration.dto.KlarnaWebhookRequestDTO" extends="com.klarna.integration.dto.KlarnaRequestDTO" >
+	<bean class="com.klarna.integration.dto.KlarnaCreateWebhookRequestDTO" extends="com.klarna.integration.dto.KlarnaRequestDTO" >
 		<import	type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
 		<import type="com.fasterxml.jackson.annotation.JsonProperty" />
-		<property name="webhoookPayload" type="com.klarna.integration.dto.KlarnaWebhookPayloadDTO">
+		<property name="webhoookPayload" type="com.klarna.integration.dto.KlarnaCreateWebhookPayloadDTO">
 	        <annotations>@JsonProperty("webhoookPayload")</annotations>
     	</property>	
 	</bean>
@@ -1617,10 +1617,10 @@
 		</property>
 	</bean>
 	
-	<bean class="com.klarna.integration.dto.KlarnaWebhookResponseDTO" extends="com.klarna.integration.dto.KlarnaResponseDTO" >
+	<bean class="com.klarna.integration.dto.KlarnaCreateWebhookResponseDTO" extends="com.klarna.integration.dto.KlarnaResponseDTO" >
 		<import	type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
 		<import type="com.fasterxml.jackson.annotation.JsonProperty" />
-		<property name="webhoookPayload" type="com.klarna.integration.dto.KlarnaWebhookPayloadDTO">
+		<property name="webhoookPayload" type="com.klarna.integration.dto.KlarnaCreateWebhookPayloadDTO">
 	        <annotations>@JsonProperty("webhoookPayload")</annotations>
     	</property>	
 	</bean>

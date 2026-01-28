@@ -16,13 +16,13 @@ import org.springframework.web.client.RestTemplate;
 
 import com.klarna.integration.dto.KlarnaAPIRequestDTO;
 import com.klarna.integration.dto.KlarnaAPIResponseDTO;
+import com.klarna.integration.dto.KlarnaCreateWebhookPayloadDTO;
+import com.klarna.integration.dto.KlarnaCreateWebhookRequestDTO;
+import com.klarna.integration.dto.KlarnaCreateWebhookResponseDTO;
 import com.klarna.integration.dto.KlarnaRequestDTO;
 import com.klarna.integration.dto.KlarnaSigningKeyPayloadDTO;
 import com.klarna.integration.dto.KlarnaSigningKeyRequestDTO;
 import com.klarna.integration.dto.KlarnaSigningKeyResponseDTO;
-import com.klarna.integration.dto.KlarnaWebhookPayloadDTO;
-import com.klarna.integration.dto.KlarnaWebhookRequestDTO;
-import com.klarna.integration.dto.KlarnaWebhookResponseDTO;
 import com.klarna.integration.service.KlarnaIntegrationService;
 import com.klarna.integration.service.KlarnaRestClientService;
 import com.klarna.integration.util.KlarnaIntegrationUtil;
@@ -77,16 +77,16 @@ public class DefaultKlarnaIntegrationService implements KlarnaIntegrationService
 	}
 
 	@Override
-	public KlarnaWebhookResponseDTO createWebhook(final KlarnaWebhookRequestDTO requestDTO)
+	public KlarnaCreateWebhookResponseDTO createWebhook(final KlarnaCreateWebhookRequestDTO requestDTO)
 	{
 		final KlarnaAPIRequestDTO klarnaAPIRequestDTO = klarnaAPIRequestConverter.convert(requestDTO);
 		klarnaAPIRequestDTO.setPayload(klarnaIntegrationUtil.convertRequestDtoToString(requestDTO.getWebhoookPayload()));
 		final KlarnaAPIResponseDTO klarnaAPIResponseDTO = klarnaRestClientService.callRestApi(klarnaAPIRequestDTO);
-		final KlarnaWebhookResponseDTO responseDTO = new KlarnaWebhookResponseDTO();
+		final KlarnaCreateWebhookResponseDTO responseDTO = new KlarnaCreateWebhookResponseDTO();
 		if (klarnaAPIResponseDTO.getPayload() != null)
 		{
 			responseDTO.setWebhoookPayload(klarnaIntegrationUtil.convertResponseStringToDto(klarnaAPIResponseDTO.getPayload(),
-					KlarnaWebhookPayloadDTO.class));
+					KlarnaCreateWebhookPayloadDTO.class));
 		}
 		else
 		{
@@ -96,18 +96,18 @@ public class DefaultKlarnaIntegrationService implements KlarnaIntegrationService
 	}
 
 	@Override
-	public KlarnaWebhookResponseDTO updateWebhook(final KlarnaWebhookRequestDTO requestDTO)
+	public KlarnaCreateWebhookResponseDTO updateWebhook(final KlarnaCreateWebhookRequestDTO requestDTO)
 	{
 		final KlarnaAPIRequestDTO klarnaAPIRequestDTO = klarnaAPIRequestConverter.convert(requestDTO);
 		klarnaAPIRequestDTO.setPayload(klarnaIntegrationUtil.convertRequestDtoToString(requestDTO.getWebhoookPayload()));
 		final Map<String, String> pathParams = new HashMap<>();
 		pathParams.put("webhook_id", requestDTO.getWebhoookPayload().getWebhookId());
 		final KlarnaAPIResponseDTO klarnaAPIResponseDTO = klarnaRestClientService.callRestApi(klarnaAPIRequestDTO);
-		final KlarnaWebhookResponseDTO responseDTO = new KlarnaWebhookResponseDTO();
+		final KlarnaCreateWebhookResponseDTO responseDTO = new KlarnaCreateWebhookResponseDTO();
 		if (klarnaAPIResponseDTO.getPayload() != null)
 		{
 			responseDTO.setWebhoookPayload(klarnaIntegrationUtil.convertResponseStringToDto(klarnaAPIResponseDTO.getPayload(),
-					KlarnaWebhookPayloadDTO.class));
+					KlarnaCreateWebhookPayloadDTO.class));
 		}
 		else
 		{
@@ -117,13 +117,13 @@ public class DefaultKlarnaIntegrationService implements KlarnaIntegrationService
 	}
 
 	@Override
-	public KlarnaWebhookResponseDTO deleteWebhook(final KlarnaWebhookRequestDTO requestDTO)
+	public KlarnaCreateWebhookResponseDTO deleteWebhook(final KlarnaCreateWebhookRequestDTO requestDTO)
 	{
 		final KlarnaAPIRequestDTO klarnaAPIRequestDTO = klarnaAPIRequestConverter.convert(requestDTO);
 		final Map<String, String> pathParams = new HashMap<>();
 		pathParams.put("webhook_id", requestDTO.getWebhoookPayload().getWebhookId());
 		final KlarnaAPIResponseDTO klarnaAPIResponseDTO = klarnaRestClientService.callRestApi(klarnaAPIRequestDTO);
-		final KlarnaWebhookResponseDTO responseDTO = new KlarnaWebhookResponseDTO();
+		final KlarnaCreateWebhookResponseDTO responseDTO = new KlarnaCreateWebhookResponseDTO();
 		responseDTO.setError(klarnaAPIResponseDTO.getError());
 		return responseDTO;
 	}

@@ -20,5 +20,5 @@ public final class KlarnapaymentaddonWebConstants // NOSONAR
 		//empty to avoid instantiating this constant class
 	}
 
-	// implement here constants used by this extension
+	public static final String KLARNA_SELECTED_PAYMENT_METHOD = "klarnaSelectedPaymentMethod";
 }
