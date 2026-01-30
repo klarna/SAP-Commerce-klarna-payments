@@ -16,13 +16,19 @@ import com.klarna.data.KlarnaConfigData;
 import com.klarna.data.KlarnaSIWKConfigData;
 import com.klarna.payment.constants.KlarnapaymentConstants;
 import com.klarna.payment.facades.KlarnaConfigFacade;
-import com.klarna.payment.facades.KlarnaExpCheckoutFacade;
-import com.klarna.payment.facades.KlarnaSignInFacade;
 
 
 public class KlarnaBeforeViewHandler implements BeforeViewHandlerAdaptee
 {
 	private static final Logger LOG = Logger.getLogger(KlarnaBeforeViewHandler.class);
+
+	private static final String KLARNA_CONFIG = "klarnaConfig";
+
+	private static final String KLARNA_WEB_SDK_V1_URL = "klarnaWebSDKv1Url";
+	private static final String KLARNA_WEB_SDK_V2_URL = "klarnaWebSDKv2Url";
+	private static final String KLARNA_WEB_SDK_V1_URL_CONFIG_KEY = "klarna.web.sdk.v1.url";
+	private static final String KLARNA_WEB_SDK_V2_URL_CONFIG_KEY = "klarna.web.sdk.v2.url";
+
 
 	private static final String IS_KLARNA_EXP_CHECKOUT_ENABLED = "isKlarnaExpCheckoutEnabled";
 	private static final String IS_KLARNA_SIGN_IN_ENABLED = "isKlarnaSignInEnabled";
@@ -39,9 +45,6 @@ public class KlarnaBeforeViewHandler implements BeforeViewHandlerAdaptee
 	private static final String SCRIPT_URL_SIWK = "scriptUrlSIWK";
 	private static final String SIWK_CONFIG_DATA = "siwkConfigData";
 
-	@Resource(name = "klarnaExpCheckoutFacade")
-	private KlarnaExpCheckoutFacade klarnaExpCheckoutFacade;
-
 	@Resource(name = "klarnaConfigFacade")
 	private KlarnaConfigFacade klarnaConfigFacade;
 
@@ -50,9 +53,6 @@ public class KlarnaBeforeViewHandler implements BeforeViewHandlerAdaptee
 
 	@Resource(name = "commonI18NService")
 	CommonI18NService commonI18NService;
-
-	@Resource(name = "klarnaSignInFacade")
-	private KlarnaSignInFacade klarnaSignInFacade;
 
 	@Resource(name = "configurationService")
 	private ConfigurationService configurationService;
@@ -65,7 +65,13 @@ public class KlarnaBeforeViewHandler implements BeforeViewHandlerAdaptee
 		{
 			LOG.debug("Inside KlarnaPaymentBeforeViewHandler");
 		}
+
 		final KlarnaConfigData klarnaConfig = klarnaConfigFacade.getKlarnaConfig();
+		if (klarnaConfig != null && Boolean.TRUE.equals(klarnaConfig.getActive()))
+		{
+			setKlarnaModelAttributes(model, klarnaConfig);
+		}
+
 		if (klarnaConfig != null && klarnaConfig.getCredential() != null)
 		{
 			model.addAttribute(KLARNA_CLIENT_ID, klarnaConfig.getCredential().getClientId());
@@ -80,6 +86,16 @@ public class KlarnaBeforeViewHandler implements BeforeViewHandlerAdaptee
 		}
 
 		return viewName;
+	}
+
+	private void setKlarnaModelAttributes(final ModelMap model, final KlarnaConfigData klarnaConfig)
+	{
+		model.addAttribute(KLARNA_CONFIG, klarnaConfig);
+		model.addAttribute(KLARNA_WEB_SDK_V1_URL,
+				configurationService.getConfiguration().getString(KLARNA_WEB_SDK_V1_URL_CONFIG_KEY));
+		model.addAttribute(KLARNA_WEB_SDK_V2_URL,
+				configurationService.getConfiguration().getString(KLARNA_WEB_SDK_V2_URL_CONFIG_KEY));
+		model.addAttribute(KLARNA_LOCALE, i18NService.getCurrentLocale() + "-" + klarnaConfig.getCredential().getMarketCountry());
 	}
 
 	private void setKlarnaExpressCheckoutAttributes(final ModelMap model, final KlarnaConfigData klarnaConfig)

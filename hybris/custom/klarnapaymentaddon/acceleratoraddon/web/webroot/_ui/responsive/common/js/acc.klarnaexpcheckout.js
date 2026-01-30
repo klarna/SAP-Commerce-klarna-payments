@@ -107,24 +107,212 @@ ACC.klarnaexpcheckout = {
 	        initialWidth :"420px",
 	        height:"300px"
 	  	});
-	}
+	},
+	
+	createPaymentRequest: function() {
+		// If express checkout is triggered from Cart page, product code and quantity not required 
+		var productCode;
+		var productQty;
+		if($("#klarnaExpCheckoutProductCode").val() == undefined) {
+			productCode = null;
+			productQty = null;
+		}
+		else {
+			// If express checkout is triggered from PDP page, pass product code and quantity to add to new cart	
+			productCode = $("#klarnaExpCheckoutProductCode").val();
+			productQty =  $("#pdpAddtoCartInput").val();
+			if (productQty == undefined) {
+				productQty = "1";
+			}
+		}
+		var createPaymentRequestUrl = $("#expCheckoutPaymentRequestUrl").val();
+		return $.ajax({
+			url: createPaymentRequestUrl,
+			data: {"productCode":productCode, "productQty":productQty},
+			method: 'GET',
+			dataType: 'json',
+			contentType: 'application/json'
+		});
+	},
+	
+	updateShippingAddress: function(paymentRequest, shippingAddress) {
+		var kecUpdateShippingAddressUrl = $("#kecUpdateShippingAddressUrl").val();
+		return $.ajax({
+			url: kecUpdateShippingAddressUrl,
+			data: JSON.stringify({
+                shippingAddress: shippingAddress,
+                paymentRequestId: paymentRequest.paymentRequestId
+            }),
+			method: 'POST',
+			dataType: 'json',
+			contentType: 'application/json'
+		});
+	},
+	
+	updateShippingMethod: function(paymentRequest, shippingMethod) {
+		var kecUpdateShippingMethodUrl = $("#kecUpdateShippingMethodUrl").val();
+		return $.ajax({
+			url: kecUpdateShippingMethodUrl,
+			data: JSON.stringify({
+                shippingMethod: shippingMethod,
+                paymentRequestId: paymentRequest.paymentRequestId
+            }),
+			method: 'POST',
+			dataType: 'json',
+			contentType: 'application/json'
+		});
+	},
+	
+	saveInteroperabilityToken: function(interoperabilityToken) {
+		var kecSaveInteropTokenUrl = $("#kecSaveInteropTokenUrl").val();
+		return $.ajax({
+			url: kecSaveInteropTokenUrl,
+			data: JSON.stringify({
+                interoperabilityToken: interoperabilityToken
+            }),
+			method: 'POST',
+			dataType: 'json',
+			contentType: 'application/json'
+		});
+	},
 	
 };	
 
 window.klarnaAsyncCallback = function () {
-	var clientKey = $("#klarnaClientId").val();
-	//console.log("clientKey", clientKey);
-	window.Klarna.Payments.Buttons.init({
-      client_key: clientKey,
-    });
-    // Express Checkout button is displayed in PDP and Cart
-    var currentPageUrl = window.location.pathname;
-    if(currentPageUrl.includes('/p/') || currentPageUrl.includes('/cart')) {
-		ACC.klarnaexpcheckout.klarnaButtonLoad("#klarna_exp_checkout_container_default");
-		// Button will be displayed in two places in Cart page
-	    if((window.location.pathname).includes('/cart')) {
-			ACC.klarnaexpcheckout.klarnaButtonLoad("#klarna_exp_checkout_container_checkout_display");
+	// Check if SDK v1 is enabled
+	var $loadWebSDKv1Div = $('#loadWebSDKv1Div');
+	var isSDKv1Enabled = $loadWebSDKv1Div.length > 0 && $loadWebSDKv1Div.data('enabled') === true;
+	
+	if (isSDKv1Enabled) {
+	    var clientKey = $("#klarnaClientId").val();
+		//console.log("clientKey", clientKey);
+		window.Klarna.Payments.Buttons.init({
+	      client_key: clientKey,
+	    });
+	    // Express Checkout button is displayed in PDP and Cart
+	    var currentPageUrl = window.location.pathname;
+	    if(currentPageUrl.includes('/p/') || currentPageUrl.includes('/cart')) {
+			ACC.klarnaexpcheckout.klarnaButtonLoad("#klarna_exp_checkout_container_default");
+			// Button will be displayed in two places in Cart page
+		    if((window.location.pathname).includes('/cart')) {
+				ACC.klarnaexpcheckout.klarnaButtonLoad("#klarna_exp_checkout_container_checkout_display");
+			}
 		}
 	}
+};
+
+window.KlarnaSDKCallback = async function () {
+	// Check if SDK v2 is enabled
+	var $loadWebSDKv2Div = $('#loadWebSDKv2Div');
+	var isSDKv2Enabled = $loadWebSDKv2Div.length > 0 && $loadWebSDKv2Div.data('enabled') === true;
+	// Check if SDK v1 is enabled 
+	var $loadWebSDKv1Div = $('#loadWebSDKv1Div');
+	var isSDKv1Enabled = $loadWebSDKv1Div.length > 0 && $loadWebSDKv1Div.data('enabled') === true;
+	if (isSDKv2Enabled && !isSDKv1Enabled) {
+		
+		var klarnaClientId = $("#klarnaClientId").val();
+		var klarnaProducts = $("#klarnaProducts").val();
+		var klarnaLocale = $("#klarnaLocale").val();
+		const klarna = await Klarna.init({
+	      clientId: klarnaClientId,
+	      products: klarnaProducts,
+	      locale: klarnaLocale,
+	      integrator: "TODO",
+	      originators: "TODO",
+	    });
+		
+		var buttonTheme = $("#kecButtonTheme").val();
+		var buttonShape = $("#kecButtonShape").val();
+		
+		klarna.Payment.button({ 
+	        id: "klarna-payment-button",
+	        shape: buttonShape,
+	        theme: buttonTheme,
+	        locale: klarnaLocale,
+        	intents: ['PAY'],
+        	initiationMode: 'DEVICE_BEST',
+	        initiate: async () => {
+				const paymentResponse = await ACC.klarnaexpcheckout.createPaymentRequest();
+				if (!responseJson || !responseJson.paymentRequestId) {
+	                //console.log("Error in creating payment request");
+			    	ACC.klarnaexpcheckout.showMessage($("#klarnaExpCheckoutErrorMessage").val());
+	                return;
+	            }
+				// TODO Polling
+				var paymentRequestId = { paymentRequestId: paymentResponse.paymentRequestId };
+	            return paymentRequestId;
+	        }
+    	}).mount("#klarna_exp_checkout_container_default");
+    	
+    	// Only register shipping address change handler if not PSP integrated and single step mode is enabled
+    	var integratedWithPSP = $("#integratedWithPSP").val();
+	    if (!integratedWithPSP) {
+	        klarna.Payment.on('shippingaddresschange', async (paymentRequest, shippingAddress) => {
+	            try {
+	                const shippingAddressResponse = await ACC.klarnaexpcheckout.updateShippingAddress(paymentRequest, shippingAddress);
+	                if (!shippingAddressResponse.ok) {
+	                    return { rejection_reason: klarna.Payment.ShippingRejectionReason.ADDRESS_NOT_SUPPORTED };
+	                }
+					var shippingAddressResponseJson = await shippingAddressResponse.json();
+	                if (shippingAddressResponseJson.success && shippingAddressResponseJson.updatedRequest) {
+	                    //console.log(shippingAddressResponseJson.updatedRequest);
+	                    return shippingAddressResponseJson.updatedRequest;
+	                }
+	                // Handle rejection from server - map to Klarna SDK enum
+	                if (!shippingAddressResponseJson.success && shippingAddressResponseJson.rejectionReason) {
+	                    var rejectionMap = {
+	                        COUNTRY_NOT_SUPPORTED: klarna.Payment.ShippingRejectionReason.COUNTRY_NOT_SUPPORTED,
+	                        POSTAL_CODE_NOT_SUPPORTED: klarna.Payment.ShippingRejectionReason.POSTAL_CODE_NOT_SUPPORTED,
+	                        CITY_NOT_SUPPORTED: klarna.Payment.ShippingRejectionReason.CITY_NOT_SUPPORTED,
+	                        REGION_NOT_SUPPORTED: klarna.Payment.ShippingRejectionReason.REGION_NOT_SUPPORTED,
+	                        ADDRESS_NOT_SUPPORTED: klarna.Payment.ShippingRejectionReason.ADDRESS_NOT_SUPPORTED
+	                    };
+	                    var mappedRejection = rejectionMap[responseJson.rejectionReason];
+	                    return { rejection_reason: mappedRejection || klarna.Payment.ShippingRejectionReason.ADDRESS_NOT_SUPPORTED };
+	                }
+	
+	                // Default rejection
+	                return { rejection_reason: klarna.Payment.ShippingRejectionReason.ADDRESS_NOT_SUPPORTED };
+	            } catch (error) {
+	                return { rejection_reason: klarna.Payment.ShippingRejectionReason.ADDRESS_NOT_SUPPORTED };
+	            }
+	        });
+	
+	        klarna.Payment.on('shippingoptionselect', async (paymentRequest, shippingOption) => {
+	            try {
+	                const shippingOptionResponse = await ACC.klarnaexpcheckout.updateShippingMethod(paymentRequest, shippingAddress);
+	                if (!shippingOptionResponse.ok) {
+	                    return { rejection_reason: 'INVALID_OPTION' };
+	                }
+	
+	                var shippingOptionResponseJson = await shippingOptionResponse.json();
+	
+	                if (shippingOptionResponseJson.success && shippingOptionResponseJson.updatedRequest) {
+	                    console.log(shippingOptionResponseJson.updatedRequest);
+	                    return shippingOptionResponseJson.updatedRequest;
+	                }
+	                return { rejection_reason: 'INVALID_OPTION' };
+	            } catch (error) {
+	                return { rejection_reason: 'INVALID_OPTION' };
+	            }
+	        });
+		}
+		klarna.Payment.on('complete', async (paymentRequest) => {
+	        if (paymentRequest && paymentRequest.stateContext && paymentRequest.stateContext.interoperabilityToken) {
+	            // Save the interoperability token and notify PSPs so they can use the token
+	            await ACC.klarnaexpcheckout.saveInteroperabilityToken(paymentRequest.stateContext.interoperabilityToken);
+	        }
+	        // Return a boolean to skip redirection.
+	        return false;
+	    });
+	
+	    klarna.Payment.on('error', (error, paymentRequest) => { 
+	        return false;
+	    });
+	
+	    klarna.Payment.on('abort', (paymentRequest) => { 
+	        return false;
+	    });	        
+	}	
 };
 
