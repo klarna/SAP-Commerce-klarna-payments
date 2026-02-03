@@ -1,8 +1,10 @@
 package com.klarna.payment.facades.impl;
 
+import de.hybris.platform.commercefacades.order.CheckoutFacade;
 import de.hybris.platform.commercefacades.user.data.AddressData;
 import de.hybris.platform.commerceservices.order.CommerceCheckoutService;
 import de.hybris.platform.commerceservices.service.data.CommerceCheckoutParameter;
+import de.hybris.platform.core.model.order.AbstractOrderModel;
 import de.hybris.platform.core.model.order.CartModel;
 import de.hybris.platform.core.model.user.AddressModel;
 import de.hybris.platform.order.CartFactory;
@@ -12,6 +14,8 @@ import de.hybris.platform.servicelayer.model.ModelService;
 import de.hybris.platform.servicelayer.user.UserService;
 import de.hybris.platform.store.services.BaseStoreService;
 
+import java.util.Map;
+
 import javax.annotation.Resource;
 
 import org.apache.commons.lang.StringUtils;
@@ -19,6 +23,9 @@ import org.apache.log4j.Logger;
 
 import com.klarna.api.expcheckout.model.KlarnaExpCheckoutAuthorizationResponse;
 import com.klarna.api.payments.model.PaymentsSession;
+import com.klarna.payment.data.KlarnaAddressData;
+import com.klarna.payment.data.KlarnaShippingChangeResponseData;
+import com.klarna.payment.data.KlarnaShippingOptionData;
 import com.klarna.payment.facades.KlarnaExpCheckoutFacade;
 import com.klarna.payment.model.KPPaymentInfoModel;
 
@@ -56,6 +63,16 @@ public class DefaultKlarnaExpCheckoutFacade implements KlarnaExpCheckoutFacade
 
 	@Resource(name = "baseStoreService")
 	private BaseStoreService baseStoreService;
+
+	@Resource(name = "checkoutFacade")
+	private CheckoutFacade checkoutFacade;
+
+	@Resource
+	private Converter<KlarnaAddressData, AddressData> klarnaAddressReverseConverter;
+
+	@Resource
+	private Converter<AbstractOrderModel, KlarnaShippingChangeResponseData> klarnaShippingChangeResponseConverter;
+
 
 	@Override
 	public PaymentsSession getAuthorizePayload()
@@ -183,6 +200,27 @@ public class DefaultKlarnaExpCheckoutFacade implements KlarnaExpCheckoutFacade
 		}
 		cartModel.setPaymentAddress(addressModel);
 		return setPaymentInfoInCart(cartModel, kpPaymentInfoModel);
+	}
+
+	@Override
+	public AddressData getShippingAddress(final Map<String, Object> requestMap)
+	{
+		final KlarnaAddressData klarnaAddressData = (KlarnaAddressData) requestMap.get("shippingAddress");
+		return klarnaAddressReverseConverter.convert(klarnaAddressData);
+	}
+
+	@Override
+	public KlarnaShippingChangeResponseData getShippingAddressChangeResponse()
+	{
+		return klarnaShippingChangeResponseConverter.convert(cartService.getSessionCart());
+	}
+
+	@Override
+	public KlarnaShippingChangeResponseData setDeliveryMode(final Map<String, Object> requestMap)
+	{
+		final KlarnaShippingOptionData klarnaShippingOptionData = (KlarnaShippingOptionData) requestMap.get("shippingOption");
+		checkoutFacade.setDeliveryMode(klarnaShippingOptionData.getShippingOptionReference());
+		return klarnaShippingChangeResponseConverter.convert(cartService.getSessionCart());
 	}
 
 	private void calculateCart(final CartModel cartModel)

@@ -21,4 +21,8 @@ public final class KlarnapaymentaddonWebConstants // NOSONAR
 	}
 
 	public static final String KLARNA_SELECTED_PAYMENT_METHOD = "klarnaSelectedPaymentMethod";
+
+	public static final String KLARNA_GUEST_TEMP_EMAIL_ID = "tempuser@sap.kec";
+	public static final String KLARNA_ADDRESS_NOT_SUPPORTED_ERROR = "ADDRESS_NOT_SUPPORTED";
+	public static final String KLARNA_INVALID_OPTION_ERROR = "INVALID_OPTION";
 }

@@ -16,9 +16,12 @@ import org.springframework.web.client.RestTemplate;
 
 import com.klarna.integration.dto.KlarnaAPIRequestDTO;
 import com.klarna.integration.dto.KlarnaAPIResponseDTO;
+import com.klarna.integration.dto.KlarnaCreatePaymentRequestDTO;
+import com.klarna.integration.dto.KlarnaCreatePaymentResponseDTO;
 import com.klarna.integration.dto.KlarnaCreateWebhookPayloadDTO;
 import com.klarna.integration.dto.KlarnaCreateWebhookRequestDTO;
 import com.klarna.integration.dto.KlarnaCreateWebhookResponseDTO;
+import com.klarna.integration.dto.KlarnaPaymentResponsePayloadDTO;
 import com.klarna.integration.dto.KlarnaRequestDTO;
 import com.klarna.integration.dto.KlarnaSigningKeyPayloadDTO;
 import com.klarna.integration.dto.KlarnaSigningKeyRequestDTO;
@@ -45,6 +48,27 @@ public class DefaultKlarnaIntegrationService implements KlarnaIntegrationService
 
 	@Resource(name = "klarnaAPIRequestConverter")
 	protected Converter<KlarnaRequestDTO, KlarnaAPIRequestDTO> klarnaAPIRequestConverter;
+
+	@Override
+	public KlarnaCreatePaymentResponseDTO createPaymentRequest(final KlarnaCreatePaymentRequestDTO requestDTO)
+	{
+		final KlarnaAPIRequestDTO klarnaAPIRequestDTO = klarnaAPIRequestConverter.convert(requestDTO);
+		klarnaAPIRequestDTO
+				.setPayload(klarnaIntegrationUtil.convertRequestDtoToString(requestDTO.getPaymentRequestPayload()));
+		final KlarnaAPIResponseDTO klarnaAPIResponseDTO = klarnaRestClientService.callRestApi(klarnaAPIRequestDTO);
+		final KlarnaCreatePaymentResponseDTO responseDTO = new KlarnaCreatePaymentResponseDTO();
+		if (klarnaAPIResponseDTO.getPayload() != null)
+		{
+			responseDTO.setPaymentResponsePayload(klarnaIntegrationUtil.convertResponseStringToDto(klarnaAPIResponseDTO.getPayload(),
+					KlarnaPaymentResponsePayloadDTO.class));
+		}
+		else
+		{
+			responseDTO.setError(klarnaAPIResponseDTO.getError());
+		}
+		return responseDTO;
+	}
+
 
 	@Override
 	public KlarnaSigningKeyResponseDTO createSigningKey(final KlarnaSigningKeyRequestDTO requestDTO)

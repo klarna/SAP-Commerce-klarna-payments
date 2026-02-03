@@ -141,7 +141,7 @@ ACC.klarnaexpcheckout = {
 			url: kecUpdateShippingAddressUrl,
 			data: JSON.stringify({
                 shippingAddress: shippingAddress,
-                paymentRequestId: paymentRequest.paymentRequestId
+                paymentRequestId: paymentRequest
             }),
 			method: 'POST',
 			dataType: 'json',
@@ -149,13 +149,13 @@ ACC.klarnaexpcheckout = {
 		});
 	},
 	
-	updateShippingMethod: function(paymentRequest, shippingMethod) {
+	updateShippingOption: function(paymentRequest, shippingOption) {
 		var kecUpdateShippingMethodUrl = $("#kecUpdateShippingMethodUrl").val();
 		return $.ajax({
 			url: kecUpdateShippingMethodUrl,
 			data: JSON.stringify({
-                shippingMethod: shippingMethod,
-                paymentRequestId: paymentRequest.paymentRequestId
+                shippingOption: shippingOption,
+                paymentRequestId: paymentRequest
             }),
 			method: 'POST',
 			dataType: 'json',
@@ -202,6 +202,13 @@ window.klarnaAsyncCallback = function () {
 };
 
 window.KlarnaSDKCallback = async function () {
+		
+ 	const $klarnaDiv = $("#klarnaDiv");
+
+    const productsJson = $klarnaDiv.data("products");
+    const integratorJson = $klarnaDiv.data("integrator");   // automatically decoded
+    const originatorsJson = $klarnaDiv.data("originators");
+
 	// Check if SDK v2 is enabled
 	var $loadWebSDKv2Div = $('#loadWebSDKv2Div');
 	var isSDKv2Enabled = $loadWebSDKv2Div.length > 0 && $loadWebSDKv2Div.data('enabled') === true;
@@ -211,14 +218,14 @@ window.KlarnaSDKCallback = async function () {
 	if (isSDKv2Enabled && !isSDKv1Enabled) {
 		
 		var klarnaClientId = $("#klarnaClientId").val();
-		var klarnaProducts = $("#klarnaProducts").val();
 		var klarnaLocale = $("#klarnaLocale").val();
+		
 		const klarna = await Klarna.init({
 	      clientId: klarnaClientId,
-	      products: klarnaProducts,
+	      products: JSON.parse(productsJson),
 	      locale: klarnaLocale,
-	      integrator: "TODO",
-	      originators: "TODO",
+	      integrator: JSON.parse(integratorJson),
+	      originators: JSON.parse(originatorsJson),
 	    });
 		
 		var buttonTheme = $("#kecButtonTheme").val();
@@ -250,17 +257,11 @@ window.KlarnaSDKCallback = async function () {
 	        klarna.Payment.on('shippingaddresschange', async (paymentRequest, shippingAddress) => {
 	            try {
 	                const shippingAddressResponse = await ACC.klarnaexpcheckout.updateShippingAddress(paymentRequest, shippingAddress);
-	                if (!shippingAddressResponse.ok) {
-	                    return { rejection_reason: klarna.Payment.ShippingRejectionReason.ADDRESS_NOT_SUPPORTED };
-	                }
-					var shippingAddressResponseJson = await shippingAddressResponse.json();
-	                if (shippingAddressResponseJson.success && shippingAddressResponseJson.updatedRequest) {
-	                    //console.log(shippingAddressResponseJson.updatedRequest);
-	                    return shippingAddressResponseJson.updatedRequest;
-	                }
-	                // Handle rejection from server - map to Klarna SDK enum
-	                if (!shippingAddressResponseJson.success && shippingAddressResponseJson.rejectionReason) {
-	                    var rejectionMap = {
+	                if (shippingAddressResponse.status === "success") {
+						return shippingAddressResponse.successResponse;
+					}
+					if(shippingAddressResponse.rejectionResponse && shippingAddressResponse.rejectionResponse.rejectionReason) {
+						 var rejectionMap = {
 	                        COUNTRY_NOT_SUPPORTED: klarna.Payment.ShippingRejectionReason.COUNTRY_NOT_SUPPORTED,
 	                        POSTAL_CODE_NOT_SUPPORTED: klarna.Payment.ShippingRejectionReason.POSTAL_CODE_NOT_SUPPORTED,
 	                        CITY_NOT_SUPPORTED: klarna.Payment.ShippingRejectionReason.CITY_NOT_SUPPORTED,
@@ -269,10 +270,10 @@ window.KlarnaSDKCallback = async function () {
 	                    };
 	                    var mappedRejection = rejectionMap[responseJson.rejectionReason];
 	                    return { rejection_reason: mappedRejection || klarna.Payment.ShippingRejectionReason.ADDRESS_NOT_SUPPORTED };
-	                }
-	
-	                // Default rejection
-	                return { rejection_reason: klarna.Payment.ShippingRejectionReason.ADDRESS_NOT_SUPPORTED };
+					}
+					else {
+						return { rejection_reason: klarna.Payment.ShippingRejectionReason.ADDRESS_NOT_SUPPORTED };
+					}
 	            } catch (error) {
 	                return { rejection_reason: klarna.Payment.ShippingRejectionReason.ADDRESS_NOT_SUPPORTED };
 	            }
@@ -280,18 +281,13 @@ window.KlarnaSDKCallback = async function () {
 	
 	        klarna.Payment.on('shippingoptionselect', async (paymentRequest, shippingOption) => {
 	            try {
-	                const shippingOptionResponse = await ACC.klarnaexpcheckout.updateShippingMethod(paymentRequest, shippingAddress);
-	                if (!shippingOptionResponse.ok) {
-	                    return { rejection_reason: 'INVALID_OPTION' };
-	                }
-	
-	                var shippingOptionResponseJson = await shippingOptionResponse.json();
-	
-	                if (shippingOptionResponseJson.success && shippingOptionResponseJson.updatedRequest) {
-	                    console.log(shippingOptionResponseJson.updatedRequest);
-	                    return shippingOptionResponseJson.updatedRequest;
-	                }
-	                return { rejection_reason: 'INVALID_OPTION' };
+	                const shippingOptionResponse = await ACC.klarnaexpcheckout.updateShippingOption(paymentRequest, shippingOption);
+	                if (shippingOptionResponse.status === "success") {
+						return shippingOptionResponse.successResponse;
+					}
+					else {
+						return { rejection_reason: 'INVALID_OPTION' };
+					}
 	            } catch (error) {
 	                return { rejection_reason: 'INVALID_OPTION' };
 	            }

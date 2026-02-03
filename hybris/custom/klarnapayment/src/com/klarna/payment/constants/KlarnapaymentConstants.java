@@ -43,4 +43,8 @@ public final class KlarnapaymentConstants extends GeneratedKlarnapaymentConstant
 	public static final String KLARNA_SIWK_SCRIPT_URL = "klarna.siwk.script.url";
 	public static final String KLARNA_OSM_SCRIPTURL = "klarna.osm.script.url";
 
+	public static final String KLARNA_PRODUCT_PAYMENT = "PAYMENT";
+	public static final String KLARNA_PRODUCT_MESSAGING = "MESSAGING";
+	public static final String KLARNA_PRODUCT_IDENTITY = "IDENTITY";
+
 }

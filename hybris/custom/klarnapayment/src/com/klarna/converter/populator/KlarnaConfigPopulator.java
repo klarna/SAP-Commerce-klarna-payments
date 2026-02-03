@@ -16,7 +16,9 @@ import de.hybris.platform.converters.Populator;
 import de.hybris.platform.servicelayer.dto.converter.ConversionException;
 import de.hybris.platform.servicelayer.dto.converter.Converter;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.annotation.Resource;
 
@@ -29,6 +31,7 @@ import com.klarna.data.KlarnaKECConfigData;
 import com.klarna.data.KlarnaKOSMConfigData;
 import com.klarna.data.KlarnaKPConfigData;
 import com.klarna.data.KlarnaSIWKConfigData;
+import com.klarna.integration.dto.KlarnaIntegrationMetaDataDTO;
 import com.klarna.model.KlarnaConfigModel;
 import com.klarna.model.KlarnaCredentialModel;
 import com.klarna.model.KlarnaKECConfigModel;
@@ -38,6 +41,7 @@ import com.klarna.model.KlarnaMarketRegionModel;
 import com.klarna.model.KlarnaSIWKConfigModel;
 import com.klarna.osm.model.KlarnaKOSMConfigModel;
 import com.klarna.payment.constants.KlarnapaymentConstants;
+import com.klarna.payment.util.KlarnaServicesUtil;
 
 
 /**
@@ -53,6 +57,9 @@ public class KlarnaConfigPopulator implements Populator<KlarnaConfigModel, Klarn
 
 	@Resource(name = "siteConfigService")
 	private SiteConfigService siteConfigService;
+
+	@Resource
+	private KlarnaServicesUtil klarnaServicesUtil;
 
 	@Override
 	public void populate(final KlarnaConfigModel source, KlarnaConfigData target) throws ConversionException
@@ -70,12 +77,16 @@ public class KlarnaConfigPopulator implements Populator<KlarnaConfigModel, Klarn
 			final KlarnaCredentialData credential = new KlarnaCredentialData();
 			klarnaCredentialConverter.convert(credentialModel, credential);
 			target.setCredential(credential);
+
+			final Set<String> klarnaProducts = new HashSet<>();
+
 			final KlarnaKPConfigModel klarnaKPConfigModel = source.getKpConfig();
 			if (klarnaKPConfigModel != null && Boolean.TRUE == klarnaKPConfigModel.getActive())
 			{
 				final KlarnaKPConfigData klarnaKPConfigData = new KlarnaKPConfigData();
 				klarnaKPConfigConverter.convert(klarnaKPConfigModel, klarnaKPConfigData);
 				target.setKpConfig(klarnaKPConfigData);
+				klarnaProducts.add(KlarnapaymentConstants.KLARNA_PRODUCT_PAYMENT);
 			}
 
 			final KlarnaKECConfigModel klarnaKECConfigModel = source.getKecConfig();
@@ -84,14 +95,16 @@ public class KlarnaConfigPopulator implements Populator<KlarnaConfigModel, Klarn
 				final KlarnaKECConfigData kecConfigData = new KlarnaKECConfigData();
 				klarnaKECConfigConverter.convert(klarnaKECConfigModel, kecConfigData);
 				target.setKecConfig(kecConfigData);
+				klarnaProducts.add(KlarnapaymentConstants.KLARNA_PRODUCT_PAYMENT);
 			}
 
 			final KlarnaSIWKConfigModel klarnaSIWKConfigModel = source.getSiwkConfig();
 			if (klarnaSIWKConfigModel != null && Boolean.TRUE == klarnaSIWKConfigModel.getActive())
 			{
-			final KlarnaSIWKConfigData siwkConfigData = new KlarnaSIWKConfigData();
-			klarnaSIWKConfigConverter.convert(klarnaSIWKConfigModel, siwkConfigData);
-			target.setSiwkConfig(siwkConfigData);
+				final KlarnaSIWKConfigData siwkConfigData = new KlarnaSIWKConfigData();
+				klarnaSIWKConfigConverter.convert(klarnaSIWKConfigModel, siwkConfigData);
+				target.setSiwkConfig(siwkConfigData);
+				klarnaProducts.add(KlarnapaymentConstants.KLARNA_PRODUCT_IDENTITY);
 			}
 
 			final KlarnaKOSMConfigModel klarnaKOSMConfigModel = source.getOsmConfig();
@@ -100,7 +113,14 @@ public class KlarnaConfigPopulator implements Populator<KlarnaConfigModel, Klarn
 				final KlarnaKOSMConfigData osmConfigData = new KlarnaKOSMConfigData();
 				klarnaKOSMConfigConverter.convert(klarnaKOSMConfigModel, osmConfigData);
 				target.setOsmConfig(osmConfigData);
+				klarnaProducts.add(KlarnapaymentConstants.KLARNA_PRODUCT_MESSAGING);
 			}
+
+			target.setProducts(klarnaServicesUtil.convertRequestDtoToString(klarnaProducts));
+
+			final KlarnaIntegrationMetaDataDTO metadata = klarnaServicesUtil.getKlarnaMetaData();
+			target.setIntegrator(klarnaServicesUtil.convertRequestDtoToString(metadata.getIntegrator()));
+			target.setOriginators(klarnaServicesUtil.convertRequestDtoToString(metadata.getOriginators()));
 		}
 		else
 		{

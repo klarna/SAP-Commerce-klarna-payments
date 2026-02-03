@@ -594,6 +594,62 @@
     <bean id="defaultKlarnaSignInFacade" class="com.klarna.payment.facades.impl.DefaultKlarnaSignInFacade">
     </bean>
     
+    <alias name="defaultKlarnaAddressReverseConverter" alias="klarnaAddressReverseConverter"/>
+     <bean id="defaultKlarnaAddressReverseConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="de.hybris.platform.commercefacades.user.data.AddressData"/>
+        <property name="populators">
+            <list>
+                <ref bean="klarnaAddressReversePopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <alias name="defaultKlarnaAddressReversePopulator" alias="klarnaAddressReversePopulator"/>
+    <bean id="defaultKlarnaAddressReversePopulator" class="com.klarna.payment.converter.populator.KlarnaAddressReversePopulator">
+    </bean>
+    
+    <alias name="defaultKlarnaLineItemDataConverter" alias="klarnaLineItemDataConvertor"/>
+     <bean id="defaultKlarnaLineItemDataConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.klarna.payment.data.KlarnaLineItemData"/>
+        <property name="populators">
+            <list>
+                <ref bean="klarnaLineItemDataPopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <alias name="defaultKlarnaLineItemDataPopulator" alias="klarnaLineItemDataPopulator"/>
+    <bean id="defaultKlarnaLineItemDataPopulator" class="com.klarna.payment.converter.populator.KlarnaLineItemDataPopulator">
+    </bean>
+    
+    <alias name="defaultKlarnaShippingOptionDataConverter" alias="klarnaShippingOptionDataConvertor"/>
+     <bean id="defaultKlarnaShippingOptionDataConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.klarna.payment.data.KlarnaShippingOptionData"/>
+        <property name="populators">
+            <list>
+                <ref bean="klarnaShippingOptionDataPopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <alias name="defaultKlarnaShippingOptionDataPopulator" alias="klarnaShippingOptionDataPopulator"/>
+    <bean id="defaultKlarnaShippingOptionDataPopulator" class="com.klarna.payment.converter.populator.KlarnaShippingOptionDataPopulator">
+    </bean>
+    
+    <alias name="defaultKlarnaShippingChangeResponseConverter" alias="klarnaShippingChangeResponseConverter"/>
+     <bean id="defaultKlarnaShippingChangeResponseConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.klarna.payment.data.KlarnaShippingChangeResponseData"/>
+        <property name="populators">
+            <list>
+                <ref bean="klarnaShippingChangeResponsePopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <alias name="defaultKlarnaShippingChangeResponsePopulator" alias="klarnaShippingChangeResponsePopulator"/>
+    <bean id="defaultKlarnaShippingChangeResponsePopulator" class="com.klarna.payment.converter.populator.KlarnaShippingChangeResponsePopulator">
+    </bean>
+    
     <alias name="defaultKlarnaAttachmentConverter" alias="klarnaAttachmentConverter"/>
      <bean id="defaultKlarnaAttachmentConverter" parent="abstractPopulatingConverter">
         <property name="targetClass" value="com.klarna.api.payments.model.PaymentsAttachment"/>
@@ -606,6 +662,56 @@
 
     <alias name="defaultKlarnaAttachmentPopulator" alias="klarnaAttachmentPopulator"/>
     <bean id="defaultKlarnaAttachmentPopulator" class="com.klarna.payment.converter.populator.KlarnaAttachmentPopulator">
+    </bean>
+    
+    <alias name="defaultKlarnaPaymentRequestPayloadConverter" alias="klarnaPaymentRequestPayloadConverter"/>
+     <bean id="defaultKlarnaPaymentRequestPayloadConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.klarna.integration.dto.KlarnaPaymentRequestPayloadDTO"/>
+        <property name="populators">
+            <list>
+                <ref bean="klarnaPaymentRequestPayloadPopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <alias name="defaultKlarnaPaymentRequestPayloadPopulator" alias="klarnaPaymentRequestPayloadPopulator"/>
+    <bean id="defaultKlarnaPaymentRequestPayloadPopulator" class="com.klarna.payment.converter.populator.KlarnaPaymentRequestPayloadPopulator">
+    </bean>
+    
+    <alias name="defaultKlarnaSupplementaryPurchaseDataConverter" alias="klarnaSupplementaryPurchaseDataConverter"/>
+     <bean id="defaultKlarnaSupplementaryPurchaseDataConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.klarna.integration.dto.KlarnaSupplementaryPurchaseDataDTO"/>
+        <property name="populators">
+            <list>
+                <ref bean="klarnaSupplementaryPurchaseDataPopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <alias name="defaultKlarnaSupplementaryPurchaseDataPopulator" alias="klarnaSupplementaryPurchaseDataPopulator"/>
+    <bean id="defaultKlarnaSupplementaryPurchaseDataPopulator" class="com.klarna.payment.converter.populator.KlarnaSupplementaryPurchaseDataPopulator">
+    </bean>
+    
+    <alias name="defaultKlarnaLineItemConverter" alias="klarnaLineItemConverter"/>
+     <bean id="defaultKlarnaLineItemConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.klarna.integration.dto.KlarnaLineItemDTO"/>
+        <property name="populators">
+            <list>
+                <ref bean="klarnaOrderLineItemPopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <alias name="defaultKlarnaOrderLineItemPopulator" alias="klarnaOrderLineItemPopulator"/>
+    <bean id="defaultKlarnaOrderLineItemPopulator" class="com.klarna.payment.converter.populator.KlarnaOrderLineItemPopulator">
+    </bean>
+    
+    <alias name="defaultKlarnaPaymentRequestFacade" alias="klarnaPaymentRequestFacade"/>
+    <bean id="defaultKlarnaPaymentRequestFacade" class="com.klarna.payment.facades.impl.DefaultKlarnaPaymentRequestFacade">
+    </bean>
+    
+    <alias name="defaultKlarnaPaymentRequestService" alias="klarnaPaymentRequestService"/>
+    <bean id="defaultKlarnaPaymentRequestService" class="com.klarna.payment.services.impl.DefaultKlarnaPaymentRequestService">
     </bean>
     
     <bean id="klarnaWebhookJob" class="com.klarna.payment.cronjob.KlarnaWebhookJob" parent="abstractJobPerformable">

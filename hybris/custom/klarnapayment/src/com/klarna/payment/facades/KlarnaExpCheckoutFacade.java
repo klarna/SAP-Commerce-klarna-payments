@@ -2,8 +2,11 @@ package com.klarna.payment.facades;
 
 import de.hybris.platform.commercefacades.user.data.AddressData;
 
+import java.util.Map;
+
 import com.klarna.api.expcheckout.model.KlarnaExpCheckoutAuthorizationResponse;
 import com.klarna.api.payments.model.PaymentsSession;
+import com.klarna.payment.data.KlarnaShippingChangeResponseData;
 
 
 public interface KlarnaExpCheckoutFacade
@@ -19,5 +22,11 @@ public interface KlarnaExpCheckoutFacade
 	boolean addPaymentInfo(final KlarnaExpCheckoutAuthorizationResponse klarnaExpCheckoutAuthorizationResponse);
 
 	boolean addBillingAddress(final AddressData addressData);
+
+	AddressData getShippingAddress(final Map<String, Object> requestMap);
+
+	KlarnaShippingChangeResponseData getShippingAddressChangeResponse();
+
+	KlarnaShippingChangeResponseData setDeliveryMode(final Map<String, Object> requestMap);
 
 }

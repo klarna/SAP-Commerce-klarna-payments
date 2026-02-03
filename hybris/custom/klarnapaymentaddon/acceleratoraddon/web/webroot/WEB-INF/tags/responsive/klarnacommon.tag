@@ -4,6 +4,12 @@
 
 <c:if test="${klarnaConfig != null and klarnaConfig.active eq true}">
 	
+	<div id="klarnaDiv"
+    	data-products='<c:out value="${klarnaConfig.products}" />' 
+    	data-integrator='<c:out value="${klarnaConfig.integrator}" />' 
+    	data-originators='<c:out value="${klarnaConfig.originators}" />'>
+	</div>
+		
 	<input type="hidden" id="klarnaClientId" name="klarnaClientId"	value="${klarnaConfig.credential.clientId}"/>
 	
 	<c:set var="loadWebSDKv1" value="false" />
