@@ -159,7 +159,7 @@
 	<bean class="com.klarna.payment.data.KPPaymentInfoData" extends="de.hybris.platform.commercefacades.order.data.CCPaymentInfoData">
 		<property name="id" type="String"/> 
 		<property name="authToken" type="String"/>
-		<property name="billingAddress" type="de.hybris.platform.commercefacades.user.data.AddressData"/>  
+		<property name="billingAddress" type="de.hybris.platform.commercefacades.user.data.AddressData"/> 
 		<property name="paymentOption" type="String"/>
 		<property name="finalizeRequired" type="Boolean"/>
 		<property name="description" type="String"/>
@@ -196,7 +196,7 @@
 		<property name="state" type="String">
 			<annotations>@JsonProperty("state")</annotations>
 		</property>
-		<property name="stateContext" type="String">
+		<property name="stateContext" type="com.klarna.payment.data.KlarnaPaymentRequestStateContextData">
 			<annotations>@JsonProperty("stateContext")</annotations>
 		</property>	
 		<property name="stateReason" type="String">

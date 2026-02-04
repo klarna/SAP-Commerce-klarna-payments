@@ -50,8 +50,8 @@
 		<input type="hidden" name="kecUpdateShippingAddressUrl" id="kecUpdateShippingAddressUrl" value="${kecUpdateShippingAddressUrl}"/>
 		<spring:url value="/klarna/express-checkout/update-shipping-method" var="kecUpdateShippingMethodUrl"/>
 		<input type="hidden" name="kecUpdateShippingMethodUrl" id="kecUpdateShippingMethodUrl" value="${kecUpdateShippingMethodUrl}"/>
-		<spring:url value="/klarna/express-checkout/save-interop-token" var="kecSaveInteropTokenUrl"/>
-		<input type="hidden" name="kecSaveInteropTokenUrl" id="kecSaveInteropTokenUrl" value="${kecSaveInteropTokenUrl}"/>
+		<spring:url value="/klarna/express-checkout/on-payment-complete" var="kecOnPaymentCompleteUrl"/>
+		<input type="hidden" name="kecOnPaymentCompleteUrl" id="kecSaveInteropTokenUrl" value="${kecOnPaymentCompleteUrl}"/>
 	</c:if>
 	
 	<c:if test="${klarnaConfig.siwkConfig != null}">

@@ -73,4 +73,14 @@ public class KlarnaExpCheckoutHelper
 		}
 		return true;
 	}
+
+	public boolean validatePaymentCompleteRequest(final Map<String, Object> requestMap)
+	{
+		if (!(requestMap.get("paymentRequest") instanceof KlarnaPaymentRequestData))
+		{
+			LOG.error("Invalid Request. Payment Request object is not available or is invalid!");
+			return false;
+		}
+		return true;
+	}
 }

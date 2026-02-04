@@ -163,12 +163,12 @@ ACC.klarnaexpcheckout = {
 		});
 	},
 	
-	saveInteroperabilityToken: function(interoperabilityToken) {
-		var kecSaveInteropTokenUrl = $("#kecSaveInteropTokenUrl").val();
+	onPaymentComplete: function(paymentRequest) {
+		var kecOnPaymentCompleteUrl = $("#kecOnPaymentCompleteUrl").val();
 		return $.ajax({
-			url: kecSaveInteropTokenUrl,
+			url: kecOnPaymentCompleteUrl,
 			data: JSON.stringify({
-                interoperabilityToken: interoperabilityToken
+                paymentRequest: paymentRequest
             }),
 			method: 'POST',
 			dataType: 'json',
@@ -296,7 +296,7 @@ window.KlarnaSDKCallback = async function () {
 		klarna.Payment.on('complete', async (paymentRequest) => {
 	        if (paymentRequest && paymentRequest.stateContext && paymentRequest.stateContext.interoperabilityToken) {
 	            // Save the interoperability token and notify PSPs so they can use the token
-	            await ACC.klarnaexpcheckout.saveInteroperabilityToken(paymentRequest.stateContext.interoperabilityToken);
+	            await ACC.klarnaexpcheckout.onPaymentComplete(paymentRequest);
 	        }
 	        // Return a boolean to skip redirection.
 	        return false;
