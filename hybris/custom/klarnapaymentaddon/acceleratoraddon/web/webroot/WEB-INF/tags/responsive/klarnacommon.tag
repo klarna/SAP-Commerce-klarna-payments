@@ -5,7 +5,9 @@
 <c:if test="${klarnaConfig != null and klarnaConfig.active eq true}">
 	
 	<div id="klarnaDiv"
-    	data-products='<c:out value="${klarnaConfig.products}" />' 
+    	data-clientId='<c:out value="${klarnaClientId}" />' 
+    	data-locale='<c:out value="${klarnaLocale}" />' 
+    	data-products='<c:out value="['PAYMENT', 'MESSAGING']" />'
     	data-integrator='<c:out value="${klarnaConfig.integrator}" />' 
     	data-originators='<c:out value="${klarnaConfig.originators}" />'>
 	</div>
@@ -31,9 +33,14 @@
 		        <c:set var="loadWebSDKv2" value="true" />
 		    </c:when>
 		    <c:otherwise>
-		        <c:set var="loadWebSDKv2" value="true" />
+		        <c:set var="loadWebSDKv1" value="true" />
 		    </c:otherwise>
 		</c:choose>	
+		<div id="kecDiv"
+	    	data-buttonTheme='<c:out value="${klarnaConfig.kecConfig.buttonTheme}" />' 
+	    	data-buttonShape='<c:out value="${klarnaConfig.kecConfig.buttonShape}" />' >
+		</div>
+		
 		<input type="hidden" class="text" name="kecButtonTheme" id="kecButtonTheme" value="${klarnaConfig.kecConfig.buttonTheme}" >
 		<input type="hidden" class="text" name="kecButtonShape" id="kecButtonShape" value="${klarnaConfig.kecConfig.buttonShape}" >
 		<input type="hidden" class="text" name="klarnaLocale" id="klarnaLocale" value="${klarnaLocale}" >
@@ -81,8 +88,11 @@
 	</c:if>
 	
 	<c:if test="${loadWebSDKv2}">
-		<script defer src="${fn:escapeXml(klarnaWebSDKv2Url)}" ></script>
-		<div id="loadWebSDKv2Div" data-enabled="true"></div>
+		<%-- <script defer src="${fn:escapeXml(klarnaWebSDKv2Url)}" ></script> --%>
+		<div id="loadWebSDKv2Div" data-enabled="true"></div>	
+		<script>
+		    window.klarnaWebSDKv2Url = "${fn:escapeXml(klarnaWebSDKv2Url)}";
+		</script>				
 	</c:if>
 	
 </c:if>	

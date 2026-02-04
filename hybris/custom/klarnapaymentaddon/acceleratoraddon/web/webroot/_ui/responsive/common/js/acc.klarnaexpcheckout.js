@@ -109,6 +109,92 @@ ACC.klarnaexpcheckout = {
 	  	});
 	},
 	
+	initKECButton : function(containerId, klarna) {
+		if (!klarna) {
+        	return;
+    	}
+    	const $kecDiv = $("#kecDiv");
+    	const buttonShape = $kecDiv.data("buttonShape");
+	    const buttonTheme = $kecDiv.data("buttonTheme");
+		klarna.Payment.button({ 
+	        shape: buttonShape,
+	        theme: buttonTheme,
+	        //locale: klarnaLocale,
+        	intents: ['PAY'],
+        	initiationMode: 'DEVICE_BEST',
+	        initiate: async () => {
+				const paymentResponse = await ACC.klarnaexpcheckout.createPaymentRequest();
+				if (!responseJson || !responseJson.paymentRequestId) {
+	                //console.log("Error in creating payment request");
+			    	ACC.klarnaexpcheckout.showMessage($("#klarnaExpCheckoutErrorMessage").val());
+	                return;
+	            }
+				// TODO Polling
+				var paymentRequestId = { paymentRequestId: paymentResponse.paymentRequestId };
+	            return paymentRequestId;
+	        }
+    	}).mount("#klarna_exp_checkout_container_default");
+    	
+    	// Only register shipping address change handler if not PSP integrated and single step mode is enabled
+    	var integratedViaPSP = $("#integratedViaPSP").val();
+	    if (!integratedViaPSP) {
+	        klarna.Payment.on('shippingaddresschange', async (paymentRequest, shippingAddress) => {
+	            try {
+	                const shippingAddressResponse = await ACC.klarnaexpcheckout.updateShippingAddress(paymentRequest, shippingAddress);
+	                if (shippingAddressResponse.status === "success") {
+						return shippingAddressResponse.successResponse;
+					}
+					if(shippingAddressResponse.rejectionResponse && shippingAddressResponse.rejectionResponse.rejectionReason) {
+						 var rejectionMap = {
+	                        COUNTRY_NOT_SUPPORTED: klarna.Payment.ShippingRejectionReason.COUNTRY_NOT_SUPPORTED,
+	                        POSTAL_CODE_NOT_SUPPORTED: klarna.Payment.ShippingRejectionReason.POSTAL_CODE_NOT_SUPPORTED,
+	                        CITY_NOT_SUPPORTED: klarna.Payment.ShippingRejectionReason.CITY_NOT_SUPPORTED,
+	                        REGION_NOT_SUPPORTED: klarna.Payment.ShippingRejectionReason.REGION_NOT_SUPPORTED,
+	                        ADDRESS_NOT_SUPPORTED: klarna.Payment.ShippingRejectionReason.ADDRESS_NOT_SUPPORTED
+	                    };
+	                    var mappedRejection = rejectionMap[responseJson.rejectionReason];
+	                    return { rejection_reason: mappedRejection || klarna.Payment.ShippingRejectionReason.ADDRESS_NOT_SUPPORTED };
+					}
+					else {
+						return { rejection_reason: klarna.Payment.ShippingRejectionReason.ADDRESS_NOT_SUPPORTED };
+					}
+	            } catch (error) {
+	                return { rejection_reason: klarna.Payment.ShippingRejectionReason.ADDRESS_NOT_SUPPORTED };
+	            }
+	        });
+	
+	        klarna.Payment.on('shippingoptionselect', async (paymentRequest, shippingOption) => {
+	            try {
+	                const shippingOptionResponse = await ACC.klarnaexpcheckout.updateShippingOption(paymentRequest, shippingOption);
+	                if (shippingOptionResponse.status === "success") {
+						return shippingOptionResponse.successResponse;
+					}
+					else {
+						return { rejection_reason: 'INVALID_OPTION' };
+					}
+	            } catch (error) {
+	                return { rejection_reason: 'INVALID_OPTION' };
+	            }
+	        });
+		}
+		klarna.Payment.on('complete', async (paymentRequest) => {
+	        if (paymentRequest && paymentRequest.stateContext && paymentRequest.stateContext.interoperabilityToken) {
+	            // Save the interoperability token and notify PSPs so they can use the token
+	            await ACC.klarnaexpcheckout.onPaymentComplete(paymentRequest);
+	        }
+	        // Return a boolean to skip redirection.
+	        return false;
+	    });
+	
+	    klarna.Payment.on('error', (error, paymentRequest) => { 
+	        return false;
+	    });
+	
+	    klarna.Payment.on('abort', (paymentRequest) => { 
+	        return false;
+	    });	        
+	},	
+	
 	createPaymentRequest: function() {
 		// If express checkout is triggered from Cart page, product code and quantity not required 
 		var productCode;
@@ -201,12 +287,12 @@ window.klarnaAsyncCallback = function () {
 	}
 };
 
-window.KlarnaSDKCallback = async function () {
+/*window.KlarnaSDKCallback = async function () {
 		
  	const $klarnaDiv = $("#klarnaDiv");
 
     const productsJson = $klarnaDiv.data("products");
-    const integratorJson = $klarnaDiv.data("integrator");   // automatically decoded
+    const integratorJson = $klarnaDiv.data("integrator");   
     const originatorsJson = $klarnaDiv.data("originators");
 
 	// Check if SDK v2 is enabled
@@ -231,84 +317,8 @@ window.KlarnaSDKCallback = async function () {
 		var buttonTheme = $("#kecButtonTheme").val();
 		var buttonShape = $("#kecButtonShape").val();
 		
-		klarna.Payment.button({ 
-	        id: "klarna-payment-button",
-	        shape: buttonShape,
-	        theme: buttonTheme,
-	        locale: klarnaLocale,
-        	intents: ['PAY'],
-        	initiationMode: 'DEVICE_BEST',
-	        initiate: async () => {
-				const paymentResponse = await ACC.klarnaexpcheckout.createPaymentRequest();
-				if (!responseJson || !responseJson.paymentRequestId) {
-	                //console.log("Error in creating payment request");
-			    	ACC.klarnaexpcheckout.showMessage($("#klarnaExpCheckoutErrorMessage").val());
-	                return;
-	            }
-				// TODO Polling
-				var paymentRequestId = { paymentRequestId: paymentResponse.paymentRequestId };
-	            return paymentRequestId;
-	        }
-    	}).mount("#klarna_exp_checkout_container_default");
-    	
-    	// Only register shipping address change handler if not PSP integrated and single step mode is enabled
-    	var integratedViaPSP = $("#integratedViaPSP").val();
-	    if (!integratedViaPSP) {
-	        klarna.Payment.on('shippingaddresschange', async (paymentRequest, shippingAddress) => {
-	            try {
-	                const shippingAddressResponse = await ACC.klarnaexpcheckout.updateShippingAddress(paymentRequest, shippingAddress);
-	                if (shippingAddressResponse.status === "success") {
-						return shippingAddressResponse.successResponse;
-					}
-					if(shippingAddressResponse.rejectionResponse && shippingAddressResponse.rejectionResponse.rejectionReason) {
-						 var rejectionMap = {
-	                        COUNTRY_NOT_SUPPORTED: klarna.Payment.ShippingRejectionReason.COUNTRY_NOT_SUPPORTED,
-	                        POSTAL_CODE_NOT_SUPPORTED: klarna.Payment.ShippingRejectionReason.POSTAL_CODE_NOT_SUPPORTED,
-	                        CITY_NOT_SUPPORTED: klarna.Payment.ShippingRejectionReason.CITY_NOT_SUPPORTED,
-	                        REGION_NOT_SUPPORTED: klarna.Payment.ShippingRejectionReason.REGION_NOT_SUPPORTED,
-	                        ADDRESS_NOT_SUPPORTED: klarna.Payment.ShippingRejectionReason.ADDRESS_NOT_SUPPORTED
-	                    };
-	                    var mappedRejection = rejectionMap[responseJson.rejectionReason];
-	                    return { rejection_reason: mappedRejection || klarna.Payment.ShippingRejectionReason.ADDRESS_NOT_SUPPORTED };
-					}
-					else {
-						return { rejection_reason: klarna.Payment.ShippingRejectionReason.ADDRESS_NOT_SUPPORTED };
-					}
-	            } catch (error) {
-	                return { rejection_reason: klarna.Payment.ShippingRejectionReason.ADDRESS_NOT_SUPPORTED };
-	            }
-	        });
-	
-	        klarna.Payment.on('shippingoptionselect', async (paymentRequest, shippingOption) => {
-	            try {
-	                const shippingOptionResponse = await ACC.klarnaexpcheckout.updateShippingOption(paymentRequest, shippingOption);
-	                if (shippingOptionResponse.status === "success") {
-						return shippingOptionResponse.successResponse;
-					}
-					else {
-						return { rejection_reason: 'INVALID_OPTION' };
-					}
-	            } catch (error) {
-	                return { rejection_reason: 'INVALID_OPTION' };
-	            }
-	        });
-		}
-		klarna.Payment.on('complete', async (paymentRequest) => {
-	        if (paymentRequest && paymentRequest.stateContext && paymentRequest.stateContext.interoperabilityToken) {
-	            // Save the interoperability token and notify PSPs so they can use the token
-	            await ACC.klarnaexpcheckout.onPaymentComplete(paymentRequest);
-	        }
-	        // Return a boolean to skip redirection.
-	        return false;
-	    });
-	
-	    klarna.Payment.on('error', (error, paymentRequest) => { 
-	        return false;
-	    });
-	
-	    klarna.Payment.on('abort', (paymentRequest) => { 
-	        return false;
-	    });	        
+		
 	}	
-};
+};*/
+
 
