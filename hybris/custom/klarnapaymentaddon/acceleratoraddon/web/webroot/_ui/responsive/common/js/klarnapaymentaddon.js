@@ -14,7 +14,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 		    //const originatorsJson = $klarnaDiv.data("originators"); 
 	        
 	        const klarnaSDKConfig = {
-				clientId: clientId,
+				clientId: 'klarna_test_client_amNudTFCZVFnM2cwR2RWKWUwdilPKSVIcVYlSUo4dy0sOWZkZmQ1NDQtYjNlOC00YTc3LWEwY2ItMzljMGMwM2FhODE5LDEsWlJ1dmJCTUgzTmplSHNYR3NMOHd3NHVYQmpzb2VLVjY4akZvdTkzaVZOZz0',
 		      	locale: locale,
 		      	products: productsJson
 		      	//integrator: JSON.parse(integratorJson),
