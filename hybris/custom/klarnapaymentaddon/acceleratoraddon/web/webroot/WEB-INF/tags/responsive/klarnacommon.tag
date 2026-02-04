@@ -31,7 +31,7 @@
 		        <c:set var="loadWebSDKv2" value="true" />
 		    </c:when>
 		    <c:otherwise>
-		        <c:set var="loadWebSDKv1" value="true" />
+		        <c:set var="loadWebSDKv2" value="true" />
 		    </c:otherwise>
 		</c:choose>	
 		<input type="hidden" class="text" name="kecButtonTheme" id="kecButtonTheme" value="${klarnaConfig.kecConfig.buttonTheme}" >
