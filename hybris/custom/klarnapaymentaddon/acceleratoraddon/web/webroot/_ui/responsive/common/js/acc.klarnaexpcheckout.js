@@ -114,11 +114,11 @@ ACC.klarnaexpcheckout = {
         	return;
     	}
     	const $kecDiv = $("#kecDiv");
-    	const buttonShape = $kecDiv.data("buttonShape");
-	    const buttonTheme = $kecDiv.data("buttonTheme");
+    	const buttonshape = $kecDiv.data("buttonshape");
+	    const buttontheme = $kecDiv.data("buttontheme");
 		klarna.Payment.button({ 
-	        shape: buttonShape,
-	        theme: buttonTheme,
+	        shape: buttonshape,
+	        theme: buttontheme,
 	        //locale: klarnaLocale,
         	intents: ['PAY'],
         	initiationMode: 'DEVICE_BEST',
@@ -133,7 +133,7 @@ ACC.klarnaexpcheckout = {
 				var paymentRequestId = { paymentRequestId: paymentResponse.paymentRequestId };
 	            return paymentRequestId;
 	        }
-    	}).mount("#klarna_exp_checkout_container_default");
+    	}).mount(containerId);
     	
     	// Only register shipping address change handler if not PSP integrated and single step mode is enabled
     	var integratedViaPSP = $("#integratedViaPSP").val();

@@ -5,8 +5,8 @@
 <c:if test="${klarnaConfig != null and klarnaConfig.active eq true}">
 	
 	<div id="klarnaDiv"
-    	data-clientId='<c:out value="${klarnaClientId}" />' 
     	data-locale='<c:out value="${klarnaLocale}" />' 
+    	data-clientid='<c:out value="${klarnaConfig.credential.clientId}" />'
     	data-products='<c:out value="['PAYMENT', 'MESSAGING']" />'
     	data-integrator='<c:out value="${klarnaConfig.integrator}" />' 
     	data-originators='<c:out value="${klarnaConfig.originators}" />'>
@@ -37,8 +37,8 @@
 		    </c:otherwise>
 		</c:choose>	
 		<div id="kecDiv"
-	    	data-buttonTheme='<c:out value="${klarnaConfig.kecConfig.buttonTheme}" />' 
-	    	data-buttonShape='<c:out value="${klarnaConfig.kecConfig.buttonShape}" />' >
+	    	data-buttontheme='<c:out value="${klarnaConfig.kecConfig.buttonTheme}" />' 
+	    	data-buttonshape='<c:out value="${klarnaConfig.kecConfig.buttonShape}" />' >
 		</div>
 		
 		<input type="hidden" class="text" name="kecButtonTheme" id="kecButtonTheme" value="${klarnaConfig.kecConfig.buttonTheme}" >

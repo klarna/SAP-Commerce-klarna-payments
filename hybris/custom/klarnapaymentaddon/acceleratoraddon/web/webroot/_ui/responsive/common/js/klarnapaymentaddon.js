@@ -7,14 +7,14 @@ document.addEventListener("DOMContentLoaded", async () => {
 	        const { KlarnaSDK } = await import(window.klarnaWebSDKv2Url);   
 	        
 	        const $klarnaDiv = $("#klarnaDiv");
-	        const clientId = $klarnaDiv.data("clientId");
+	        const clientid = $klarnaDiv.data("clientid");
 	        const locale = $klarnaDiv.data("locale");
 		    const productsJson = $klarnaDiv.data("products");
 		    //const integratorJson = $klarnaDiv.data("integrator");   
 		    //const originatorsJson = $klarnaDiv.data("originators"); 
 	        
 	        const klarnaSDKConfig = {
-				clientId: 'klarna_test_client_amNudTFCZVFnM2cwR2RWKWUwdilPKSVIcVYlSUo4dy0sOWZkZmQ1NDQtYjNlOC00YTc3LWEwY2ItMzljMGMwM2FhODE5LDEsWlJ1dmJCTUgzTmplSHNYR3NMOHd3NHVYQmpzb2VLVjY4akZvdTkzaVZOZz0',
+				clientId: clientid,
 		      	locale: locale,
 		      	products: productsJson
 		      	//integrator: JSON.parse(integratorJson),
