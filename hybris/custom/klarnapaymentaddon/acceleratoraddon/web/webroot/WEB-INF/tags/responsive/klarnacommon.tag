@@ -27,7 +27,7 @@
 	
 	<c:if test="${klarnaConfig.kecConfig != null}">
 		<c:choose>
-		    <c:when test="${(klarnaConfig.kecConfig.oneStepCheckout eq true) or  (klarnaConfig.integratedWithPSP eq true)}">
+		    <c:when test="${(klarnaConfig.kecConfig.oneStepCheckout eq true) or  (klarnaConfig.integratedViaPSP eq true)}">
 		        <c:set var="loadWebSDKv2" value="true" />
 		    </c:when>
 		    <c:otherwise>
@@ -37,7 +37,7 @@
 		<input type="hidden" class="text" name="kecButtonTheme" id="kecButtonTheme" value="${klarnaConfig.kecConfig.buttonTheme}" >
 		<input type="hidden" class="text" name="kecButtonShape" id="kecButtonShape" value="${klarnaConfig.kecConfig.buttonShape}" >
 		<input type="hidden" class="text" name="klarnaLocale" id="klarnaLocale" value="${klarnaLocale}" >
-		<input type="hidden" name="integratedWithPSP" id="integratedWithPSP" value="${klarnaConfig.integratedWithPSP}"/>
+		<input type="hidden" name="integratedViaPSP" id="integratedViaPSP" value="${klarnaConfig.integratedViaPSP}"/>
 		<spring:url value="/klarna/express-checkout/create-authorize-payload" var="expCheckoutAuthorizePayloadUrl"/>
 		<input type="hidden" name="expCheckoutAuthorizePayloadUrl" id="expCheckoutAuthorizePayloadUrl" value="${expCheckoutAuthorizePayloadUrl}"/>
 		<spring:url value="/klarna/express-checkout/process-authorize-response" var="expCheckoutProcessAuthorizeResponseUrl"/>
@@ -76,13 +76,13 @@
 	</c:if>
 	
 	<c:if test="${loadWebSDKv1}">
-		<script defer src="${fn:escapeXml(klarnaWebSDKv1Url)" data-client-id="${klarnaClientId}"></script>
-		<div id="loadWebSDKv1Div" data-enabled="${isEnabled}"></div>
+		<script defer src="${fn:escapeXml(klarnaWebSDKv1Url)}" data-client-id="${klarnaClientId}"></script>
+		<div id="loadWebSDKv1Div" data-enabled="true"></div>
 	</c:if>
 	
 	<c:if test="${loadWebSDKv2}">
-		<script defer src="${fn:escapeXml(klarnaWebSDKv2Url)" ></script>
-		<div id="loadWebSDKv2Div" data-enabled="${isEnabled}"></div>
+		<script defer src="${fn:escapeXml(klarnaWebSDKv2Url)}" ></script>
+		<div id="loadWebSDKv2Div" data-enabled="true"></div>
 	</c:if>
 	
 </c:if>	

@@ -252,8 +252,8 @@ window.KlarnaSDKCallback = async function () {
     	}).mount("#klarna_exp_checkout_container_default");
     	
     	// Only register shipping address change handler if not PSP integrated and single step mode is enabled
-    	var integratedWithPSP = $("#integratedWithPSP").val();
-	    if (!integratedWithPSP) {
+    	var integratedViaPSP = $("#integratedViaPSP").val();
+	    if (!integratedViaPSP) {
 	        klarna.Payment.on('shippingaddresschange', async (paymentRequest, shippingAddress) => {
 	            try {
 	                const shippingAddressResponse = await ACC.klarnaexpcheckout.updateShippingAddress(paymentRequest, shippingAddress);
