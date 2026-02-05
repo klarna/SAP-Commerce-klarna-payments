@@ -157,7 +157,7 @@
 		<property name="dateOfBirth" type="java.util.Date"/>
 	</bean>
 	<bean class="com.klarna.payment.data.KPPaymentInfoData" extends="de.hybris.platform.commercefacades.order.data.CCPaymentInfoData">
-		<property name="id" type="String"/> 
+		<property name="id" type="String"/>  
 		<property name="authToken" type="String"/>
 		<property name="billingAddress" type="de.hybris.platform.commercefacades.user.data.AddressData"/> 
 		<property name="paymentOption" type="String"/>
@@ -207,21 +207,25 @@
 	<bean class="com.klarna.payment.data.KlarnaPaymentRequestStateContextData">
 		<import	type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
 		<import type="com.fasterxml.jackson.annotation.JsonProperty" />
+		<property name="paymentToken" type="String">
+			<annotations>@JsonProperty("paymentToken")</annotations>
+		</property>		
+		<property name="interoperabilityToken" type="String">
+			<annotations>@JsonProperty("interoperabilityToken")</annotations>
+		</property>	
+		<property name="klarnaNetworkSessionToken" type="String">
+			<annotations>@JsonProperty("klarnaNetworkSessionToken")</annotations>
+		</property>
+		<property name="klarnaCustomer" type="com.klarna.payment.data.KlarnaCustomerData">
+			<annotations>@JsonProperty("klarnaCustomer")</annotations>
+		</property>
+		<property name="shipping" type="com.klarna.payment.data.KlarnaShippingData">
+			<annotations>@JsonProperty("shipping")</annotations>
+		</property>
 		<property name="customerInteraction" type="com.klarna.payment.data.KlarnaCustomerInteractionData">
 			<annotations>@JsonProperty("customerInteraction")</annotations>
 		</property>	
-		<property name="interoperabilityToken" type="String">
-			<annotations>@JsonProperty("interoperabilityToken")</annotations>
-		</property>
-		<property name="klarnaCustomer" type="String">
-			<annotations>@JsonProperty("klarnaCustomer")</annotations>
-		</property>	
-		<property name="paymentToken" type="String">
-			<annotations>@JsonProperty("paymentToken")</annotations>
-		</property>	
-		<property name="shipping" type="String">
-			<annotations>@JsonProperty("shipping")</annotations>
-		</property>
+		
 	</bean>
 	
 	<bean class="com.klarna.payment.data.KlarnaCustomerInteractionData">

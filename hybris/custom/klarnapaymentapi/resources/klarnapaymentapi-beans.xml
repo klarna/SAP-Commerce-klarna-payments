@@ -1789,10 +1789,10 @@
 	<bean class="com.klarna.integration.dto.KlarnaPaymentResponsePayloadDTO" >
 		<import	type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
 		<import type="com.fasterxml.jackson.annotation.JsonProperty" />
-		<property name="payment_request_id" type="String">
+		<property name="paymentRequestId" type="String">
 			<annotations>@JsonProperty("payment_request_id")</annotations>
 		</property>
-		<property name="expiresAt" type="java.time.OffsetDateTime">
+		<!-- <property name="expiresAt" type="java.time.OffsetDateTime">
 			<annotations>@JsonProperty("expires_at")</annotations>
 		</property>
 		<property name="createdAt" type="java.time.OffsetDateTime">
@@ -1800,8 +1800,8 @@
 		</property>
 		<property name="updatedAt" type="java.time.OffsetDateTime">
 			<annotations>@JsonProperty("updated_at")</annotations>
-		</property>
-		<property name="payment_request_reference" type="String">
+		</property> -->
+		<property name="paymentRequestReference" type="String">
 			<annotations>@JsonProperty("payment_request_reference")</annotations>
 		</property>
 		<property name="currency" type="String">

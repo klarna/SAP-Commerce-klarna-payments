@@ -1,6 +1,11 @@
 package com.klarnapayment.utils;
 
+import de.hybris.platform.commercefacades.order.CartFacade;
+import de.hybris.platform.servicelayer.session.SessionService;
+
 import java.util.Map;
+
+import javax.annotation.Resource;
 
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.log4j.Logger;
@@ -10,11 +15,18 @@ import com.klarna.api.expcheckout.model.KlarnaExpCheckoutAuthorizationResponse;
 import com.klarna.payment.data.KlarnaAddressData;
 import com.klarna.payment.data.KlarnaPaymentRequestData;
 import com.klarna.payment.data.KlarnaShippingOptionData;
+import com.klarnapayment.constants.KlarnapaymentaddonWebConstants;
 
 
 public class KlarnaExpCheckoutHelper
 {
 	protected static final Logger LOG = Logger.getLogger(KlarnaExpCheckoutHelper.class);
+
+	@Resource
+	private SessionService sessionService;
+
+	@Resource(name = "cartFacade")
+	private CartFacade cartFacade;
 
 	public boolean validateAuthorizationResponse(
 			final KlarnaExpCheckoutAuthorizationResponse klarnaExpCheckoutAuthorizationResponse)
@@ -79,6 +91,25 @@ public class KlarnaExpCheckoutHelper
 		if (!(requestMap.get("paymentRequest") instanceof KlarnaPaymentRequestData))
 		{
 			LOG.error("Invalid Request. Payment Request object is not available or is invalid!");
+			return false;
+		}
+		final KlarnaPaymentRequestData paymentRequestData = (KlarnaPaymentRequestData) requestMap.get("paymentRequest");
+		if (paymentRequestData.getStateContext() == null)
+		{
+			LOG.error("Invalid Request. Payment Request doesn't contain State Context!");
+			return false;
+		}
+		return true;
+	}
+
+	public boolean validateExpressCheckoutCart()
+	{
+		// Check if the session cart is same as the express checkout cart
+		final String expCheckoutCartId = sessionService.getAttribute(KlarnapaymentaddonWebConstants.KLARNA_EXP_CHECKOUT_CART_ID);
+		if (cartFacade.getSessionCart() == null
+				|| !StringUtils.equalsIgnoreCase(expCheckoutCartId, cartFacade.getSessionCart().getGuid()))
+		{
+			LOG.error("Session Cart not matching Express Checkout Cart.");
 			return false;
 		}
 		return true;

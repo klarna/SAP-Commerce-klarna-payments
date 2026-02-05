@@ -33,7 +33,7 @@ public final class KlarnaLoggerUtil
 
 	public void logRestRequest(final KlarnaAPIRequestDTO requestDTO)
 	{
-		if (!Boolean.TRUE.equals(Config.getBoolean(KlarnaIntegrationConstants.API_LOGGING_ENABLED_KEY, false)))
+		if (!Boolean.TRUE.equals(Config.getBoolean(KlarnaIntegrationConstants.KLARNA_API_LOGGING_ENABLED_KEY, false)))
 		{
 			return;
 		}
@@ -53,7 +53,7 @@ public final class KlarnaLoggerUtil
 
 	public void logRestResponse(final ResponseEntity<String> responseEntity)
 	{
-		if (!Boolean.TRUE.equals(Config.getBoolean(KlarnaIntegrationConstants.API_LOGGING_ENABLED_KEY, false)))
+		if (!Boolean.TRUE.equals(Config.getBoolean(KlarnaIntegrationConstants.KLARNA_API_LOGGING_ENABLED_KEY, false)))
 		{
 			return;
 		}

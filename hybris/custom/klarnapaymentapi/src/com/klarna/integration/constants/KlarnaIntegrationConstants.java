@@ -18,7 +18,7 @@ public final class KlarnaIntegrationConstants
 		//empty to avoid instantiating this constant class
 	}
 
-	public static final String API_LOGGING_ENABLED_KEY = "api.logging.enabled";
+	public static final String KLARNA_API_LOGGING_ENABLED_KEY = "klarna.api.logging.enabled";
 	public static final String LOG_REDACT_ENABLED_KEY = "log.redact.enabled";
 	public static final String REDACT_FIELDS = Config.getParameter("klarna.redact.fields");
 

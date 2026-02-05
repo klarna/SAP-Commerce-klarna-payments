@@ -138,13 +138,14 @@ ACC.klarnaexpcheckout = {
         	initiationMode: 'DEVICE_BEST',
 	        initiate: async () => {
 				const paymentResponse = await ACC.klarnaexpcheckout.createPaymentRequest();
-				if (!responseJson || !responseJson.paymentRequestId) {
+				if (!paymentResponse || !paymentResponse.payment_request_id) {
 	                //console.log("Error in creating payment request");
 			    	ACC.klarnaexpcheckout.showMessage($("#klarnaExpCheckoutErrorMessage").val());
 	                return;
 	            }
+	             console.log("paymentResponse.paymentRequestId:: "+paymentResponse.payment_request_id);
 				// TODO Polling
-				var paymentRequestId = { paymentRequestId: paymentResponse.paymentRequestId };
+				var paymentRequestId = { paymentRequestId: paymentResponse.payment_request_id };
 	            return paymentRequestId;
 	        }
     	}).mount("#klarna_exp_checkout_container_default");
@@ -162,7 +163,7 @@ ACC.klarnaexpcheckout = {
     	// Only register shipping address change handler if not PSP integrated and single step mode is enabled
     	var integratedViaPSP = $("#integratedViaPSP").val();
 	    if (!integratedViaPSP) {
-	        klarna.Payment.on('shippingaddresschange', async (paymentRequest, shippingAddress) => {
+	        klarnaSDK.Payment.on('shippingaddresschange', async (paymentRequest, shippingAddress) => {
 	            try {
 	                const shippingAddressResponse = await ACC.klarnaexpcheckout.updateShippingAddress(paymentRequest, shippingAddress);
 	                if (shippingAddressResponse.status === "success") {
@@ -187,7 +188,7 @@ ACC.klarnaexpcheckout = {
 	            }
 	        });
 	
-	        klarna.Payment.on('shippingoptionselect', async (paymentRequest, shippingOption) => {
+	        klarnaSDK.Payment.on('shippingoptionselect', async (paymentRequest, shippingOption) => {
 	            try {
 	                const shippingOptionResponse = await ACC.klarnaexpcheckout.updateShippingOption(paymentRequest, shippingOption);
 	                if (shippingOptionResponse.status === "success") {
@@ -201,8 +202,8 @@ ACC.klarnaexpcheckout = {
 	            }
 	        });
 		}
-		klarna.Payment.on('complete', async (paymentRequest) => {
-	        if (paymentRequest && paymentRequest.stateContext && paymentRequest.stateContext.interoperabilityToken) {
+		klarnaSDK.Payment.on('complete', async (paymentRequest) => {
+	        if (paymentRequest) {
 	            // Save the interoperability token and notify PSPs so they can use the token
 	            await ACC.klarnaexpcheckout.onPaymentComplete(paymentRequest);
 	        }
@@ -210,11 +211,11 @@ ACC.klarnaexpcheckout = {
 	        return false;
 	    });
 	
-	    klarna.Payment.on('error', (error, paymentRequest) => { 
+	    klarnaSDK.Payment.on('error', (error, paymentRequest) => { 
 	        return false;
 	    });
 	
-	    klarna.Payment.on('abort', (paymentRequest) => { 
+	    klarnaSDK.Payment.on('abort', (paymentRequest) => { 
 	        return false;
 	    });	        
 	},	

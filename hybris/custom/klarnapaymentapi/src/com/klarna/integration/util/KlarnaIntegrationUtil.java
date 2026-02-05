@@ -46,9 +46,8 @@ public final class KlarnaIntegrationUtil
 		final String baseUrlKeyString = baseUrlKey.toString();
 		String baseUrl = Config.getParameter(baseUrlKeyString);
 		if(StringUtils.isEmpty(baseUrl)) {
-			StringUtils.replace(baseUrlKeyString, StringUtils.lowerCase(region),
-					StringUtils.lowerCase(KlarnaIntegrationConstants.GLOBAL_REGION));
-			baseUrl = Config.getParameter(baseUrlKeyString);
+			baseUrl = Config.getParameter(StringUtils.replace(baseUrlKeyString, StringUtils.lowerCase(region),
+					StringUtils.lowerCase(KlarnaIntegrationConstants.GLOBAL_REGION)));
 		}
 		return baseUrl;
 	}

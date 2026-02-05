@@ -20,6 +20,7 @@ public final class KlarnapaymentaddonWebConstants // NOSONAR
 		//empty to avoid instantiating this constant class
 	}
 
+	public static final String KLARNA_EXP_CHECKOUT_CART_ID = "klarnaExpCheckoutCartId";
 	public static final String KLARNA_SELECTED_PAYMENT_METHOD = "klarnaSelectedPaymentMethod";
 
 	public static final String KLARNA_GUEST_TEMP_EMAIL_ID = "tempuser@sap.kec";

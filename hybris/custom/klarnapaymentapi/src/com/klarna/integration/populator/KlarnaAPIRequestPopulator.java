@@ -70,6 +70,9 @@ public class KlarnaAPIRequestPopulator implements Populator<KlarnaRequestDTO, Kl
 		}
 		switch (transactionType)
 		{
+			case CREATE_PAYMENT_REQUEST:
+				return HttpMethod.POST;
+
 			case CREATE_WEBHOOK:
 				return HttpMethod.POST;
 
