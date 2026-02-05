@@ -109,14 +109,28 @@ ACC.klarnaexpcheckout = {
 	  	});
 	},
 	
-	initKECButton : function(containerId, klarna) {
-		if (!klarna) {
-        	return;
-    	}
-    	const $kecDiv = $("#kecDiv");
+	initKECButtonV1 : function() {
+		const clientKey = $("#klarnaClientId").val();
+		//console.log("clientKey", clientKey);
+		window.Klarna.Payments.Buttons.init({
+	      client_key: clientKey,
+	    });
+	    // Express Checkout button is displayed in PDP and Cart
+	    const currentPageUrl = window.location.pathname;
+	    if(currentPageUrl.includes('/p/') || currentPageUrl.includes('/cart')) {
+			ACC.klarnaexpcheckout.klarnaButtonLoad("#klarna_exp_checkout_container_default");
+			// Button will be displayed in two places in Cart page
+		    if((window.location.pathname).includes('/cart')) {
+				ACC.klarnaexpcheckout.klarnaButtonLoad("#klarna_exp_checkout_container_checkout_display");
+			}
+		}
+	},	
+	
+	initKECButtonV2 : function(containerId) {
+		const $kecDiv = $("#kecDiv");
     	const buttonshape = $kecDiv.data("buttonshape");
 	    const buttontheme = $kecDiv.data("buttontheme");
-		klarna.Payment.button({ 
+		window.initializedKlarnaSDK.Payment.button({ 
 	        shape: buttonshape,
 	        theme: buttontheme,
 	        //locale: klarnaLocale,
@@ -134,6 +148,16 @@ ACC.klarnaexpcheckout = {
 	            return paymentRequestId;
 	        }
     	}).mount(containerId);
+    	
+    	// Express Checkout button is displayed in PDP and Cart
+	    const currentPageUrl = window.location.pathname;
+	    if(currentPageUrl.includes('/p/') || currentPageUrl.includes('/cart')) {
+			window.initializedKlarnaSDK.Payment.button.mount("#klarna_exp_checkout_container_default");
+			// Button will be displayed in two places in Cart page
+		    if((window.location.pathname).includes('/cart')) {
+				window.initializedKlarnaSDK.Payment.button.mount("#klarna_exp_checkout_container_checkout_display");
+			}
+		}
     	
     	// Only register shipping address change handler if not PSP integrated and single step mode is enabled
     	var integratedViaPSP = $("#integratedViaPSP").val();
@@ -264,7 +288,7 @@ ACC.klarnaexpcheckout = {
 	
 };	
 
-window.klarnaAsyncCallback = function () {
+/*window.klarnaAsyncCallback = function () {
 	// Check if SDK v1 is enabled
 	var $loadWebSDKv1Div = $('#loadWebSDKv1Div');
 	var isSDKv1Enabled = $loadWebSDKv1Div.length > 0 && $loadWebSDKv1Div.data('enabled') === true;
@@ -285,7 +309,7 @@ window.klarnaAsyncCallback = function () {
 			}
 		}
 	}
-};
+};*/
 
 /*window.KlarnaSDKCallback = async function () {
 		

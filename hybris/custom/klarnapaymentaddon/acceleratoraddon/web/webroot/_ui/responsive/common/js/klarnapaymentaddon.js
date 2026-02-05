@@ -1,7 +1,18 @@
 
 document.addEventListener("DOMContentLoaded", async () => {
-    var $loadWebSDKv2Div = $('#loadWebSDKv2Div');
-	var isSDKv2Enabled = $loadWebSDKv2Div.length > 0 && $loadWebSDKv2Div.data('enabled') === true;
+    
+    const $loadWebSDKv1Div = $('#loadWebSDKv1Div');
+	const isSDKv1Enabled = $loadWebSDKv1Div.length > 0 && $loadWebSDKv1Div.data('enabled') === true;
+	const $kecDiv = $("#kecDiv");
+	if(isSDKv1Enabled && $kecDiv.length > 0) {	
+        console.debug("KEC v1 is active");
+		if(!isSDKv1Enabled) {
+			ACC.klarnaexpcheckout.initKECButtonV1();
+		}
+	}	
+    
+    const $loadWebSDKv2Div = $('#loadWebSDKv2Div');
+	const isSDKv2Enabled = $loadWebSDKv2Div.length > 0 && $loadWebSDKv2Div.data('enabled') === true;
     if(isSDKv2Enabled) {
 		try {
 	        const { KlarnaSDK } = await import(window.klarnaWebSDKv2Url);   
@@ -25,11 +36,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 	        
 	        const $kecDiv = $("#kecDiv");
 	        if ($kecDiv.length > 0) {
-				console.debug("KEC is active");
-				const $loadWebSDKv1Div = $('#loadWebSDKv1Div');
-				const isSDKv1Enabled = $loadWebSDKv2Div.length > 0 && $loadWebSDKv1Div.data('enabled') === true;
+				console.debug("KEC v2 is active");
 				if(!isSDKv1Enabled) {
-					ACC.klarnaexpcheckout.initKECButton('#klarna_exp_checkout_container_default', KlarnaSDK);
+					ACC.klarnaexpcheckout.initKECButtonV2('#klarna_exp_checkout_container_default');
 				}			
 			}
 	                
