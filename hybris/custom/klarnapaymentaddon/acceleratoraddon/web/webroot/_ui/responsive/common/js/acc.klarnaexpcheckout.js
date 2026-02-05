@@ -126,11 +126,11 @@ ACC.klarnaexpcheckout = {
 		}
 	},	
 	
-	initKECButtonV2 : function(containerId) {
+	initKECButtonV2 : function(klarnaSDK) {
 		const $kecDiv = $("#kecDiv");
     	const buttonshape = $kecDiv.data("buttonshape");
 	    const buttontheme = $kecDiv.data("buttontheme");
-		window.initializedKlarnaSDK.Payment.button({ 
+		klarnaSDK.Payment.button({ 
 	        shape: buttonshape,
 	        theme: buttontheme,
 	        //locale: klarnaLocale,
@@ -147,17 +147,17 @@ ACC.klarnaexpcheckout = {
 				var paymentRequestId = { paymentRequestId: paymentResponse.paymentRequestId };
 	            return paymentRequestId;
 	        }
-    	}).mount(containerId);
+    	}).mount("#klarna_exp_checkout_container_default");
     	
     	// Express Checkout button is displayed in PDP and Cart
-	    const currentPageUrl = window.location.pathname;
+	    /*const currentPageUrl = window.location.pathname;
 	    if(currentPageUrl.includes('/p/') || currentPageUrl.includes('/cart')) {
 			window.initializedKlarnaSDK.Payment.button.mount("#klarna_exp_checkout_container_default");
 			// Button will be displayed in two places in Cart page
 		    if((window.location.pathname).includes('/cart')) {
 				window.initializedKlarnaSDK.Payment.button.mount("#klarna_exp_checkout_container_checkout_display");
 			}
-		}
+		}*/
     	
     	// Only register shipping address change handler if not PSP integrated and single step mode is enabled
     	var integratedViaPSP = $("#integratedViaPSP").val();

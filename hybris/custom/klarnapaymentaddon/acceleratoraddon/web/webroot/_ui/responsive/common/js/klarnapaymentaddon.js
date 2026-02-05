@@ -20,25 +20,26 @@ document.addEventListener("DOMContentLoaded", async () => {
 	        const $klarnaDiv = $("#klarnaDiv");
 	        const clientid = $klarnaDiv.data("clientid");
 	        const locale = $klarnaDiv.data("locale");
-		    const productsJson = $klarnaDiv.data("products");
+		    const products = ["PAYMENT","MESSAGING"];
+		    //const productsJson = $klarnaDiv.data("products");
 		    //const integratorJson = $klarnaDiv.data("integrator");   
 		    //const originatorsJson = $klarnaDiv.data("originators"); 
 	        
 	        const klarnaSDKConfig = {
 				clientId: clientid,
 		      	locale: locale,
-		      	products: productsJson
+		      	products: products
 		      	//integrator: JSON.parse(integratorJson),
 		      	//originators: JSON.parse(originatorsJson),
 	        };	        
-	        window.initializedKlarnaSDK = await KlarnaSDK(klarnaSDKConfig);
+	        const initializedKlarnaSDK = await KlarnaSDK(klarnaSDKConfig);
 	        console.debug("Klarna SDK initialized");
 	        
 	        const $kecDiv = $("#kecDiv");
 	        if ($kecDiv.length > 0) {
 				console.debug("KEC v2 is active");
 				if(!isSDKv1Enabled) {
-					ACC.klarnaexpcheckout.initKECButtonV2('#klarna_exp_checkout_container_default');
+					ACC.klarnaexpcheckout.initKECButtonV2(initializedKlarnaSDK);
 				}			
 			}
 	                
