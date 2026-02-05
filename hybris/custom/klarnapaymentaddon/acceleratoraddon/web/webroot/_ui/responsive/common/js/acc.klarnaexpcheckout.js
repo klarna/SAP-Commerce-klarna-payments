@@ -109,24 +109,19 @@ ACC.klarnaexpcheckout = {
 	  	});
 	},
 	
-	initKECButtonV1 : function() {
-		const clientKey = $("#klarnaClientId").val();
-		//console.log("clientKey", clientKey);
-		window.Klarna.Payments.Buttons.init({
-	      client_key: clientKey,
-	    });
-	    // Express Checkout button is displayed in PDP and Cart
+	initKlarnaPaymentButton(klarnaSDK) {
+		// Express Checkout button is displayed in PDP and Cart
 	    const currentPageUrl = window.location.pathname;
 	    if(currentPageUrl.includes('/p/') || currentPageUrl.includes('/cart')) {
-			ACC.klarnaexpcheckout.klarnaButtonLoad("#klarna_exp_checkout_container_default");
+			ACC.klarnaexpcheckout.loadKlarnaPaymentButton(klarnaSDK, "#klarna_exp_checkout_container_default");
 			// Button will be displayed in two places in Cart page
 		    if((window.location.pathname).includes('/cart')) {
-				ACC.klarnaexpcheckout.klarnaButtonLoad("#klarna_exp_checkout_container_checkout_display");
+				ACC.klarnaexpcheckout.loadKlarnaPaymentButton(klarnaSDK, "#klarna_exp_checkout_container_checkout_display");
 			}
 		}
-	},	
+	},
 	
-	initKECButtonV2 : function(klarnaSDK) {
+	loadKlarnaPaymentButton : function(klarnaSDK, containerId) {
 		const $kecDiv = $("#kecDiv");
     	const buttonshape = $kecDiv.data("buttonshape");
 	    const buttontheme = $kecDiv.data("buttontheme");
@@ -148,18 +143,8 @@ ACC.klarnaexpcheckout = {
 				var paymentRequestId = { paymentRequestId: paymentResponse.payment_request_id };
 	            return paymentRequestId;
 	        }
-    	}).mount("#klarna_exp_checkout_container_default");
-    	
-    	// Express Checkout button is displayed in PDP and Cart
-	    /*const currentPageUrl = window.location.pathname;
-	    if(currentPageUrl.includes('/p/') || currentPageUrl.includes('/cart')) {
-			window.initializedKlarnaSDK.Payment.button.mount("#klarna_exp_checkout_container_default");
-			// Button will be displayed in two places in Cart page
-		    if((window.location.pathname).includes('/cart')) {
-				window.initializedKlarnaSDK.Payment.button.mount("#klarna_exp_checkout_container_checkout_display");
-			}
-		}*/
-    	
+    	}).mount(containerId);
+    	    	
     	// Only register shipping address change handler if not PSP integrated and single step mode is enabled
     	var integratedViaPSP = $("#integratedViaPSP").val();
 	    if (!integratedViaPSP) {
@@ -289,28 +274,22 @@ ACC.klarnaexpcheckout = {
 	
 };	
 
-/*window.klarnaAsyncCallback = function () {
-	// Check if SDK v1 is enabled
-	var $loadWebSDKv1Div = $('#loadWebSDKv1Div');
-	var isSDKv1Enabled = $loadWebSDKv1Div.length > 0 && $loadWebSDKv1Div.data('enabled') === true;
-	
-	if (isSDKv1Enabled) {
-	    var clientKey = $("#klarnaClientId").val();
-		//console.log("clientKey", clientKey);
-		window.Klarna.Payments.Buttons.init({
-	      client_key: clientKey,
-	    });
-	    // Express Checkout button is displayed in PDP and Cart
-	    var currentPageUrl = window.location.pathname;
-	    if(currentPageUrl.includes('/p/') || currentPageUrl.includes('/cart')) {
-			ACC.klarnaexpcheckout.klarnaButtonLoad("#klarna_exp_checkout_container_default");
-			// Button will be displayed in two places in Cart page
-		    if((window.location.pathname).includes('/cart')) {
-				ACC.klarnaexpcheckout.klarnaButtonLoad("#klarna_exp_checkout_container_checkout_display");
-			}
+window.klarnaAsyncCallback = function () {
+	var clientKey = $("#klarnaClientId").val();
+	//console.log("clientKey", clientKey);
+	window.Klarna.Payments.Buttons.init({
+      client_key: clientKey,
+    });
+    // Express Checkout button is displayed in PDP and Cart
+    var currentPageUrl = window.location.pathname;
+    if(currentPageUrl.includes('/p/') || currentPageUrl.includes('/cart')) {
+		ACC.klarnaexpcheckout.klarnaButtonLoad("#klarna_exp_checkout_container_default");
+		// Button will be displayed in two places in Cart page
+	    if((window.location.pathname).includes('/cart')) {
+			ACC.klarnaexpcheckout.klarnaButtonLoad("#klarna_exp_checkout_container_checkout_display");
 		}
 	}
-};*/
+};
 
 /*window.KlarnaSDKCallback = async function () {
 		

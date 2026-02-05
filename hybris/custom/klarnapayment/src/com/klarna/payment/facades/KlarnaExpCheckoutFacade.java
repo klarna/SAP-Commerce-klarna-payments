@@ -23,10 +23,12 @@ public interface KlarnaExpCheckoutFacade
 
 	boolean addBillingAddress(final AddressData addressData);
 
-	AddressData getShippingAddress(final Map<String, Object> requestMap);
+	AddressData getShippingAddressFromRequestMap(final Map<String, Object> requestMap);
 
 	KlarnaShippingChangeResponseData getShippingAddressChangeResponse();
 
 	KlarnaShippingChangeResponseData setDeliveryMode(final Map<String, Object> requestMap);
+
+	boolean setPaymentDetailsForOneStepKEC(AddressData addressData);
 
 }

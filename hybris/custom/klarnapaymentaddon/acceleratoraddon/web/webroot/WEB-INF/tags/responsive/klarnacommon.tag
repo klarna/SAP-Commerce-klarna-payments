@@ -83,7 +83,7 @@
 	</c:if>
 	
 	<c:if test="${loadWebSDKv1}">
-		<script defer src="${fn:escapeXml(klarnaWebSDKv1Url)}" data-client-id="${klarnaClientId}"></script>
+		<script id="klarna-v1-sdk" src="https://x.klarnacdn.net/kp/lib/v1/api.js" ></script> 
 		<div id="loadWebSDKv1Div" data-enabled="true"></div>
 	</c:if>
 	

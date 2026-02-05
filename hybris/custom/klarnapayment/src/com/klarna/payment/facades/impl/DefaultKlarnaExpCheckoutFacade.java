@@ -24,6 +24,7 @@ import org.apache.log4j.Logger;
 import com.klarna.api.expcheckout.model.KlarnaExpCheckoutAuthorizationResponse;
 import com.klarna.api.payments.model.PaymentsSession;
 import com.klarna.payment.data.KlarnaAddressData;
+import com.klarna.payment.data.KlarnaPaymentRequestData;
 import com.klarna.payment.data.KlarnaShippingChangeResponseData;
 import com.klarna.payment.data.KlarnaShippingOptionData;
 import com.klarna.payment.facades.KlarnaExpCheckoutFacade;
@@ -203,10 +204,20 @@ public class DefaultKlarnaExpCheckoutFacade implements KlarnaExpCheckoutFacade
 	}
 
 	@Override
-	public AddressData getShippingAddress(final Map<String, Object> requestMap)
+	public AddressData getShippingAddressFromRequestMap(final Map<String, Object> requestMap)
 	{
 		final KlarnaAddressData klarnaAddressData = (KlarnaAddressData) requestMap.get("shippingAddress");
-		return klarnaAddressReverseConverter.convert(klarnaAddressData);
+		if (klarnaAddressData != null)
+		{
+			return klarnaAddressReverseConverter.convert(klarnaAddressData);
+		}
+		final KlarnaPaymentRequestData paymentRequestData = (KlarnaPaymentRequestData) requestMap.get("paymentRequest");
+		if (paymentRequestData.getStateContext() != null && paymentRequestData.getStateContext().getShipping() != null
+				&& paymentRequestData.getStateContext().getShipping().getAddress() != null)
+		{
+			return klarnaAddressReverseConverter.convert(paymentRequestData.getStateContext().getShipping().getAddress());
+		}
+		return null;
 	}
 
 	@Override
@@ -221,6 +232,25 @@ public class DefaultKlarnaExpCheckoutFacade implements KlarnaExpCheckoutFacade
 		final KlarnaShippingOptionData klarnaShippingOptionData = (KlarnaShippingOptionData) requestMap.get("shippingOption");
 		checkoutFacade.setDeliveryMode(klarnaShippingOptionData.getShippingOptionReference());
 		return klarnaShippingChangeResponseConverter.convert(cartService.getSessionCart());
+	}
+
+	@Override
+	public boolean setPaymentDetailsForOneStepKEC(final AddressData addressData)
+	{
+		final CartModel cartModel = cartService.getSessionCart();
+		KPPaymentInfoModel kpPaymentInfoModel = null;
+		if ((cartModel.getPaymentInfo() == null) || !(cartModel.getPaymentInfo() instanceof KPPaymentInfoModel))
+		{
+			kpPaymentInfoModel = modelService.create(KPPaymentInfoModel.class);
+			kpPaymentInfoModel.setCode(KLARNA_PREFIX + cartModel.getCode());
+			kpPaymentInfoModel.setUser(cartModel.getUser());
+			kpPaymentInfoModel.setOwner(cartModel);
+		}
+		else
+		{
+			kpPaymentInfoModel = (KPPaymentInfoModel) cartModel.getPaymentInfo();
+		}
+		return (setPaymentInfoInCart(cartModel, kpPaymentInfoModel) ? addBillingAddress(addressData) : false);
 	}
 
 	private void calculateCart(final CartModel cartModel)

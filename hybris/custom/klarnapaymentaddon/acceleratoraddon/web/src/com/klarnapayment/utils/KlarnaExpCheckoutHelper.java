@@ -114,4 +114,17 @@ public class KlarnaExpCheckoutHelper
 		}
 		return true;
 	}
+
+	public String getEmailIdFromPaymentRequest(final Map<String, Object> requestMap)
+	{
+		final KlarnaPaymentRequestData paymentRequestData = (KlarnaPaymentRequestData) requestMap.get("paymentRequest");
+		if (paymentRequestData.getStateContext() != null && paymentRequestData.getStateContext().getKlarnaCustomer() != null
+				&& paymentRequestData.getStateContext().getKlarnaCustomer().getCustomerProfile() != null)
+		{
+			return paymentRequestData.getStateContext().getKlarnaCustomer().getCustomerProfile().getEmail();
+		}
+		return null;
+
+	}
+
 }
