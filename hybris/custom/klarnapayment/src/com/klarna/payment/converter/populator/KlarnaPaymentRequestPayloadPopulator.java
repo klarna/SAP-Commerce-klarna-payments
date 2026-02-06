@@ -82,11 +82,11 @@ public class KlarnaPaymentRequestPayloadPopulator implements Populator<AbstractO
 		final KlarnaCustomerInteractionConfigDTO customerInteractionConfig = new KlarnaCustomerInteractionConfigDTO();
 		customerInteractionConfig.setMethod("HANDOVER");
 		final BaseSiteModel baseSite = source.getSite();
-		final String authorizationCallbackRelativeUrl = siteConfigService.getProperty("klarna.expcheckout.authorize.callback.url");
-		if (StringUtils.isNotEmpty(authorizationCallbackRelativeUrl))
+		final String oneStepPSPCallbackRelativeUrl = siteConfigService.getProperty("klarna.expcheckout.onestep.psp.callback.url");
+		if (StringUtils.isNotEmpty(oneStepPSPCallbackRelativeUrl))
 		{
 			customerInteractionConfig
-					.setReturnUrl(siteBaseUrlResolutionService.getWebsiteUrlForSite(baseSite, true, authorizationCallbackRelativeUrl));
+					.setReturnUrl(siteBaseUrlResolutionService.getWebsiteUrlForSite(baseSite, true, oneStepPSPCallbackRelativeUrl));
 		}
 		target.setCustomerInteractionConfig(customerInteractionConfig);
 	}
