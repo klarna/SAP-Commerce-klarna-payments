@@ -27,5 +27,6 @@ public final class KlarnapaymentaddonWebConstants // NOSONAR
 	public static final String KLARNA_ADDRESS_NOT_SUPPORTED_ERROR = "ADDRESS_NOT_SUPPORTED";
 	public static final String KLARNA_INVALID_OPTION_ERROR = "INVALID_OPTION";
 
-	public static final String KLARNA_INTEROPERABILITY_TOKEN = "klarna_interoperability_token";
+	public static final String KLARNA_INTEROPERABILITY_TOKEN = "klarnaInteroperabilityToken";
+	public static final String KLARNA_NETWORK_SESSION_TOKEN = "klarnaNetworkSessionToken";
 }

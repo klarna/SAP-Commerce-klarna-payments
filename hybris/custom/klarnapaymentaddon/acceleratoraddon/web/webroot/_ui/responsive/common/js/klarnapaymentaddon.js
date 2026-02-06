@@ -6,9 +6,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 	const $kecDiv = $("#kecDiv");
 	if(isSDKv1Enabled && $kecDiv.length > 0) {	
         console.debug("KEC v1 is active");
-		if(!isSDKv1Enabled) {
-			ACC.klarnaexpcheckout.initKECButtonV1();
-		}
+        window.klarnaAsyncCallback();
 	}	
     
     const $loadWebSDKv2Div = $('#loadWebSDKv2Div');
@@ -39,7 +37,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 	        if ($kecDiv.length > 0) {
 				console.debug("KEC v2 is active");
 				if(!isSDKv1Enabled) {
-					ACC.klarnaexpcheckout.initKECButtonV2(initializedKlarnaSDK);
+					ACC.klarnaexpcheckout.initKlarnaPaymentButton(initializedKlarnaSDK);
 				}			
 			}
 	                
