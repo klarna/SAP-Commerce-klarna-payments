@@ -20,5 +20,5 @@ yacceleratorstorefront.additionalWebSpringConfigs.klarnaosmaddon=classpath:/klar
 
 
 
-klarnaosmaddon.javascript.paths.responsive=/responsive/common/js/klarnaosmaddon.js
+klarnaosmaddon.javascript.paths.responsive=/responsive/common/js/klarnaosmaddon.js;/responsive/common/js/acc.klarnaosm.js
 klarnaosmaddon.css.paths.responsive=/responsive/common/css/klarnaosmaddon.css
