@@ -70,7 +70,6 @@ import com.klarna.payment.constants.KlarnapaymentConstants;
 import com.klarna.payment.enums.KlarnaEnv;
 import com.klarna.payment.facades.KPPaymentFacade;
 import com.klarna.payment.facades.KlarnaConfigFacade;
-import com.klarna.payment.facades.KlarnaSignInFacade;
 import com.klarna.payment.model.KPPaymentInfoModel;
 import com.klarna.payment.services.KPOrderService;
 import com.klarna.payment.util.LogHelper;
@@ -86,12 +85,6 @@ public class DefaultKPPaymentFacade implements KPPaymentFacade
 
 	public static final String KLARNA_MARKET_EU = "/eu";
 	public static final String KLARNA_MARKET_NA = "/na";
-
-	@Resource(name = "klarnaSignInFacade")
-	private KlarnaSignInFacade klarnaSignInFacade;
-
-	@Resource(name = "klarnaCustomerProfileReverseConverter")
-	private Converter klarnaCustomerProfileReverseConverter;
 
 	private KlarnaConfigFacade klarnaConfigFacade;
 	private CartService cartService;
@@ -586,8 +579,8 @@ public class DefaultKPPaymentFacade implements KPPaymentFacade
 	{
 		final CartModel cart = getCartService().getSessionCart();
 		final KPPaymentInfoModel kpPaymentInfo = (KPPaymentInfoModel) cart.getPaymentInfo();
-		List<PaymentTransactionModel>  transactions = cart.getPaymentTransactions();
-		if(CollectionUtils.isEmpty(transactions))
+		final List<PaymentTransactionModel> transactions = cart.getPaymentTransactions();
+		if (CollectionUtils.isEmpty(transactions))
 		{
 			final PaymentTransactionModel transaction = modelService.create(PaymentTransactionModel.class);
 			//final PaymentTransactionType paymentTransactionType = PaymentTransactionType.CREATE_SUBSCRIPTION;
@@ -605,9 +598,9 @@ public class DefaultKPPaymentFacade implements KPPaymentFacade
 		}
 		else
 		{
-			for(PaymentTransactionModel transaction : transactions)
+			for (final PaymentTransactionModel transaction : transactions)
 			{
-				if(kpPaymentInfo != null && StringUtils.equals(KP_PAYMENT_PROVIDER, transaction.getPaymentProvider()))
+				if (kpPaymentInfo != null && StringUtils.equals(KP_PAYMENT_PROVIDER, transaction.getPaymentProvider()))
 				{
 					transaction.setRequestToken(kpPaymentInfo.getAuthToken());
 					modelService.save(transaction);

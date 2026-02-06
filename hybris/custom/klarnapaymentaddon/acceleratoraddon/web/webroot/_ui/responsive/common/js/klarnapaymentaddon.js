@@ -18,7 +18,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 	        const $klarnaDiv = $("#klarnaDiv");
 	        const clientid = $klarnaDiv.data("clientid");
 	        const locale = $klarnaDiv.data("locale");
-		    const products = ["PAYMENT","MESSAGING"];
+		    const products = ["PAYMENT","MESSAGING", "IDENTITY"];
 		    //const productsJson = $klarnaDiv.data("products");
 		    //const integratorJson = $klarnaDiv.data("integrator");   
 		    //const originatorsJson = $klarnaDiv.data("originators"); 
@@ -40,10 +40,45 @@ document.addEventListener("DOMContentLoaded", async () => {
 					ACC.klarnaexpcheckout.initKlarnaPaymentButton(initializedKlarnaSDK);
 				}			
 			}
+	        
+	        // Loading OSM Component for product
+	        const $kosmDiv = $("#kosm_prod");
+	        if ($kosmDiv.length > 0) {
+	        	var osmPayload = {
+		        		key: $("#datakey").val(),
+		        		//locale: $("#klarnaLocale").val(),
+		        		theme: $("#theme").val(),
+		        		amount:  $("#purchaseAmount").val()
+		    		};
+	        	ACC.klarnaosm.initKOSM(initializedKlarnaSDK);
+	        }
+	        
+	        
+	        // Loading Klana sign in Component
+	        // placement Flags
+	    	var currentURL = window.location.href;
+	    	var showInLoginPage = $("#showSIWKInLoginPage").val();
+	    	var showInRegisterPage = $("#showSIWKInRegisterPage").val();
+	    	var showInCheckoutLoginPage = $("#showSIWKInCheckoutLoginPage").val();
+	    	var showSignInButton = false;
+	    	if(currentURL.endsWith("/login/checkout") && (showInCheckoutLoginPage == "true") )
+	    	{
+	    		showSignInButton = true;
+	    	}
+	    	else if(currentURL.endsWith("/login") && (showInLoginPage == "true" || showInRegisterPage == "true") )
+	    	{
+	    		showSignInButton = true;
+	    	}
+
+	    	if(showSignInButton){
+	    		ACC.signin.initiateSigninButton(initializedKlarnaSDK);
+	    	}
 	                
 	    } catch (error) {
 	        console.error("Failed to load Klarna SDK", error);
 	    }
+	    
+	   
 	}
     
 });

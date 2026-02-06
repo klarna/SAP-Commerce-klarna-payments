@@ -544,6 +544,20 @@
         </property>
     </bean>
     
+    <alias name="defaultKlarnaCustomerAddressReversePopulator" alias="klarnaCustomerAddressReversePopulator"/>
+    <bean id="defaultKlarnaCustomerAddressReversePopulator" class="com.klarna.payment.converter.populator.KlarnaCustomerAddressReversePopulator">
+    </bean>
+    
+     <alias name="defaultKlarnaCustomerAddressReverseConverter" alias="klarnaCustomerAddressReverseConverter"/>
+    <bean id="defaultKlarnaCustomerAddressReverseConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="de.hybris.platform.commercefacades.user.data.AddressData"/>
+        <property name="populators">
+            <list>
+                <ref bean="klarnaCustomerAddressReversePopulator"/>
+            </list>
+        </property>
+    </bean>
+    
     <alias name="defaultKlarnaPaymentsAddressReversePopulator" alias="klarnaPaymentsAddressReversePopulator"/>
     <bean id="defaultKlarnaPaymentsAddressReversePopulator" class="com.klarna.payment.converter.populator.KlarnaPaymentsAddressReversePopulator">
     </bean>
