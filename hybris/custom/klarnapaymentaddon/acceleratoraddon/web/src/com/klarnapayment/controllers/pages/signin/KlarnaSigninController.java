@@ -34,8 +34,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.klarna.api.signin.model.KlarnaSigninResponse;
 import com.klarna.data.KlarnaConfigData;
+import com.klarna.payment.data.KlarnaCustomerData;
 import com.klarna.payment.enums.KlarnaSigninProfileStatus;
 import com.klarna.payment.facades.KlarnaConfigFacade;
 import com.klarna.payment.facades.KlarnaSignInFacade;
@@ -93,40 +93,40 @@ public class KlarnaSigninController extends AbstractPageController
 	@RequestMapping(value = "/initiate", method = RequestMethod.POST)
 	@ResponseBody
 	public String initiateSignIn(@RequestBody
-	final KlarnaSigninResponse klarnaSigninResponse, final HttpSession httpSession, final HttpServletRequest request,
+	final KlarnaCustomerData klarnaCustomerData, final HttpSession httpSession, final HttpServletRequest request,
 			final HttpServletResponse response, final Model model, final RedirectAttributes redirectAttr)
 	{
 		StringBuffer requestUrl = request.getRequestURL();
 		String prevPage = request.getHeader("Referer");
 		sessionService.getCurrentSession().setAttribute("signInRefererPage", prevPage);
-		sessionService.getCurrentSession().setAttribute("klarnaSigninResponse", klarnaSigninResponse);
-		model.addAttribute("klarnaSigninResponse", klarnaSigninResponse);
+		sessionService.getCurrentSession().setAttribute("klarnaCustomerData", klarnaCustomerData);
+		model.addAttribute("klarnaCustomerData", klarnaCustomerData);
 		String redirectURL = null;
 		final KlarnaConfigData klarnaConfig = klarnaConfigFacade.getKlarnaConfig();
-		if(klarnaConfig != null && StringUtils.isNotBlank(klarnaConfig.getEnvironment()))
+		if (klarnaConfig != null && StringUtils.isNotBlank(klarnaConfig.getEnvironment()))
 		{
 			KlarnaSigninProfileStatus profileStatus = KlarnaSigninProfileStatus.LOGIN_FAILED;
-			if (klarnaSigninResponse != null)
+			if (klarnaCustomerData != null)
 			{
-				if(klarnaSignInFacade.validateSigninToken(klarnaSigninResponse, klarnaConfig.getEnvironment())) {
+				//if(klarnaSignInFacade.validateSigninToken(klarnaCustomerData, klarnaConfig.getEnvironment())) {
 
-   				profileStatus = klarnaSignInFacade.checkAndUpdateProfile(klarnaSigninResponse);
-   				if (profileStatus.equals(KlarnaSigninProfileStatus.ACCOUNT_UPDATED)
-   						&& klarnaSigninResponse.getUserAccountProfile() != null)
-   				{
-   					redirectURL = authenticateAndLogin(klarnaSigninResponse.getUserAccountProfile().getEmail(), request, response,
-   							redirectAttr, prevPage);
-   					return redirectURL;
-   				}
-   				else if (profileStatus.equals(KlarnaSigninProfileStatus.LOGIN_FAILED))
-   				{
-   					return redirectURL;
-   				}
-   				else
-   				{
-   					return KLARNA_SIGNIN_CONSENT_URL + REQ_PARAM_PROFILE_STATUS + profileStatus;
-   				}
+				profileStatus = klarnaSignInFacade.checkAndUpdateProfile(klarnaCustomerData);
+				if (profileStatus.equals(KlarnaSigninProfileStatus.ACCOUNT_UPDATED)
+						&& klarnaCustomerData.getCustomerProfile() != null)
+				{
+					redirectURL = authenticateAndLogin(klarnaCustomerData.getCustomerProfile().getEmail(), request, response,
+							redirectAttr, prevPage);
+					return redirectURL;
 				}
+				else if (profileStatus.equals(KlarnaSigninProfileStatus.LOGIN_FAILED))
+				{
+					return redirectURL;
+				}
+				else
+				{
+					return KLARNA_SIGNIN_CONSENT_URL + REQ_PARAM_PROFILE_STATUS + profileStatus;
+				}
+				//}
 			}
 		}
 		return redirectURL;
@@ -137,9 +137,9 @@ public class KlarnaSigninController extends AbstractPageController
 	public ModelAndView showUserConsentPage(@RequestParam(name = "profileStatus")
 	final String profileStatus, final Model model, final HttpServletRequest request, final HttpServletResponse response)
 	{
-		KlarnaSigninResponse klarnaSigninResponse = (KlarnaSigninResponse) sessionService.getCurrentSession()
-				.getAttribute("klarnaSigninResponse");
-		model.addAttribute("klarnaSigninResponse", klarnaSigninResponse);
+		KlarnaCustomerData klarnaCustomerData = (KlarnaCustomerData) sessionService.getCurrentSession()
+				.getAttribute("klarnaCustomerData");
+		model.addAttribute("klarnaCustomerData", klarnaCustomerData);
 		model.addAttribute(WebConstants.BREADCRUMBS_KEY,
 				resourceBreadcrumbBuilder.getBreadcrumbs("klarna.signin.register.breadcrumb"));
 		model.addAttribute("metaRobots", "noindex,nofollow");
@@ -155,21 +155,20 @@ public class KlarnaSigninController extends AbstractPageController
 			LOG.error(ex);
 		}
 		return new ModelAndView(KlarnapaymentaddonControllerConstants.Views.Pages.Signin.KlarnaSigninConsentPage,
-				"klarnaSigninResponse", klarnaSigninResponse);
+				"klarnaCustomerData", klarnaCustomerData);
 	}
 
 	@RequestMapping(value = "/create-customer", method = RequestMethod.POST)
-	public String createCustomer(@ModelAttribute("klarnaSigninResponse")
-	KlarnaSigninResponse klarnaSigninResponse, final Model model, final HttpServletRequest request,
-			final HttpServletResponse response, final RedirectAttributes redirectAttr)
+	public String createCustomer(@ModelAttribute("klarnaCustomerData") KlarnaCustomerData klarnaCustomerData, final Model model,
+			final HttpServletRequest request, final HttpServletResponse response, final RedirectAttributes redirectAttr)
 	{
 		String prevPage = sessionService.getAttribute("signInRefererPage");
 		String reqMapping = LOGIN_URL;
 
-		klarnaSigninResponse = (KlarnaSigninResponse) sessionService.getAttribute("klarnaSigninResponse");
+		klarnaCustomerData = (KlarnaCustomerData) sessionService.getAttribute("klarnaCustomerData");
 		try
 		{
-			klarnaSignInFacade.createNewCustomer(klarnaSigninResponse);
+			klarnaSignInFacade.createNewCustomer(klarnaCustomerData);
 			GlobalMessages.addFlashMessage(redirectAttr, GlobalMessages.INFO_MESSAGES_HOLDER,
 					"klarna.signin.create.customer.success");
 		}
@@ -184,23 +183,21 @@ public class KlarnaSigninController extends AbstractPageController
 	}
 
 	@RequestMapping(value = "/merge-account", method = RequestMethod.POST)
-	public String mergeAccount(@ModelAttribute("klarnaSigninResponse")
-	KlarnaSigninResponse klarnaSigninResponse, final Model model, final HttpServletRequest request,
-			final HttpServletResponse response, final RedirectAttributes redirectAttr)
+	public String mergeAccount(@ModelAttribute("klarnaCustomerData") KlarnaCustomerData klarnaCustomerData, final Model model,
+			final HttpServletRequest request, final HttpServletResponse response, final RedirectAttributes redirectAttr)
 	{
 		String prevPage = sessionService.getAttribute("signInRefererPage");
 		String reqMapping = LOGIN_URL;
 
-		klarnaSigninResponse = (KlarnaSigninResponse) sessionService.getAttribute("klarnaSigninResponse");
-		if (klarnaSigninResponse != null && klarnaSigninResponse.getUserAccountProfile() != null
-				&& StringUtils.isNotEmpty(klarnaSigninResponse.getUserAccountProfile().getEmail()))
+		klarnaCustomerData = (KlarnaCustomerData) sessionService.getAttribute("klarnaCustomerData");
+		if (klarnaCustomerData != null && klarnaCustomerData.getCustomerProfile() != null
+				&& StringUtils.isNotEmpty(klarnaCustomerData.getCustomerProfile().getEmail()))
 		{
 			try
 			{
 				CustomerModel customer = (CustomerModel) userService
-						.getUserForUID(klarnaSigninResponse.getUserAccountProfile().getEmail());
-				klarnaSignInFacade.updateCustomer(customer, klarnaSigninResponse.getUserAccountProfile(),
-						klarnaSigninResponse.getUserAccountLinking());
+						.getUserForUID(klarnaCustomerData.getCustomerProfile().getEmail());
+				klarnaSignInFacade.updateCustomer(customer, klarnaCustomerData.getCustomerProfile());
 				GlobalMessages.addFlashMessage(redirectAttr, GlobalMessages.INFO_MESSAGES_HOLDER,
 						"klarna.signin.merge.account.success");
 			}

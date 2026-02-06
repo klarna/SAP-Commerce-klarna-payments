@@ -40,13 +40,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.google.common.collect.Sets;
-import com.klarna.api.signin.model.KlarnaSigninResponse;
-import com.klarna.api.signin.model.KlarnaSigninUserAccountLinking;
-import com.klarna.api.signin.model.KlarnaSigninUserAccountProfile;
+import com.klarna.payment.data.KlarnaCustomerData;
+import com.klarna.payment.data.KlarnaCustomerProfileData;
 import com.klarna.payment.enums.KlarnaSigninProfileStatus;
 import com.klarna.payment.facades.KlarnaSignInFacade;
 import com.klarna.payment.model.KlarnaCustomerProfileModel;
-import com.klarna.payment.util.KlarnaTokenUtils;
 
 
 
@@ -114,13 +112,13 @@ public class DefaultKlarnaSignInFacade implements KlarnaSignInFacade
 	private static final String CUSTOMER_GROUP = "customergroup";
 
 	@Override
-	public KlarnaSigninProfileStatus checkAndUpdateProfile(final KlarnaSigninResponse klarnaSigninResponse)
+	public KlarnaSigninProfileStatus checkAndUpdateProfile(final KlarnaCustomerData klarnaCustomerData)
 	{
-		final KlarnaSigninUserAccountProfile klarnaSigninUserAccountProfile = klarnaSigninResponse.getUserAccountProfile();
-		if (klarnaSigninUserAccountProfile != null)
+		final KlarnaCustomerProfileData klarnaCustomerProfileData = klarnaCustomerData.getCustomerProfile();
+		if (klarnaCustomerProfileData != null)
 		{
-			final String useremail = StringUtils.isNotEmpty(klarnaSigninUserAccountProfile.getEmail())
-					? klarnaSigninUserAccountProfile.getEmail()
+			final String useremail = StringUtils.isNotEmpty(klarnaCustomerProfileData.getEmail())
+					? klarnaCustomerProfileData.getEmail()
 					: null;
 			if (useremail != null)
 			{
@@ -141,7 +139,7 @@ public class DefaultKlarnaSignInFacade implements KlarnaSignInFacade
 				else if (user instanceof CustomerModel)
 				{
 					final CustomerModel customer = (CustomerModel) user;
-					updateCustomer(customer, klarnaSigninUserAccountProfile, klarnaSigninResponse.getUserAccountLinking());
+					updateCustomer(customer, klarnaCustomerProfileData);
 					return KlarnaSigninProfileStatus.ACCOUNT_UPDATED;
 				}
 			}
@@ -150,18 +148,18 @@ public class DefaultKlarnaSignInFacade implements KlarnaSignInFacade
 	}
 
 	@Override
-	public boolean createNewCustomer(final KlarnaSigninResponse klarnaSigninResponse)
+	public boolean createNewCustomer(final KlarnaCustomerData klarnaCustomerData)
 	{
-		final KlarnaSigninUserAccountProfile klarnaSigninUserAccountProfile = klarnaSigninResponse.getUserAccountProfile();
-		if (klarnaSigninUserAccountProfile != null)
+		final KlarnaCustomerProfileData klarnaCustomerProfileData = klarnaCustomerData.getCustomerProfile();
+		if (klarnaCustomerProfileData != null)
 		{
 			try
 			{
 				final CustomerModel customer = modelService.create(CustomerModel.class);
-				customer.setUid(klarnaSigninUserAccountProfile.getEmail());
-				customer.setName(customerNameStrategy.getName(klarnaSigninUserAccountProfile.getGivenName(),
-						klarnaSigninUserAccountProfile.getFamilyName()));
-				customer.setOriginalUid(klarnaSigninUserAccountProfile.getEmail());
+				customer.setUid(klarnaCustomerProfileData.getEmail());
+				customer.setName(customerNameStrategy.getName(klarnaCustomerProfileData.getGivenName(),
+						klarnaCustomerProfileData.getFamilyName()));
+				customer.setOriginalUid(klarnaCustomerProfileData.getEmail());
 				customer.setSessionLanguage(commonI18NService.getCurrentLanguage());
 				customer.setSessionCurrency(commonI18NService.getCurrentCurrency());
 				customer.setCustomerID(UUID.randomUUID().toString());
@@ -176,13 +174,12 @@ public class DefaultKlarnaSignInFacade implements KlarnaSignInFacade
 				}
 				customerAccountService.register(customer, null);
 				modelService.save(customer);
-				updateCustomer(customer, klarnaSigninUserAccountProfile, klarnaSigninResponse.getUserAccountLinking());
+				updateCustomer(customer, klarnaCustomerProfileData);
 				return true;
 			}
 			catch (final Exception e)
 			{
-				LOG.error("Error creating new customer account for email id " + klarnaSigninUserAccountProfile.getEmail() + " :: ",
-						e);
+				LOG.error("Error creating new customer account for email id " + klarnaCustomerProfileData.getEmail() + " :: ", e);
 				return false;
 			}
 		}
@@ -190,8 +187,7 @@ public class DefaultKlarnaSignInFacade implements KlarnaSignInFacade
 	}
 
 	@Override
-	public void updateCustomer(final CustomerModel customer, final KlarnaSigninUserAccountProfile klarnaSigninUserAccountProfile,
-			final KlarnaSigninUserAccountLinking klarnaSigninUserAccountLinking)
+	public void updateCustomer(final CustomerModel customer, final KlarnaCustomerProfileData klarnaCustomerProfileData)
 	{
 		try
 		{
@@ -202,13 +198,14 @@ public class DefaultKlarnaSignInFacade implements KlarnaSignInFacade
 				{
 					klarnaCustomerProfileModel = modelService.create(KlarnaCustomerProfileModel.class);
 				}
-				updateCustomerName(klarnaCustomerProfileModel, klarnaSigninUserAccountProfile, customer);
+				updateCustomerName(klarnaCustomerProfileModel, klarnaCustomerProfileData, customer);
 
-				klarnaCustomerProfileReverseConverter.convert(klarnaSigninUserAccountProfile, klarnaCustomerProfileModel);
-				if (klarnaSigninUserAccountLinking != null)
-				{
-					klarnaCustomerProfileModel.setRefreshToken(klarnaSigninUserAccountLinking.getUserAccountLinkingRefreshToken());
-				}
+				klarnaCustomerProfileReverseConverter.convert(klarnaCustomerProfileData, klarnaCustomerProfileModel);
+				/*
+				 * if (klarnaSigninUserAccountLinking != null) {
+				 * klarnaCustomerProfileModel.setRefreshToken(klarnaSigninUserAccountLinking.
+				 * getUserAccountLinkingRefreshToken()); }
+				 */
 				modelService.save(klarnaCustomerProfileModel);
 				customer.setKlarnaCustomerProfile(klarnaCustomerProfileModel);
 				customer.setDefaultPaymentAddress(klarnaCustomerProfileModel.getBillingAddress());
@@ -217,42 +214,38 @@ public class DefaultKlarnaSignInFacade implements KlarnaSignInFacade
 		}
 		catch (final Exception e)
 		{
-			LOG.error("Error updating customer account for email id " + klarnaSigninUserAccountProfile.getEmail() + " :: ", e);
+			LOG.error("Error updating customer account for email id " + klarnaCustomerProfileData.getEmail() + " :: ", e);
 		}
 	}
 
 	void updateCustomerName(final KlarnaCustomerProfileModel klarnaCustomerProfileModel,
-			final KlarnaSigninUserAccountProfile klarnaSigninUserAccountProfile, final CustomerModel customer)
+			final KlarnaCustomerProfileData klarnaCustomerProfileData, final CustomerModel customer)
 	{
 		// Modify account info in customer model only if the current value matches that of Klarna customer profile
 		// If it doesn't match, it means customer has created or updated account info within the site
 		// In such cases, the account info shouldn't be overridden with the values from Klarna
-		if (!StringUtils.equals(klarnaCustomerProfileModel.getFamilyName(), klarnaSigninUserAccountProfile.getFamilyName())
-				|| !StringUtils.equals(klarnaCustomerProfileModel.getGivenName(), klarnaSigninUserAccountProfile.getGivenName()))
+		if (!StringUtils.equals(klarnaCustomerProfileModel.getFamilyName(), klarnaCustomerProfileData.getFamilyName())
+				|| !StringUtils.equals(klarnaCustomerProfileModel.getGivenName(), klarnaCustomerProfileData.getGivenName()))
 		{
 			final String currentCustomerNameInKlarna = customerNameStrategy.getName(klarnaCustomerProfileModel.getGivenName(),
 					klarnaCustomerProfileModel.getFamilyName());
 			if (StringUtils.equals(currentCustomerNameInKlarna, customer.getName()))
 			{
 				// Set new name
-				customer.setName(customerNameStrategy.getName(klarnaSigninUserAccountProfile.getGivenName(),
-						klarnaSigninUserAccountProfile.getFamilyName()));
+				customer.setName(customerNameStrategy.getName(klarnaCustomerProfileData.getGivenName(),
+						klarnaCustomerProfileData.getFamilyName()));
 			}
 		}
 	}
 
-	@Override
-	public boolean validateSigninToken(final KlarnaSigninResponse klarnaSigninResponse, String environment)
-	{
-		if(klarnaSigninResponse != null && klarnaSigninResponse.getUserAccountLinking() != null &&  StringUtils.isNotBlank(klarnaSigninResponse.getUserAccountLinking().getUserAccountLinkingIdToken())) {
-   		final boolean isValidIdToken = KlarnaTokenUtils.validateJWTToken(klarnaSigninResponse.getUserAccountLinking().getUserAccountLinkingIdToken(),environment);
-   		return isValidIdToken;
-		}
-		else
-		{
-			LOG.error("ID Token Not Found :: " + klarnaSigninResponse.getUserAccountLinking().getUserAccountLinkingIdToken());
-		}
-		return false;
-	}
+	/*
+	 * @Override public boolean validateSigninToken(final KlarnaCustomerData klarnaCustomerData, String environment) {
+	 * if(klarnaSigninResponse != null && klarnaSigninResponse.getUserAccountLinking() != null &&
+	 * StringUtils.isNotBlank(klarnaSigninResponse.getUserAccountLinking().getUserAccountLinkingIdToken())) { final
+	 * boolean isValidIdToken =
+	 * KlarnaTokenUtils.validateJWTToken(klarnaSigninResponse.getUserAccountLinking().getUserAccountLinkingIdToken(),
+	 * environment); return isValidIdToken; } else { LOG.error("ID Token Not Found :: " +
+	 * klarnaSigninResponse.getUserAccountLinking().getUserAccountLinkingIdToken()); } return false; }
+	 */
 
 }
