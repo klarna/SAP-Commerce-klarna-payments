@@ -88,18 +88,21 @@ public class KlarnaExpCheckoutHelper
 
 	public boolean validatePaymentCompleteRequest(final Map<String, Object> requestMap)
 	{
-		if (!(requestMap.get("paymentRequest") instanceof KlarnaPaymentRequestData))
+		try
 		{
-			LOG.error("Invalid Request. Payment Request object is not available or is invalid!");
-			return false;
+			final KlarnaPaymentRequestData paymentRequestData = (KlarnaPaymentRequestData) requestMap.get("paymentRequest");
+			if (paymentRequestData != null && paymentRequestData.getStateContext() != null)
+			{
+				LOG.error("Invalid Request. Payment Request doesn't contain State Context!");
+				return true;
+			}
 		}
-		final KlarnaPaymentRequestData paymentRequestData = (KlarnaPaymentRequestData) requestMap.get("paymentRequest");
-		if (paymentRequestData.getStateContext() == null)
+		catch (Exception e)
 		{
-			LOG.error("Invalid Request. Payment Request doesn't contain State Context!");
-			return false;
+			LOG.error("Error reading Payment Request object ::", e);
 		}
-		return true;
+		LOG.error("Invalid Request. Payment Request object is not available or is invalid!");
+		return false;
 	}
 
 	public boolean validateExpressCheckoutCart()
