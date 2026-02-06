@@ -181,6 +181,20 @@
 	</bean>
 	
 	
+	<bean class="com.klarna.payment.data.KlarnaRequestData">
+		<import	type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
+		<import type="com.fasterxml.jackson.annotation.JsonProperty" />
+		<property name="paymentRequest" type="com.klarna.payment.data.KlarnaPaymentRequestData">
+			<annotations>@JsonProperty("paymentRequest")</annotations>
+		</property>	
+		<property name="shippingAddress" type="com.klarna.payment.data.KlarnaAddressData">
+			<annotations>@JsonProperty("shippingAddress")</annotations>
+		</property>
+		<property name="shippingOption" type="com.klarna.payment.data.KlarnaShippingOptionData">
+			<annotations>@JsonProperty("shippingOption")</annotations>
+		</property>	
+	</bean>
+	
 	<bean class="com.klarna.payment.data.KlarnaPaymentRequestData">
 		<import	type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
 		<import type="com.fasterxml.jackson.annotation.JsonProperty" />

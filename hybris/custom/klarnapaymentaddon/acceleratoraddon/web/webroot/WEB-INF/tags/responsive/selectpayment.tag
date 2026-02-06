@@ -10,7 +10,7 @@
 		<spring:url value="/checkout/multi/klarna-payment-method/process" var="paymentProcess"/>
 		<input type="hidden" id="isKlarnaExpCheckout" value="${is_klarna_exp_checkout}"/>
 		<form:form action="${paymentProcess}" name="klarnaExpCheckoutPaymentDetailsForm" id="klarnaExpCheckoutPaymentDetailsForm" modelAttribute="klarnaPaymentDetailsForm" method="post"> 
-			<label class="kppayment-container"><input type="radio" name="paymentMethod" id="paymentMethod_klarna_exp_checkout" value="${klarnaSelectedPaymentMethod}" checked="checked" /> ${klarnaSelectedPaymentMethod} </label>
+			<label class="kppayment-container"><input type="radio" name="paymentMethod" id="paymentMethod_klarna_exp_checkout" checked="checked" /> Klarna Express Checkout </label>
 			<label class="kppayment-container"><input type="radio" name="paymentMethod" id="paymentMethod_card" value="card" /> Card </label>
 		</form:form>
 	</c:when>

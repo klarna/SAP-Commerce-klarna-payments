@@ -14,8 +14,6 @@ import de.hybris.platform.servicelayer.model.ModelService;
 import de.hybris.platform.servicelayer.user.UserService;
 import de.hybris.platform.store.services.BaseStoreService;
 
-import java.util.Map;
-
 import javax.annotation.Resource;
 
 import org.apache.commons.lang.StringUtils;
@@ -24,7 +22,6 @@ import org.apache.log4j.Logger;
 import com.klarna.api.expcheckout.model.KlarnaExpCheckoutAuthorizationResponse;
 import com.klarna.api.payments.model.PaymentsSession;
 import com.klarna.payment.data.KlarnaAddressData;
-import com.klarna.payment.data.KlarnaPaymentRequestData;
 import com.klarna.payment.data.KlarnaShippingChangeResponseData;
 import com.klarna.payment.data.KlarnaShippingOptionData;
 import com.klarna.payment.facades.KlarnaExpCheckoutFacade;
@@ -204,33 +201,25 @@ public class DefaultKlarnaExpCheckoutFacade implements KlarnaExpCheckoutFacade
 	}
 
 	@Override
-	public AddressData getShippingAddressFromRequestMap(final Map<String, Object> requestMap)
+	public AddressData getAddressData(final KlarnaAddressData klarnaAddressData)
 	{
-		final KlarnaAddressData klarnaAddressData = (KlarnaAddressData) requestMap.get("shippingAddress");
 		if (klarnaAddressData != null)
 		{
 			return klarnaAddressReverseConverter.convert(klarnaAddressData);
-		}
-		final KlarnaPaymentRequestData paymentRequestData = (KlarnaPaymentRequestData) requestMap.get("paymentRequest");
-		if (paymentRequestData.getStateContext() != null && paymentRequestData.getStateContext().getShipping() != null
-				&& paymentRequestData.getStateContext().getShipping().getAddress() != null)
-		{
-			return klarnaAddressReverseConverter.convert(paymentRequestData.getStateContext().getShipping().getAddress());
 		}
 		return null;
 	}
 
 	@Override
-	public KlarnaShippingChangeResponseData getShippingAddressChangeResponse()
+	public KlarnaShippingChangeResponseData getShippingChangeResponse()
 	{
 		return klarnaShippingChangeResponseConverter.convert(cartService.getSessionCart());
 	}
 
 	@Override
-	public KlarnaShippingChangeResponseData setDeliveryMode(final Map<String, Object> requestMap)
+	public KlarnaShippingChangeResponseData setDeliveryMode(final KlarnaShippingOptionData shippingOptionData)
 	{
-		final KlarnaShippingOptionData klarnaShippingOptionData = (KlarnaShippingOptionData) requestMap.get("shippingOption");
-		checkoutFacade.setDeliveryMode(klarnaShippingOptionData.getShippingOptionReference());
+		checkoutFacade.setDeliveryMode(shippingOptionData.getShippingOptionReference());
 		return klarnaShippingChangeResponseConverter.convert(cartService.getSessionCart());
 	}
 

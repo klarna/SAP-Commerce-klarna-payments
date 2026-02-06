@@ -33,6 +33,7 @@
 <input type="hidden" value="${paymentInfo.paymentOption}" class="text" name="paymentOption" id="paymentOption">
 <input type="hidden" id="clientToken" name="clientToken" value="${clientToken}"/>
 <input type="hidden" id="errorMessage" name="errorMessage" value="${errorMessage}"/>
+<input type="hidden" value="${klarnaSelectedPaymentMethod}" class="text" name="klarnaSelectedPaymentMethod" id="klarnaSelectedPaymentMethod">
 
 <input type="hidden" id="saveAuthUrl" value="${saveAuth}"/>
 <c:if test="${not empty paymentInfo && showPaymentInfo}">

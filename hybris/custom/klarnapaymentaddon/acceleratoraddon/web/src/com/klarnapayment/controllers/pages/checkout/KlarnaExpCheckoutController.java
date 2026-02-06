@@ -38,8 +38,9 @@ import com.klarna.api.model.ApiException;
 import com.klarna.api.payments.model.PaymentsSession;
 import com.klarna.data.KlarnaConfigData;
 import com.klarna.integration.dto.KlarnaPaymentResponsePayloadDTO;
-import com.klarna.payment.data.KlarnaPaymentRequestData;
+import com.klarna.payment.data.KlarnaAddressData;
 import com.klarna.payment.data.KlarnaRejectionResponseData;
+import com.klarna.payment.data.KlarnaRequestData;
 import com.klarna.payment.data.KlarnaShippingChangeResponseData;
 import com.klarna.payment.facades.KPPaymentCheckoutFacade;
 import com.klarna.payment.facades.KPPaymentFacade;
@@ -258,35 +259,36 @@ public class KlarnaExpCheckoutController extends AbstractPageController
 	@RequestMapping(value = "/update-shipping-address", method = RequestMethod.POST)
 	@ResponseBody
 	public Map<String, Object> updateShippingAddress(@RequestBody
-	final Map<String, Object> requestMap, final HttpServletRequest request, final HttpServletResponse response)
+	final KlarnaRequestData requestData, final HttpServletRequest request, final HttpServletResponse response)
 	{
 		try
 		{
 			// Check if the response object is valid
-			if (!klarnaExpCheckoutHelper.validateShippingAddressChangeRequest(requestMap))
+			if (requestData == null || requestData.getShippingAddress() == null)
 			{
-				LOG.error("Invalid address change request.");
+				LOG.error("Invalid shipping address update request");
+				return getErrorResponseForShippingAddressChangeUpdate();
+			}
+			AddressData addressData = klarnaExpCheckoutFacade.getAddressData(requestData.getShippingAddress());
+			if (!isValidAddress(addressData))
+			{
+				LOG.error("Invalid shipping address.");
 				return getErrorResponseForShippingAddressChangeUpdate();
 			}
 			if (!klarnaExpCheckoutHelper.validateExpressCheckoutCart())
 			{
 				return getErrorResponseForShippingAddressChangeUpdate();
 			}
-			if (!prepareCheckoutUser(klarnaExpCheckoutHelper.getEmailIdFromPaymentRequest(requestMap), request, response))
+			if (!prepareCheckoutUser(klarnaExpCheckoutHelper.getEmailIdFromPaymentRequest(requestData.getPaymentRequest()), request,
+					response))
 			{
 				LOG.error("Invalid checkout user.");
-				return getErrorResponseForShippingAddressChangeUpdate();
-			}
-			AddressData addressData = klarnaExpCheckoutFacade.getShippingAddressFromRequestMap(requestMap);
-			if (!isValidAddress(addressData))
-			{
-				LOG.error("Invalid shipping address.");
 				return getErrorResponseForShippingAddressChangeUpdate();
 			}
 			if (setDeliveryDetails(addressData))
 			{
 				final KlarnaShippingChangeResponseData shippingAddressChangeResponse = klarnaExpCheckoutFacade
-						.getShippingAddressChangeResponse();
+						.getShippingChangeResponse();
 				Map<String, Object> successResponse = new HashMap<>();
 				successResponse.put("status", "success");
 				successResponse.put("successResponse", shippingAddressChangeResponse);
@@ -307,14 +309,15 @@ public class KlarnaExpCheckoutController extends AbstractPageController
 	@RequestMapping(value = "/update-shipping-method", method = RequestMethod.POST)
 	@ResponseBody
 	public Map<String, Object> updateShippingMethod(@RequestBody
-	final Map<String, Object> requestMap)
+	final KlarnaRequestData requestData)
 	{
 		try
 		{
 			// Check if the response object is valid
-			if (!klarnaExpCheckoutHelper.validateShippingOptionSelectRequest(requestMap))
+			if (requestData == null || requestData.getShippingOption() == null
+					|| StringUtils.isEmpty(requestData.getShippingOption().getShippingOptionReference()))
 			{
-				LOG.error("Invalid shipping optoin change request.");
+				LOG.error("Invalid shipping method update request");
 				return getErrorResponseForShippingOptionUpdate();
 			}
 			if (!klarnaExpCheckoutHelper.validateExpressCheckoutCart())
@@ -332,7 +335,7 @@ public class KlarnaExpCheckoutController extends AbstractPageController
 				return getErrorResponseForShippingOptionUpdate();
 			}
 			final KlarnaShippingChangeResponseData shippingOptionChangeResponse = klarnaExpCheckoutFacade
-					.setDeliveryMode(requestMap);
+					.setDeliveryMode(requestData.getShippingOption());
 			shippingOptionChangeResponse.setSelectedShippingOptionReference(null);
 			shippingOptionChangeResponse.setShippingOptions(null);
 			Map<String, Object> successResponse = new HashMap<>();
@@ -350,65 +353,81 @@ public class KlarnaExpCheckoutController extends AbstractPageController
 	@RequestMapping(value = "/on-payment-complete", method = RequestMethod.POST)
 	@ResponseBody
 	public boolean onPaymentComplete(@RequestBody
-	final Map<String, Object> requestMap, final HttpServletRequest request, final HttpServletResponse response)
+	final KlarnaRequestData requestData, final HttpServletRequest request, final HttpServletResponse response)
 	{
 		try
 		{
-			// Check if the response object is valid
-			if (!klarnaExpCheckoutHelper.validatePaymentCompleteRequest(requestMap))
+			// Check if the request object is valid
+			if (requestData == null || requestData.getPaymentRequest() == null
+					|| requestData.getPaymentRequest().getStateContext() == null)
 			{
-				LOG.error("Invalid payment request.");
+				LOG.error("Invalid payment request");
 				return false;
 			}
-
 			if (!klarnaExpCheckoutHelper.validateExpressCheckoutCart())
 			{
 				return false;
 			}
-			final KlarnaPaymentRequestData paymentRequestData = (KlarnaPaymentRequestData) requestMap.get("paymentRequest");
 			final KlarnaConfigData klarnaConfig = klarnaConfigFacade.getKlarnaConfig();
 			if (Boolean.TRUE.equals(klarnaConfig.getIntegratedViaPSP()))
 			{
-				if (StringUtils.isNotEmpty(paymentRequestData.getStateContext().getInteroperabilityToken()))
+				if (StringUtils.isNotEmpty(requestData.getPaymentRequest().getStateContext().getInteroperabilityToken()))
 				{
 					getSessionService().setAttribute(KlarnapaymentaddonWebConstants.KLARNA_INTEROPERABILITY_TOKEN,
-							paymentRequestData.getStateContext().getInteroperabilityToken());
+							requestData.getPaymentRequest().getStateContext().getInteroperabilityToken());
 					LogHelper.debugLog(LOG, "Interoperability Token for Cart Id " + cartFacade.getSessionCart().getCode()
-							+ " saved to session:: " + paymentRequestData.getStateContext().getInteroperabilityToken());
+							+ " saved to session:: " + requestData.getPaymentRequest().getStateContext().getInteroperabilityToken());
 				}
-				else if (StringUtils.isNotEmpty(paymentRequestData.getStateContext().getKlarnaNetworkSessionToken()))
+				else if (StringUtils.isNotEmpty(requestData.getPaymentRequest().getStateContext().getKlarnaNetworkSessionToken()))
 				{
 					getSessionService().setAttribute(KlarnapaymentaddonWebConstants.KLARNA_NETWORK_SESSION_TOKEN,
-							paymentRequestData.getStateContext().getKlarnaNetworkSessionToken());
+							requestData.getPaymentRequest().getStateContext().getKlarnaNetworkSessionToken());
 					LogHelper.debugLog(LOG, "Klarna Network Session Token for Cart Id " + cartFacade.getSessionCart().getCode()
-							+ " saved to session:: " + paymentRequestData.getStateContext().getKlarnaNetworkSessionToken());
+							+ " saved to session:: " + requestData.getPaymentRequest().getStateContext().getKlarnaNetworkSessionToken());
 				}
 				return true;
 			}
-			if (!prepareCheckoutUser(klarnaExpCheckoutHelper.getEmailIdFromPaymentRequest(requestMap), request, response))
+			if (!prepareCheckoutUser(klarnaExpCheckoutHelper.getEmailIdFromPaymentRequest(requestData.getPaymentRequest()), request,
+					response))
 			{
 				LOG.error("Invalid checkout user. Cannot proceed with order placement");
 				return false;
 			}
-			AddressData addressData = klarnaExpCheckoutFacade.getShippingAddressFromRequestMap(requestMap);
-			if (!isValidAddress(addressData))
+			// Set Shipping Address and Shipping Method
+			KlarnaAddressData klarnaShippingAddressData = requestData.getShippingAddress();
+			if (klarnaShippingAddressData == null && requestData.getPaymentRequest().getStateContext().getShipping() != null)
+			{
+				klarnaShippingAddressData = requestData.getPaymentRequest().getStateContext().getShipping().getAddress();
+			}
+			final AddressData shippingAddress = klarnaExpCheckoutFacade.getAddressData(requestData.getShippingAddress());
+			if (!isValidAddress(shippingAddress))
 			{
 				LOG.error("Invalid shipping address. Cannot proceed with order placement");
 				return false;
 			}
-			if (!setDeliveryDetails(addressData))
+			if (!setDeliveryDetails(shippingAddress))
 			{
 				LOG.error("Delivery details couldnot be set. Cannot proceed with order placement");
 				return false;
 			}
-			if (!klarnaExpCheckoutFacade.setPaymentDetailsForOneStepKEC(addressData))
+			boolean isShippingOptionSet = false;
+			if (requestData.getShippingOption() != null
+					&& StringUtils.isNotEmpty(requestData.getShippingOption().getShippingOptionReference()))
 			{
-				LOG.error("Delivery Address is not available.");
+				isShippingOptionSet = checkoutFacade.setDeliveryMode(requestData.getShippingOption().getShippingOptionReference());
+			}
+			if (!isShippingOptionSet)
+			{
+				LOG.error("Delivery method couldnot be set. Cannot proceed with order placement");
 				return false;
 			}
-			if (cartFacade.getSessionCart().getDeliveryMode() == null)
+			// Set Payment Info and Billing Address
+			final KlarnaAddressData klarnaBillingAddressData = klarnaExpCheckoutHelper
+					.getBillingAddressFromPaymentRequest(requestData.getPaymentRequest());
+			AddressData billingAddress = klarnaExpCheckoutFacade.getAddressData(klarnaBillingAddressData);
+			if (!klarnaExpCheckoutFacade.setPaymentDetailsForOneStepKEC((billingAddress != null) ? billingAddress : shippingAddress))
 			{
-				LOG.error("Delivery Mode is not available.");
+				LOG.error("Payment details couldnot be set. Cannot proceed with order placement");
 				return false;
 			}
 
@@ -471,8 +490,9 @@ public class KlarnaExpCheckoutController extends AbstractPageController
 			{
 				return false;
 			}
+			return true;
 		}
-		return true;
+		return false;
 	}
 
 	private boolean setDeliveryDetails(final AddressData addressData)

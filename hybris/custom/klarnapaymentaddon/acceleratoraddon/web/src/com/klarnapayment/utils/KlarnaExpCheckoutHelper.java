@@ -3,14 +3,13 @@ package com.klarnapayment.utils;
 import de.hybris.platform.commercefacades.order.CartFacade;
 import de.hybris.platform.servicelayer.session.SessionService;
 
-import java.util.Map;
-
 import javax.annotation.Resource;
 
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.log4j.Logger;
 import org.codehaus.plexus.util.StringUtils;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.klarna.api.expcheckout.model.KlarnaExpCheckoutAuthorizationResponse;
 import com.klarna.payment.data.KlarnaAddressData;
 import com.klarna.payment.data.KlarnaPaymentRequestData;
@@ -27,6 +26,26 @@ public class KlarnaExpCheckoutHelper
 
 	@Resource(name = "cartFacade")
 	private CartFacade cartFacade;
+
+	@Resource(name = "klarnaObjectMapper")
+	protected ObjectMapper objectMapper;
+
+
+	public <T> T convertResponseStringToDto(final String response, final Class<T> dtoClass)
+	{
+		try
+		{
+			if (StringUtils.isNotEmpty(response))
+			{
+				return objectMapper.readValue(response, dtoClass);
+			}
+		}
+		catch (final Exception e)
+		{
+			LOG.error("Exception in parsing response string to DTO class " + dtoClass.getName() + " ::", e);
+		}
+		return null;
+	}
 
 	public boolean validateAuthorizationResponse(
 			final KlarnaExpCheckoutAuthorizationResponse klarnaExpCheckoutAuthorizationResponse)
@@ -56,55 +75,6 @@ public class KlarnaExpCheckoutHelper
 		return true;
 	}
 
-	public boolean validateShippingAddressChangeRequest(final Map<String, Object> requestMap)
-	{
-		if (!(requestMap.get("shippingAddress") instanceof KlarnaAddressData))
-		{
-			LOG.error("Invalid Request. Shipping Address is not available!");
-			return false;
-		}
-		if (!(requestMap.get("paymentRequest") instanceof KlarnaPaymentRequestData))
-		{
-			LOG.error("Invalid Request. Payment Request object is not available or is invalid!");
-			return false;
-		}
-		return true;
-	}
-
-	public boolean validateShippingOptionSelectRequest(final Map<String, Object> requestMap)
-	{
-		if (!(requestMap.get("shippingOption") instanceof KlarnaShippingOptionData))
-		{
-			LOG.error("Invalid Request. Shipping Address is not available!");
-			return false;
-		}
-		if (!(requestMap.get("paymentRequest") instanceof KlarnaPaymentRequestData))
-		{
-			LOG.error("Invalid Request. Payment Request object is not available or is invalid!");
-			return false;
-		}
-		return true;
-	}
-
-	public boolean validatePaymentCompleteRequest(final Map<String, Object> requestMap)
-	{
-		try
-		{
-			final KlarnaPaymentRequestData paymentRequestData = (KlarnaPaymentRequestData) requestMap.get("paymentRequest");
-			if (paymentRequestData != null && paymentRequestData.getStateContext() != null)
-			{
-				LOG.error("Invalid Request. Payment Request doesn't contain State Context!");
-				return true;
-			}
-		}
-		catch (Exception e)
-		{
-			LOG.error("Error reading Payment Request object ::", e);
-		}
-		LOG.error("Invalid Request. Payment Request object is not available or is invalid!");
-		return false;
-	}
-
 	public boolean validateExpressCheckoutCart()
 	{
 		// Check if the session cart is same as the express checkout cart
@@ -118,16 +88,35 @@ public class KlarnaExpCheckoutHelper
 		return true;
 	}
 
-	public String getEmailIdFromPaymentRequest(final Map<String, Object> requestMap)
+	public String getEmailIdFromPaymentRequest(final KlarnaPaymentRequestData paymentRequestData)
 	{
-		final KlarnaPaymentRequestData paymentRequestData = (KlarnaPaymentRequestData) requestMap.get("paymentRequest");
-		if (paymentRequestData.getStateContext() != null && paymentRequestData.getStateContext().getKlarnaCustomer() != null
+		if (paymentRequestData != null && paymentRequestData.getStateContext() != null
+				&& paymentRequestData.getStateContext().getKlarnaCustomer() != null
 				&& paymentRequestData.getStateContext().getKlarnaCustomer().getCustomerProfile() != null)
 		{
 			return paymentRequestData.getStateContext().getKlarnaCustomer().getCustomerProfile().getEmail();
 		}
 		return null;
+	}
 
+	public KlarnaAddressData getBillingAddressFromPaymentRequest(final KlarnaPaymentRequestData paymentRequestData)
+	{
+		if (paymentRequestData.getStateContext() != null && paymentRequestData.getStateContext().getKlarnaCustomer() != null
+				&& paymentRequestData.getStateContext().getKlarnaCustomer().getCustomerProfile() != null)
+		{
+			return paymentRequestData.getStateContext().getKlarnaCustomer().getCustomerProfile().getAddress();
+		}
+		return null;
+	}
+
+	public KlarnaShippingOptionData getShippingOptionFromPaymentRequest(final KlarnaPaymentRequestData paymentRequestData)
+	{
+		if (paymentRequestData != null && paymentRequestData.getStateContext() != null
+				&& paymentRequestData.getStateContext().getShipping() != null)
+		{
+			return paymentRequestData.getStateContext().getShipping().getShippingOption();
+		}
+		return null;
 	}
 
 }
