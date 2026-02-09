@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.klarna.integration.dto.KlarnaCreatePaymentResponseDTO;
+import com.klarna.integration.dto.KlarnaInteroperabilityDataDTO;
 import com.klarna.integration.dto.KlarnaPaymentResponsePayloadDTO;
 import com.klarna.payment.facades.KlarnaConfigFacade;
 import com.klarna.payment.facades.KlarnaPaymentRequestFacade;
@@ -72,5 +73,12 @@ public class DefaultKlarnaPaymentRequestFacade implements KlarnaPaymentRequestFa
 		parameter.setEnableHooks(enableHooks);
 		parameter.setCart(cart);
 		return parameter;
+	}
+
+	@Override
+	public KlarnaInteroperabilityDataDTO createKlarnaInteroperabilityData()
+	{
+		final CartModel cartModel = cartService.getSessionCart();
+		return klarnaPaymentRequestService.createKlarnaInteroperabilityData(cartModel);
 	}
 }

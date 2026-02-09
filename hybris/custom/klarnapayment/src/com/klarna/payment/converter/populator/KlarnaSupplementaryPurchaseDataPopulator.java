@@ -26,7 +26,8 @@ public class KlarnaSupplementaryPurchaseDataPopulator implements Populator<Abstr
 
 
 	@Override
-	public void populate(final AbstractOrderModel source, final KlarnaSupplementaryPurchaseDataDTO target) throws ConversionException
+	public void populate(final AbstractOrderModel source, final KlarnaSupplementaryPurchaseDataDTO target)
+			throws ConversionException
 	{
 		Assert.notNull(source, "Parameter source cannot be null.");
 		Assert.notNull(target, "Parameter target cannot be null.");

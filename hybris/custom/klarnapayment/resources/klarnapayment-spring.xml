@@ -706,6 +706,20 @@
     <bean id="defaultKlarnaSupplementaryPurchaseDataPopulator" class="com.klarna.payment.converter.populator.KlarnaSupplementaryPurchaseDataPopulator">
     </bean>
     
+    <alias name="defaultKlarnaInteroperabilityDataConverter" alias="klarnaInteroperabilityDataConverter"/>
+     <bean id="defaultKlarnaInteroperabilityDataConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.klarna.integration.dto.KlarnaInteroperabilityDataDTO"/>
+        <property name="populators">
+            <list>
+                <ref bean="klarnaInteroperabilityDataPopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <alias name="defaultKlarnaInteroperabilityDataPopulator" alias="klarnaInteroperabilityDataPopulator"/>
+    <bean id="defaultKlarnaInteroperabilityDataPopulator" class="com.klarna.payment.converter.populator.KlarnaInteroperabilityDataPopulator">
+    </bean>
+    
     <alias name="defaultKlarnaLineItemConverter" alias="klarnaLineItemConverter"/>
      <bean id="defaultKlarnaLineItemConverter" parent="abstractPopulatingConverter">
         <property name="targetClass" value="com.klarna.integration.dto.KlarnaLineItemDTO"/>

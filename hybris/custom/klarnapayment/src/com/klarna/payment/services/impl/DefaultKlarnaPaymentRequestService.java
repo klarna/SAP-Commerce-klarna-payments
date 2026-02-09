@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import com.klarna.data.KlarnaConfigData;
 import com.klarna.integration.dto.KlarnaCreatePaymentRequestDTO;
 import com.klarna.integration.dto.KlarnaCreatePaymentResponseDTO;
+import com.klarna.integration.dto.KlarnaInteroperabilityDataDTO;
 import com.klarna.integration.dto.KlarnaPaymentRequestPayloadDTO;
 import com.klarna.integration.enums.TransactionTypeEnum;
 import com.klarna.integration.service.KlarnaIntegrationService;
@@ -36,6 +37,8 @@ public class DefaultKlarnaPaymentRequestService implements KlarnaPaymentRequestS
 
 	@Resource
 	private Converter<AbstractOrderModel, KlarnaPaymentRequestPayloadDTO> klarnaPaymentRequestPayloadConverter;
+	@Resource
+	private Converter<AbstractOrderModel, KlarnaInteroperabilityDataDTO> klarnaInteroperabilityDataConverter;
 
 	@Override
 	public KlarnaCreatePaymentResponseDTO createPaymentRequest(final AbstractOrderModel abstractOrder,
@@ -47,5 +50,12 @@ public class DefaultKlarnaPaymentRequestService implements KlarnaPaymentRequestS
 		requestDTO.setMetaData(klarnaServicesUtil.getKlarnaMetaData());
 		requestDTO.setPaymentRequestPayload(klarnaPaymentRequestPayloadConverter.convert(abstractOrder));
 		return klarnaIntegrationService.createPaymentRequest(requestDTO);
+	}
+
+	@Override
+	public KlarnaInteroperabilityDataDTO createKlarnaInteroperabilityData(final AbstractOrderModel abstractOrder)
+	{
+
+		return klarnaInteroperabilityDataConverter.convert(abstractOrder);
 	}
 }
