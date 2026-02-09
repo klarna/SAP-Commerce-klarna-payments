@@ -17,7 +17,7 @@
 			</cms:pageSlot>
 		</div>
 	</div>
-	<c:if test="${profileStatus eq 'CREATE_AFTER_CONSENT' }">
+	<c:if test="${profileStatus eq 'CREATE_AFTER_CONSENT' }">l
 		<spring:url value="/klarna/signin/create-customer" var="processSigninURL"/>
 	</c:if>
 	<c:if test="${profileStatus eq 'MERGE_AFTER_CONSENT' }">
@@ -25,32 +25,32 @@
 	</c:if>
 	<input type="hidden" id="processSigninURL" name="processSigninURL"  value="${processSigninURL}"/>
 	
-	<form:form id="syncAccountForm" action="${processSigninURL}" method="post" modelAttribute="klarnaSigninResponse">
+	<form:form id="syncAccountForm" action="${processSigninURL}" method="post" modelAttribute="klarnaCustomerData">
 		<div class="signin-container">
 			
 			<div class="form-group display-flex">
 				<label class="control-label"><spring:theme code="klarna.signin.userid" /></label>
-				<input class="form-control signin-input" id="userId" type="text" value="${klarnaSigninResponse.userAccountProfile.userId}" disabled="disabled"/>
+				<input class="form-control signin-input" id="userId" type="text" value="${klarnaCustomerData.customerProfile.customerId}" disabled="disabled"/>
 			</div>
 			
 			<div class="form-group display-flex">
 				<label class="control-label"><spring:theme code="address.firstName"/></label>
-				<input class="form-control signin-input" id="givenName" type="text" value="${klarnaSigninResponse.userAccountProfile.givenName}" disabled="disabled"/>
+				<input class="form-control signin-input" id="givenName" type="text" value="${klarnaCustomerData.customerProfile.givenName}" disabled="disabled"/>
 			</div>
 			
 			<div class="form-group display-flex">
 				<label class="control-label"><spring:theme code="address.surname"/></label>
-				<input class="form-control signin-input" id="familyName" type="text" value="${klarnaSigninResponse.userAccountProfile.familyName}" disabled="disabled"/>
+				<input class="form-control signin-input" id="familyName" type="text" value="${klarnaCustomerData.customerProfile.familyName}" disabled="disabled"/>
 			</div>
 			
 			<div class="form-group display-flex">
 				<label class="control-label"><spring:theme code="guest.email"/></label>
-				<input class="form-control signin-input" id="email" type="text" value="${klarnaSigninResponse.userAccountProfile.email}" disabled="disabled"/>
+				<input class="form-control signin-input" id="email" type="text" value="${klarnaCustomerData.customerProfile.email}" disabled="disabled"/>
 			</div>
 			
 			<div class="form-group display-flex">
 				<label class="control-label"><spring:theme code="address.phone" /></label>
-				<input class="form-control signin-input" id="phone" type="text" value="${klarnaSigninResponse.userAccountProfile.phone}" disabled="disabled"/>
+				<input class="form-control signin-input" id="phone" type="text" value="${klarnaCustomerData.customerProfile.phone}" disabled="disabled"/>
 			</div>
 			
 			<c:if test="${profileStatus eq 'CREATE_AFTER_CONSENT' }">
