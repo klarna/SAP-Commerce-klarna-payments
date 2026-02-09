@@ -1588,6 +1588,40 @@
 		</property>	
 	</bean>
 	
+	<bean class="com.klarna.integration.dto.KlarnaShareRequestDTO" >
+		<import	type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
+		<import type="com.fasterxml.jackson.annotation.JsonProperty" />
+		<property name="amount" type="Long">
+			<annotations>@JsonProperty("amount")</annotations>
+		</property>
+		<property name="supplementaryPurchaseData" type="com.klarna.integration.dto.KlarnaSupplementaryPurchaseDataDTO">
+			<annotations>@JsonProperty("supplementary_purchase_data")</annotations>
+		</property>
+	</bean>
+	
+	<bean class="com.klarna.integration.dto.KlarnaContentDTO" >
+		<import	type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
+		<import type="com.fasterxml.jackson.annotation.JsonProperty" />
+		<property name="operation" type="String">
+			<annotations>@JsonProperty("operation")</annotations>
+		</property>
+		<property name="request" type="com.klarna.integration.dto.KlarnaShareRequestDTO">
+			<annotations>@JsonProperty("request")</annotations>
+		</property>
+	</bean>
+		
+	<bean class="com.klarna.integration.dto.KlarnaInteroperabilityDataDTO" >
+		<import	type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
+		<import type="com.fasterxml.jackson.annotation.JsonProperty" />
+		<property name="contentType" type="String">
+			<annotations>@JsonProperty("content-type")</annotations>
+		</property>
+		<property name="content" type="com.klarna.integration.dto.KlarnaContentDTO">
+			<annotations>@JsonProperty("content")</annotations>
+		</property>
+		
+	</bean>
+	
 	<bean class="com.klarna.integration.dto.KlarnaShippingConfigDTO" >
 		<import	type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
 		<import type="com.fasterxml.jackson.annotation.JsonProperty" />

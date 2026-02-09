@@ -46,5 +46,7 @@ public final class KlarnapaymentConstants extends GeneratedKlarnapaymentConstant
 	public static final String KLARNA_PRODUCT_PAYMENT = "PAYMENT";
 	public static final String KLARNA_PRODUCT_MESSAGING = "MESSAGING";
 	public static final String KLARNA_PRODUCT_IDENTITY = "IDENTITY";
+	public static final String KLARNA_INTEROPERABILITY_DATA_CONTENT_TYPE = "klarna.interoperability.data.content.type";
+	public static final String KLARNA_INTEROPERABILITY_DATA_OPERATION = "klarna.interoperability.data.operation";
 
 }
