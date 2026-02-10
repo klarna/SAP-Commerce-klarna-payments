@@ -1,7 +1,6 @@
 package com.klarnapayment.utils;
 
 import de.hybris.platform.commercefacades.order.CartFacade;
-import de.hybris.platform.commercefacades.user.data.AddressData;
 import de.hybris.platform.servicelayer.session.SessionService;
 
 import javax.annotation.Resource;
@@ -12,7 +11,6 @@ import org.codehaus.plexus.util.StringUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.klarna.api.expcheckout.model.KlarnaExpCheckoutAuthorizationResponse;
-import com.klarna.payment.data.KlarnaAddressData;
 import com.klarna.payment.data.KlarnaPaymentRequestData;
 import com.klarna.payment.data.KlarnaShippingOptionData;
 import com.klarnapayment.constants.KlarnapaymentaddonWebConstants;
@@ -100,16 +98,6 @@ public class KlarnaExpCheckoutHelper
 		return null;
 	}
 
-	public KlarnaAddressData getBillingAddressFromPaymentRequest(final KlarnaPaymentRequestData paymentRequestData)
-	{
-		if (paymentRequestData.getStateContext() != null && paymentRequestData.getStateContext().getKlarnaCustomer() != null
-				&& paymentRequestData.getStateContext().getKlarnaCustomer().getCustomerProfile() != null)
-		{
-			return paymentRequestData.getStateContext().getKlarnaCustomer().getCustomerProfile().getAddress();
-		}
-		return null;
-	}
-
 	public KlarnaShippingOptionData getShippingOptionFromPaymentRequest(final KlarnaPaymentRequestData paymentRequestData)
 	{
 		if (paymentRequestData != null && paymentRequestData.getStateContext() != null
@@ -118,16 +106,6 @@ public class KlarnaExpCheckoutHelper
 			return paymentRequestData.getStateContext().getShipping().getShippingOption();
 		}
 		return null;
-	}
-
-	public void addRecipientNameToAddress(final AddressData address, final KlarnaPaymentRequestData paymentRequestData)
-	{
-		if (address != null && paymentRequestData.getStateContext().getShipping() != null
-				&& paymentRequestData.getStateContext().getShipping().getRecipient() != null)
-		{
-			address.setFirstName(paymentRequestData.getStateContext().getShipping().getRecipient().getGivenName());
-			address.setLastName(paymentRequestData.getStateContext().getShipping().getRecipient().getFamilyName());
-		}
 	}
 
 }

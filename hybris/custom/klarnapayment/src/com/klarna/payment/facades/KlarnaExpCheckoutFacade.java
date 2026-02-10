@@ -5,6 +5,7 @@ import de.hybris.platform.commercefacades.user.data.AddressData;
 import com.klarna.api.expcheckout.model.KlarnaExpCheckoutAuthorizationResponse;
 import com.klarna.api.payments.model.PaymentsSession;
 import com.klarna.payment.data.KlarnaAddressData;
+import com.klarna.payment.data.KlarnaRequestData;
 import com.klarna.payment.data.KlarnaShippingChangeResponseData;
 import com.klarna.payment.data.KlarnaShippingOptionData;
 
@@ -31,6 +32,14 @@ public interface KlarnaExpCheckoutFacade
 
 	KlarnaShippingChangeResponseData setDeliveryMode(final KlarnaShippingOptionData shippingOptionData);
 
-	boolean setPaymentDetailsForOneStepKEC(AddressData addressData);
+	boolean updateCartForCheckout(final KlarnaRequestData requestData);
+
+	boolean setShippingAddress(final KlarnaRequestData requestData);
+
+	boolean setShippingOption(final KlarnaRequestData requestData);
+
+	boolean setPaymentInfo(final KlarnaRequestData requestData);
+
+	boolean setBillingAddress(final KlarnaRequestData requestData);
 
 }
