@@ -2,13 +2,10 @@ package com.klarnapayment.controllers.pages.checkout;
 
 import de.hybris.platform.acceleratorstorefrontcommons.annotations.RequireHardLogIn;
 import de.hybris.platform.acceleratorstorefrontcommons.controllers.pages.AbstractPageController;
-import de.hybris.platform.commercefacades.address.AddressVerificationFacade;
-import de.hybris.platform.commercefacades.address.data.AddressVerificationResult;
 import de.hybris.platform.commercefacades.order.CartFacade;
 import de.hybris.platform.commercefacades.order.CheckoutFacade;
 import de.hybris.platform.commercefacades.order.data.CartModificationData;
 import de.hybris.platform.commercefacades.user.data.AddressData;
-import de.hybris.platform.commerceservices.address.AddressVerificationDecision;
 import de.hybris.platform.commerceservices.customer.DuplicateUidException;
 import de.hybris.platform.commerceservices.order.CommerceCartModificationStatus;
 import de.hybris.platform.order.CartService;
@@ -86,9 +83,6 @@ public class KlarnaExpCheckoutController extends AbstractPageController
 
 	@Resource(name = "cartService")
 	private CartService cartService;
-
-	@Resource(name = "addressVerificationFacade")
-	private AddressVerificationFacade addressVerificationFacade;
 
 	@Resource(name = "kpPaymentCheckoutFacade")
 	private KPPaymentCheckoutFacade kpPaymentCheckoutFacade;
@@ -168,7 +162,7 @@ public class KlarnaExpCheckoutController extends AbstractPageController
 						LogHelper.debugLog(LOG, "User set for express checkout");
 						// Get shipping address from authorization response
 						AddressData addressData = klarnaExpCheckoutFacade.getShippingAddress(authorizationResponse);
-						boolean isValidAddress = isValidAddress(addressData);
+						boolean isValidAddress = klarnaExpCheckoutFacade.isValidAddress(addressData);
 						// Set delivery details if the shipping address is available and is valid
 						boolean isDeliveryDetailsSet = (isValidAddress) && setDeliveryDetails(addressData);
 						// Set payment info and billing address
@@ -270,7 +264,7 @@ public class KlarnaExpCheckoutController extends AbstractPageController
 				return getErrorResponseForShippingAddressChangeUpdate();
 			}
 			AddressData addressData = klarnaExpCheckoutFacade.getAddressData(requestData.getShippingAddress());
-			if (!isValidAddress(addressData))
+			if (!klarnaExpCheckoutFacade.isValidAddress(addressData))
 			{
 				LOG.error("Invalid shipping address.");
 				return getErrorResponseForShippingAddressChangeUpdate();
@@ -393,38 +387,50 @@ public class KlarnaExpCheckoutController extends AbstractPageController
 				LOG.error("Invalid checkout user. Cannot proceed with order placement");
 				return false;
 			}
-			// Set Shipping Address and Shipping Method
+			// Set Shipping Address and Shipping Option
 			KlarnaAddressData klarnaShippingAddressData = requestData.getShippingAddress();
 			if (klarnaShippingAddressData == null && requestData.getPaymentRequest().getStateContext().getShipping() != null)
 			{
 				klarnaShippingAddressData = requestData.getPaymentRequest().getStateContext().getShipping().getAddress();
 			}
-			final AddressData shippingAddress = klarnaExpCheckoutFacade.getAddressData(requestData.getShippingAddress());
-			if (!isValidAddress(shippingAddress))
+			final AddressData shippingAddress = klarnaExpCheckoutFacade.getAddressData(klarnaShippingAddressData);
+			klarnaExpCheckoutHelper.addRecipientNameToAddress(shippingAddress, requestData.getPaymentRequest());
+			if (!klarnaExpCheckoutFacade.isValidAddress(shippingAddress))
 			{
 				LOG.error("Invalid shipping address. Cannot proceed with order placement");
 				return false;
 			}
-			if (!setDeliveryDetails(shippingAddress))
+			getUserFacade().addAddress(shippingAddress);
+			if (!checkoutFacade.setDeliveryAddress(shippingAddress))
 			{
-				LOG.error("Delivery details couldnot be set. Cannot proceed with order placement");
+				LOG.error("Shipping address couldnot be set. Cannot proceed with order placement");
 				return false;
 			}
 			boolean isShippingOptionSet = false;
 			if (requestData.getShippingOption() != null
 					&& StringUtils.isNotEmpty(requestData.getShippingOption().getShippingOptionReference()))
 			{
-				isShippingOptionSet = checkoutFacade.setDeliveryMode(requestData.getShippingOption().getShippingOptionReference());
+				if (cartFacade.getSessionCart().getDeliveryMode() != null
+						&& StringUtils.equalsIgnoreCase(cartFacade.getSessionCart().getDeliveryMode().getCode(),
+								requestData.getShippingOption().getShippingOptionReference()))
+				{
+					isShippingOptionSet = true;
+				}
+				else
+				{
+					isShippingOptionSet = checkoutFacade.setDeliveryMode(requestData.getShippingOption().getShippingOptionReference());
+				}
 			}
 			if (!isShippingOptionSet)
 			{
-				LOG.error("Delivery method couldnot be set. Cannot proceed with order placement");
+				LOG.error("Shipping option couldnot be set. Cannot proceed with order placement");
 				return false;
 			}
 			// Set Payment Info and Billing Address
 			final KlarnaAddressData klarnaBillingAddressData = klarnaExpCheckoutHelper
 					.getBillingAddressFromPaymentRequest(requestData.getPaymentRequest());
 			AddressData billingAddress = klarnaExpCheckoutFacade.getAddressData(klarnaBillingAddressData);
+			klarnaExpCheckoutHelper.addRecipientNameToAddress(billingAddress, requestData.getPaymentRequest());
 			if (!klarnaExpCheckoutFacade.setPaymentDetailsForOneStepKEC((billingAddress != null) ? billingAddress : shippingAddress))
 			{
 				LOG.error("Payment details couldnot be set. Cannot proceed with order placement");
@@ -475,22 +481,6 @@ public class KlarnaExpCheckoutController extends AbstractPageController
 		else
 		{
 			return klarnaExpCheckoutFacade.isValidSessionUserCart();
-		}
-		return false;
-	}
-
-	private boolean isValidAddress(final AddressData addressData)
-	{
-		if (addressData != null)
-		{
-			final AddressVerificationResult<AddressVerificationDecision> verificationResult = addressVerificationFacade
-					.verifyAddressData(addressData);
-			if (verificationResult != null && ((verificationResult.getErrors() != null && !verificationResult.getErrors().isEmpty())
-					|| (verificationResult.getSuggestedAddresses() != null && !verificationResult.getSuggestedAddresses().isEmpty())))
-			{
-				return false;
-			}
-			return true;
 		}
 		return false;
 	}

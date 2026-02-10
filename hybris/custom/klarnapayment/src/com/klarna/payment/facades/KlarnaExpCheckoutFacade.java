@@ -19,6 +19,8 @@ public interface KlarnaExpCheckoutFacade
 
 	AddressData getShippingAddress(final KlarnaExpCheckoutAuthorizationResponse klarnaExpCheckoutAuthorizationResponse);
 
+	boolean isValidAddress(final AddressData addressData);
+
 	boolean addPaymentInfo(final KlarnaExpCheckoutAuthorizationResponse klarnaExpCheckoutAuthorizationResponse);
 
 	boolean addBillingAddress(final AddressData addressData);

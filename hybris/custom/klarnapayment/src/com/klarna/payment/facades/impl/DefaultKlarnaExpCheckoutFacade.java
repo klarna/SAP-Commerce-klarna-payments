@@ -1,7 +1,11 @@
 package com.klarna.payment.facades.impl;
 
+import de.hybris.platform.commercefacades.address.AddressVerificationFacade;
+import de.hybris.platform.commercefacades.address.data.AddressVerificationErrorField;
+import de.hybris.platform.commercefacades.address.data.AddressVerificationResult;
 import de.hybris.platform.commercefacades.order.CheckoutFacade;
 import de.hybris.platform.commercefacades.user.data.AddressData;
+import de.hybris.platform.commerceservices.address.AddressVerificationDecision;
 import de.hybris.platform.commerceservices.order.CommerceCheckoutService;
 import de.hybris.platform.commerceservices.service.data.CommerceCheckoutParameter;
 import de.hybris.platform.core.model.order.AbstractOrderModel;
@@ -16,6 +20,7 @@ import de.hybris.platform.store.services.BaseStoreService;
 
 import javax.annotation.Resource;
 
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -64,6 +69,9 @@ public class DefaultKlarnaExpCheckoutFacade implements KlarnaExpCheckoutFacade
 
 	@Resource(name = "checkoutFacade")
 	private CheckoutFacade checkoutFacade;
+
+	@Resource(name = "addressVerificationFacade")
+	private AddressVerificationFacade addressVerificationFacade;
 
 	@Resource
 	private Converter<KlarnaAddressData, AddressData> klarnaAddressReverseConverter;
@@ -127,6 +135,35 @@ public class DefaultKlarnaExpCheckoutFacade implements KlarnaExpCheckoutFacade
 			}
 		}
 		LOG.error("Express Checkout Cart doesn't belong to the logged in user!");
+		return false;
+	}
+
+	@Override
+	public boolean isValidAddress(final AddressData addressData)
+	{
+		if (addressData != null)
+		{
+			final AddressVerificationResult<AddressVerificationDecision> verificationResult = addressVerificationFacade
+					.verifyAddressData(addressData);
+			if(verificationResult != null) {
+				if(AddressVerificationDecision.ACCEPT.equals(verificationResult.getDecision())) {
+					return true;
+				}
+				else {
+					LOG.error("Address verification decision :: "+verificationResult.getDecision());
+					if (MapUtils.isNotEmpty(verificationResult.getErrors()))
+					{
+						LOG.error("Address verification errors ::");
+						verificationResult.getErrors().entrySet().stream().forEach(entry -> {
+							LOG.error("Address verification error: Field " + entry.getKey());
+							final AddressVerificationErrorField errorField = entry.getValue();
+							LOG.error("Address verification error: Field " + errorField.getName() + " is "
+									+ (errorField.isMissing() ? "missing" : "invalid"));
+						});
+					}
+				}
+			}
+		}
 		return false;
 	}
 

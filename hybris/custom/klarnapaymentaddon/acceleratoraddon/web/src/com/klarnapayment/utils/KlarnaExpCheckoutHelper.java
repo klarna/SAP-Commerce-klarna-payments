@@ -1,6 +1,7 @@
 package com.klarnapayment.utils;
 
 import de.hybris.platform.commercefacades.order.CartFacade;
+import de.hybris.platform.commercefacades.user.data.AddressData;
 import de.hybris.platform.servicelayer.session.SessionService;
 
 import javax.annotation.Resource;
@@ -117,6 +118,16 @@ public class KlarnaExpCheckoutHelper
 			return paymentRequestData.getStateContext().getShipping().getShippingOption();
 		}
 		return null;
+	}
+
+	public void addRecipientNameToAddress(final AddressData address, final KlarnaPaymentRequestData paymentRequestData)
+	{
+		if (address != null && paymentRequestData.getStateContext().getShipping() != null
+				&& paymentRequestData.getStateContext().getShipping().getRecipient() != null)
+		{
+			address.setFirstName(paymentRequestData.getStateContext().getShipping().getRecipient().getGivenName());
+			address.setLastName(paymentRequestData.getStateContext().getShipping().getRecipient().getFamilyName());
+		}
 	}
 
 }
