@@ -47,14 +47,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 				}
 		        
 		        // Loading OSM Component for product
-		        const $kosmDiv = $("#kosm_prod");
+		        const $kosmDiv = $("#kosm_div");
 		        if ($kosmDiv.length > 0) {
-		        	var osmPayload = {
-			        		key: $("#datakey").val(),
-			        		//locale: $("#klarnaLocale").val(),
-			        		theme: $("#theme").val(),
-			        		amount:  $("#purchaseAmount").val()
-			    		};
 		        	ACC.klarnaosm.initKOSM(window.KlarnaV2.initializedKlarnaSDK);
 		        }
 		        	        
