@@ -118,8 +118,7 @@ ACC.klarnaexpcheckout = {
 		    if((window.location.pathname).includes('/cart')) {
 				ACC.klarnaexpcheckout.loadKlarnaPaymentButton(klarnaSDK, "#klarna_exp_checkout_container_checkout_display");
 			}
-			// Only register shipping address change handler if not PSP integrated and single step mode is enabled
-	    	var integratedViaPSP = $("#integratedViaPSP").val();
+			var integratedViaPSP = $("#integratedViaPSP").val();
 		    if (!integratedViaPSP) {
 		        klarnaSDK.Payment.on('shippingaddresschange', async (paymentRequest, shippingAddress) => {
 		            try {
@@ -160,13 +159,23 @@ ACC.klarnaexpcheckout = {
 		            }
 		        });
 			}
-			klarnaSDK.Payment.on('complete', async (paymentRequest) => {
+			klarnaSDK.Payment.on('complete', async (paymentRequest) => {										
+				const key = paymentRequest?.paymentRequestId 
+				             || paymentRequest?.paymentRequestReference
+				             || JSON.stringify(paymentRequest);				
+			    if (window.KlarnaV2._completedRequests.has(key)) {
+			        console.debug("Duplicate complete suppressed:", key);
+			        return false;
+			    }			
+			    window.KlarnaV2._completedRequests.add(key);					    
 		        if (paymentRequest) {
-		            // Save the interoperability token and notify PSPs so they can use the token
-		            await ACC.klarnaexpcheckout.onPaymentComplete(paymentRequest);
+		            const paymentCompleteResponse = await ACC.klarnaexpcheckout.onPaymentComplete(paymentRequest);
+		            if(integratedViaPSP) {
+						return false;
+					}
+					return false;
 		        }
-		        // Return a boolean to skip redirection.
-		        return false;
+		        
 		    });
 		
 		    klarnaSDK.Payment.on('error', (error, paymentRequest) => { 

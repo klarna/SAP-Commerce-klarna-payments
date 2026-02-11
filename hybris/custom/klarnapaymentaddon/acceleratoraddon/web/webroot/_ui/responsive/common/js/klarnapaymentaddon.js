@@ -7,8 +7,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 	if(isSDKv1Enabled && $kecDiv.length > 0) {	
         console.debug("KEC v1 is active");
         window.klarnaAsyncCallback();
-	}	
-    
+	}	    
     const $loadWebSDKv2Div = $('#loadWebSDKv2Div');
 	const isSDKv2Enabled = $loadWebSDKv2Div.length > 0 && $loadWebSDKv2Div.data('enabled') === true;
     if(isSDKv2Enabled) {
@@ -18,7 +17,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 	        const $klarnaDiv = $("#klarnaDiv");
 	        const clientid = $klarnaDiv.data("clientid");
 	        const locale = $klarnaDiv.data("locale");
-		    const products = ["PAYMENT","MESSAGING", "IDENTITY"];
+		    const products = ["PAYMENT","MESSAGING","IDENTITY"];
 		    //const productsJson = $klarnaDiv.data("products");
 		    //const integratorJson = $klarnaDiv.data("integrator");   
 		    //const originatorsJson = $klarnaDiv.data("originators"); 
@@ -29,15 +28,22 @@ document.addEventListener("DOMContentLoaded", async () => {
 		      	products: products
 		      	//integrator: JSON.parse(integratorJson),
 		      	//originators: JSON.parse(originatorsJson),
-	        };	        
-	        const initializedKlarnaSDK = await KlarnaSDK(klarnaSDKConfig);
-	        console.debug("Klarna SDK initialized");
+	        };	    
 	        
+	        
+	        window.KlarnaV2 = window.KlarnaV2 || {};
+	        window.KlarnaV2._completedRequests = new Set();
+	        if(!window.KlarnaV2.initializedKlarnaSDK) {
+				window.KlarnaV2.initializedKlarnaSDK = await KlarnaSDK(klarnaSDKConfig);
+			}    
+	        //const initializedKlarnaSDK = await KlarnaSDK(klarnaSDKConfig);
+	        console.debug("Klarna SDK initialized");
+        
 	        const $kecDiv = $("#kecDiv");
 	        if ($kecDiv.length > 0) {
 				console.debug("KEC v2 is active");
 				if(!isSDKv1Enabled) {
-					ACC.klarnaexpcheckout.initKlarnaPaymentButton(initializedKlarnaSDK);
+					ACC.klarnaexpcheckout.initKlarnaPaymentButton(window.KlarnaV2.initializedKlarnaSDK);
 				}			
 			}
 	        
@@ -50,7 +56,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 		        		theme: $("#theme").val(),
 		        		amount:  $("#purchaseAmount").val()
 		    		};
-	        	ACC.klarnaosm.initKOSM(initializedKlarnaSDK);
+	        	ACC.klarnaosm.initKOSM(window.KlarnaV2.initializedKlarnaSDK);
 	        }
 	        
 	        
@@ -71,14 +77,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 	    	}
 
 	    	if(showSignInButton){
-	    		ACC.signin.initiateSigninButton(initializedKlarnaSDK);
+	    		ACC.signin.initiateSigninButton(window.KlarnaV2.initializedKlarnaSDK);
 	    	}
 	                
 	    } catch (error) {
 	        console.error("Failed to load Klarna SDK", error);
-	    }
-	    
-	   
+	    }	    	   
 	}
     
 });
