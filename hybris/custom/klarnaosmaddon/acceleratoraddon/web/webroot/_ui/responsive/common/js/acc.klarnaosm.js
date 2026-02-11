@@ -3,7 +3,7 @@ ACC.klarnaosm = {
 			var osmPayload = {
 	        		key: $("#datakey").val(),
 	        		locale: $("#klarnaLocale").val(),
-	        		theme: $("#theme").val(),
+	        		theme: $("#osmTheme").val(),
 	        		amount:  $("#purchaseAmount").val()
 	    		};
 	

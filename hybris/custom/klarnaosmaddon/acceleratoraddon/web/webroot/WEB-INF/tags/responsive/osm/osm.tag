@@ -11,7 +11,7 @@
 <input type="hidden" id="klarnaLocale"			name="klarnaLocale"		value="${klarnaLocale}" >
 <input type="hidden" id="datakey"				name="datakey"				value="credit-promotion-auto-size"/>
 <input type="hidden" id="purchaseAmount"			name="purchaseAmount"			value="${priceValue}"/>
-<input type="hidden" id="theme"			name="osmTheme"			value="${osmTheme}"/>
+<input type="hidden" id="osmTheme"			name="osmTheme"			value="${osmTheme}"/>
 
 <div id="kosm_prod" class="kosm_prod"></div>
 

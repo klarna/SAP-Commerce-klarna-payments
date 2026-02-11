@@ -9,7 +9,8 @@
     	data-clientid='<c:out value="${klarnaConfig.credential.clientId}" />'
     	data-products='<c:out value="['PAYMENT', 'MESSAGING']" />'
     	data-integrator='<c:out value="${klarnaConfig.integrator}" />' 
-    	data-originators='<c:out value="${klarnaConfig.originators}" />'>
+    	data-originators='<c:out value="${klarnaConfig.originators}" />'
+    	data-psp-integration='<c:out value="${klarnaConfig.integratedViaPSP}" />'>
 	</div>
 		
 	<input type="hidden" id="klarnaClientId" name="klarnaClientId"	value="${klarnaConfig.credential.clientId}"/>
@@ -94,5 +95,8 @@
 		    window.klarnaWebSDKv2Url = "${fn:escapeXml(klarnaWebSDKv2Url)}";
 		</script>				
 	</c:if>
+	
+	<spring:url value="/klarna/interoperability/token" var="saveKlarnaInteropTokenUrl"/>
+	<input type="hidden" name="saveKlarnaInteropTokenUrl" id="saveKlarnaInteropTokenUrl" value="${saveKlarnaInteropTokenUrl}"/>
 	
 </c:if>	
