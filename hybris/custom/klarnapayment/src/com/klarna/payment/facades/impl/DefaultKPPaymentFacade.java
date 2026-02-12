@@ -66,12 +66,14 @@ import com.klarna.api.signin.model.KlarnaSigninTokenResponse;
 import com.klarna.data.KlarnaConfigData;
 import com.klarna.data.KlarnaCredentialData;
 import com.klarna.data.KlarnaKPConfigData;
+import com.klarna.integration.util.KlarnaIntegrationUtil;
 import com.klarna.payment.constants.KlarnapaymentConstants;
 import com.klarna.payment.enums.KlarnaEnv;
 import com.klarna.payment.facades.KPPaymentFacade;
 import com.klarna.payment.facades.KlarnaConfigFacade;
 import com.klarna.payment.model.KPPaymentInfoModel;
 import com.klarna.payment.services.KPOrderService;
+import com.klarna.payment.util.KlarnaServicesUtil;
 import com.klarna.payment.util.LogHelper;
 
 
@@ -157,6 +159,45 @@ public class DefaultKPPaymentFacade implements KPPaymentFacade
 	private UserService userService;
 	private CommerceCartCalculationStrategy commerceCartCalculationStrategy;
 	private CommerceCartService commerceCartService;
+	@Resource
+	private KlarnaServicesUtil klarnaServicesUtil;
+
+	/**
+	 * @return the klarnaServicesUtil
+	 */
+	public KlarnaServicesUtil getKlarnaServicesUtil()
+	{
+		return klarnaServicesUtil;
+	}
+
+	/**
+	 * @param klarnaServicesUtil
+	 *           the klarnaServicesUtil to set
+	 */
+	public void setKlarnaServicesUtil(final KlarnaServicesUtil klarnaServicesUtil)
+	{
+		this.klarnaServicesUtil = klarnaServicesUtil;
+	}
+
+	/**
+	 * @return the klarnaIntegrationUtil
+	 */
+	public KlarnaIntegrationUtil getKlarnaIntegrationUtil()
+	{
+		return klarnaIntegrationUtil;
+	}
+
+	/**
+	 * @param klarnaIntegrationUtil
+	 *           the klarnaIntegrationUtil to set
+	 */
+	public void setKlarnaIntegrationUtil(final KlarnaIntegrationUtil klarnaIntegrationUtil)
+	{
+		this.klarnaIntegrationUtil = klarnaIntegrationUtil;
+	}
+
+	@Resource
+	private KlarnaIntegrationUtil klarnaIntegrationUtil;
 
 	/**
 	 * @return the commerceCartCalculationStrategy
@@ -353,8 +394,12 @@ public class DefaultKPPaymentFacade implements KPPaymentFacade
 						modulename + "_" + moduleversion, getProperty("os.name") + "_" + getProperty("os.version"),
 						shoporplatform + "_" + platformversion);
 
+				final String integrationetaData = klarnaIntegrationUtil
+						.convertRequestDtoToString(klarnaServicesUtil.getKlarnaMetaData());
+
 				LOG.warn(USER_AGENT.toString());
-				return (new Client(merchanId, sharedSecret, endpoint, USER_AGENT.toString()));
+				LOG.warn("integrationetaData ::: " + integrationetaData);
+				return (new Client(merchanId, sharedSecret, endpoint, USER_AGENT.toString(), integrationetaData));
 			}
 		}
 		return null;

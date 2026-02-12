@@ -7,7 +7,7 @@
 	<div id="klarnaDiv"
     	data-locale='<c:out value="${klarnaLocale}" />' 
     	data-clientid='<c:out value="${klarnaConfig.credential.clientId}" />'
-    	data-products='<c:out value="['PAYMENT', 'MESSAGING']" />'
+    	data-products='<c:out value="${klarnaConfig.products}" />'
     	data-integrator='<c:out value="${klarnaConfig.integrator}" />' 
     	data-originators='<c:out value="${klarnaConfig.originators}" />'
     	data-psp-integration='<c:out value="${klarnaConfig.integratedViaPSP}" />'>

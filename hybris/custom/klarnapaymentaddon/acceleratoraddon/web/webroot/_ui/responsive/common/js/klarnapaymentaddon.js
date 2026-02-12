@@ -13,21 +13,21 @@ document.addEventListener("DOMContentLoaded", async () => {
 		const isSDKv2Enabled = $loadWebSDKv2Div.length > 0 && $loadWebSDKv2Div.data('enabled') === true;
 	    if(isSDKv2Enabled) {
 			try {
-		        const { KlarnaSDK } = await import(window.klarnaWebSDKv2Url);   
+		        const { KlarnaSDK } = await import(window.klarnaWebSDKv2Url);  
 		        
-		        const clientid = $klarnaDiv.data("clientid");
+		        const clientid = $klarnaDiv.data("clientid"); 
 		        const locale = $klarnaDiv.data("locale");
-			    const products = ["PAYMENT","MESSAGING","IDENTITY"];
-			    //const productsJson = $klarnaDiv.data("products");
-			    //const integratorJson = $klarnaDiv.data("integrator");   
-			    //const originatorsJson = $klarnaDiv.data("originators"); 
+			    const productsJson = $klarnaDiv.data("products");
+			    const integratorJson = $klarnaDiv.data("integrator");   
+			    const originatorsJson = $klarnaDiv.data("originators"); 
 		        
 		        const klarnaSDKConfig = {
 					clientId: clientid,
 			      	locale: locale,
-			      	products: products
-			      	//integrator: JSON.parse(integratorJson),
-			      	//originators: JSON.parse(originatorsJson),
+			      	integrator: integratorJson,
+			      	originators: originatorsJson,
+			      	products: productsJson
+			      	
 		        };	    
 		        	        
 		        window.KlarnaV2 = window.KlarnaV2 || {};

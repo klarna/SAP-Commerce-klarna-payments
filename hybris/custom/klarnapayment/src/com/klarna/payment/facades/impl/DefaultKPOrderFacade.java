@@ -25,6 +25,8 @@ import de.hybris.platform.util.Config;
 import java.io.IOException;
 import java.net.URI;
 
+import javax.annotation.Resource;
+
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -47,6 +49,7 @@ import com.klarna.api.order_management.model.OrderManagementOrder;
 import com.klarna.api.order_management.model.OrderManagementRefundObject;
 import com.klarna.data.KlarnaConfigData;
 import com.klarna.data.KlarnaCredentialData;
+import com.klarna.integration.util.KlarnaIntegrationUtil;
 import com.klarna.payment.constants.GeneratedKlarnapaymentConstants.Enumerations.KlarnaEnv;
 import com.klarna.payment.constants.KlarnapaymentConstants;
 import com.klarna.payment.enums.KlarnaFraudStatusEnum;
@@ -58,6 +61,7 @@ import com.klarna.payment.services.KPCurrencyConversionService;
 import com.klarna.payment.services.KPOrderService;
 import com.klarna.payment.services.KPPaymentInfoService;
 import com.klarna.payment.util.KlarnaConversionUtils;
+import com.klarna.payment.util.KlarnaServicesUtil;
 import com.klarna.payment.util.LogHelper;
 
 
@@ -80,6 +84,10 @@ public class DefaultKPOrderFacade implements KPOrderFacade
 	private BaseStoreService baseStoreService;
 	private KPCurrencyConversionService kpCurrencyConversionService;
 	private KPPaymentInfoService kpPaymentInfoService;
+	@Resource
+	private KlarnaServicesUtil klarnaServicesUtil;
+	@Resource
+	private KlarnaIntegrationUtil klarnaIntegrationUtil;
 
 
 	private final String OC_LIVE_ENDPOINT = "https://api-oc.klarna.com";
@@ -89,6 +97,41 @@ public class DefaultKPOrderFacade implements KPOrderFacade
 	private final String KLARNA_ORDER_REVIEW_REJECTED = "KLARNA_ORDER_REVIEW_REJECTED";
 
 	private static final String ORDER_NOT_FOUND_FOR_USER_AND_BASE_STORE = "Order with guid %s not found for current user in current BaseStore";
+
+	/**
+	 * @return the klarnaServicesUtil
+	 */
+	public KlarnaServicesUtil getKlarnaServicesUtil()
+	{
+		return klarnaServicesUtil;
+	}
+
+	/**
+	 * @param klarnaServicesUtil
+	 *           the klarnaServicesUtil to set
+	 */
+	public void setKlarnaServicesUtil(final KlarnaServicesUtil klarnaServicesUtil)
+	{
+		this.klarnaServicesUtil = klarnaServicesUtil;
+	}
+
+	/**
+	 * @return the klarnaIntegrationUtil
+	 */
+	public KlarnaIntegrationUtil getKlarnaIntegrationUtil()
+	{
+		return klarnaIntegrationUtil;
+	}
+
+	/**
+	 * @param klarnaIntegrationUtil
+	 *           the klarnaIntegrationUtil to set
+	 */
+	public void setKlarnaIntegrationUtil(final KlarnaIntegrationUtil klarnaIntegrationUtil)
+	{
+		this.klarnaIntegrationUtil = klarnaIntegrationUtil;
+	}
+
 
 
 	/**
@@ -336,7 +379,6 @@ public class DefaultKPOrderFacade implements KPOrderFacade
 				{
 					String captureId = null;
 					boolean capture = false;
-					final KPPaymentInfoModel paymentInfo = (KPPaymentInfoModel) orderModel.getPaymentInfo();
 
 					if (BooleanUtils.isTrue(credential.getVcnEnabled()))
 					{
@@ -517,9 +559,12 @@ public class DefaultKPOrderFacade implements KPOrderFacade
 						getProperty("java.version"), getProperty("java.vendor"), getProperty("java.vm.name"),
 						modulename + "_" + moduleversion, getProperty("os.name") + "_" + getProperty("os.version"),
 						shoporplatform + "_" + platformversion);
+				final String integrationetaData = klarnaIntegrationUtil
+						.convertRequestDtoToString(klarnaServicesUtil.getKlarnaMetaData());
 
 				LOG.warn(USER_AGENT.toString());
-				return (new Client(merchanId, sharedSecret, endpoint, USER_AGENT.toString()));
+				LOG.warn("integrationetaData ::: " + integrationetaData);
+				return (new Client(merchanId, sharedSecret, endpoint, USER_AGENT.toString(), integrationetaData));
 			}
 		}
 		return null;
