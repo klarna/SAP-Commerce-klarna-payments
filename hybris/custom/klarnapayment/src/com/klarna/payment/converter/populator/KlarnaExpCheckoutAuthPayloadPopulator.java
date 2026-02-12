@@ -39,6 +39,7 @@ import org.apache.log4j.Logger;
 import org.springframework.util.Assert;
 
 import com.klarna.api.payments.model.PaymentsAddress;
+import com.klarna.api.payments.model.PaymentsAttachment;
 import com.klarna.api.payments.model.PaymentsMerchantUrls;
 import com.klarna.api.payments.model.PaymentsOrderLine;
 import com.klarna.api.payments.model.PaymentsProductIdentifiers;
@@ -94,6 +95,9 @@ public class KlarnaExpCheckoutAuthPayloadPopulator implements Populator<Abstract
 	@Resource(name = "klarnaPaymentsAddressConverter")
 	private Converter<AddressData, PaymentsAddress> klarnaPaymentsAddressConverter;
 
+	@Resource(name = "klarnaAttachmentConverter")
+	private Converter<AbstractOrderModel, PaymentsAttachment> klarnaAttachmentConverter;
+
 
 	@Override
 	public void populate(final AbstractOrderModel source, final PaymentsSession target) throws ConversionException
@@ -139,6 +143,8 @@ public class KlarnaExpCheckoutAuthPayloadPopulator implements Populator<Abstract
 			}
 			target.setBillingAddress(klarnaPaymentsAddressConverter.convert(paymentAddress));
 		}
+
+		target.setAttachment(klarnaAttachmentConverter.convert(source));
 
 	}
 

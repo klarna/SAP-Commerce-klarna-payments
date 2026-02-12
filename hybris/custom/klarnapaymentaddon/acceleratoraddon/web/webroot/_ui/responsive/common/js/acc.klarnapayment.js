@@ -98,6 +98,9 @@ ACC.klarnaPayment = {
 					//ACC.klarnaCheckout.showCartLoader();
 				},
 				success: function (data) {
+					if(data && data.attachment) {
+						klarnaData.attachment = data.attachment;
+					}
 					Klarna.Payments.authorize({
 						  payment_method_category: paymentOption, auto_finalize: false
 						}, klarnaData, function(res) {

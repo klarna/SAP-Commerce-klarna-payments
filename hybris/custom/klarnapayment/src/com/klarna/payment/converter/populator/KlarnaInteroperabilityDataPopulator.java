@@ -9,33 +9,29 @@ import de.hybris.platform.servicelayer.dto.converter.Converter;
 
 import javax.annotation.Resource;
 
+import org.apache.log4j.Logger;
 import org.springframework.util.Assert;
 
-import com.klarna.data.KlarnaConfigData;
 import com.klarna.integration.dto.KlarnaContentDTO;
 import com.klarna.integration.dto.KlarnaInteroperabilityDataDTO;
 import com.klarna.integration.dto.KlarnaLineItemDTO;
 import com.klarna.integration.dto.KlarnaShareRequestDTO;
 import com.klarna.integration.dto.KlarnaSupplementaryPurchaseDataDTO;
 import com.klarna.payment.constants.KlarnapaymentConstants;
-import com.klarna.payment.facades.KlarnaConfigFacade;
 import com.klarna.payment.util.KlarnaServicesUtil;
-
-
-
-
+import com.klarna.payment.util.LogHelper;
 
 
 public class KlarnaInteroperabilityDataPopulator implements Populator<AbstractOrderModel, KlarnaInteroperabilityDataDTO>
 {
+
+	private static final Logger LOG = Logger.getLogger(KlarnaInteroperabilityDataPopulator.class.getName());
 
 	@Resource
 	private Converter<AbstractOrderEntryModel, KlarnaLineItemDTO> klarnaLineItemConverter;
 
 	@Resource(name = "configurationService")
 	private ConfigurationService configurationService;
-	@Resource(name = "klarnaConfigFacade")
-	KlarnaConfigFacade klarnaConfigFacade;
 
 	@Resource
 	private KlarnaServicesUtil klarnaServicesUtil;
@@ -51,14 +47,7 @@ public class KlarnaInteroperabilityDataPopulator implements Populator<AbstractOr
 
 		final KlarnaContentDTO content = new KlarnaContentDTO();
 		final KlarnaShareRequestDTO request = new KlarnaShareRequestDTO();
-
-		final KlarnaConfigData klarnaConfig = klarnaConfigFacade.getKlarnaConfig();
-		if (Boolean.TRUE.equals(klarnaConfig.getShareShoppingData()))
-		{
-			request.setSupplementaryPurchaseData(klarnaSupplementaryPurchaseDataConverter.convert(source));
-		}
-		// TODO - ASk if this is needed
-
+		request.setSupplementaryPurchaseData(klarnaSupplementaryPurchaseDataConverter.convert(source));
 		request.setAmount(klarnaServicesUtil.calculateTotalAmount(source));
 		content.setOperation(
 				configurationService.getConfiguration().getString(KlarnapaymentConstants.KLARNA_INTEROPERABILITY_DATA_OPERATION));
@@ -68,7 +57,8 @@ public class KlarnaInteroperabilityDataPopulator implements Populator<AbstractOr
 		target.setContentType(
 				configurationService.getConfiguration().getString(KlarnapaymentConstants.KLARNA_INTEROPERABILITY_DATA_CONTENT_TYPE));
 
-
+		// TODO Remove after testing
+		LogHelper.debugLog(LOG, "Interoperability Data:: " + klarnaServicesUtil.convertRequestDtoToString(target));
 	}
 
 }

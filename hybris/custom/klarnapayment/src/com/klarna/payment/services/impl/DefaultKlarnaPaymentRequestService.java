@@ -15,7 +15,6 @@ import com.klarna.integration.dto.KlarnaInteroperabilityDataDTO;
 import com.klarna.integration.dto.KlarnaPaymentRequestPayloadDTO;
 import com.klarna.integration.enums.TransactionTypeEnum;
 import com.klarna.integration.service.KlarnaIntegrationService;
-import com.klarna.integration.util.KlarnaIntegrationUtil;
 import com.klarna.payment.services.KlarnaPaymentRequestService;
 import com.klarna.payment.util.KlarnaServicesUtil;
 
@@ -31,9 +30,6 @@ public class DefaultKlarnaPaymentRequestService implements KlarnaPaymentRequestS
 
 	@Resource
 	private KlarnaServicesUtil klarnaServicesUtil;
-
-	@Resource
-	private KlarnaIntegrationUtil klarnaIntegrationUtil;
 
 	@Resource
 	private Converter<AbstractOrderModel, KlarnaPaymentRequestPayloadDTO> klarnaPaymentRequestPayloadConverter;

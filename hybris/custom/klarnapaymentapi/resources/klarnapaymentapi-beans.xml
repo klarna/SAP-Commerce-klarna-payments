@@ -1563,6 +1563,9 @@
 		<property name="customerInteractionConfig" type="com.klarna.integration.dto.KlarnaCustomerInteractionConfigDTO">
 			<annotations>@JsonProperty("customer_interaction_config")</annotations>
 		</property>
+		<property name="additionalData" type="String">
+			<annotations>@JsonProperty("additional_data")</annotations>
+		</property>
 	</bean>
 	
 	<bean class="com.klarna.integration.dto.KlarnaSupplementaryPurchaseDataDTO" >

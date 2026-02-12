@@ -21,6 +21,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.util.Assert;
 
+import com.klarna.api.payments.model.PaymentsAttachment;
 import com.klarna.integration.dto.KlarnaCustomerInteractionConfigDTO;
 import com.klarna.integration.dto.KlarnaPaymentRequestPayloadDTO;
 import com.klarna.integration.dto.KlarnaShippingConfigDTO;
@@ -50,6 +51,9 @@ public class KlarnaPaymentRequestPayloadPopulator implements Populator<AbstractO
 	@Resource
 	private Converter<AbstractOrderModel, KlarnaSupplementaryPurchaseDataDTO> klarnaSupplementaryPurchaseDataConverter;
 
+	@Resource(name = "klarnaAttachmentConverter")
+	private Converter<AbstractOrderModel, PaymentsAttachment> klarnaAttachmentConverter;
+
 
 	@Override
 	public void populate(final AbstractOrderModel source, final KlarnaPaymentRequestPayloadDTO target) throws ConversionException
@@ -61,6 +65,7 @@ public class KlarnaPaymentRequestPayloadPopulator implements Populator<AbstractO
 		target.setAmount(klarnaServicesUtil.calculateTotalAmount(source));
 		target.setPaymentRequestReference(source.getGuid());
 		target.setSupplementaryPurchaseData(klarnaSupplementaryPurchaseDataConverter.convert(source));
+		target.setAdditionalData(klarnaServicesUtil.convertRequestDtoToString(klarnaAttachmentConverter.convert(source)));
 		populateShippingConfig(source, target);
 		populateCustomerInteractionConfig(source, target);
 		populateCollectCustomerProfile(source, target);

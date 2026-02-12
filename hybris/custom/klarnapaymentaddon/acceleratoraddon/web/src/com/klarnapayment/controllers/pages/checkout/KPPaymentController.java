@@ -7,14 +7,14 @@ import de.hybris.platform.acceleratorstorefrontcommons.annotations.RequireHardLo
 import de.hybris.platform.acceleratorstorefrontcommons.controllers.pages.AbstractPageController;
 import de.hybris.platform.commercefacades.i18n.I18NFacade;
 import de.hybris.platform.commercefacades.user.data.AddressData;
+import de.hybris.platform.core.model.order.AbstractOrderModel;
 import de.hybris.platform.core.model.order.CartModel;
 import de.hybris.platform.order.CartService;
+import de.hybris.platform.servicelayer.dto.converter.Converter;
 
 import java.io.IOException;
 
 import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang.StringUtils;
@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.klarna.api.model.ApiException;
 import com.klarna.api.payments.model.KlarnaPaymentAuthCallbackResponse;
+import com.klarna.api.payments.model.PaymentsAttachment;
 import com.klarna.api.payments.model.PaymentsSession;
 import com.klarna.payment.facades.KPPaymentCheckoutFacade;
 import com.klarna.payment.facades.KPPaymentFacade;
@@ -56,6 +57,9 @@ public class KPPaymentController extends AbstractPageController
 	private I18NFacade i18NFacade;
 	@Resource(name = "cartService")
 	private CartService cartService;
+
+	@Resource(name = "klarnaAttachmentConverter")
+	private Converter<AbstractOrderModel, PaymentsAttachment> klarnaAttachmentConverter;
 
 
 	@RequestMapping(value = "/session", method = RequestMethod.GET, produces = "application/json")
@@ -88,6 +92,7 @@ public class KPPaymentController extends AbstractPageController
 		{
 			creditSessionData = kpPaymentFacade.getORcreateORUpdateSession(httpSession, getBillingAddressData(billingAddress), true,
 					true);
+			creditSessionData.setAttachment(klarnaAttachmentConverter.convert(cartService.getSessionCart()));
 
 		}
 		catch (final ApiException | IOException ex)

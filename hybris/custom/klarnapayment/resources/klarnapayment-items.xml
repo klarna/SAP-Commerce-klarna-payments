@@ -853,7 +853,7 @@
 						<persistence type="property" />
 					</attribute>								
 					<attribute qualifier="shareShoppingData" type="java.lang.Boolean">
-						<defaultvalue>Boolean.FALSE</defaultvalue>
+						<defaultvalue>Boolean.TRUE</defaultvalue>
 						<description>Indicates if shopping data should be shared with Klarna in the case of integration via external PSP</description>
 						<modifiers read="true" write="true" optional="false"/>
 						<persistence type="property" />

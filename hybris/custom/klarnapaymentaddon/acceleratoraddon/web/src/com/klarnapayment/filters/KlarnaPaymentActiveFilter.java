@@ -12,10 +12,7 @@ import javax.servlet.http.HttpSession;
 import org.apache.log4j.Logger;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.klarna.api.DefaultMapper;
 import com.klarna.data.KlarnaConfigData;
-import com.klarna.integration.dto.KlarnaInteroperabilityDataDTO;
 import com.klarna.payment.facades.KPPaymentCheckoutFacade;
 import com.klarna.payment.facades.KlarnaConfigFacade;
 import com.klarna.payment.facades.KlarnaPaymentRequestFacade;
@@ -86,37 +83,24 @@ public class KlarnaPaymentActiveFilter extends OncePerRequestFilter
 			return;
 		}
 		else if ((requestURL.contains(KLARNA_PAYMENT_METHOD_URL))
-				&& (!isKlarnaActive(klarnaConfig) || isKlarnaIntegratedViaPSP(klarnaConfig)))
+				&& (isKlarnaIntegratedViaPSP(klarnaConfig)))
 		{
-			session.setAttribute("InterOperabilityData", klarnaPaymentRequestFacade.createKlarnaInteroperabilityData());
 			LogHelper.debugLog(LOG, "External PSP - Redirecting to Default Checkout URL");
+			if (Boolean.TRUE.equals(klarnaConfig.getShareShoppingData()))
+			{
+				klarnaPaymentRequestFacade.createKlarnaInteroperabilityData();
+			}
 			sendRedirect(DEFAULT_PAYMENT_METHOD_URL, request, response);
 			return;
 		}
 
-
-
 		else if (requestURL.contains(DEFAULT_CONFIRMATION))
 		{
-			LogHelper.debugLog(LOG, "Removing the klarna secific session attributes ...");
+			LogHelper.debugLog(LOG, "Removing the klarna specific session attributes ...");
 			session.removeAttribute("sessionId");
 			session.removeAttribute("clientToken");
 		}
 
-		// TODO - REMOVE -
-		if (requestURL.contains(KLARNA_PAYMENT_METHOD_URL))
-		{
-			session.setAttribute("InterOperabilityData", klarnaPaymentRequestFacade.createKlarnaInteroperabilityData());
-			KlarnaInteroperabilityDataDTO dto = (KlarnaInteroperabilityDataDTO) session.getAttribute("InterOperabilityData");
-			final ObjectMapper om = new DefaultMapper();
-
-
-			System.out.println("om.writeValueAsString" + om.writeValueAsString(dto));
-			// TODO - REMOVE -
-
-		}
-
-		//
 		setRequestAttributes(requestURL, klarnaConfig, request);
 		response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
 		response.setHeader("Pragma", "no-cache");
