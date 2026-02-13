@@ -36,7 +36,6 @@ public class AttributeNameEnumEditor extends DefaultEnumEditor
 		Validate.notNull("All parameters are mandatory", new Object[]
 		{ parent, context, listener });
 		final String valueEditor = (String) context.getParameter("valueEditor");
-		System.out.println("type name :: " + valueEditor.substring(valueEditor.indexOf("(") + 1, valueEditor.indexOf(")")));
 		typeString = valueEditor.substring(valueEditor.indexOf("(") + 1, valueEditor.indexOf(")"));
 
 		super.render(parent, context, listener);

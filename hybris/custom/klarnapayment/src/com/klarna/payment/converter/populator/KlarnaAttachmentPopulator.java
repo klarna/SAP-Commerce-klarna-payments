@@ -5,6 +5,7 @@ import de.hybris.platform.commercefacades.user.data.CustomerData;
 import de.hybris.platform.converters.Populator;
 import de.hybris.platform.core.model.order.AbstractOrderModel;
 import de.hybris.platform.core.model.user.CustomerModel;
+import de.hybris.platform.servicelayer.config.ConfigurationService;
 import de.hybris.platform.servicelayer.dto.converter.ConversionException;
 import de.hybris.platform.servicelayer.user.UserService;
 import de.hybris.platform.store.services.BaseStoreService;
@@ -27,6 +28,7 @@ import com.klarna.api.checkout.model.emd.ExtraMerchantDataBody;
 import com.klarna.api.custom.model.PaymentHistoryFull;
 import com.klarna.api.payments.model.PaymentsAttachment;
 import com.klarna.data.KlarnaConfigData;
+import com.klarna.payment.constants.KlarnapaymentConstants;
 import com.klarna.payment.daos.KPOrderDAO;
 import com.klarna.payment.facades.KPCustomerFacade;
 import com.klarna.payment.facades.KlarnaConfigFacade;
@@ -36,6 +38,9 @@ public class KlarnaAttachmentPopulator implements Populator<AbstractOrderModel, 
 {
 
 	protected static final Logger LOG = Logger.getLogger(KlarnaAttachmentPopulator.class);
+
+	@Resource(name = "configurationService")
+	private ConfigurationService configurationService;
 
 	@Resource(name = "klarnaConfigFacade")
 	private KlarnaConfigFacade klarnaConfigFacade;
@@ -64,28 +69,25 @@ public class KlarnaAttachmentPopulator implements Populator<AbstractOrderModel, 
 		if (!kpCustomerFacade.isAnonymousCheckout())
 		{
 			final KlarnaConfigData klarnaConfig = klarnaConfigFacade.getKlarnaConfig();
-			if (klarnaConfig != null && Boolean.TRUE.equals(klarnaConfig.getSendEMD()))
+			final CustomerData customerData = customerFacade.getCurrentCustomer();
+			final String customerUid = customerData.getUid();
+			final CustomerModel customerModel = (CustomerModel) userService.getUserForUID(customerUid);
+			final ExtraMerchantDataBody extraMerchantDataBody = new ExtraMerchantDataBody();
+			extraMerchantDataBody.setCustomerAccountInfo(getCustomerAccountInfo(customerModel));
+			if (Boolean.TRUE.equals(klarnaConfig.getSendOrderHistory()))
 			{
-				final CustomerData customerData = customerFacade.getCurrentCustomer();
-				final String customerUid = customerData.getUid();
-				final CustomerModel customerModel = (CustomerModel) userService.getUserForUID(customerUid);
-				final ExtraMerchantDataBody extraMerchantDataBody = new ExtraMerchantDataBody();
-				extraMerchantDataBody.setCustomerAccountInfo(getCustomerAccountInfo(customerModel));
-				if (Boolean.TRUE.equals(klarnaConfig.getSendOrderHistory()))
-				{
-					extraMerchantDataBody.setPaymentHistoryFull(getPaymentHistoryFull(customerModel));
-				}
-				final PaymentsAttachment paymentsAttachment = new PaymentsAttachment();
-				paymentsAttachment.setContentType("application/vnd.klarna.internal.emd-v2+json");
-				final ObjectMapper om = new DefaultMapper();
-				try
-				{
-					paymentsAttachment.setBody(om.writeValueAsString(extraMerchantDataBody));
-				}
-				catch (final JsonProcessingException e1)
-				{
-					LOG.error(e1);
-				}
+				extraMerchantDataBody.setPaymentHistoryFull(getPaymentHistoryFull(customerModel));
+			}
+			target.setContentType(configurationService.getConfiguration()
+					.getString(KlarnapaymentConstants.KLARNA_INTEROPERABILITY_DATA_CONTENT_TYPE));
+			final ObjectMapper om = new DefaultMapper();
+			try
+			{
+				target.setBody(om.writeValueAsString(extraMerchantDataBody));
+			}
+			catch (final JsonProcessingException e1)
+			{
+				LOG.error(e1);
 			}
 		}
 	}
@@ -107,7 +109,7 @@ public class KlarnaAttachmentPopulator implements Populator<AbstractOrderModel, 
 	{
 		final List<PaymentHistoryFull> paymentHistoryList = new ArrayList<>();
 		final PaymentHistoryFull paymentHistoryFull = kpOrderDAO.getAggregatePaymentHistory(customerModel,
-				baseStoreService.getCurrentBaseStore(), null);
+				baseStoreService.getCurrentBaseStore());
 		paymentHistoryList.add(paymentHistoryFull);
 		return paymentHistoryList;
 	}

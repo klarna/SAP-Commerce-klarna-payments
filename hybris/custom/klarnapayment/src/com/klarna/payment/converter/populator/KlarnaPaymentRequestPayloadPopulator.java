@@ -22,6 +22,7 @@ import org.apache.log4j.Logger;
 import org.springframework.util.Assert;
 
 import com.klarna.api.payments.model.PaymentsAttachment;
+import com.klarna.data.KlarnaConfigData;
 import com.klarna.integration.dto.KlarnaCustomerInteractionConfigDTO;
 import com.klarna.integration.dto.KlarnaPaymentRequestPayloadDTO;
 import com.klarna.integration.dto.KlarnaShippingConfigDTO;
@@ -65,11 +66,10 @@ public class KlarnaPaymentRequestPayloadPopulator implements Populator<AbstractO
 		target.setAmount(klarnaServicesUtil.calculateTotalAmount(source));
 		target.setPaymentRequestReference(source.getGuid());
 		target.setSupplementaryPurchaseData(klarnaSupplementaryPurchaseDataConverter.convert(source));
-		target.setAdditionalData(klarnaServicesUtil.convertRequestDtoToString(klarnaAttachmentConverter.convert(source)));
 		populateShippingConfig(source, target);
 		populateCustomerInteractionConfig(source, target);
 		populateCollectCustomerProfile(source, target);
-
+		populateAttachment(source, target);
 	}
 
 	protected void populateShippingConfig(final AbstractOrderModel source, final KlarnaPaymentRequestPayloadDTO target)
@@ -103,5 +103,14 @@ public class KlarnaPaymentRequestPayloadPopulator implements Populator<AbstractO
 		collectCustomerProfileList.add("profile:phone");
 		collectCustomerProfileList.add("profile:billing_address");
 		target.setCollectCustomerProfile(collectCustomerProfileList);
+	}
+
+	protected void populateAttachment(final AbstractOrderModel source, final KlarnaPaymentRequestPayloadDTO target)
+	{
+		final KlarnaConfigData klarnaConfig = klarnaConfigFacade.getKlarnaConfig();
+		if (klarnaConfig != null && Boolean.TRUE.equals(klarnaConfig.getSendEMD()))
+		{
+			target.setAdditionalData(klarnaServicesUtil.convertRequestDtoToString(klarnaAttachmentConverter.convert(source)));
+		}
 	}
 }

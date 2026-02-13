@@ -32,6 +32,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.klarna.api.expcheckout.model.KlarnaExpCheckoutAuthCallbackRequest;
 import com.klarna.api.expcheckout.model.KlarnaExpCheckoutAuthorizationResponse;
 import com.klarna.api.model.ApiException;
+import com.klarna.api.payments.model.PaymentsOrder;
 import com.klarna.api.payments.model.PaymentsSession;
 import com.klarna.data.KlarnaConfigData;
 import com.klarna.integration.dto.KlarnaPaymentResponsePayloadDTO;
@@ -39,6 +40,7 @@ import com.klarna.payment.data.KlarnaPaymentRequestData;
 import com.klarna.payment.data.KlarnaRejectionResponseData;
 import com.klarna.payment.data.KlarnaRequestData;
 import com.klarna.payment.data.KlarnaShippingChangeResponseData;
+import com.klarna.payment.enums.KlarnaFraudStatusEnum;
 import com.klarna.payment.facades.KPPaymentCheckoutFacade;
 import com.klarna.payment.facades.KPPaymentFacade;
 import com.klarna.payment.facades.KlarnaConfigFacade;
@@ -380,7 +382,7 @@ public class KlarnaExpCheckoutController extends AbstractPageController
 				return false;
 			}
 
-
+			final String redirectUrl = authorizePayment();
 			// TODO Place order
 			return true;
 		}
@@ -519,6 +521,30 @@ public class KlarnaExpCheckoutController extends AbstractPageController
 					+ " saved to session:: " + paymentRequest.getStateContext().getKlarnaNetworkSessionToken());
 		}
 		return true;
+	}
+
+	private String authorizePayment()
+	{
+		try
+		{
+			final PaymentsOrder authorizationResponse = kpPaymentFacade.getPaymentAuthorization(null);
+			if (authorizationResponse != null
+					&& !KlarnaFraudStatusEnum.REJECTED.getValue().equalsIgnoreCase(authorizationResponse.getFraudStatus()))
+			{
+				kpPaymentCheckoutFacade.saveKlarnaOrderId(authorizationResponse);
+				LogHelper.debugLog(LOG, " Saved Klaran Order ID .. ");
+				return authorizationResponse.getRedirectUrl();
+			}
+			else
+			{
+				LOG.error("Payment autthorization failed or rejected.");
+			}
+		}
+		catch (Exception e)
+		{
+			LOG.error("Payment autthorization failed due to Exception::  ", e);
+		}
+		return null;
 	}
 
 	private Map<String, Object> getErrorResponseForShippingAddressChangeUpdate()

@@ -32,7 +32,7 @@ public class KlarnaSupplementaryPurchaseDataPopulator implements Populator<Abstr
 		Assert.notNull(source, "Parameter source cannot be null.");
 		Assert.notNull(target, "Parameter target cannot be null.");
 
-		target.setPurchaseReference(source.getGuid());
+		target.setPurchaseReference(source.getCode());
 
 		populateLineItems(source, target);
 

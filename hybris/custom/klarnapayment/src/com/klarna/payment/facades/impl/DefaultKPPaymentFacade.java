@@ -388,18 +388,18 @@ public class DefaultKPPaymentFacade implements KPPaymentFacade
 				final String moduleversion = Config.getParameter("moduleversion") != null ? Config.getParameter("moduleversion")
 						: "6.0";
 
-				final String USER_AGENT = String.format(
+				final String userAgent = String.format(
 						"Language/Java_%s (Vendor/%s; VM/%s) Module-name-and-version/%s OS/%s Shop-name-and-version/%s",
 						getProperty("java.version"), getProperty("java.vendor"), getProperty("java.vm.name"),
 						modulename + "_" + moduleversion, getProperty("os.name") + "_" + getProperty("os.version"),
 						shoporplatform + "_" + platformversion);
 
-				final String integrationetaData = klarnaIntegrationUtil
+				final String integrationMetaData = klarnaIntegrationUtil
 						.convertRequestDtoToString(klarnaServicesUtil.getKlarnaMetaData());
 
-				LOG.warn(USER_AGENT.toString());
-				LOG.warn("integrationetaData ::: " + integrationetaData);
-				return (new Client(merchanId, sharedSecret, endpoint, USER_AGENT.toString(), integrationetaData));
+				LOG.debug("User Agent :: " + userAgent);
+				LOG.debug("Integration Metadata :: " + integrationMetaData);
+				return (new Client(merchanId, sharedSecret, endpoint, userAgent, integrationMetaData));
 			}
 		}
 		return null;
