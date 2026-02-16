@@ -44,7 +44,6 @@ import com.klarna.api.payments.model.PaymentsMerchantUrls;
 import com.klarna.api.payments.model.PaymentsOrderLine;
 import com.klarna.api.payments.model.PaymentsProductIdentifiers;
 import com.klarna.api.payments.model.PaymentsSession;
-import com.klarna.data.KlarnaConfigData;
 import com.klarna.payment.enums.KlarnaOrderTypeEnum;
 import com.klarna.payment.facades.KlarnaConfigFacade;
 import com.klarna.payment.util.KlarnaConversionUtils;
@@ -144,10 +143,10 @@ public class KlarnaExpCheckoutAuthPayloadPopulator implements Populator<Abstract
 			}
 			target.setBillingAddress(klarnaPaymentsAddressConverter.convert(paymentAddress));
 		}
-		final KlarnaConfigData klarnaConfig = klarnaConfigFacade.getKlarnaConfig();
-		if (klarnaConfig != null && Boolean.TRUE.equals(klarnaConfig.getSendEMD()))
+		final PaymentsAttachment attachment = klarnaAttachmentConverter.convert(source);
+		if (attachment != null && attachment.getBody() != null)
 		{
-			target.setAttachment(klarnaAttachmentConverter.convert(source));
+			target.setAttachment(attachment);
 		}
 	}
 

@@ -10,8 +10,7 @@ import de.hybris.platform.servicelayer.dto.converter.ConversionException;
 import de.hybris.platform.servicelayer.user.UserService;
 import de.hybris.platform.store.services.BaseStoreService;
 
-import java.time.OffsetDateTime;
-import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,9 +19,6 @@ import javax.annotation.Resource;
 import org.apache.log4j.Logger;
 import org.springframework.util.Assert;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.klarna.api.DefaultMapper;
 import com.klarna.api.checkout.model.emd.CustomerAccountInformation;
 import com.klarna.api.checkout.model.emd.ExtraMerchantDataBody;
 import com.klarna.api.custom.model.PaymentHistoryFull;
@@ -32,6 +28,7 @@ import com.klarna.payment.constants.KlarnapaymentConstants;
 import com.klarna.payment.daos.KPOrderDAO;
 import com.klarna.payment.facades.KPCustomerFacade;
 import com.klarna.payment.facades.KlarnaConfigFacade;
+import com.klarna.payment.util.KlarnaServicesUtil;
 
 
 public class KlarnaAttachmentPopulator implements Populator<AbstractOrderModel, PaymentsAttachment>
@@ -60,13 +57,17 @@ public class KlarnaAttachmentPopulator implements Populator<AbstractOrderModel, 
 	@Resource(name = "baseStoreService")
 	private BaseStoreService baseStoreService;
 
+	@Resource
+	private KlarnaServicesUtil klarnaServicesUtil;
+
+
 	@Override
 	public void populate(final AbstractOrderModel source, final PaymentsAttachment target) throws ConversionException
 	{
 		Assert.notNull(source, "Parameter source cannot be null.");
 		Assert.notNull(target, "Parameter target cannot be null.");
 
-		if (!kpCustomerFacade.isAnonymousCheckout())
+		if (!kpCustomerFacade.isAnonymousCheckout() && Boolean.TRUE.equals(klarnaConfigFacade.getKlarnaConfig().getSendEMD()))
 		{
 			final KlarnaConfigData klarnaConfig = klarnaConfigFacade.getKlarnaConfig();
 			final CustomerData customerData = customerFacade.getCurrentCustomer();
@@ -74,21 +75,14 @@ public class KlarnaAttachmentPopulator implements Populator<AbstractOrderModel, 
 			final CustomerModel customerModel = (CustomerModel) userService.getUserForUID(customerUid);
 			final ExtraMerchantDataBody extraMerchantDataBody = new ExtraMerchantDataBody();
 			extraMerchantDataBody.setCustomerAccountInfo(getCustomerAccountInfo(customerModel));
+			extraMerchantDataBody.setOtherDeliveryAddress(new ArrayList<>());
 			if (Boolean.TRUE.equals(klarnaConfig.getSendOrderHistory()))
 			{
 				extraMerchantDataBody.setPaymentHistoryFull(getPaymentHistoryFull(customerModel));
 			}
+			target.setBody(klarnaServicesUtil.convertRequestDtoToString(extraMerchantDataBody));
 			target.setContentType(configurationService.getConfiguration()
 					.getString(KlarnapaymentConstants.KLARNA_INTEROPERABILITY_DATA_CONTENT_TYPE));
-			final ObjectMapper om = new DefaultMapper();
-			try
-			{
-				target.setBody(om.writeValueAsString(extraMerchantDataBody));
-			}
-			catch (final JsonProcessingException e1)
-			{
-				LOG.error(e1);
-			}
 		}
 	}
 
@@ -97,10 +91,10 @@ public class KlarnaAttachmentPopulator implements Populator<AbstractOrderModel, 
 		final List<CustomerAccountInformation> custmerInfoList = new ArrayList<>();
 		final CustomerAccountInformation customerAccountInformation = new CustomerAccountInformation();
 		customerAccountInformation.setUniqueAccountIdentifier(customerModel.getCustomerID());
-		customerAccountInformation.setAccountLastModified(
-				OffsetDateTime.ofInstant(customerModel.getModifiedtime().toInstant(), ZoneId.systemDefault()));
-		customerAccountInformation.setAccountRegistrationDate(
-				OffsetDateTime.ofInstant(customerModel.getCreationtime().toInstant(), ZoneId.systemDefault()));
+		customerAccountInformation
+				.setAccountLastModified(customerModel.getModifiedtime().toInstant().truncatedTo(ChronoUnit.SECONDS));
+		customerAccountInformation
+				.setAccountRegistrationDate(customerModel.getCreationtime().toInstant().truncatedTo(ChronoUnit.SECONDS));
 		custmerInfoList.add(customerAccountInformation);
 		return custmerInfoList;
 	}
@@ -110,6 +104,8 @@ public class KlarnaAttachmentPopulator implements Populator<AbstractOrderModel, 
 		final List<PaymentHistoryFull> paymentHistoryList = new ArrayList<>();
 		final PaymentHistoryFull paymentHistoryFull = kpOrderDAO.getAggregatePaymentHistory(customerModel,
 				baseStoreService.getCurrentBaseStore());
+		paymentHistoryFull.setUniqueAccountIdentifier(customerModel.getCustomerID());
+		paymentHistoryFull.setPaymentOption("other");
 		paymentHistoryList.add(paymentHistoryFull);
 		return paymentHistoryList;
 	}

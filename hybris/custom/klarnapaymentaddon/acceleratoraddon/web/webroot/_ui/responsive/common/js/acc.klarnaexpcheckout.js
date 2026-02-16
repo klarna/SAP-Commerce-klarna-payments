@@ -11,7 +11,7 @@ ACC.klarnaexpcheckout = {
 	        locale: klarnaLocale,
 	        on_click: (authorize) => {
 			  	ACC.klarnaexpcheckout.getOrderPayload().done(function(payLoadResult) {
-				    var payload = payLoadResult;
+				    //var payload = payLoadResult;
 				    //console.log("Payload: ", JSON.stringify(payLoadResult));
 				    var collectShippingAddress = true;
 					var autoFinalize = false; // autoFinalize should always be false as order review step is mandatory			
@@ -169,6 +169,7 @@ ACC.klarnaexpcheckout = {
 			    }			
 			    window.KlarnaV2._completedRequests.add(key);					    
 		        if (paymentRequest) {
+					//console.log("Payment Request: ", JSON.stringify(paymentRequest)); 
 		            const paymentCompleteResponse = await ACC.klarnaexpcheckout.onPaymentComplete(paymentRequest);
 		            if(integratedViaPSP) {
 						return false;
@@ -205,7 +206,7 @@ ACC.klarnaexpcheckout = {
 			    	ACC.klarnaexpcheckout.showMessage($("#klarnaExpCheckoutErrorMessage").val());
 	                return;
 	            }
-	             console.log("paymentResponse.paymentRequestId:: "+paymentResponse.payment_request_id);
+	            // console.log("paymentResponse.paymentRequestId:: "+paymentResponse.payment_request_id);
 				// TODO Polling
 				var paymentRequestId = { paymentRequestId: paymentResponse.payment_request_id };
 	            return paymentRequestId;

@@ -31,10 +31,8 @@ import com.klarna.api.model.ApiException;
 import com.klarna.api.payments.model.KlarnaPaymentAuthCallbackResponse;
 import com.klarna.api.payments.model.PaymentsAttachment;
 import com.klarna.api.payments.model.PaymentsSession;
-import com.klarna.data.KlarnaConfigData;
 import com.klarna.payment.facades.KPPaymentCheckoutFacade;
 import com.klarna.payment.facades.KPPaymentFacade;
-import com.klarna.payment.facades.KlarnaConfigFacade;
 import com.klarna.payment.model.KPPaymentInfoModel;
 import com.klarna.payment.util.KlarnaDateFormatterUtil;
 import com.klarna.payment.util.LogHelper;
@@ -62,9 +60,6 @@ public class KPPaymentController extends AbstractPageController
 
 	@Resource(name = "klarnaAttachmentConverter")
 	private Converter<AbstractOrderModel, PaymentsAttachment> klarnaAttachmentConverter;
-
-	@Resource(name = "klarnaConfigFacade")
-	private KlarnaConfigFacade klarnaConfigFacade;
 
 
 	@RequestMapping(value = "/session", method = RequestMethod.GET, produces = "application/json")
@@ -97,10 +92,10 @@ public class KPPaymentController extends AbstractPageController
 		{
 			creditSessionData = kpPaymentFacade.getORcreateORUpdateSession(httpSession, getBillingAddressData(billingAddress), true,
 					true);
-			final KlarnaConfigData klarnaConfig = klarnaConfigFacade.getKlarnaConfig();
-			if (klarnaConfig != null && Boolean.TRUE.equals(klarnaConfig.getSendEMD()))
+			final PaymentsAttachment attachment = klarnaAttachmentConverter.convert(cartService.getSessionCart());
+			if (attachment != null && attachment.getBody() != null)
 			{
-				creditSessionData.setAttachment(klarnaAttachmentConverter.convert(cartService.getSessionCart()));
+				creditSessionData.setAttachment(attachment);
 			}
 		}
 		catch (final ApiException | IOException ex)

@@ -9,29 +9,29 @@ import de.hybris.platform.servicelayer.search.SearchResult;
 import de.hybris.platform.store.BaseStoreModel;
 
 import java.math.BigDecimal;
-import java.time.OffsetDateTime;
-import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.Logger;
 
 import com.klarna.api.custom.model.PaymentHistoryFull;
 import com.klarna.payment.daos.KPOrderDAO;
 import com.klarna.payment.util.KlarnaConversionUtils;
+import com.klarna.payment.util.LogHelper;
 
 
 public class DefaultKPOrderDAO implements KPOrderDAO
 {
 
-	private static final Logger LOG = LoggerFactory.getLogger(DefaultKPOrderDAO.class);
+	private static final Logger LOG = Logger.getLogger(DefaultKPOrderDAO.class);
 
 	private static final String ORDER_HISTORY_QUERY = "SELECT COUNT({o:" + OrderModel.PK + "}) AS orderCount, " + " SUM({o:"
 			+ OrderModel.TOTALPRICE + "} + {o:" + OrderModel.TOTALTAX + "} + COALESCE({o:" + OrderModel.DELIVERYCOST
-			+ "},0) + COALESCE({o:" + OrderModel.PAYMENTCOST + "},0))  AS totalAmount, " + " MAX({o:" + OrderModel.DATE
-			+ "}) AS lastOrderDate, " + "FROM {" + OrderModel._TYPECODE + " AS o} " + "WHERE {o:" + OrderModel.USER
+			+ "},0) + COALESCE({o:" + OrderModel.PAYMENTCOST + "},0))  AS totalAmount, " + " MIN({o:" + OrderModel.DATE
+			+ "}) AS firstOrderDate, " + " MAX({o:" + OrderModel.DATE + "}) AS lastOrderDate " + "FROM {" + OrderModel._TYPECODE
+			+ " AS o} " + "WHERE {o:" + OrderModel.USER
 			+ "} = ?user AND {o:" + OrderModel.STORE + "} = ?store ";
 
 	private FlexibleSearchService flexibleSearchService;
@@ -77,11 +77,11 @@ public class DefaultKPOrderDAO implements KPOrderDAO
 	@Override
 	public PaymentHistoryFull getAggregatePaymentHistory(final UserModel user, final BaseStoreModel baseStore)
 	{
-
-		final FlexibleSearchQuery fsq = new FlexibleSearchQuery(ORDER_HISTORY_QUERY);
+		LogHelper.debugLog(LOG, ORDER_HISTORY_QUERY);
+		final FlexibleSearchQuery fsq = new FlexibleSearchQuery("Order History Query :: " + ORDER_HISTORY_QUERY);
 		fsq.addQueryParameter("user", user);
 		fsq.addQueryParameter("store", baseStore);
-		fsq.setResultClassList(Arrays.asList(Integer.class, BigDecimal.class, Date.class));
+		fsq.setResultClassList(Arrays.asList(Integer.class, BigDecimal.class, Date.class, Date.class));
 		final SearchResult<List<Object>> result = flexibleSearchService.search(fsq);
 
 		final PaymentHistoryFull paymentHistoryFull = new PaymentHistoryFull();
@@ -92,9 +92,12 @@ public class DefaultKPOrderDAO implements KPOrderDAO
 			paymentHistoryFull
 					.setTotalAmountPaidPurchases(
 							KlarnaConversionUtils.getKlarnaLongValue((BigDecimal) result.getResult().get(0).get(1)));
-			final Date lastOrderDate = (Date) result.getResult().get(0).get(2);
+			final Date firstOrderDate = (Date) result.getResult().get(0).get(2);
 			paymentHistoryFull
-					.setDateOfLastPaidPurchase(OffsetDateTime.ofInstant(lastOrderDate.toInstant(), ZoneId.systemDefault()));
+					.setDateOfFirstPaidPurchase(firstOrderDate.toInstant().truncatedTo(ChronoUnit.SECONDS));
+			final Date lastOrderDate = (Date) result.getResult().get(0).get(3);
+			paymentHistoryFull
+					.setDateOfLastPaidPurchase(lastOrderDate.toInstant().truncatedTo(ChronoUnit.SECONDS));
 		}
 		else
 		{

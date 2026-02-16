@@ -5,10 +5,13 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:aop="http://www.springframework.org/schema/aop"
+    xmlns:util="http://www.springframework.org/schema/util"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
            http://www.springframework.org/schema/beans/spring-beans.xsd
            http://www.springframework.org/schema/aop
-           http://www.springframework.org/schema/aop/spring-aop.xsd">
+           http://www.springframework.org/schema/aop/spring-aop.xsd
+           http://www.springframework.org/schema/util
+           http://www.springframework.org/schema/util/spring-util.xsd">
 	
     <bean id="klarnapaymentapiSystemSetup" class="com.klarna.api.setup.KlarnapaymentapiSystemSetup">
         <!-- constructor arg injection example -->
@@ -39,7 +42,29 @@
 	            <value>false</value>
 	        </list>   
 	    </property>
-	</bean>
+	</bean>	
+	
+	<bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+        <property name="targetObject" ref="klarnaObjectMapper"/>
+        <property name="targetMethod" value="registerModule"/>
+        <property name="arguments">
+            <list>
+                <bean class="com.fasterxml.jackson.datatype.jsr310.JavaTimeModule"/>
+            </list>
+        </property>
+    </bean> 	
+    
+    
+	<bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+        <property name="targetObject" ref="klarnaObjectMapper"/>
+        <property name="targetMethod" value="disable"/>
+        <property name="arguments">
+            <list>
+                <util:constant static-field="com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS"/>
+            </list>
+        </property>
+    </bean>
+    
     	    
 	<bean id="httpRequestFactory" class="org.springframework.http.client.HttpComponentsClientHttpRequestFactory">
 	    <property name="connectTimeout" value="10000"/>

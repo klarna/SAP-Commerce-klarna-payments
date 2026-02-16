@@ -22,12 +22,10 @@ import org.apache.log4j.Logger;
 import org.springframework.util.Assert;
 
 import com.klarna.api.payments.model.PaymentsAttachment;
-import com.klarna.data.KlarnaConfigData;
 import com.klarna.integration.dto.KlarnaCustomerInteractionConfigDTO;
 import com.klarna.integration.dto.KlarnaPaymentRequestPayloadDTO;
 import com.klarna.integration.dto.KlarnaShippingConfigDTO;
 import com.klarna.integration.dto.KlarnaSupplementaryPurchaseDataDTO;
-import com.klarna.payment.facades.KlarnaConfigFacade;
 import com.klarna.payment.util.KlarnaServicesUtil;
 
 
@@ -36,9 +34,6 @@ public class KlarnaPaymentRequestPayloadPopulator implements Populator<AbstractO
 
 	protected static final Logger LOG = Logger.getLogger(KlarnaPaymentRequestPayloadPopulator.class);
 
-
-	@Resource
-	private KlarnaConfigFacade klarnaConfigFacade;
 
 	@Resource
 	private KlarnaServicesUtil klarnaServicesUtil;
@@ -107,8 +102,8 @@ public class KlarnaPaymentRequestPayloadPopulator implements Populator<AbstractO
 
 	protected void populateAttachment(final AbstractOrderModel source, final KlarnaPaymentRequestPayloadDTO target)
 	{
-		final KlarnaConfigData klarnaConfig = klarnaConfigFacade.getKlarnaConfig();
-		if (klarnaConfig != null && Boolean.TRUE.equals(klarnaConfig.getSendEMD()))
+		final PaymentsAttachment attachment = klarnaAttachmentConverter.convert(source);
+		if (attachment != null && attachment.getBody() != null)
 		{
 			target.setAdditionalData(klarnaServicesUtil.convertRequestDtoToString(klarnaAttachmentConverter.convert(source)));
 		}

@@ -1078,11 +1078,29 @@
 
 	<bean
 		class="com.klarna.api.checkout.model.emd.CustomerAccountInformation">
-		<property name="uniqueAccountIdentifier" type="String" />
-		<property name="accountRegistrationDate"
-			type="java.time.OffsetDateTime" />
-		<property name="accountLastModified"
-			type="java.time.OffsetDateTime" />
+		<import type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
+		<import type="com.fasterxml.jackson.annotation.JsonProperty" />
+		<property name="uniqueAccountIdentifier" type="String" >
+			<annotations>@JsonProperty("unique_account_identifier")</annotations>	
+		</property>
+		<property name="accountRegistrationDate" type="java.time.Instant" >
+			<annotations>
+				@JsonProperty("account_registration_date")			
+				@com.fasterxml.jackson.annotation.JsonFormat(
+				            pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'",
+				            timezone = "UTC"
+				        )			
+			</annotations>	
+		</property>
+		<property name="accountLastModified" type="java.time.Instant" >
+			<annotations>
+				@JsonProperty("account_last_modified")			
+				@com.fasterxml.jackson.annotation.JsonFormat(
+				            pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'",
+				            timezone = "UTC"
+				        )			
+			</annotations>		
+		</property>
 	</bean>
 
 	<bean
@@ -1090,11 +1108,16 @@
 		<import type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
 		<import type="com.fasterxml.jackson.annotation.JsonProperty" />
 		<property name="customerAccountInfo"
-			type="java.util.List&lt;com.klarna.api.checkout.model.emd.CustomerAccountInformation&gt;"></property>
+			type="java.util.List&lt;com.klarna.api.checkout.model.emd.CustomerAccountInformation&gt;">
+			<annotations>@JsonProperty("customer_account_info")</annotations>	
+		</property>	
 		<property name="paymentHistoryFull"
 			type="java.util.List&lt;com.klarna.api.custom.model.PaymentHistoryFull&gt;">
 			<annotations>@JsonProperty("payment_history_full")</annotations>	
 		</property>	
+		<property name="otherDeliveryAddress" type="java.util.List&lt;com.klarna.api.payments.model.PaymentsAddress&gt;">
+			<annotations>@JsonProperty("other_delivery_address")</annotations>
+		</property>
 	</bean>
 
 	<bean
@@ -1464,13 +1487,25 @@
 		<property name="totalAmountPaidPurchases" type="Long">
 			<annotations>@JsonProperty("total_amount_paid_purchases")</annotations>
 		</property>
-		<property name="dateOfLastPaidPurchase" type="java.time.OffsetDateTime">
-			<annotations>@JsonProperty("date_of_last_paid_purchase")</annotations>
+		<property name="dateOfFirstPaidPurchase" type="java.time.Instant">		
+			<annotations>
+				@JsonProperty("date_of_first_paid_purchase")			
+				@com.fasterxml.jackson.annotation.JsonFormat(
+				            pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'",
+				            timezone = "UTC"
+				        )			
+			</annotations>		
 		</property>
-	</bean>
-	
-	
-	
+		<property name="dateOfLastPaidPurchase" type="java.time.Instant">		
+			<annotations>
+				@JsonProperty("date_of_last_paid_purchase")			
+				@com.fasterxml.jackson.annotation.JsonFormat(
+				            pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'",
+				            timezone = "UTC"
+				        )			
+			</annotations>		
+		</property>
+	</bean>		
 		
 	
 	
