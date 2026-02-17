@@ -379,10 +379,10 @@
 			<annotations>@JsonProperty("totalTaxAmount")</annotations>
 		</property>
 		<property name="unitPrice" type="Long">
-			<annotations>@JsonProperty("unit_price")</annotations>
-		</property>
-		<property name="currency" type="Long">
 			<annotations>@JsonProperty("unitPrice")</annotations>
+		</property>
+		<property name="currency" type="String">
+			<annotations>@JsonProperty("currency")</annotations>
 		</property>
 		<property name="productUrl" type="String">
 			<annotations>@JsonProperty("productUrl")</annotations>
@@ -396,12 +396,12 @@
 		<property name="lineItemReference" type="String">
 			<annotations>@JsonProperty("lineItemReference")</annotations>
 		</property>
-		<property name="shippingReference" type="String">
+		<!-- <property name="shippingReference" type="String">
 			<annotations>@JsonProperty("shippingReference")</annotations>
 		</property>
 		<property name="subscriptionReference" type="String">
 			<annotations>@JsonProperty("subscriptionReference")</annotations>
-		</property>
+		</property> -->
 	</bean>
 	
 	<bean class="com.klarna.payment.data.KlarnaShippingOptionData">
@@ -419,9 +419,9 @@
 		<property name="shippingOptionReference" type="String">
 			<annotations>@JsonProperty("shippingOptionReference")</annotations>
 		</property>	
-		<property name="shippingType" type="String">
+		<!-- <property name="shippingType" type="String">
 			<annotations>@JsonProperty("shippingType")</annotations>
-		</property>
+		</property> -->
 	</bean>
 	
 	<bean class="com.klarna.payment.data.KlarnaWebhookData">

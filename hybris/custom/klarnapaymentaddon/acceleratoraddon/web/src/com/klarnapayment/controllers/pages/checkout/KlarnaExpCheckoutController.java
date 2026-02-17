@@ -265,12 +265,6 @@ public class KlarnaExpCheckoutController extends AbstractPageController
 				LOG.error("Invalid shipping address update request");
 				return getErrorResponseForShippingAddressChangeUpdate();
 			}
-			AddressData addressData = klarnaExpCheckoutFacade.getAddressData(requestData.getShippingAddress());
-			if (!klarnaExpCheckoutFacade.isValidAddress(addressData))
-			{
-				LOG.error("Invalid shipping address.");
-				return getErrorResponseForShippingAddressChangeUpdate();
-			}
 			if (!klarnaExpCheckoutHelper.validateExpressCheckoutCart())
 			{
 				return getErrorResponseForShippingAddressChangeUpdate();
@@ -281,8 +275,12 @@ public class KlarnaExpCheckoutController extends AbstractPageController
 				LOG.error("Invalid checkout user.");
 				return getErrorResponseForShippingAddressChangeUpdate();
 			}
-			if (setDeliveryDetails(addressData))
+			boolean setShippingAddress = klarnaExpCheckoutFacade.setShippingAddress(requestData);
+			if (setShippingAddress)
 			{
+				LogHelper.debugLog(LOG, "Shipping address set successfully!");
+				// Set cheapest delivery method available
+				//checkoutFacade.setCheapestDeliveryModeForCheckout();
 				final KlarnaShippingChangeResponseData shippingAddressChangeResponse = klarnaExpCheckoutFacade
 						.getShippingChangeResponse();
 				Map<String, Object> successResponse = new HashMap<>();

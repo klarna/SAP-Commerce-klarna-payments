@@ -288,11 +288,7 @@ public class DefaultKlarnaExpCheckoutFacade implements KlarnaExpCheckoutFacade
 		{
 			return false;
 		}
-		if (!setBillingAddress(requestData))
-		{
-			return false;
-		}
-		return true;
+		return setBillingAddress(requestData);
 	}
 
 	@Override
@@ -398,7 +394,7 @@ public class DefaultKlarnaExpCheckoutFacade implements KlarnaExpCheckoutFacade
 
 	private void addRecipientNameToAddress(final AddressData address, final KlarnaPaymentRequestData paymentRequestData)
 	{
-		if (address != null && paymentRequestData.getStateContext().getShipping() != null
+		if (address != null && paymentRequestData != null && paymentRequestData.getStateContext().getShipping() != null
 				&& paymentRequestData.getStateContext().getShipping().getRecipient() != null)
 		{
 			address.setFirstName(paymentRequestData.getStateContext().getShipping().getRecipient().getGivenName());

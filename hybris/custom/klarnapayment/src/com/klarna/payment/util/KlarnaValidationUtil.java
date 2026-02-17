@@ -15,6 +15,7 @@ public final class KlarnaValidationUtil
 
 	public boolean validateSignature(final String requestBody, final String signature, final String savedSigningKey)
 	{
+		LogHelper.debugLog(LOG, "Validating Webhook Signature");
 		try
 		{
 			final byte[] derivedSignature = hmacSha256(requestBody.getBytes(StandardCharsets.UTF_8),
@@ -24,7 +25,7 @@ public final class KlarnaValidationUtil
 		}
 		catch (final Exception e)
 		{
-			LOG.error("Signature validation failed. Exception :: ", e);
+			LOG.error("Signature validation failed due to Exception :: ", e);
 			return false;
 		}
 

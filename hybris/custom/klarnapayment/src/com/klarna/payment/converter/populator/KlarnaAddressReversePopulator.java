@@ -18,8 +18,10 @@ public class KlarnaAddressReversePopulator implements Populator<KlarnaAddressDat
 	public void populate(final KlarnaAddressData source, final AddressData target)
 			throws ConversionException
 	{
-		target.setLine1(source.getStreetAddress());
-		target.setLine2(source.getStreetAddress2());
+		target.setFirstName("Dummy FirstName");
+		target.setLastName("Dummy LastName");
+		target.setLine1((StringUtils.isNotEmpty(source.getStreetAddress())) ? source.getStreetAddress() : "Dummy Line1");
+		target.setLine2((StringUtils.isNotEmpty(source.getStreetAddress2())) ? source.getStreetAddress2() : "Dummy Line2");
 		target.setTown(source.getCity());
 		target.setPostalCode(source.getPostalCode());
 		if (StringUtils.isNotEmpty(source.getCountry()))

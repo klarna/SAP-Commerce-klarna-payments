@@ -47,8 +47,8 @@ public class KlarnaLineItemDataPopulator implements Populator<AbstractOrderEntry
 		target.setQuantity(source.getQuantity());
 		target.setUnitPrice(KlarnaConversionUtils.getKlarnaLongValue(source.getBasePrice()));
 		target.setTotalAmount(KlarnaConversionUtils.getKlarnaLongValue(source.getTotalPrice()));
-
 		final String currencyCode = source.getOrder().getCurrency().getIsocode();
+		target.setCurrency(source.getOrder().getCurrency().getIsocode());
 		if (klarnaConfigFacade.isNorthAmerianKlarnaPayment())
 		{
 			target.setTotalTaxAmount(Long.valueOf(0));
@@ -59,7 +59,7 @@ public class KlarnaLineItemDataPopulator implements Populator<AbstractOrderEntry
 		}
 
 		final ProductModel product = source.getProduct();
-		target.setLineItemReference(product.getCode());
+		target.setLineItemReference(source.getEntryNumber().toString());
 		target.setName(product.getName());
 		target.setProductIdentifier(product.getCode());
 

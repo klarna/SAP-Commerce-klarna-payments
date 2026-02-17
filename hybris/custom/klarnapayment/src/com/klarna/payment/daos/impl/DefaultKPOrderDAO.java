@@ -88,16 +88,35 @@ public class DefaultKPOrderDAO implements KPOrderDAO
 
 		if (result != null && result.getCount() > 0)
 		{
-			paymentHistoryFull.setNumberPaidPurchases((Integer) result.getResult().get(0).get(0));
-			paymentHistoryFull
-					.setTotalAmountPaidPurchases(
-							KlarnaConversionUtils.getKlarnaLongValue((BigDecimal) result.getResult().get(0).get(1)));
-			final Date firstOrderDate = (Date) result.getResult().get(0).get(2);
-			paymentHistoryFull
-					.setDateOfFirstPaidPurchase(firstOrderDate.toInstant().truncatedTo(ChronoUnit.SECONDS));
-			final Date lastOrderDate = (Date) result.getResult().get(0).get(3);
-			paymentHistoryFull
-					.setDateOfLastPaidPurchase(lastOrderDate.toInstant().truncatedTo(ChronoUnit.SECONDS));
+			final List<Object> resultObject = result.getResult().get(0);
+			paymentHistoryFull.setNumberPaidPurchases((Integer) resultObject.get(0));
+			if (resultObject.get(1) != null)
+			{
+				paymentHistoryFull.setTotalAmountPaidPurchases(
+						KlarnaConversionUtils.getKlarnaLongValue((BigDecimal) result.getResult().get(0).get(1)));
+			}
+			else
+			{
+				paymentHistoryFull.setTotalAmountPaidPurchases(0L);
+			}
+			if (resultObject.get(2) != null)
+			{
+				final Date firstOrderDate = (Date) result.getResult().get(0).get(2);
+				paymentHistoryFull.setDateOfFirstPaidPurchase(firstOrderDate.toInstant().truncatedTo(ChronoUnit.SECONDS));
+			}
+			else
+			{
+				paymentHistoryFull.setDateOfFirstPaidPurchase((new Date()).toInstant().truncatedTo(ChronoUnit.SECONDS));
+			}
+			if (resultObject.get(3) != null)
+			{
+				final Date lastOrderDate = (Date) result.getResult().get(0).get(3);
+				paymentHistoryFull.setDateOfLastPaidPurchase(lastOrderDate.toInstant().truncatedTo(ChronoUnit.SECONDS));
+			}
+			else
+			{
+				paymentHistoryFull.setDateOfLastPaidPurchase((new Date()).toInstant().truncatedTo(ChronoUnit.SECONDS));
+			}
 		}
 		else
 		{

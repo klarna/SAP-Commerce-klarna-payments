@@ -11,8 +11,7 @@ import java.util.List;
 import javax.annotation.Resource;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.Logger;
 
 import com.klarna.data.KlarnaConfigData;
 import com.klarna.integration.dto.KlarnaCreateWebhookPayloadDTO;
@@ -31,11 +30,12 @@ import com.klarna.payment.data.KlarnaWebhookData;
 import com.klarna.payment.data.KlarnaWebhookMetaData;
 import com.klarna.payment.services.KlarnaWebhookService;
 import com.klarna.payment.util.KlarnaServicesUtil;
+import com.klarna.payment.util.LogHelper;
 
 
 public class DefaultKlarnaWebhookService implements KlarnaWebhookService
 {
-	private static final Logger LOG = LoggerFactory.getLogger(DefaultKlarnaWebhookService.class);
+	private static final Logger LOG = Logger.getLogger(DefaultKlarnaWebhookService.class);
 
 	@Resource
 	private KlarnaWebhookDAO klarnaWebhookDAO;
@@ -130,6 +130,7 @@ public class DefaultKlarnaWebhookService implements KlarnaWebhookService
 	@Override
 	public boolean saveWebhookNotification(final String requestBody)
 	{
+		LogHelper.debugLog(LOG, "Entering saveWebhookNotification method");
 		try
 		{
 			final KlarnaWebhookData klarnaWebhookData = klarnaIntegrationUtil.convertResponseStringToDto(requestBody, KlarnaWebhookData.class);
@@ -138,6 +139,7 @@ public class DefaultKlarnaWebhookService implements KlarnaWebhookService
 				LOG.error("Invalid webhook notification format.");
 				return false;
 			}
+			LogHelper.debugLog(LOG, "Webhook request is valid. Going to save webhook data");
 			final KlarnaWebhookMetaData metadata = klarnaWebhookData.getMetadata();
 			final KlarnaWebhookNotificationModel klarnaWebhookNotificationModel = modelService
 					.create(KlarnaWebhookNotificationModel.class);

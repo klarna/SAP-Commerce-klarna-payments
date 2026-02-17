@@ -7,8 +7,7 @@ import de.hybris.platform.site.BaseSiteService;
 import javax.annotation.Resource;
 
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.Logger;
 
 import com.klarna.data.KlarnaConfigData;
 import com.klarna.integration.dto.KlarnaCreateWebhookResponseDTO;
@@ -18,12 +17,13 @@ import com.klarna.payment.facades.KlarnaConfigFacade;
 import com.klarna.payment.facades.KlarnaWebhookFacade;
 import com.klarna.payment.services.KlarnaWebhookService;
 import com.klarna.payment.util.KlarnaValidationUtil;
+import com.klarna.payment.util.LogHelper;
 
 
 public class DefaultKlarnaWebhookFacade implements KlarnaWebhookFacade
 {
 
-	private static final Logger LOG = LoggerFactory.getLogger(DefaultKlarnaWebhookFacade.class);
+	private static final Logger LOG = Logger.getLogger(DefaultKlarnaWebhookFacade.class);
 
 	@Resource
 	private KlarnaWebhookService klarnaWebhookService;
@@ -65,7 +65,7 @@ public class DefaultKlarnaWebhookFacade implements KlarnaWebhookFacade
 			klarnaWebhookModel.setStatus(responseDTO.getWebhoookPayload().getStatus());
 			modelService.save(klarnaWebhookModel);
 			modelService.refresh(klarnaWebhookModel);
-			LOG.debug("Created Webhook with ID: {}", responseDTO.getWebhoookPayload().getWebhookId());
+			LogHelper.debugLog(LOG, "Created Webhook with ID: " + responseDTO.getWebhoookPayload().getWebhookId());
 			return true;
 		}
 		else
@@ -87,7 +87,7 @@ public class DefaultKlarnaWebhookFacade implements KlarnaWebhookFacade
 		final KlarnaWebhookModel klarnaWebhookModel = klarnaWebhookService.getWebhookForBaseSite(baseSite);
 		if (klarnaWebhookModel == null)
 		{
-			LOG.debug("Webhook doesn't exist for the Base Site {} ", baseSite.getUid());
+			LogHelper.debugLog(LOG, "Webhook doesn't exist for the Base Site : " + baseSite.getUid());
 			return true;
 		}
 		if (StringUtils.isNotEmpty(klarnaWebhookModel.getWebhookId()))
@@ -118,7 +118,7 @@ public class DefaultKlarnaWebhookFacade implements KlarnaWebhookFacade
 			klarnaWebhookModel.setSigningKeyId(responseDTO.getSigningKeyPayload().getSigningKeyId());
 			modelService.save(klarnaWebhookModel);
 			modelService.refresh(klarnaWebhookModel);
-			LOG.debug("Created Signing Key with ID: {}", responseDTO.getSigningKeyPayload().getSigningKeyId());
+			LogHelper.debugLog(LOG, "Created Signing Key with ID: " + responseDTO.getSigningKeyPayload().getSigningKeyId());
 			return true;
 		}
 		else
@@ -149,22 +149,12 @@ public class DefaultKlarnaWebhookFacade implements KlarnaWebhookFacade
 	@Override
 	public boolean processWebhookNotification(final String requestBody, final String signature)
 	{
-		if (StringUtils.isEmpty(signature))
-		{
-			LOG.error("Invalid webhook notification. Signature is missing.");
-			return false;
-		}
-		if (StringUtils.isEmpty(requestBody))
-		{
-			LOG.error("Invalid webhook notification. Request body is empty.");
-			return false;
-		}
 		if (klarnaValidationUtil.validateSignature(requestBody, signature, getSavedSigningKey()))
 		{
-			LOG.debug("Signature validation success!");
+			LogHelper.debugLog(LOG, "Signature validation success!");
 			return klarnaWebhookService.saveWebhookNotification(requestBody);
 		}
-
+		LOG.error("Webhook processing failed. Invalid signature!");
 		return false;
 	}
 

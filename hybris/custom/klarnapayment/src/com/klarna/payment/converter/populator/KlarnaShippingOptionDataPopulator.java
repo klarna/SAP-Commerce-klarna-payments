@@ -23,6 +23,6 @@ public class KlarnaShippingOptionDataPopulator implements Populator<DeliveryMode
 		target.setDescription(source.getDescription());
 		target.setDisplayName(source.getName());
 		target.setAmount(KlarnaConversionUtils.getKlarnaLongValue(source.getDeliveryCost().getValue()));
-		target.setShippingType(null);
+		//target.setShippingType(null);
 	}
 }
