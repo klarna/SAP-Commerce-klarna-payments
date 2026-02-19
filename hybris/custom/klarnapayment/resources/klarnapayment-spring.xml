@@ -608,6 +608,11 @@
     <bean id="defaultKlarnaSignInFacade" class="com.klarna.payment.facades.impl.DefaultKlarnaSignInFacade">
     </bean>
     
+    <alias name="defaultKlarnaSignInV1Facade" alias="klarnaSignInV1Facade"/>
+    <bean id="defaultKlarnaSignInV1Facade" class="com.klarna.payment.facades.impl.DefaultKlarnaSignInV1Facade">
+    </bean>
+    
+    
     <alias name="defaultKlarnaAddressReverseConverter" alias="klarnaAddressReverseConverter"/>
      <bean id="defaultKlarnaAddressReverseConverter" parent="abstractPopulatingConverter">
         <property name="targetClass" value="de.hybris.platform.commercefacades.user.data.AddressData"/>

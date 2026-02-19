@@ -54,22 +54,28 @@ document.addEventListener("DOMContentLoaded", async () => {
 		        	        
 		        // Loading Klana sign in Component
 		        // placement Flags
-		    	var currentURL = window.location.href;
-		    	var showInLoginPage = $("#showSIWKInLoginPage").val();
-		    	var showInRegisterPage = $("#showSIWKInRegisterPage").val();
-		    	var showInCheckoutLoginPage = $("#showSIWKInCheckoutLoginPage").val();
-		    	var showSignInButton = false;
-		    	if(currentURL.endsWith("/login/checkout") && (showInCheckoutLoginPage == "true") )
-		    	{
-		    		showSignInButton = true;
-		    	}
-		    	else if(currentURL.endsWith("/login") && (showInLoginPage == "true" || showInRegisterPage == "true") )
-		    	{
-		    		showSignInButton = true;
-		    	}
-	
-		    	if(showSignInButton){
-		    		ACC.signin.initiateSigninButton(window.KlarnaV2.initializedKlarnaSDK);
+		        
+		        const $loadsiwkV1Div = $('#loadsiwkV1Div');
+				const siwkV1Enabled = $loadsiwkV1Div.length > 0 && $loadsiwkV1Div.data('enabled') === true;
+			   
+		    	if (!siwkV1Enabled) {
+			    	var currentURL = window.location.href;
+			    	var showInLoginPage = $("#showSIWKInLoginPage").val();
+			    	var showInRegisterPage = $("#showSIWKInRegisterPage").val();
+			    	var showInCheckoutLoginPage = $("#showSIWKInCheckoutLoginPage").val();
+			    	var showSignInButton = false;
+			    	if(currentURL.endsWith("/login/checkout") && (showInCheckoutLoginPage == "true") )
+			    	{
+			    		showSignInButton = true;
+			    	}
+			    	else if(currentURL.endsWith("/login") && (showInLoginPage == "true" || showInRegisterPage == "true") )
+			    	{
+			    		showSignInButton = true;
+			    	}
+		
+			    	if(showSignInButton){
+			    		ACC.signin.initiateSigninButton(window.KlarnaV2.initializedKlarnaSDK);
+			    	}
 		    	}
 		                
 		    } catch (error) {

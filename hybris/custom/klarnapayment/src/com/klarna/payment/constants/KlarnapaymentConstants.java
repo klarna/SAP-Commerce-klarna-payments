@@ -50,4 +50,6 @@ public final class KlarnapaymentConstants extends GeneratedKlarnapaymentConstant
 	public static final String KLARNA_INTEROPERABILITY_DATA_OPERATION = "klarna.interoperability.data.operation";
 	public static final String KLARNA_INTEROPERABILITY_DATA = "klarnaInteroperabilityData";
 
+	public static final String KLARNA_SIWK_V1_ENABLED = "klarna.sigin.v1.enabled";
+
 }

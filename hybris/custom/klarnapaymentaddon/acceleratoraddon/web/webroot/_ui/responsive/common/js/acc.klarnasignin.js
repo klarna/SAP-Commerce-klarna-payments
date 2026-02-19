@@ -1,6 +1,47 @@
+window.onload = async function() {
+	
+	const $loadsiwkV1Div = $('#loadsiwkV1Div');
+	const siwkV1Enabled = $loadsiwkV1Div.length > 0 && $loadsiwkV1Div.data('enabled') === true;
+	   
+	if (siwkV1Enabled) {
+		// placement Flags
+		var currentURL = window.location.href;
+		var showInLoginPage = $("#showSIWKInLoginPage").val();
+		var showInRegisterPage = $("#showSIWKInRegisterPage").val();
+		var showInCheckoutLoginPage = $("#showSIWKInCheckoutLoginPage").val();
+		var showSignInButton = false;
+		if(currentURL.endsWith("/login/checkout") && (showInCheckoutLoginPage == "true") )
+		{
+			showSignInButton = true;
+		}
+		else if(currentURL.endsWith("/login") && (showInLoginPage == "true" || showInRegisterPage == "true") )
+		{
+			showSignInButton = true;
+		}
+	
+		if(showSignInButton){
+		var clientId			= $("#klarnaClientId").val();
+		var environment			= $("#klarnaEnv").val();
+		var klarnaLocale		= $("#klarnaLocale").val();
+	
+		const klarna = await Klarna.init({
+			clientId:		clientId,
+			environment:	environment,
+			locale:			klarnaLocale
+		});
+		ACC.signin.initiateSigninData(klarna);
+		}
+	}
+};
+
+
+
 ACC.signin = {
 	initiateSigninButton: function (klarna) {
 		console.debug("Entering initiateSigninButton")
+		ACC.signin.initiateSigninData(klarna);
+	},
+	initiateSigninData: function (klarna) {
 		var scopeData			= $("#siwkScopeData").val();
 		var redirectUri			= $("#siwkRedirectUri").val();
 		var buttonTheme			= $("#siwkButtonTheme").val();
@@ -40,7 +81,7 @@ ACC.signin = {
 	
 	},
 	initiateSignInResponse: function (authResponse){
-	console.log("initiateSignInResponse");
+	console.debug("initiateSignInResponse"+authResponse);
 	var initiateSignInResponseUrl = $("#initiateSignInResponseUrl").val();
 		$.ajax(initiateSignInResponseUrl, {
 		        data: JSON.stringify(authResponse),

@@ -17,40 +17,51 @@
 			</cms:pageSlot>
 		</div>
 	</div>
+	<c:choose>
+		<c:when test="${siwkV1Enabled}">
+			<c:set var="baseUrl" value="/klarna/signin/v1" />
+		</c:when>
+		<c:otherwise>
+			<c:set var="baseUrl" value="/klarna/signin" />
+		</c:otherwise>
+	</c:choose>
+	
 	<c:if test="${profileStatus eq 'CREATE_AFTER_CONSENT' }">l
-		<spring:url value="/klarna/signin/create-customer" var="processSigninURL"/>
+		<spring:url value="${baseUrl}/create-customer" var="processSigninURL"/>
 	</c:if>
 	<c:if test="${profileStatus eq 'MERGE_AFTER_CONSENT' }">
-		<spring:url value="/klarna/signin/merge-account" var="processSigninURL"/>
+		<spring:url value="${baseUrl}/merge-account" var="processSigninURL"/>
 	</c:if>
 	<input type="hidden" id="processSigninURL" name="processSigninURL"  value="${processSigninURL}"/>
 	
-	<form:form id="syncAccountForm" action="${processSigninURL}" method="post" modelAttribute="klarnaCustomerData">
+	<c:choose>
+		<c:when test="${siwkV1Enabled}">
+			<form:form id="syncAccountForm" action="${processSigninURL}" method="post" modelAttribute="klarnaSigninResponse">
 		<div class="signin-container">
 			
 			<div class="form-group display-flex">
 				<label class="control-label"><spring:theme code="klarna.signin.userid" /></label>
-				<input class="form-control signin-input" id="userId" type="text" value="${klarnaCustomerData.customerProfile.customerId}" disabled="disabled"/>
+				<input class="form-control signin-input" id="userId" type="text" value="${klarnaSigninResponse.userAccountProfile.userId}" disabled="disabled"/>
 			</div>
 			
 			<div class="form-group display-flex">
 				<label class="control-label"><spring:theme code="address.firstName"/></label>
-				<input class="form-control signin-input" id="givenName" type="text" value="${klarnaCustomerData.customerProfile.givenName}" disabled="disabled"/>
+				<input class="form-control signin-input" id="givenName" type="text" value="${klarnaSigninResponse.userAccountProfile.givenName}" disabled="disabled"/>
 			</div>
 			
 			<div class="form-group display-flex">
 				<label class="control-label"><spring:theme code="address.surname"/></label>
-				<input class="form-control signin-input" id="familyName" type="text" value="${klarnaCustomerData.customerProfile.familyName}" disabled="disabled"/>
+				<input class="form-control signin-input" id="familyName" type="text" value="${klarnaSigninResponse.userAccountProfile.familyName}" disabled="disabled"/>
 			</div>
 			
 			<div class="form-group display-flex">
 				<label class="control-label"><spring:theme code="guest.email"/></label>
-				<input class="form-control signin-input" id="email" type="text" value="${klarnaCustomerData.customerProfile.email}" disabled="disabled"/>
+				<input class="form-control signin-input" id="email" type="text" value="${klarnaSigninResponse.userAccountProfile.email}" disabled="disabled"/>
 			</div>
 			
 			<div class="form-group display-flex">
 				<label class="control-label"><spring:theme code="address.phone" /></label>
-				<input class="form-control signin-input" id="phone" type="text" value="${klarnaCustomerData.customerProfile.phone}" disabled="disabled"/>
+				<input class="form-control signin-input" id="phone" type="text" value="${klarnaSigninResponse.userAccountProfile.phone}" disabled="disabled"/>
 			</div>
 			
 			<c:if test="${profileStatus eq 'CREATE_AFTER_CONSENT' }">
@@ -80,6 +91,69 @@
 			
 		</div>
 	</form:form>
+		</c:when>
+		<c:otherwise>
+			<form:form id="syncAccountForm" action="${processSigninURL}" method="post" modelAttribute="klarnaCustomerData">
+		<div class="signin-container">
+			
+			<div class="form-group display-flex">
+				<label class="control-label"><spring:theme code="klarna.signin.userid" /></label>
+				<input class="form-control signin-input" id="userId" type="text" value="${klarnaCustomerData.customerProfile.customerId}" disabled="disabled"/>
+			</div>
+			
+			<div class="form-group display-flex">
+				<label class="control-label"><spring:theme code="address.firstName"/></label>
+				<input class="form-control signin-input" id="givenName" type="text" value="${klarnaCustomerData.customerProfile.givenName}" disabled="disabled"/>
+			</div>
+			
+			<div class="form-group display-flex">
+				<label class="control-label"><spring:theme code="address.surname"/></label>
+				<input class="form-control signin-input" id="familyName" type="text" value="${klarnaCustomerData.customerProfile.familyName}" disabled="disabled"/>
+			</div>
+			
+			<div class="form-group display-flex">
+				<label class="control-label"><spring:theme code="guest.email"/></label>
+				<input class="form-control signin-input" id="email" type="text" value="${klarnaCustomerData.customerProfile.email}" disabled="disabled"/>
+			</div>
+			
+			<div class="form-group display-flex">
+				<label class="control-label"><spring:theme code="address.phone" /></label>
+				<input class="form-control signin-input" id="phone" type="text" value="${klarnaCustomerData.customerProfile.phone}" disabled="disabled"/>
+			</div>
+			
+			<c:if test="${profileStatus eq 'CREATE_AFTER_CONSENT' }">
+				<spring:url value="${baseUrl}/create-customer" var="processSigninURL"/>
+				<div class="form-group display-flex-plain">
+					<input id="klarnaSignInAutoMerge" type="checkbox"/>
+					<label><spring:theme code="klarna.signin.create.consent"/></label>
+				</div>
+				<div class="btn-ctr">
+					<button id="klarnaSignInSubmit" class="signin-submit not-allowed" type="submit" disabled="disabled">
+					<spring:theme code="klarna.signin.register"/>
+					</button>
+				</div>
+			</c:if>
+			<c:if test="${profileStatus eq 'MERGE_AFTER_CONSENT' }">
+				<spring:url value="${baseUrl}/merge-account" var="processSigninURL"/>
+				<div class="form-group display-flex-plain">
+					<input id="klarnaSignInAutoMerge" type="checkbox"/>
+					<label><spring:theme code="klarna.signin.merge.consent"/></label>
+				</div>
+				<div class="btn-ctr">
+					<button id="klarnaSignInSubmit" class="signin-submit not-allowed" type="submit" disabled="disabled">
+					<spring:theme code="klarna.signin.merge"/>
+					</button>
+				</div>
+			</c:if>
+			
+		</div>
+	</form:form>
+		</c:otherwise>
+	</c:choose>
+	
+	
+	
+	
 </template:page>
 <script>
 window.onload = async function() {

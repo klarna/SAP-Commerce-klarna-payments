@@ -14,7 +14,6 @@
 	</div>
 		
 	<input type="hidden" id="klarnaClientId" name="klarnaClientId"	value="${klarnaConfig.credential.clientId}"/>
-	
 	<c:set var="loadWebSDKv1" value="false" />
 	<c:set var="loadWebSDKv2" value="false" />
 	
@@ -63,12 +62,20 @@
 	</c:if>
 	
 	<c:if test="${klarnaConfig.siwkConfig != null}">
+		<c:choose>
+			<c:when test="${siwkV1Enabled}">
+				<c:set var="baseUrl" value="/klarna/signin/v1" />
+			</c:when>
+			<c:otherwise>
+				<c:set var="baseUrl" value="/klarna/signin" />
+			</c:otherwise>
+		</c:choose>
 		<c:set var="loadWebSDKv2" value="true" />
-		<spring:url value="/klarna/signin/initiate" var="initiateSignInResponseUrl"/>
+		<spring:url value="${baseUrl}/initiate" var="initiateSignInResponseUrl"/>
 		<input type="hidden" id="initiateSignInResponseUrl" name="initiateSignInResponseUrl"  value="${initiateSignInResponseUrl}"/>
-		<spring:url value="/klarna/signin/consent" var="userConsentPageURL"/>
+		<spring:url value="${baseUrl}/consent" var="userConsentPageURL"/>
 		<input type="hidden" id="userConsentPageURL" name="userConsentPageURL"  value="${userConsentPageURL}"/>
-		<spring:url value="/klarna/signin/login" var="loginURL"/>
+		<spring:url value="${baseUrl}/login" var="loginURL"/>
 		<input type="hidden" id="loginURL" name="loginURL"  value="${loginURL}"/>
 		<input type="hidden" id="klarnaLocale"		name="klarnaLocale"		value="${klarnaLocale}" >
 		<input type="hidden" id="klarnaEnv"			name="klarnaEnv"			value="${klarnaConfig.environment}"/>
@@ -86,6 +93,10 @@
 	<c:if test="${loadWebSDKv1}">
 		<script id="klarna-v1-sdk" src="https://x.klarnacdn.net/kp/lib/v1/api.js" ></script> 
 		<div id="loadWebSDKv1Div" data-enabled="true"></div>
+	</c:if>
+	<c:if test="${siwkV1Enabled}">
+		<div id="loadsiwkV1Div" data-enabled="true"></div>
+		<script id="klarna-siwk-v1-sdk" src="https://js.klarna.com/web-sdk/v1/klarna.js" ></script> 
 	</c:if>
 	
 	<c:if test="${loadWebSDKv2}">

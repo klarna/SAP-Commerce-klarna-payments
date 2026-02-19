@@ -44,6 +44,7 @@ public class KlarnaBeforeViewHandler implements BeforeViewHandlerAdaptee
 	private static final String KEC_BUTTON_SHAPE = "kecButtonShape";
 	private static final String SCRIPT_URL_SIWK = "scriptUrlSIWK";
 	private static final String SIWK_CONFIG_DATA = "siwkConfigData";
+	private static final String SIWK_V1_ENABLED = "siwkV1Enabled";
 
 	@Resource(name = "klarnaConfigFacade")
 	private KlarnaConfigFacade klarnaConfigFacade;
@@ -126,6 +127,8 @@ public class KlarnaBeforeViewHandler implements BeforeViewHandlerAdaptee
 			model.addAttribute(SIWK_CONFIG_DATA, siwkData);
 			model.addAttribute(SCRIPT_URL_SIWK,
 					configurationService.getConfiguration().getString(KlarnapaymentConstants.KLARNA_SIWK_SCRIPT_URL));
+			model.addAttribute(SIWK_V1_ENABLED,
+					configurationService.getConfiguration().getBoolean(KlarnapaymentConstants.KLARNA_SIWK_V1_ENABLED, Boolean.TRUE));
 		}
 		else
 		{
