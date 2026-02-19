@@ -13,6 +13,7 @@ import com.klarna.data.KlarnaConfigData;
 import com.klarna.integration.dto.KlarnaCreateWebhookResponseDTO;
 import com.klarna.integration.dto.KlarnaSigningKeyResponseDTO;
 import com.klarna.model.KlarnaWebhookModel;
+import com.klarna.payment.data.KlarnaWebhookData;
 import com.klarna.payment.facades.KlarnaConfigFacade;
 import com.klarna.payment.facades.KlarnaWebhookFacade;
 import com.klarna.payment.services.KlarnaWebhookService;
@@ -58,11 +59,13 @@ public class DefaultKlarnaWebhookFacade implements KlarnaWebhookFacade
 				return false;
 			}
 		}
-		final KlarnaCreateWebhookResponseDTO responseDTO = klarnaWebhookService.createWebhook(baseSite, klarnaConfig);
+		final KlarnaCreateWebhookResponseDTO responseDTO = klarnaWebhookService.createWebhook(baseSite, klarnaConfig,
+				klarnaWebhookModel.getSigningKeyId());
 		if (responseDTO.getWebhoookPayload() != null && StringUtils.isNotEmpty(responseDTO.getWebhoookPayload().getWebhookId()))
 		{
 			klarnaWebhookModel.setWebhookId(responseDTO.getWebhoookPayload().getWebhookId());
 			klarnaWebhookModel.setStatus(responseDTO.getWebhoookPayload().getStatus());
+			klarnaWebhookModel.setBaseSite(baseSite);
 			modelService.save(klarnaWebhookModel);
 			modelService.refresh(klarnaWebhookModel);
 			LogHelper.debugLog(LOG, "Created Webhook with ID: " + responseDTO.getWebhoookPayload().getWebhookId());
@@ -116,8 +119,8 @@ public class DefaultKlarnaWebhookFacade implements KlarnaWebhookFacade
 		{
 			klarnaWebhookModel.setSigningKey(responseDTO.getSigningKeyPayload().getSigningKey());
 			klarnaWebhookModel.setSigningKeyId(responseDTO.getSigningKeyPayload().getSigningKeyId());
-			modelService.save(klarnaWebhookModel);
-			modelService.refresh(klarnaWebhookModel);
+			//modelService.save(klarnaWebhookModel);
+			//modelService.refresh(klarnaWebhookModel);
 			LogHelper.debugLog(LOG, "Created Signing Key with ID: " + responseDTO.getSigningKeyPayload().getSigningKeyId());
 			return true;
 		}
@@ -147,15 +150,37 @@ public class DefaultKlarnaWebhookFacade implements KlarnaWebhookFacade
 	}
 
 	@Override
-	public boolean processWebhookNotification(final String requestBody, final String signature)
+	public boolean validateWebhookRequest(final byte[] requestBody, final String signature)
 	{
-		if (klarnaValidationUtil.validateSignature(requestBody, signature, getSavedSigningKey()))
+		if (StringUtils.isEmpty(signature))
+		{
+			LOG.error("Webhook cannot be processed. Signature is not available.");
+			return false;
+		}
+		final boolean isValidSignature = klarnaValidationUtil.validateSignature(requestBody, signature, getSavedSigningKey());
+		if (isValidSignature)
 		{
 			LogHelper.debugLog(LOG, "Signature validation success!");
-			return klarnaWebhookService.saveWebhookNotification(requestBody);
 		}
-		LOG.error("Webhook processing failed. Invalid signature!");
-		return false;
+		else
+		{
+			LOG.error("Webhook processing failed. Invalid signature!");
+		}
+		return isValidSignature;
+	}
+
+	@Override
+	public boolean processWebhookNotification(final byte[] requestBody)
+	{
+		final KlarnaWebhookData webhookData = klarnaWebhookService.getParsedWebhookRequest(requestBody);
+		if (webhookData == null || webhookData.getPayload() == null
+				|| StringUtils.isEmpty(webhookData.getPayload().getPaymentRequestId()))
+		{
+			LOG.error("Invalid webhook request.");
+			return false;
+		}
+		LogHelper.debugLog(LOG, "Webhook request is valid.");
+		return klarnaWebhookService.saveWebhookNotification(webhookData);
 	}
 
 	protected String getSavedSigningKey()

@@ -13,12 +13,12 @@ public final class KlarnaValidationUtil
 	private static final Logger LOG = Logger.getLogger(KlarnaValidationUtil.class);
 	private static final String HMAC_SHA256 = "HmacSHA256";
 
-	public boolean validateSignature(final String requestBody, final String signature, final String savedSigningKey)
+	public boolean validateSignature(final byte[] requestBody, final String signature, final String savedSigningKey)
 	{
 		LogHelper.debugLog(LOG, "Validating Webhook Signature");
 		try
 		{
-			final byte[] derivedSignature = hmacSha256(requestBody.getBytes(StandardCharsets.UTF_8),
+			final byte[] derivedSignature = hmacSha256(requestBody,
 					savedSigningKey.getBytes(StandardCharsets.UTF_8));
 			final byte[] providedSignature = hexToBytes(signature);
 			return MessageDigest.isEqual(derivedSignature, providedSignature);

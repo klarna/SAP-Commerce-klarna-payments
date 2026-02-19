@@ -1609,7 +1609,7 @@
 		<property name="purchaseReference" type="String">
 			<annotations>@JsonProperty("purchase_reference")</annotations>
 		</property>
-		<property name="customer" type="com.klarna.integration.dto.KlarnaCustomerDTO">
+		<property name="customer" type="com.klarna.integration.dto.KlarnaCustomerProfileDTO">
 			<annotations>@JsonProperty("customer")</annotations>
 		</property>
 		<property name="shipping" type="java.util.List&lt;com.klarna.integration.dto.KlarnaShippingDTO&gt;">
@@ -1681,9 +1681,17 @@
 			<annotations>@JsonProperty("return_url")</annotations>
 		</property>
 	</bean>
+	
+	<bean class="com.klarna.integration.dto.KlarnaCustomerDTO">
+		<import	type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
+		<import type="com.fasterxml.jackson.annotation.JsonProperty" />
+		<property name="customerProfile" type="com.klarna.integration.dto.KlarnaCustomerProfileDTO">
+			<annotations>@JsonProperty("customer_profile")</annotations>
+		</property>
+	</bean>
 		
 	<bean
-		class="com.klarna.integration.dto.KlarnaCustomerDTO">
+		class="com.klarna.integration.dto.KlarnaCustomerProfileDTO">
 		<import
 			type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
 		<import type="com.fasterxml.jackson.annotation.JsonProperty" />
@@ -1760,7 +1768,7 @@
 		<property name="shippingReference" type="String">
 			<annotations>@JsonProperty("shipping_reference")</annotations>
 		</property>
-		<property name="recipient" type="com.klarna.integration.dto.KlarnaCustomerDTO">
+		<property name="recipient" type="com.klarna.integration.dto.KlarnaCustomerProfileDTO">
 			<annotations>@JsonProperty("recipient")</annotations>
 		</property>
 		<property name="address" type="com.klarna.integration.dto.KlarnaAddressDTO">

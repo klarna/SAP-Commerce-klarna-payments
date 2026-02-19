@@ -22,12 +22,10 @@ import com.klarna.integration.dto.KlarnaSigningKeyRequestDTO;
 import com.klarna.integration.dto.KlarnaSigningKeyResponseDTO;
 import com.klarna.integration.enums.TransactionTypeEnum;
 import com.klarna.integration.service.KlarnaIntegrationService;
-import com.klarna.integration.util.KlarnaIntegrationUtil;
 import com.klarna.model.KlarnaWebhookModel;
 import com.klarna.model.KlarnaWebhookNotificationModel;
 import com.klarna.payment.daos.KlarnaWebhookDAO;
 import com.klarna.payment.data.KlarnaWebhookData;
-import com.klarna.payment.data.KlarnaWebhookMetaData;
 import com.klarna.payment.services.KlarnaWebhookService;
 import com.klarna.payment.util.KlarnaServicesUtil;
 import com.klarna.payment.util.LogHelper;
@@ -47,9 +45,6 @@ public class DefaultKlarnaWebhookService implements KlarnaWebhookService
 	private KlarnaServicesUtil klarnaServicesUtil;
 
 	@Resource
-	private KlarnaIntegrationUtil klarnaIntegrationUtil;
-
-	@Resource
 	protected ModelService modelService;
 
 	@Resource
@@ -67,13 +62,15 @@ public class DefaultKlarnaWebhookService implements KlarnaWebhookService
 	}
 
 	@Override
-	public KlarnaCreateWebhookResponseDTO createWebhook(final BaseSiteModel baseSite, final KlarnaConfigData klarnaConfigData)
+	public KlarnaCreateWebhookResponseDTO createWebhook(final BaseSiteModel baseSite, final KlarnaConfigData klarnaConfigData,
+			final String signingKeyId)
 	{
 		final KlarnaCreateWebhookRequestDTO requestDTO = new KlarnaCreateWebhookRequestDTO();
 		requestDTO.setConfig(klarnaConfigData);
 		requestDTO.setType(TransactionTypeEnum.CREATE_WEBHOOK);
 		requestDTO.setMetaData(klarnaServicesUtil.getKlarnaMetaData());
 		final KlarnaCreateWebhookPayloadDTO payload = new KlarnaCreateWebhookPayloadDTO();
+		payload.setSigningKeyId(signingKeyId);
 		payload.setUrl(getWebhookUrl(baseSite));
 		payload.setEventTypes(Arrays.asList((Config.getParameter("klarna.webhook.event.types")).split(",")));
 		payload.setEventVersion(Config.getParameter("klarna.webhook.event.version"));
@@ -128,28 +125,38 @@ public class DefaultKlarnaWebhookService implements KlarnaWebhookService
 	}
 
 	@Override
-	public boolean saveWebhookNotification(final String requestBody)
+	public final KlarnaWebhookData getParsedWebhookRequest(final byte[] requestBody)
+	{
+		return klarnaServicesUtil.convertResponseByteArrayToDto(requestBody, KlarnaWebhookData.class);
+	}
+
+	@Override
+	public final KlarnaWebhookNotificationModel getWebhookNotificationById(final String id)
+	{
+		return null;
+	}
+
+	@Override
+	public boolean saveWebhookNotification(final KlarnaWebhookData webhookData)
 	{
 		LogHelper.debugLog(LOG, "Entering saveWebhookNotification method");
 		try
 		{
-			final KlarnaWebhookData klarnaWebhookData = klarnaIntegrationUtil.convertResponseStringToDto(requestBody, KlarnaWebhookData.class);
-			if (klarnaWebhookData == null || klarnaWebhookData.getMetadata() == null | klarnaWebhookData.getPayload() == null)
+			KlarnaWebhookNotificationModel webhookNotificationModel = getSavedWebhookNotification(
+					webhookData.getPayload().getPaymentRequestId());
+			if (webhookNotificationModel == null)
 			{
-				LOG.error("Invalid webhook notification format.");
-				return false;
+				webhookNotificationModel = modelService.create(KlarnaWebhookNotificationModel.class);
+				webhookNotificationModel.setId(webhookData.getPayload().getPaymentRequestId());
 			}
-			LogHelper.debugLog(LOG, "Webhook request is valid. Going to save webhook data");
-			final KlarnaWebhookMetaData metadata = klarnaWebhookData.getMetadata();
-			final KlarnaWebhookNotificationModel klarnaWebhookNotificationModel = modelService
-					.create(KlarnaWebhookNotificationModel.class);
-			klarnaWebhookNotificationModel.setEventId(metadata.getEventId());
-			klarnaWebhookNotificationModel.setEventType(metadata.getEventType());
-			klarnaWebhookNotificationModel.setRequestReference(klarnaWebhookData.getPayload().getPaymentRequestId());
-			klarnaWebhookNotificationModel
-					.setPayload(klarnaIntegrationUtil.convertRequestDtoToString(klarnaWebhookData.getPayload()));
-			modelService.save(klarnaWebhookNotificationModel);
-			LOG.debug("Saved webhook notification successfully!");
+			webhookNotificationModel.setPayload(klarnaServicesUtil.convertRequestDtoToString(webhookData.getPayload()));
+			if (webhookData.getMetadata() != null)
+			{
+				webhookNotificationModel.setEventId(webhookData.getMetadata().getEventId());
+				webhookNotificationModel.setEventType(webhookData.getMetadata().getEventType());
+			}
+			modelService.save(webhookNotificationModel);
+			LogHelper.debugLog(LOG, "Saved webhook notification successfully!");
 			return true;
 		}
 		catch (final Exception e)
@@ -157,7 +164,18 @@ public class DefaultKlarnaWebhookService implements KlarnaWebhookService
 			LOG.error("Error parsing webhook request body :: ", e);
 			return false;
 		}
-
-
 	}
+
+	@Override
+	public KlarnaWebhookNotificationModel getSavedWebhookNotification(final String paymentRequestId)
+	{
+		final List<KlarnaWebhookNotificationModel> notificationList = klarnaWebhookDAO
+				.findWebhookNotificationById(paymentRequestId);
+		if (CollectionUtils.isNotEmpty(notificationList))
+		{
+			return notificationList.get(0);
+		}
+		return null;
+	}
+
 }

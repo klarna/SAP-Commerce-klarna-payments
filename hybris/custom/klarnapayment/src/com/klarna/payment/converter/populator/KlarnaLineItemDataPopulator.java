@@ -2,7 +2,6 @@ package com.klarna.payment.converter.populator;
 
 import de.hybris.platform.acceleratorservices.storefront.util.PageTitleResolver;
 import de.hybris.platform.acceleratorservices.urlresolver.SiteBaseUrlResolutionService;
-import de.hybris.platform.basecommerce.model.site.BaseSiteModel;
 import de.hybris.platform.commerceservices.url.UrlResolver;
 import de.hybris.platform.converters.Populator;
 import de.hybris.platform.core.model.order.AbstractOrderEntryModel;
@@ -45,10 +44,10 @@ public class KlarnaLineItemDataPopulator implements Populator<AbstractOrderEntry
 		Assert.notNull(target, "Parameter target cannot be null.");
 
 		target.setQuantity(source.getQuantity());
-		target.setUnitPrice(KlarnaConversionUtils.getKlarnaLongValue(source.getBasePrice()));
+		//target.setUnitPrice(KlarnaConversionUtils.getKlarnaLongValue(source.getBasePrice()));
 		target.setTotalAmount(KlarnaConversionUtils.getKlarnaLongValue(source.getTotalPrice()));
 		final String currencyCode = source.getOrder().getCurrency().getIsocode();
-		target.setCurrency(source.getOrder().getCurrency().getIsocode());
+		//target.setCurrency(source.getOrder().getCurrency().getIsocode());
 		if (klarnaConfigFacade.isNorthAmerianKlarnaPayment())
 		{
 			target.setTotalTaxAmount(Long.valueOf(0));
@@ -59,27 +58,27 @@ public class KlarnaLineItemDataPopulator implements Populator<AbstractOrderEntry
 		}
 
 		final ProductModel product = source.getProduct();
-		target.setLineItemReference(source.getEntryNumber().toString());
+		//target.setLineItemReference(source.getEntryNumber().toString());
 		target.setName(product.getName());
-		target.setProductIdentifier(product.getCode());
+		//target.setProductIdentifier(product.getCode());
 
-		final BaseSiteModel baseSite = source.getOrder().getSite();
-		final String relUrl = productModelUrlResolver.resolve(source.getProduct());
-		final String prodUrl = siteBaseUrlResolutionService.getWebsiteUrlForSite(baseSite, true, relUrl);
-		final String mediaUrl = siteBaseUrlResolutionService.getMediaUrlForSite(baseSite, true);
-		target.setProductUrl(prodUrl);
-		final String imgUrl = klarnaServicesUtil.getProductImageURL(product);
-		if (imgUrl != null)
-		{
-			if (mediaUrl != null)
-			{
-				target.setImageUrl(mediaUrl + imgUrl);
-			}
-			else
-			{
-				target.setImageUrl(imgUrl);
-			}
-		}
+		//final BaseSiteModel baseSite = source.getOrder().getSite();
+		//final String relUrl = productModelUrlResolver.resolve(source.getProduct());
+		//final String prodUrl = siteBaseUrlResolutionService.getWebsiteUrlForSite(baseSite, true, relUrl);
+		//final String mediaUrl = siteBaseUrlResolutionService.getMediaUrlForSite(baseSite, true);
+		//target.setProductUrl(prodUrl);
+		//final String imgUrl = klarnaServicesUtil.getProductImageURL(product);
+		//if (imgUrl != null)
+		//{
+		//	if (mediaUrl != null)
+		//	{
+		//		target.setImageUrl(mediaUrl + imgUrl);
+		//	}
+		//	else
+		//	{
+		//		target.setImageUrl(imgUrl);
+		//	}
+		//}
 	}
 
 }

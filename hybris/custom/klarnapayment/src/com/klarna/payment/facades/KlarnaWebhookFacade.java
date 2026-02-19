@@ -16,6 +16,8 @@ public interface KlarnaWebhookFacade
 
 	boolean deleteSigningKey(final KlarnaWebhookModel klarnaWebhookModel, final KlarnaConfigData klarnaConfig);
 
-	boolean processWebhookNotification(final String requestBody, final String signature);
+	boolean validateWebhookRequest(final byte[] requestBody, final String signature);
+
+	boolean processWebhookNotification(final byte[] requestBody);
 
 }

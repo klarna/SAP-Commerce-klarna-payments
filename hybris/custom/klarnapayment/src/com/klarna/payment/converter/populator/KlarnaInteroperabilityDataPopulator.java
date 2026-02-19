@@ -1,7 +1,6 @@
 package com.klarna.payment.converter.populator;
 
 import de.hybris.platform.converters.Populator;
-import de.hybris.platform.core.model.order.AbstractOrderEntryModel;
 import de.hybris.platform.core.model.order.AbstractOrderModel;
 import de.hybris.platform.servicelayer.config.ConfigurationService;
 import de.hybris.platform.servicelayer.dto.converter.ConversionException;
@@ -14,7 +13,6 @@ import org.springframework.util.Assert;
 
 import com.klarna.integration.dto.KlarnaContentDTO;
 import com.klarna.integration.dto.KlarnaInteroperabilityDataDTO;
-import com.klarna.integration.dto.KlarnaLineItemDTO;
 import com.klarna.integration.dto.KlarnaShareRequestDTO;
 import com.klarna.integration.dto.KlarnaSupplementaryPurchaseDataDTO;
 import com.klarna.payment.constants.KlarnapaymentConstants;
@@ -26,9 +24,6 @@ public class KlarnaInteroperabilityDataPopulator implements Populator<AbstractOr
 {
 
 	private static final Logger LOG = Logger.getLogger(KlarnaInteroperabilityDataPopulator.class.getName());
-
-	@Resource
-	private Converter<AbstractOrderEntryModel, KlarnaLineItemDTO> klarnaLineItemConverter;
 
 	@Resource(name = "configurationService")
 	private ConfigurationService configurationService;

@@ -18,6 +18,7 @@ import org.apache.commons.collections.CollectionUtils;
 import com.klarna.payment.data.KlarnaLineItemData;
 import com.klarna.payment.data.KlarnaShippingChangeResponseData;
 import com.klarna.payment.data.KlarnaShippingOptionData;
+import com.klarna.payment.util.KlarnaConversionUtils;
 import com.klarna.payment.util.KlarnaServicesUtil;
 
 
@@ -47,6 +48,7 @@ public class KlarnaShippingChangeResponsePopulator implements Populator<Abstract
 			target.setSelectedShippingOptionReference(source.getDeliveryMode().getCode());
 		}
 		populateLineItems(source, target);
+		populateShippingLineItem(source, target);
 		populateShippingOptions(source, target);
 	}
 
@@ -75,6 +77,19 @@ public class KlarnaShippingChangeResponsePopulator implements Populator<Abstract
 			}
 		}
 		target.setShippingOptions(shippingOptions);
+	}
+
+	protected void populateShippingLineItem(final AbstractOrderModel source, final KlarnaShippingChangeResponseData target)
+	{
+		if (source.getDeliveryMode() != null)
+		{
+			final KlarnaLineItemData shippingLineItem = new KlarnaLineItemData();
+			shippingLineItem.setName(source.getDeliveryMode().getName());
+			shippingLineItem.setQuantity(1L);
+			shippingLineItem.setTotalAmount(KlarnaConversionUtils.getKlarnaLongValue(source.getDeliveryCost()));
+			shippingLineItem.setTotalTaxAmount(klarnaServicesUtil.calculateDeliveryTaxAmount(source));
+			target.getLineItems().add(shippingLineItem);
+		}
 	}
 
 }

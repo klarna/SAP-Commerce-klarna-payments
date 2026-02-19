@@ -6,6 +6,10 @@ import de.hybris.platform.cronjob.enums.CronJobResult;
 import de.hybris.platform.cronjob.enums.CronJobStatus;
 import de.hybris.platform.servicelayer.cronjob.AbstractJobPerformable;
 import de.hybris.platform.servicelayer.cronjob.PerformResult;
+import de.hybris.platform.servicelayer.i18n.CommonI18NService;
+import de.hybris.platform.servicelayer.session.SessionExecutionBody;
+import de.hybris.platform.servicelayer.session.SessionService;
+import de.hybris.platform.servicelayer.user.UserService;
 import de.hybris.platform.site.BaseSiteService;
 
 import javax.annotation.Resource;
@@ -25,12 +29,21 @@ public class KlarnaWebhookJob extends AbstractJobPerformable<KlarnaWebhookCronJo
 	private static final Logger LOG = Logger.getLogger(KlarnaWebhookJob.class);
 
 	private static final String CREATE_WEBHOOK_ACTION = "CREATE";
-	private static final String UPDATE_WEBHOOK_ACTION = "UPDATE";
+	//private static final String UPDATE_WEBHOOK_ACTION = "UPDATE";
 	private static final String DELETE_WEBHOOK_ACTION = "DELETE";
-	private static final String SIMULATE_WEBHOOK_ACTION = "SIMULATE";
+	//private static final String SIMULATE_WEBHOOK_ACTION = "SIMULATE";
 
-	@Resource
+	@Resource(name = "sessionService")
+	private SessionService sessionService;
+
+	@Resource(name = "userService")
+	private UserService userService;
+
+	@Resource(name = "baseSiteService")
 	private BaseSiteService baseSiteService;
+
+	@Resource(name = "commonI18NService")
+	private CommonI18NService commonI18NService;
 
 	@Resource
 	private KlarnaWebhookFacade klarnaWebhookFacade;
@@ -53,22 +66,31 @@ public class KlarnaWebhookJob extends AbstractJobPerformable<KlarnaWebhookCronJo
 				LOG.error("\"CronJob failure! Webhook action is empty for the Cronjob: " + cronJob.getCode());
 				return new PerformResult(CronJobResult.ERROR, CronJobStatus.ABORTED);
 			}
-			boolean isSuccess = false;
-			if (StringUtils.equalsIgnoreCase(CREATE_WEBHOOK_ACTION, action))
-			{
-				isSuccess = klarnaWebhookFacade.createWebhook(baseSite);
-			}
-			if (StringUtils.equalsIgnoreCase(DELETE_WEBHOOK_ACTION, action))
-			{
-				isSuccess = klarnaWebhookFacade.deleteWebhook(baseSite);
-			}
-			if (isSuccess)
-			{
-				return new PerformResult(CronJobResult.SUCCESS, CronJobStatus.FINISHED);
-			}
 
-			return new PerformResult(CronJobResult.FAILURE, CronJobStatus.ABORTED);
+			return sessionService.executeInLocalView(new SessionExecutionBody()
+			{
+				@Override
+				public PerformResult execute()
+				{
+					userService
+							.setCurrentUser((cronJob.getSessionUser() != null) ? cronJob.getSessionUser() : userService.getAdminUser());
+					baseSiteService.setCurrentBaseSite(baseSite, false);
+					commonI18NService.setCurrentLanguage(baseSite.getDefaultLanguage());
+					commonI18NService.setCurrentCurrency(baseSite.getStores().get(0).getDefaultCurrency());
 
+					boolean isSuccess = false;
+					if (StringUtils.equalsIgnoreCase(CREATE_WEBHOOK_ACTION, action))
+					{
+						isSuccess = klarnaWebhookFacade.createWebhook(baseSite);
+					}
+					if (StringUtils.equalsIgnoreCase(DELETE_WEBHOOK_ACTION, action))
+					{
+						isSuccess = klarnaWebhookFacade.deleteWebhook(baseSite);
+					}
+					return isSuccess ? new PerformResult(CronJobResult.SUCCESS, CronJobStatus.FINISHED)
+							: new PerformResult(CronJobResult.FAILURE, CronJobStatus.ABORTED);
+				}
+			});
 		}
 		catch (final Exception e)
 		{

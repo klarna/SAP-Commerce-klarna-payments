@@ -16,6 +16,8 @@ import org.springframework.util.Assert;
 
 import com.klarna.integration.dto.KlarnaLineItemDTO;
 import com.klarna.integration.dto.KlarnaSupplementaryPurchaseDataDTO;
+import com.klarna.payment.util.KlarnaConversionUtils;
+import com.klarna.payment.util.KlarnaServicesUtil;
 
 
 public class KlarnaSupplementaryPurchaseDataPopulator implements Populator<AbstractOrderModel, KlarnaSupplementaryPurchaseDataDTO>
@@ -23,6 +25,9 @@ public class KlarnaSupplementaryPurchaseDataPopulator implements Populator<Abstr
 
 	@Resource
 	private Converter<AbstractOrderEntryModel, KlarnaLineItemDTO> klarnaLineItemConverter;
+
+	@Resource
+	private KlarnaServicesUtil klarnaServicesUtil;
 
 
 	@Override
@@ -33,9 +38,8 @@ public class KlarnaSupplementaryPurchaseDataPopulator implements Populator<Abstr
 		Assert.notNull(target, "Parameter target cannot be null.");
 
 		target.setPurchaseReference(source.getCode());
-
 		populateLineItems(source, target);
-
+		populateShippingLineItem(source, target);
 	}
 
 	protected void populateLineItems(final AbstractOrderModel source, final KlarnaSupplementaryPurchaseDataDTO target)
@@ -50,4 +54,18 @@ public class KlarnaSupplementaryPurchaseDataPopulator implements Populator<Abstr
 		}
 		target.setLineItems(lineItems);
 	}
+
+	protected void populateShippingLineItem(final AbstractOrderModel source, final KlarnaSupplementaryPurchaseDataDTO target)
+	{
+		if (source.getDeliveryMode() != null)
+		{
+			final KlarnaLineItemDTO shippingLineItem = new KlarnaLineItemDTO();
+			shippingLineItem.setName(source.getDeliveryMode().getName());
+			shippingLineItem.setQuantity(1L);
+			shippingLineItem.setTotalAmount(KlarnaConversionUtils.getKlarnaLongValue(source.getDeliveryCost()));
+			shippingLineItem.setTotalTaxAmount(klarnaServicesUtil.calculateDeliveryTaxAmount(source));
+			target.getLineItems().add(shippingLineItem);
+		}
+	}
+
 }

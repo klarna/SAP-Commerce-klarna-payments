@@ -1240,9 +1240,14 @@
 	            <description>Holds the details of the Webhooks created in Klarna </description>
 				<deployment table="KlarnaNotification" typecode="12116" />
 	            <attributes>
+					<attribute qualifier="id" type="java.lang.String">
+						<description>Unique id of the webhook </description>
+						<modifiers read="true" write="true" optional="false" unique="true"/>
+						<persistence type="property" />
+					</attribute>
 					<attribute qualifier="eventId" type="java.lang.String">
 						<description>Notification Id</description>
-						<modifiers read="true" write="true" search="true" optional="false" unique="true"/>
+						<modifiers read="true" write="true" search="true" optional="true"/>
 						<persistence type="property" />
 					</attribute>
 					<attribute qualifier="eventType" type="java.lang.String">
@@ -1255,14 +1260,9 @@
 						<modifiers read="true" write="true" optional="true"/>
 						<persistence type="property" />
 					</attribute>
-					<attribute qualifier="requestReference" type="java.lang.String">
-						<description>Reference id to link to local object </description>
-						<modifiers read="true" write="true" optional="true"/>
-						<persistence type="property" />
-					</attribute>
 					<attribute qualifier="payload" type="java.lang.String">
 						<description>Notification request payload</description>
-						<modifiers write="true" read="true" optional="true" initial="true"/>
+						<modifiers write="true" read="true" optional="true" />
 						<persistence type="property">
 							<columntype database="oracle">
 								<value>CLOB</value>
