@@ -21,7 +21,9 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.log4j.Logger;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,7 +34,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.klarna.api.expcheckout.model.KlarnaExpCheckoutAuthCallbackRequest;
 import com.klarna.api.expcheckout.model.KlarnaExpCheckoutAuthorizationResponse;
 import com.klarna.api.model.ApiException;
-import com.klarna.api.payments.model.PaymentsOrder;
 import com.klarna.api.payments.model.PaymentsSession;
 import com.klarna.data.KlarnaConfigData;
 import com.klarna.integration.dto.KlarnaPaymentResponsePayloadDTO;
@@ -40,7 +41,6 @@ import com.klarna.payment.data.KlarnaPaymentRequestData;
 import com.klarna.payment.data.KlarnaRejectionResponseData;
 import com.klarna.payment.data.KlarnaRequestData;
 import com.klarna.payment.data.KlarnaShippingChangeResponseData;
-import com.klarna.payment.enums.KlarnaFraudStatusEnum;
 import com.klarna.payment.facades.KPPaymentCheckoutFacade;
 import com.klarna.payment.facades.KPPaymentFacade;
 import com.klarna.payment.facades.KlarnaConfigFacade;
@@ -64,6 +64,7 @@ public class KlarnaExpCheckoutController extends AbstractPageController
 
 	private static final String IS_KLARNA_EXP_CHECKOUT_SESSION = "isKlarnaExpCheckoutSession";
 	private static final String CLIENT_TOKEN = "clientToken";
+	private static final String IS_PAYMENT_BEING_PROCESSED = "isPaymentBeingProcessed";
 
 	@Resource(name = "REDIRECT_TO_SUMMARY")
 	private String redirectToSummary;
@@ -280,7 +281,7 @@ public class KlarnaExpCheckoutController extends AbstractPageController
 			{
 				LogHelper.debugLog(LOG, "Shipping address set successfully!");
 				// Set cheapest delivery method available
-				//checkoutFacade.setCheapestDeliveryModeForCheckout();
+				checkoutFacade.setCheapestDeliveryModeForCheckout();
 				final KlarnaShippingChangeResponseData shippingAddressChangeResponse = klarnaExpCheckoutFacade
 						.getShippingChangeResponse();
 				Map<String, Object> successResponse = new HashMap<>();
@@ -351,6 +352,17 @@ public class KlarnaExpCheckoutController extends AbstractPageController
 	{
 		try
 		{
+			if (BooleanUtils.isTrue(getSessionService().getAttribute(IS_PAYMENT_BEING_PROCESSED)))
+			{
+				// Return as payment is already being processed (by webhook polling process)
+				LogHelper.debugLog(LOG, "Exiting as payment is already being procssed");
+				return false;
+			}
+			else
+			{
+				getSessionService().setAttribute(IS_PAYMENT_BEING_PROCESSED, Boolean.TRUE);
+			}
+
 			// Check if the request object is valid
 			if (requestData == null || requestData.getPaymentRequest() == null
 					|| requestData.getPaymentRequest().getStateContext() == null)
@@ -379,9 +391,8 @@ public class KlarnaExpCheckoutController extends AbstractPageController
 				LOG.error("Cart couldnot be updated for Checkout. Cannot proceed with order placement");
 				return false;
 			}
-
-			final String redirectUrl = authorizePayment();
-			// TODO Place order
+			LogHelper.debugLog(LOG, "Cart updated successfully for checkout");
+			getSessionService().setAttribute(IS_PAYMENT_BEING_PROCESSED, Boolean.FALSE);
 			return true;
 		}
 		catch (Exception e)
@@ -389,6 +400,38 @@ public class KlarnaExpCheckoutController extends AbstractPageController
 			LOG.error("Exception occured during shipping address update :: ", e);
 		}
 		return false;
+	}
+
+	@RequestMapping(value = "/check-payment-status", method = RequestMethod.POST)
+	@ResponseBody
+	public ResponseEntity<String> checkPaymentStatus(@RequestBody
+	final String paymentRequestId, final HttpServletRequest request, final HttpServletResponse response)
+	{
+		try
+		{
+			if (BooleanUtils.isTrue(getSessionService().getAttribute(IS_PAYMENT_BEING_PROCESSED)))
+			{
+				// Return as payment is already being processed (by webhook polling process)
+				LogHelper.debugLog(LOG, "Exiting as payment is already being procssed");
+				return ResponseEntity.badRequest().body("Payment already being procssed");
+			}
+			else
+			{
+				getSessionService().setAttribute(IS_PAYMENT_BEING_PROCESSED, Boolean.TRUE);
+			}
+			if (StringUtils.isEmpty(paymentRequestId))
+			{
+				return ResponseEntity.badRequest().body("Payment request id is missing");
+			}
+
+			getSessionService().setAttribute(IS_PAYMENT_BEING_PROCESSED, Boolean.FALSE);
+			return ResponseEntity.ok("Success");
+		}
+		catch (Exception e)
+		{
+			LOG.error("Exception occured during shipping address update :: ", e);
+		}
+		return ResponseEntity.internalServerError().body("Error");
 	}
 
 	private boolean prepareCheckoutUser(final String emailId,
@@ -519,30 +562,6 @@ public class KlarnaExpCheckoutController extends AbstractPageController
 					+ " saved to session:: " + paymentRequest.getStateContext().getKlarnaNetworkSessionToken());
 		}
 		return true;
-	}
-
-	private String authorizePayment()
-	{
-		try
-		{
-			final PaymentsOrder authorizationResponse = kpPaymentFacade.getPaymentAuthorization(null);
-			if (authorizationResponse != null
-					&& !KlarnaFraudStatusEnum.REJECTED.getValue().equalsIgnoreCase(authorizationResponse.getFraudStatus()))
-			{
-				kpPaymentCheckoutFacade.saveKlarnaOrderId(authorizationResponse);
-				LogHelper.debugLog(LOG, " Saved Klaran Order ID .. ");
-				return authorizationResponse.getRedirectUrl();
-			}
-			else
-			{
-				LOG.error("Payment autthorization failed or rejected.");
-			}
-		}
-		catch (Exception e)
-		{
-			LOG.error("Payment autthorization failed due to Exception::  ", e);
-		}
-		return null;
 	}
 
 	private Map<String, Object> getErrorResponseForShippingAddressChangeUpdate()

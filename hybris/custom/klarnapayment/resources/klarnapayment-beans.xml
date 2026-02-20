@@ -157,9 +157,9 @@
 		<property name="dateOfBirth" type="java.util.Date"/>
 	</bean>
 	<bean class="com.klarna.payment.data.KPPaymentInfoData" extends="de.hybris.platform.commercefacades.order.data.CCPaymentInfoData">
-		<property name="id" type="String"/>
+		<property name="id" type="String"/>  
 		<property name="authToken" type="String"/>
-		<property name="billingAddress" type="de.hybris.platform.commercefacades.user.data.AddressData"/>  
+		<property name="billingAddress" type="de.hybris.platform.commercefacades.user.data.AddressData"/>   
 		<property name="paymentOption" type="String"/>
 		<property name="finalizeRequired" type="Boolean"/>
 		<property name="description" type="String"/>
@@ -485,16 +485,16 @@
 		<property name="previousState" type="String">
 			<annotations>@JsonProperty("previous_state")</annotations>
 		</property>		
-		<property name="paymentTransactionId" type="java.time.OffsetDateTime">
+		<property name="paymentTransactionId" type="String">
 			<annotations>@JsonProperty("payment_transaction_id")</annotations>
 		</property>			
-		<property name="paymentToken" type="java.time.OffsetDateTime">
+		<property name="paymentToken" type="String">
 			<annotations>@JsonProperty("payment_token")</annotations>
 		</property>			
-		<property name="interoperabilityToken" type="java.time.OffsetDateTime">
+		<property name="interoperabilityToken" type="String">
 			<annotations>@JsonProperty("interoperability_token")</annotations>
 		</property>	
-		<property name="klarnaNetworkSessionToken" type="java.time.OffsetDateTime">
+		<property name="klarnaNetworkSessionToken" type="String">
 			<annotations>@JsonProperty("klarna_network_session_token")</annotations>
 		</property>		
 		<property name="shipping" type="com.klarna.integration.dto.KlarnaShippingDTO">
