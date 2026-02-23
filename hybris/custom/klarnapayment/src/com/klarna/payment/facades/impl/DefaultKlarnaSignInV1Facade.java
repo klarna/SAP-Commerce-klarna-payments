@@ -58,8 +58,8 @@ public class DefaultKlarnaSignInV1Facade implements KlarnaSignInV1Facade
 	@Resource(name = "baseStoreService")
 	private BaseStoreService baseStoreService;
 
-	@Resource(name = "klarnaCustomerProfileReverseConverter")
-	private Converter klarnaCustomerProfileReverseConverter;
+	@Resource(name = "klarnaV1CustomerProfileReverseConverter")
+	private Converter klarnaV1CustomerProfileReverseConverter;
 
 	@Resource(name = "addressConverter")
 	private Converter<AddressModel, AddressData> addressConverter;
@@ -204,7 +204,7 @@ public class DefaultKlarnaSignInV1Facade implements KlarnaSignInV1Facade
 				}
 				updateCustomerName(klarnaCustomerProfileModel, klarnaSigninUserAccountProfile, customer);
 
-				klarnaCustomerProfileReverseConverter.convert(klarnaSigninUserAccountProfile, klarnaCustomerProfileModel);
+				klarnaV1CustomerProfileReverseConverter.convert(klarnaSigninUserAccountProfile, klarnaCustomerProfileModel);
 				if (klarnaSigninUserAccountLinking != null)
 				{
 					klarnaCustomerProfileModel.setRefreshToken(klarnaSigninUserAccountLinking.getUserAccountLinkingRefreshToken());

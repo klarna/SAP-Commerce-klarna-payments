@@ -8,6 +8,7 @@ import com.klarna.payment.data.KlarnaAddressData;
 import com.klarna.payment.data.KlarnaRequestData;
 import com.klarna.payment.data.KlarnaShippingChangeResponseData;
 import com.klarna.payment.data.KlarnaShippingOptionData;
+import com.klarna.payment.data.KlarnaWebhookData;
 
 
 public interface KlarnaExpCheckoutFacade
@@ -41,5 +42,7 @@ public interface KlarnaExpCheckoutFacade
 	boolean setPaymentInfo(final KlarnaRequestData requestData);
 
 	boolean setBillingAddress(final KlarnaRequestData requestData);
+
+	boolean updateCartWithWebhookData(final KlarnaWebhookData webhookData);
 
 }

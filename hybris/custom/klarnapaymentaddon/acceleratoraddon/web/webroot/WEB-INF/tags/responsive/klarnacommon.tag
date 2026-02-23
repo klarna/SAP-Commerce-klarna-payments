@@ -59,6 +59,8 @@
 		<input type="hidden" name="kecUpdateShippingMethodUrl" id="kecUpdateShippingMethodUrl" value="${kecUpdateShippingMethodUrl}"/>
 		<spring:url value="/klarna/express-checkout/on-payment-complete" var="kecOnPaymentCompleteUrl"/>
 		<input type="hidden" name="kecOnPaymentCompleteUrl" id="kecOnPaymentCompleteUrl" value="${kecOnPaymentCompleteUrl}"/>
+		<spring:url value="/klarna/express-checkout/check-payment-status" var="kecCheckPaymentStatusUrl"/>
+		<input type="hidden" name="kecCheckPaymentStatusUrl" id="kecCheckPaymentStatusUrl" value="${kecCheckPaymentStatusUrl}"/>
 	</c:if>
 	
 	<c:if test="${klarnaConfig.siwkConfig != null}">

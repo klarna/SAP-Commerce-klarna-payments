@@ -604,6 +604,20 @@
     <bean id="defaultKlarnaCustomerProfileReversePopulator" class="com.klarna.payment.converter.populator.KlarnaCustomerProfileReversePopulator">
     </bean>
     
+    <alias name="defaultKlarnaV1CustomerProfileReverseConverter" alias="klarnaV1CustomerProfileReverseConverter"/>
+    <bean id="defaultKlarnaV1CustomerProfileReverseConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.klarna.payment.model.KlarnaCustomerProfileModel"/>
+        <property name="populators">
+            <list>
+                <ref bean="klarnaV1CustomerProfileReversePopulator"/>
+            </list>
+        </property>
+    </bean>   
+    
+    <alias name="defaultKlarnaV1CustomerProfileReversePopulator" alias="klarnaV1CustomerProfileReversePopulator"/>
+    <bean id="defaultKlarnaV1CustomerProfileReversePopulator" class="com.klarna.payment.converter.populator.KlarnaV1CustomerProfileReversePopulator">
+    </bean>
+    
 	<alias name="defaultKlarnaSignInFacade" alias="klarnaSignInFacade"/>
     <bean id="defaultKlarnaSignInFacade" class="com.klarna.payment.facades.impl.DefaultKlarnaSignInFacade">
     </bean>
@@ -766,6 +780,20 @@
     </bean>
     
     <bean id="klarnaValidationUtil" class="com.klarna.payment.util.KlarnaValidationUtil">
+    </bean>
+    
+    <alias name="defaultKlarnaAddressDTOReverseConverter" alias="klarnaAddressDTOReverseConverter"/>
+     <bean id="defaultKlarnaAddressDTOReverseConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="de.hybris.platform.commercefacades.user.data.AddressData"/>
+        <property name="populators">
+            <list>
+                <ref bean="klarnaAddressDTOReversePopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <alias name="defaultKlarnaAddressDTOReversePopulator" alias="klarnaAddressDTOReversePopulator"/>
+    <bean id="defaultKlarnaAddressDTOReversePopulator" class="com.klarna.payment.converter.populator.KlarnaAddressDTOReversePopulator">
     </bean>
     
 </beans>

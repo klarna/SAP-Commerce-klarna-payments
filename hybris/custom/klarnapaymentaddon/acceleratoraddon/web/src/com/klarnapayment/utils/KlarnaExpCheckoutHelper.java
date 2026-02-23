@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.klarna.api.expcheckout.model.KlarnaExpCheckoutAuthorizationResponse;
 import com.klarna.payment.data.KlarnaPaymentRequestData;
 import com.klarna.payment.data.KlarnaShippingOptionData;
+import com.klarna.payment.data.KlarnaWebhookData;
 import com.klarnapayment.constants.KlarnapaymentaddonWebConstants;
 
 
@@ -95,6 +96,18 @@ public class KlarnaExpCheckoutHelper
 		{
 			return paymentRequestData.getStateContext().getKlarnaCustomer().getCustomerProfile().getEmail();
 		}
+		LOG.error("Customer Email Id not available in Payment Request object");
+		return null;
+	}
+
+	public String getEmailIdFromWebhookData(final KlarnaWebhookData webhookData)
+	{
+		if (webhookData.getPayload() != null && webhookData.getPayload().getKlarnaCustomer() != null
+				&& webhookData.getPayload().getKlarnaCustomer().getCustomerProfile() != null)
+		{
+			return webhookData.getPayload().getKlarnaCustomer().getCustomerProfile().getEmail();
+		}
+		LOG.error("Customer Email Id not available in Webhook Payload");
 		return null;
 	}
 

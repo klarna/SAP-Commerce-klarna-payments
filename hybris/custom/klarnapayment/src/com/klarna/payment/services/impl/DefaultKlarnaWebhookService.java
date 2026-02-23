@@ -11,6 +11,7 @@ import java.util.List;
 import javax.annotation.Resource;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.klarna.data.KlarnaConfigData;
@@ -24,6 +25,7 @@ import com.klarna.integration.enums.TransactionTypeEnum;
 import com.klarna.integration.service.KlarnaIntegrationService;
 import com.klarna.model.KlarnaWebhookModel;
 import com.klarna.model.KlarnaWebhookNotificationModel;
+import com.klarna.payment.constants.KlarnapaymentConstants;
 import com.klarna.payment.daos.KlarnaWebhookDAO;
 import com.klarna.payment.data.KlarnaWebhookData;
 import com.klarna.payment.services.KlarnaWebhookService;
@@ -150,6 +152,7 @@ public class DefaultKlarnaWebhookService implements KlarnaWebhookService
 				webhookNotificationModel.setId(webhookData.getPayload().getPaymentRequestId());
 			}
 			webhookNotificationModel.setPayload(klarnaServicesUtil.convertRequestDtoToString(webhookData.getPayload()));
+			webhookNotificationModel.setEventStatus(webhookData.getPayload().getState());
 			if (webhookData.getMetadata() != null)
 			{
 				webhookNotificationModel.setEventId(webhookData.getMetadata().getEventId());
@@ -164,6 +167,26 @@ public class DefaultKlarnaWebhookService implements KlarnaWebhookService
 			LOG.error("Error parsing webhook request body :: ", e);
 			return false;
 		}
+	}
+
+	@Override
+	public KlarnaWebhookData getWebhookDataForRequestId(final String paymentRequestId)
+	{
+		final KlarnaWebhookNotificationModel webhookNotificationModel = getSavedWebhookNotification(paymentRequestId);
+		if(webhookNotificationModel != null) {
+			if (StringUtils.equalsIgnoreCase(KlarnapaymentConstants.KLARNA_PAYMENT_STATUS_COMPLETED,
+					webhookNotificationModel.getEventStatus()))
+			{
+				LogHelper.debugLog(LOG, "Saved webhook found with 'COMPLETED' payment status");
+				return klarnaServicesUtil.convertResponseStringToDto(webhookNotificationModel.getPayload(), KlarnaWebhookData.class);
+			}
+			else
+			{
+				LogHelper.debugLog(LOG, "Saved webhook found but payment status is not 'COMPLETED'");
+			}
+		}
+		LogHelper.debugLog(LOG, "No webhook saved for payment request id :: " + paymentRequestId);
+		return null;
 	}
 
 	@Override

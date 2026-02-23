@@ -52,4 +52,6 @@ public final class KlarnapaymentConstants extends GeneratedKlarnapaymentConstant
 
 	public static final String KLARNA_SIWK_V1_ENABLED = "klarna.sigin.v1.enabled";
 
+	public static final String KLARNA_PAYMENT_STATUS_COMPLETED = "COMPLETED";
+
 }

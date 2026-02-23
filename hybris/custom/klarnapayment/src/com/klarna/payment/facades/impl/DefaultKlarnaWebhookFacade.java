@@ -183,6 +183,20 @@ public class DefaultKlarnaWebhookFacade implements KlarnaWebhookFacade
 		return klarnaWebhookService.saveWebhookNotification(webhookData);
 	}
 
+	@Override
+	public KlarnaWebhookData getSavedWebhookData(final String paymentRequestId)
+	{
+		final KlarnaWebhookData webhookData = klarnaWebhookService.getWebhookDataForRequestId(paymentRequestId);
+		if (webhookData == null || webhookData.getPayload() == null
+				|| StringUtils.isEmpty(webhookData.getPayload().getPaymentRequestId()))
+		{
+			LOG.error("Webhook data is not available or is not valid");
+			return null;
+		}
+		LogHelper.debugLog(LOG, "Webhook data found for the payment request id :: " + paymentRequestId);
+		return webhookData;
+	}
+
 	protected String getSavedSigningKey()
 	{
 		final BaseSiteModel currentSite = baseSiteService.getCurrentBaseSite();

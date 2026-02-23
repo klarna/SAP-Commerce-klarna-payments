@@ -1,4 +1,6 @@
 ACC.klarnaexpcheckout = {
+	keepPolling: false,
+	pollStartTime: null,
 	klarnaButtonLoad : function(containerId) {
 		var buttonTheme = $("#kecButtonTheme").val();
 		var buttonShape = $("#kecButtonShape").val();
@@ -113,12 +115,12 @@ ACC.klarnaexpcheckout = {
 		// Express Checkout button is displayed in PDP and Cart
 	    const currentPageUrl = window.location.pathname;
 	    if(currentPageUrl.includes('/p/') || currentPageUrl.includes('/cart')) {
-			ACC.klarnaexpcheckout.loadKlarnaPaymentButton(klarnaSDK, "#klarna_exp_checkout_container_default");
+			const integratedViaPSP = $("#integratedViaPSP").val();
+			ACC.klarnaexpcheckout.loadKlarnaPaymentButton(klarnaSDK, "#klarna_exp_checkout_container_default", integratedViaPSP);
 			// Button will be displayed in two places in Cart page
 		    if((window.location.pathname).includes('/cart')) {
-				ACC.klarnaexpcheckout.loadKlarnaPaymentButton(klarnaSDK, "#klarna_exp_checkout_container_checkout_display");
+				ACC.klarnaexpcheckout.loadKlarnaPaymentButton(klarnaSDK, "#klarna_exp_checkout_container_checkout_display", integratedViaPSP);
 			}
-			const integratedViaPSP = $("#integratedViaPSP").val();
 		    klarnaSDK.Payment.on('shippingaddresschange', async (paymentRequest, shippingAddress) => {
 	            try {
 	                const shippingAddressResponse = await ACC.klarnaexpcheckout.updateShippingAddress(paymentRequest, shippingAddress);
@@ -189,7 +191,7 @@ ACC.klarnaexpcheckout = {
 		}
 	},
 	
-	loadKlarnaPaymentButton : function(klarnaSDK, containerId) {
+	loadKlarnaPaymentButton : function(klarnaSDK, containerId, integratedViaPSP) {
 		const $kecDiv = $("#kecDiv");
     	const buttonshape = $kecDiv.data("buttonshape");
 	    const buttontheme = $kecDiv.data("buttontheme");
@@ -207,7 +209,12 @@ ACC.klarnaexpcheckout = {
 	                return;
 	            }
 	            // console.log("paymentResponse.paymentRequestId:: "+paymentResponse.payment_request_id);
-				// TODO Polling
+				// Start Polling
+				if(integratedViaPSP == "false") {
+					keepPolling = true;
+					pollStartTime = Date.now();
+					ACC.klarnaexpcheckout.pollPaymentStatus(paymentResponse.payment_request_id);
+				}	
 				var paymentRequestId = { paymentRequestId: paymentResponse.payment_request_id };
 	            return paymentRequestId;
 	        }
@@ -281,6 +288,48 @@ ACC.klarnaexpcheckout = {
 		});
 	},
 	
+	pollPaymentStatus: function(paymentRequestId) {
+		if (!keepPolling) return;
+	    // Check if polling has exceeded maximum duration
+	    var elapsedTime = Date.now() - pollStartTime;
+	    if (elapsedTime > 60000) {
+	        keepPolling = false;
+	        pollStartTime = null;
+	        showMessage('Payment Authorization Failed.');
+	        return;
+	    }
+		
+		ACC.klarnaexpcheckout.checkPaymentStatus(paymentRequestId).done(function(resp) {
+		    console.log("Payment status:", resp); // "SUCCESS"
+		    if(resp == 'SUCCESS') {
+				// TODO redirect to place order
+			}
+			else if(resp == 'NOT_READY') {
+				if (keepPolling) {
+		            setTimeout(function () { ACC.klarnaexpcheckout.pollPaymentStatus(paymentRequestId); }, 2000);
+		        }
+			} else {
+	            keepPolling = false;
+	            pollStartTime = null;
+	            ACC.klarnaexpcheckout.showMessage(expressCheckoutErrorMessage);
+	            return;
+	        }
+		});    
+	},
+	
+	checkPaymentStatus: function(paymentRequestId) {
+		var kecCheckPaymentStatusUrl = $("#kecCheckPaymentStatusUrl").val();
+		return $.ajax({
+			url: kecCheckPaymentStatusUrl,
+			data: JSON.stringify({
+                paymentRequestId: paymentRequestId
+            }),
+			method: 'POST',
+			contentType: 'application/json'
+		});
+	},
+	
+	
 };	
 
 window.klarnaAsyncCallback = function () {
@@ -299,39 +348,4 @@ window.klarnaAsyncCallback = function () {
 		}
 	}
 };
-
-/*window.KlarnaSDKCallback = async function () {
-		
- 	const $klarnaDiv = $("#klarnaDiv");
-
-    const productsJson = $klarnaDiv.data("products");
-    const integratorJson = $klarnaDiv.data("integrator");   
-    const originatorsJson = $klarnaDiv.data("originators");
-
-	// Check if SDK v2 is enabled
-	var $loadWebSDKv2Div = $('#loadWebSDKv2Div');
-	var isSDKv2Enabled = $loadWebSDKv2Div.length > 0 && $loadWebSDKv2Div.data('enabled') === true;
-	// Check if SDK v1 is enabled 
-	var $loadWebSDKv1Div = $('#loadWebSDKv1Div');
-	var isSDKv1Enabled = $loadWebSDKv1Div.length > 0 && $loadWebSDKv1Div.data('enabled') === true;
-	if (isSDKv2Enabled && !isSDKv1Enabled) {
-		
-		var klarnaClientId = $("#klarnaClientId").val();
-		var klarnaLocale = $("#klarnaLocale").val();
-		
-		const klarna = await Klarna.init({
-	      clientId: klarnaClientId,
-	      products: JSON.parse(productsJson),
-	      locale: klarnaLocale,
-	      integrator: JSON.parse(integratorJson),
-	      originators: JSON.parse(originatorsJson),
-	    });
-		
-		var buttonTheme = $("#kecButtonTheme").val();
-		var buttonShape = $("#kecButtonShape").val();
-		
-		
-	}	
-};*/
-
 

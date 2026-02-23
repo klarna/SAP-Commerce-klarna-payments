@@ -28,11 +28,13 @@ import org.apache.log4j.Logger;
 
 import com.klarna.api.expcheckout.model.KlarnaExpCheckoutAuthorizationResponse;
 import com.klarna.api.payments.model.PaymentsSession;
+import com.klarna.integration.dto.KlarnaAddressDTO;
 import com.klarna.payment.data.KlarnaAddressData;
 import com.klarna.payment.data.KlarnaPaymentRequestData;
 import com.klarna.payment.data.KlarnaRequestData;
 import com.klarna.payment.data.KlarnaShippingChangeResponseData;
 import com.klarna.payment.data.KlarnaShippingOptionData;
+import com.klarna.payment.data.KlarnaWebhookData;
 import com.klarna.payment.facades.KlarnaExpCheckoutFacade;
 import com.klarna.payment.model.KPPaymentInfoModel;
 import com.klarna.payment.util.LogHelper;
@@ -89,6 +91,9 @@ public class DefaultKlarnaExpCheckoutFacade implements KlarnaExpCheckoutFacade
 
 	@Resource
 	private Converter<AbstractOrderModel, KlarnaShippingChangeResponseData> klarnaShippingChangeResponseConverter;
+
+	@Resource
+	private Converter<KlarnaAddressDTO, AddressData> klarnaAddressDTOReverseConverter;
 
 
 	@Override
@@ -350,7 +355,7 @@ public class DefaultKlarnaExpCheckoutFacade implements KlarnaExpCheckoutFacade
 	{
 		final CartModel cartModel = cartService.getSessionCart();
 		KPPaymentInfoModel kpPaymentInfoModel = null;
-		if ((cartModel.getPaymentInfo() == null) || !(cartModel.getPaymentInfo() instanceof KPPaymentInfoModel))
+		if (!(cartModel.getPaymentInfo() instanceof KPPaymentInfoModel))
 		{
 			kpPaymentInfoModel = modelService.create(KPPaymentInfoModel.class);
 			kpPaymentInfoModel.setCode(KLARNA_PREFIX + cartModel.getCode());
@@ -368,12 +373,14 @@ public class DefaultKlarnaExpCheckoutFacade implements KlarnaExpCheckoutFacade
 	@Override
 	public boolean setBillingAddress(final KlarnaRequestData requestData)
 	{
-		// Set Payment Info and Billing Address
 		final KlarnaAddressData klarnaBillingAddressData = getBillingAddressFromPaymentRequest(requestData.getPaymentRequest());
 		AddressData billingAddress = getAddressData(klarnaBillingAddressData);
 		if (billingAddress != null)
 		{
-			addRecipientNameToAddress(billingAddress, requestData.getPaymentRequest());
+			billingAddress.setFirstName(
+					requestData.getPaymentRequest().getStateContext().getKlarnaCustomer().getCustomerProfile().getGivenName());
+			billingAddress.setLastName(
+					requestData.getPaymentRequest().getStateContext().getKlarnaCustomer().getCustomerProfile().getFamilyName());
 		}
 		else
 		{
@@ -391,6 +398,114 @@ public class DefaultKlarnaExpCheckoutFacade implements KlarnaExpCheckoutFacade
 		modelService.refresh(cartModel);
 		return true;
 	}
+
+	@Override
+	public boolean updateCartWithWebhookData(final KlarnaWebhookData webhookData)
+	{
+		// Set Shipping Address and Shipping Option
+		if (!setShippingAddressWithWebhookData(webhookData))
+		{
+			return false;
+		}
+		if (!setShippingOptionWithWebhookData(webhookData))
+		{
+			return false;
+		}
+		// Set Payment Info and Billing Address
+		if (!setPaymentInfoWithWebhookData(webhookData))
+		{
+			return false;
+		}
+		return setBillingAddressWithWebhookData(webhookData);
+	}
+
+	protected boolean setShippingAddressWithWebhookData(final KlarnaWebhookData webhookData)
+	{
+		if (webhookData.getPayload() == null || webhookData.getPayload().getShipping() == null
+				|| webhookData.getPayload().getShipping().getAddress() == null)
+		{
+			LOG.error("Shipping address not available in webhook data");
+			return false;
+		}
+		final KlarnaAddressDTO shippingAddressDTO = webhookData.getPayload().getShipping().getAddress();
+		final AddressData shippingAddress = klarnaAddressDTOReverseConverter.convert(shippingAddressDTO);
+		if (webhookData.getPayload().getShipping().getRecipient() != null)
+		{
+			shippingAddress.setFirstName(webhookData.getPayload().getShipping().getRecipient().getGivenName());
+			shippingAddress.setLastName(webhookData.getPayload().getShipping().getRecipient().getFamilyName());
+		}
+		if (!isValidAddress(shippingAddress))
+		{
+			LOG.error("Invalid shipping address. Cannot proceed with checkout");
+			return false;
+		}
+		userFacade.addAddress(shippingAddress);
+		if (!checkoutFacade.setDeliveryAddress(shippingAddress))
+		{
+			LOG.error("Shipping address couldnot be set. Cannot proceed with order placement");
+			return false;
+		}
+		return true;
+	}
+
+	protected boolean setShippingOptionWithWebhookData(final KlarnaWebhookData webhookData)
+	{
+		if (StringUtils.isNotEmpty(webhookData.getPayload().getShipping().getShippingReference()))
+		{
+			return checkoutFacade.setDeliveryMode(webhookData.getPayload().getShipping().getShippingReference());
+		}
+		return false;
+	}
+
+	protected boolean setPaymentInfoWithWebhookData(final KlarnaWebhookData webhookData)
+	{
+		final CartModel cartModel = cartService.getSessionCart();
+		KPPaymentInfoModel kpPaymentInfoModel = null;
+		if (!(cartModel.getPaymentInfo() instanceof KPPaymentInfoModel))
+		{
+			kpPaymentInfoModel = modelService.create(KPPaymentInfoModel.class);
+			kpPaymentInfoModel.setCode(KLARNA_PREFIX + cartModel.getCode());
+			kpPaymentInfoModel.setUser(cartModel.getUser());
+			kpPaymentInfoModel.setOwner(cartModel);
+		}
+		else
+		{
+			kpPaymentInfoModel = (KPPaymentInfoModel) cartModel.getPaymentInfo();
+		}
+		kpPaymentInfoModel.setAuthToken(webhookData.getPayload().getPaymentToken());
+		return setPaymentInfoInCart(cartModel, kpPaymentInfoModel);
+	}
+
+	protected boolean setBillingAddressWithWebhookData(final KlarnaWebhookData webhookData)
+	{
+		AddressData billingAddress;
+		if (webhookData.getPayload().getKlarnaCustomer() != null
+				&& webhookData.getPayload().getKlarnaCustomer().getCustomerProfile() != null
+				&& webhookData.getPayload().getKlarnaCustomer().getCustomerProfile().getAddress() != null)
+		{
+			final KlarnaAddressDTO billingAddressDTO = webhookData.getPayload().getKlarnaCustomer().getCustomerProfile()
+					.getAddress();
+			billingAddress = klarnaAddressDTOReverseConverter.convert(billingAddressDTO);
+			billingAddress.setFirstName(webhookData.getPayload().getKlarnaCustomer().getCustomerProfile().getGivenName());
+			billingAddress.setLastName(webhookData.getPayload().getKlarnaCustomer().getCustomerProfile().getFamilyName());
+		}
+		else
+		{
+			billingAddress = checkoutFacade.getCheckoutCart().getDeliveryAddress();
+		}
+		final AddressModel addressModel = kpAddressReverseConverter.convert(billingAddress);
+		addressModel.setBillingAddress(Boolean.TRUE);
+		final CartModel cartModel = cartService.getSessionCart();
+		final KPPaymentInfoModel kpPaymentInfoModel = (KPPaymentInfoModel) cartModel.getPaymentInfo();
+		addressModel.setOwner(kpPaymentInfoModel);
+		kpPaymentInfoModel.setBillingAddress(addressModel);
+		cartModel.setPaymentAddress(addressModel);
+		modelService.saveAll(addressModel, kpPaymentInfoModel, cartModel);
+		modelService.refresh(kpPaymentInfoModel);
+		modelService.refresh(cartModel);
+		return true;
+	}
+
 
 	private void addRecipientNameToAddress(final AddressData address, final KlarnaPaymentRequestData paymentRequestData)
 	{

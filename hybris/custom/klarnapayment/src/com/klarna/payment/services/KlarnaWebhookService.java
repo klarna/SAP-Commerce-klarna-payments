@@ -33,6 +33,8 @@ public interface KlarnaWebhookService
 
 	KlarnaWebhookNotificationModel getWebhookNotificationById(final String id);
 
+	KlarnaWebhookData getWebhookDataForRequestId(final String paymentRequestId);
+
 	KlarnaWebhookNotificationModel getSavedWebhookNotification(final String paymentRequestId);
 
 }
