@@ -67,7 +67,6 @@ public class KlarnaExpCheckoutController extends AbstractPageController
 
 	private static final String IS_KLARNA_EXP_CHECKOUT_SESSION = "isKlarnaExpCheckoutSession";
 	private static final String CLIENT_TOKEN = "clientToken";
-	private static final String IS_PAYMENT_BEING_PROCESSED = "isPaymentBeingProcessed";
 
 	@Resource(name = "REDIRECT_TO_SUMMARY")
 	private String redirectToSummary;
@@ -354,28 +353,29 @@ public class KlarnaExpCheckoutController extends AbstractPageController
 
 	@RequestMapping(value = "/on-payment-complete", method = RequestMethod.POST)
 	@ResponseBody
-	public boolean onPaymentComplete(@RequestBody
+	public ResponseEntity<Map<String, Object>> onPaymentComplete(@RequestBody
 	final KlarnaRequestData requestData, final HttpServletRequest request, final HttpServletResponse response)
 	{
 		try
 		{
-			if (BooleanUtils.isTrue(getSessionService().getAttribute(IS_PAYMENT_BEING_PROCESSED)))
+			if (BooleanUtils.isTrue(getSessionService().getAttribute(KlarnapaymentaddonWebConstants.IS_PAYMENT_BEING_PROCESSED)))
 			{
 				// Return as payment is already being processed (by webhook polling process)
 				LogHelper.debugLog(LOG, "Exiting as payment is already being procssed");
-				return false;
+				Map<String, Object> responseBody = Map.of(KlarnapaymentaddonWebConstants.KLARNA_RESPONSE_STATUS,
+						KlarnapaymentaddonWebConstants.KLARNA_RESPONSE_STATUS_ERROR);
+				return ResponseEntity.ok().body(responseBody);
 			}
 			else
 			{
-				getSessionService().setAttribute(IS_PAYMENT_BEING_PROCESSED, Boolean.TRUE);
+				getSessionService().setAttribute(KlarnapaymentaddonWebConstants.IS_PAYMENT_BEING_PROCESSED, Boolean.TRUE);
 			}
-
 			// Check if the request object is valid
 			if (requestData == null || requestData.getPaymentRequest() == null
 					|| requestData.getPaymentRequest().getStateContext() == null)
 			{
 				LOG.error("Invalid payment request");
-				return false;
+				return getResponseForPaymentUpdate(KlarnapaymentaddonWebConstants.KLARNA_RESPONSE_STATUS_ERROR, null);
 			}
 			if (!StringUtils.equalsIgnoreCase(KlarnapaymentConstants.KLARNA_PAYMENT_STATUS_COMPLETED,
 					requestData.getPaymentRequest().getState()))
@@ -384,7 +384,7 @@ public class KlarnaExpCheckoutController extends AbstractPageController
 			}
 			if (!klarnaExpCheckoutHelper.validateExpressCheckoutCart())
 			{
-				return false;
+				return getResponseForPaymentUpdate(KlarnapaymentaddonWebConstants.KLARNA_RESPONSE_STATUS_ERROR, null);
 			}
 			final KlarnaConfigData klarnaConfig = klarnaConfigFacade.getKlarnaConfig();
 			if (Boolean.TRUE.equals(klarnaConfig.getIntegratedViaPSP()))
@@ -395,77 +395,81 @@ public class KlarnaExpCheckoutController extends AbstractPageController
 					response))
 			{
 				LOG.error("Invalid checkout user. Cannot proceed with order placement");
-				return false;
+				return getResponseForPaymentUpdate(KlarnapaymentaddonWebConstants.KLARNA_RESPONSE_STATUS_ERROR, null);
 			}
 
 			if (!klarnaExpCheckoutFacade.updateCartForCheckout(requestData))
 			{
 				LOG.error("Cart couldnot be updated for Checkout. Cannot proceed with order placement");
-				return false;
+				return getResponseForPaymentUpdate(KlarnapaymentaddonWebConstants.KLARNA_RESPONSE_STATUS_ERROR, null);
 			}
 			LogHelper.debugLog(LOG, "Cart updated successfully for checkout");
-			getSessionService().setAttribute(IS_PAYMENT_BEING_PROCESSED, Boolean.FALSE);
-			return true;
+			getSessionService().setAttribute(KlarnapaymentaddonWebConstants.IS_PAYMENT_BEING_PROCESSED, Boolean.FALSE);
+			return getResponseForPaymentUpdate(KlarnapaymentaddonWebConstants.KLARNA_RESPONSE_STATUS_SUCCESS,
+					KlarnapaymentaddonWebConstants.KLARNA_PLACE_ORDER_PATH);
 		}
 		catch (Exception e)
 		{
 			LOG.error("Exception occured during shipping address update :: ", e);
 		}
-		return false;
+		return getResponseForPaymentUpdate(KlarnapaymentaddonWebConstants.KLARNA_RESPONSE_STATUS_ERROR, null);
 	}
 
 	@RequestMapping(value = "/check-payment-status", method = RequestMethod.POST)
 	@ResponseBody
-	public ResponseEntity<String> checkPaymentStatus(@RequestBody
+	public ResponseEntity<Map<String, Object>> checkPaymentStatus(@RequestBody
 	final Map<String, String> paymentRequest, final HttpServletRequest request, final HttpServletResponse response)
 	{
 		try
 		{
-			if (BooleanUtils.isTrue(getSessionService().getAttribute(IS_PAYMENT_BEING_PROCESSED)))
+			if (BooleanUtils.isTrue(getSessionService().getAttribute(KlarnapaymentaddonWebConstants.IS_PAYMENT_BEING_PROCESSED)))
 			{
-				// Return as payment is already being processed (by webhook polling process)
+				// Return as payment is already being processed (by on-payment-complete callback)
 				LogHelper.debugLog(LOG, "Exiting as payment is already being procssed");
-				return ResponseEntity.ok(KlarnapaymentaddonWebConstants.KLARNA_RESPONSE_NOT_READY);
+				Map<String, Object> responseBody = Map.of(KlarnapaymentaddonWebConstants.KLARNA_RESPONSE_STATUS,
+						KlarnapaymentaddonWebConstants.KLARNA_RESPONSE_STATUS_NOT_READY);
+				return ResponseEntity.ok().body(responseBody);
 			}
 			else
 			{
-				getSessionService().setAttribute(IS_PAYMENT_BEING_PROCESSED, Boolean.TRUE);
+				getSessionService().setAttribute(KlarnapaymentaddonWebConstants.IS_PAYMENT_BEING_PROCESSED, Boolean.TRUE);
 			}
 			final String paymentRequestId = paymentRequest.get("paymentRequestId");
 			if (StringUtils.isEmpty(paymentRequestId))
 			{
 				LOG.error("Error! Payment request id is missing!");
-				return getResponseObject(KlarnapaymentaddonWebConstants.KLARNA_RESPONSE_ERROR);
+				return getResponseForPaymentUpdate(KlarnapaymentaddonWebConstants.KLARNA_RESPONSE_STATUS_ERROR, null);
 			}
 			final KlarnaWebhookData webhookData = klarnaWebhookFacade.getSavedWebhookData(paymentRequestId);
 			if (webhookData == null)
 			{
-				return getResponseObject(KlarnapaymentaddonWebConstants.KLARNA_RESPONSE_NOT_READY);
+				return getResponseForPaymentUpdate(KlarnapaymentaddonWebConstants.KLARNA_RESPONSE_STATUS_NOT_READY, null);
 			}
 			// Update Cart with Webhook data
 			if (!klarnaExpCheckoutHelper.validateExpressCheckoutCart())
 			{
 				LOG.error("Error! Invalid Cart!");
-				return getResponseObject(KlarnapaymentaddonWebConstants.KLARNA_RESPONSE_ERROR);
+				return getResponseForPaymentUpdate(KlarnapaymentaddonWebConstants.KLARNA_RESPONSE_STATUS_ERROR, null);
 			}
 			if (!prepareCheckoutUser(klarnaExpCheckoutHelper.getEmailIdFromWebhookData(webhookData), request, response))
 			{
 				LOG.error("Error! Invalid checkout user. Cannot proceed with order placement");
-				return getResponseObject(KlarnapaymentaddonWebConstants.KLARNA_RESPONSE_ERROR);
+				return getResponseForPaymentUpdate(KlarnapaymentaddonWebConstants.KLARNA_RESPONSE_STATUS_ERROR, null);
 			}
 			if (!klarnaExpCheckoutFacade.updateCartWithWebhookData(webhookData))
 			{
 				LOG.error("Error! Cart couldnot be updated for Checkout. Cannot proceed with order placement");
-				return getResponseObject(KlarnapaymentaddonWebConstants.KLARNA_RESPONSE_ERROR);
+				return getResponseForPaymentUpdate(KlarnapaymentaddonWebConstants.KLARNA_RESPONSE_STATUS_ERROR, null);
 			}
 			LogHelper.debugLog(LOG, "Cart updated successfully for checkout");
-			return getResponseObject(KlarnapaymentaddonWebConstants.KLARNA_RESPONSE_SUCCESS);
+			return getResponseForPaymentUpdate(KlarnapaymentaddonWebConstants.KLARNA_RESPONSE_STATUS_SUCCESS,
+					KlarnapaymentaddonWebConstants.KLARNA_PLACE_ORDER_PATH);
 		}
 		catch (Exception e)
 		{
 			LOG.error("Exception occured during shipping address update :: ", e);
 		}
-		return getResponseObject(KlarnapaymentaddonWebConstants.KLARNA_RESPONSE_ERROR);
+		return getResponseForPaymentUpdate(KlarnapaymentaddonWebConstants.KLARNA_RESPONSE_STATUS_ERROR, null);
 	}
 
 	private boolean prepareCheckoutUser(final String emailId,
@@ -579,7 +583,7 @@ public class KlarnaExpCheckoutController extends AbstractPageController
 		}
 	}
 
-	private boolean handleOneStepKECForPSPIntegration(final KlarnaPaymentRequestData paymentRequest)
+	private ResponseEntity<Map<String, Object>> handleOneStepKECForPSPIntegration(final KlarnaPaymentRequestData paymentRequest)
 	{
 		if (StringUtils.isNotEmpty(paymentRequest.getStateContext().getInteroperabilityToken()))
 		{
@@ -595,7 +599,7 @@ public class KlarnaExpCheckoutController extends AbstractPageController
 			LogHelper.debugLog(LOG, "Klarna Network Session Token for Cart Id " + cartFacade.getSessionCart().getCode()
 					+ " saved to session:: " + paymentRequest.getStateContext().getKlarnaNetworkSessionToken());
 		}
-		return true;
+		return getResponseForPaymentUpdate(KlarnapaymentaddonWebConstants.KLARNA_RESPONSE_STATUS_SUCCESS, null);
 	}
 
 	private Map<String, Object> getErrorResponseForShippingAddressChangeUpdate()
@@ -618,10 +622,19 @@ public class KlarnaExpCheckoutController extends AbstractPageController
 		return errorResponse;
 	}
 
-	private ResponseEntity<String> getResponseObject(final String status)
+	private ResponseEntity<Map<String, Object>> getResponseForPaymentUpdate(final String status, final String redirectUrl)
 	{
-		getSessionService().setAttribute(IS_PAYMENT_BEING_PROCESSED, Boolean.FALSE);
-		return ResponseEntity.ok(status);
+		getSessionService().setAttribute(KlarnapaymentaddonWebConstants.IS_PAYMENT_BEING_PROCESSED, Boolean.FALSE);
+		Map<String, Object> responseBody = new HashMap<>();
+		if (StringUtils.isNotEmpty(status))
+		{
+			responseBody.put(KlarnapaymentaddonWebConstants.KLARNA_RESPONSE_STATUS, status);
+		}
+		if (StringUtils.isNotEmpty(redirectUrl))
+		{
+			responseBody.put(KlarnapaymentaddonWebConstants.KLARNA_RESPONSE_REDIRECT_URL, redirectUrl);
+		}
+		return ResponseEntity.ok().body(responseBody);
 	}
 
 }

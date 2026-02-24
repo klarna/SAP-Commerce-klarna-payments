@@ -1,5 +1,7 @@
 package com.klarna.payment.util;
 
+import de.hybris.platform.util.Config;
+
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -17,9 +19,16 @@ public final class KlarnaValidationUtil
 {
 	private static final Logger LOG = Logger.getLogger(KlarnaValidationUtil.class);
 	private static final String HMAC_SHA_256 = "HmacSHA256";
+	private static final String KLARNA_WEBHOOK_SIGNATURE_VERIFICATION_FLAG = "klarna.webhook.signature.verification.enabled";
 
 	public boolean validateSignature(final byte[] requestBody, final String signature, final String savedSigningKey)
 	{
+		if (!Config.getBoolean(KLARNA_WEBHOOK_SIGNATURE_VERIFICATION_FLAG, true))
+		{
+			LogHelper.debugLog(LOG, "Signature validation is not enabled.");
+			return true;
+		}
+
 		LogHelper.debugLog(LOG, "Validating Webhook Signature");
 		if (StringUtils.isEmpty(savedSigningKey))
 		{

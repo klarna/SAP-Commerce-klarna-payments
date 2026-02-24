@@ -121,6 +121,7 @@ ACC.klarnaexpcheckout = {
 		    if((window.location.pathname).includes('/cart')) {
 				ACC.klarnaexpcheckout.loadKlarnaPaymentButton(klarnaSDK, "#klarna_exp_checkout_container_checkout_display", integratedViaPSP);
 			}
+			//if(integratedViaPSP === false) {
 		    klarnaSDK.Payment.on('shippingaddresschange', async (paymentRequest, shippingAddress) => {
 	            try {
 	                const shippingAddressResponse = await ACC.klarnaexpcheckout.updateShippingAddress(paymentRequest, shippingAddress);
@@ -160,6 +161,7 @@ ACC.klarnaexpcheckout = {
 	                return { rejection_reason: 'INVALID_OPTION' };
 	            }
 	        });
+	        //}
 	        
 			klarnaSDK.Payment.on('complete', async (paymentRequest) => {										
 				const key = paymentRequest?.paymentRequestId 
@@ -171,10 +173,22 @@ ACC.klarnaexpcheckout = {
 			    }			
 			    window.KlarnaV2._completedRequests.add(key);					    
 		        if (paymentRequest) {
-					//console.log("Payment Request: ", JSON.stringify(paymentRequest)); 
+					console.log("Payment Request: ", JSON.stringify(paymentRequest)); 
 		            const paymentCompleteResponse = await ACC.klarnaexpcheckout.onPaymentComplete(paymentRequest);
-		            if(integratedViaPSP) {
+		            console.log("Payment Response: ", JSON.stringify(paymentCompleteResponse)); 
+		            if(integratedViaPSP === true) {
+						// Redirect to PSP specific checkout
+						// Returning false to prevent redirection temporarily
 						return false;
+					}
+					else {
+						if(paymentCompleteResponse.status === "SUCCESS") {
+							// Redirect to placeOrder
+							window.location = ACC.config.encodedContextPath + paymentCompleteResponse.redirectUrl;
+						}
+						else {
+							ACC.klarnaexpcheckout.showMessage('Klarna Express Checkout Failed. Please try again later.');
+						}
 					}
 					return false;
 		        }
@@ -213,7 +227,7 @@ ACC.klarnaexpcheckout = {
 				if(integratedViaPSP == "false") {
 					keepPolling = true;
 					pollStartTime = Date.now();
-					ACC.klarnaexpcheckout.pollPaymentStatus(paymentResponse.payment_request_id);
+					//ACC.klarnaexpcheckout.pollPaymentStatus(paymentResponse.payment_request_id);
 				}	
 				var paymentRequestId = { paymentRequestId: paymentResponse.payment_request_id };
 	            return paymentRequestId;
@@ -292,26 +306,26 @@ ACC.klarnaexpcheckout = {
 		if (!keepPolling) return;
 	    // Check if polling has exceeded maximum duration
 	    var elapsedTime = Date.now() - pollStartTime;
-	    if (elapsedTime > 60000) {
+	    // Continue polling for 5 mins
+	    if (elapsedTime > 300000) {
 	        keepPolling = false;
 	        pollStartTime = null;
-	        showMessage('Payment Authorization Failed.');
+	        ACC.klarnaexpcheckout.showMessage('Klarna Express Checkout Failed. Please try again later.');
 	        return;
-	    }
-		
-		ACC.klarnaexpcheckout.checkPaymentStatus(paymentRequestId).done(function(resp) {
-		    console.log("Payment status:", resp); // "SUCCESS"
-		    if(resp == 'SUCCESS') {
-				// TODO redirect to place order
+	    }	
+		ACC.klarnaexpcheckout.checkPaymentStatus(paymentRequestId).done(function(response) {
+		    console.log("Payment status:", response); // "SUCCESS"
+		    if(response.status === 'SUCCESS') {
+				window.location = ACC.config.encodedContextPath + response.redirectUrl;
 			}
-			else if(resp == 'NOT_READY') {
+			else if(response.status === 'NOT_READY') {
 				if (keepPolling) {
 		            setTimeout(function () { ACC.klarnaexpcheckout.pollPaymentStatus(paymentRequestId); }, 2000);
 		        }
 			} else {
 	            keepPolling = false;
 	            pollStartTime = null;
-	            ACC.klarnaexpcheckout.showMessage(expressCheckoutErrorMessage);
+	            ACC.klarnaexpcheckout.showMessage('Klarna Express Checkout Failed. Please try again later.');
 	            return;
 	        }
 		});    
@@ -325,6 +339,7 @@ ACC.klarnaexpcheckout = {
                 paymentRequestId: paymentRequestId
             }),
 			method: 'POST',
+			dataType: 'json',
 			contentType: 'application/json'
 		});
 	},

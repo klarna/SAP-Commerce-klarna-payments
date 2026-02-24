@@ -35,6 +35,7 @@ import com.klarna.payment.data.KlarnaRequestData;
 import com.klarna.payment.data.KlarnaShippingChangeResponseData;
 import com.klarna.payment.data.KlarnaShippingOptionData;
 import com.klarna.payment.data.KlarnaWebhookData;
+import com.klarna.payment.facades.KPPaymentFacade;
 import com.klarna.payment.facades.KlarnaExpCheckoutFacade;
 import com.klarna.payment.model.KPPaymentInfoModel;
 import com.klarna.payment.util.LogHelper;
@@ -85,6 +86,9 @@ public class DefaultKlarnaExpCheckoutFacade implements KlarnaExpCheckoutFacade
 
 	@Resource(name = "cartFacade")
 	private CartFacade cartFacade;
+
+	@Resource(name = "kpPaymentFacade")
+	private KPPaymentFacade kpPaymentFacade;
 
 	@Resource
 	private Converter<KlarnaAddressData, AddressData> klarnaAddressReverseConverter;
@@ -367,7 +371,11 @@ public class DefaultKlarnaExpCheckoutFacade implements KlarnaExpCheckoutFacade
 			kpPaymentInfoModel = (KPPaymentInfoModel) cartModel.getPaymentInfo();
 		}
 		kpPaymentInfoModel.setAuthToken(requestData.getPaymentRequest().getStateContext().getPaymentToken());
-		return setPaymentInfoInCart(cartModel, kpPaymentInfoModel);
+		if(setPaymentInfoInCart(cartModel, kpPaymentInfoModel)) {
+			kpPaymentFacade.createPaymentTransaction();
+			return true;
+		}
+		return false;
 	}
 
 	@Override
@@ -393,6 +401,7 @@ public class DefaultKlarnaExpCheckoutFacade implements KlarnaExpCheckoutFacade
 		addressModel.setOwner(kpPaymentInfoModel);
 		kpPaymentInfoModel.setBillingAddress(addressModel);
 		cartModel.setPaymentAddress(addressModel);
+		calculateCart(cartModel);
 		modelService.saveAll(addressModel, kpPaymentInfoModel, cartModel);
 		modelService.refresh(kpPaymentInfoModel);
 		modelService.refresh(cartModel);
@@ -473,7 +482,12 @@ public class DefaultKlarnaExpCheckoutFacade implements KlarnaExpCheckoutFacade
 			kpPaymentInfoModel = (KPPaymentInfoModel) cartModel.getPaymentInfo();
 		}
 		kpPaymentInfoModel.setAuthToken(webhookData.getPayload().getPaymentToken());
-		return setPaymentInfoInCart(cartModel, kpPaymentInfoModel);
+		if (setPaymentInfoInCart(cartModel, kpPaymentInfoModel))
+		{
+			kpPaymentFacade.createPaymentTransaction();
+			return true;
+		}
+		return false;
 	}
 
 	protected boolean setBillingAddressWithWebhookData(final KlarnaWebhookData webhookData)
@@ -500,6 +514,7 @@ public class DefaultKlarnaExpCheckoutFacade implements KlarnaExpCheckoutFacade
 		addressModel.setOwner(kpPaymentInfoModel);
 		kpPaymentInfoModel.setBillingAddress(addressModel);
 		cartModel.setPaymentAddress(addressModel);
+		calculateCart(cartModel);
 		modelService.saveAll(addressModel, kpPaymentInfoModel, cartModel);
 		modelService.refresh(kpPaymentInfoModel);
 		modelService.refresh(cartModel);

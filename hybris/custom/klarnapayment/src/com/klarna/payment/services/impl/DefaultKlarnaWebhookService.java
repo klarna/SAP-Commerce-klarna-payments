@@ -151,7 +151,7 @@ public class DefaultKlarnaWebhookService implements KlarnaWebhookService
 				webhookNotificationModel = modelService.create(KlarnaWebhookNotificationModel.class);
 				webhookNotificationModel.setId(webhookData.getPayload().getPaymentRequestId());
 			}
-			webhookNotificationModel.setPayload(klarnaServicesUtil.convertRequestDtoToString(webhookData.getPayload()));
+			webhookNotificationModel.setPayload(klarnaServicesUtil.convertRequestDtoToString(webhookData));
 			webhookNotificationModel.setEventStatus(webhookData.getPayload().getState());
 			if (webhookData.getMetadata() != null)
 			{

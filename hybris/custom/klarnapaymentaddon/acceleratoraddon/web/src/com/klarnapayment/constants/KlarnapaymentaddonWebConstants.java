@@ -30,7 +30,13 @@ public final class KlarnapaymentaddonWebConstants // NOSONAR
 	public static final String KLARNA_INTEROPERABILITY_TOKEN = "klarnaInteroperabilityToken";
 	public static final String KLARNA_NETWORK_SESSION_TOKEN = "klarnaNetworkSessionToken";
 
-	public static final String KLARNA_RESPONSE_SUCCESS = "SUCCESS";
-	public static final String KLARNA_RESPONSE_ERROR = "ERROR";
-	public static final String KLARNA_RESPONSE_NOT_READY = "NOT_READY";
+	public static final String KLARNA_RESPONSE_STATUS = "status";
+	public static final String KLARNA_RESPONSE_REDIRECT_URL = "redirectUrl";
+	public static final String KLARNA_RESPONSE_STATUS_SUCCESS = "SUCCESS";
+	public static final String KLARNA_RESPONSE_STATUS_ERROR = "ERROR";
+	public static final String KLARNA_RESPONSE_STATUS_NOT_READY = "NOT_READY";
+
+	public static final String KLARNA_PLACE_ORDER_PATH = "/checkout/multi/summary/klarna/placeOrder";
+	public static final String IS_PAYMENT_BEING_PROCESSED = "isPaymentBeingProcessed";
+
 }
