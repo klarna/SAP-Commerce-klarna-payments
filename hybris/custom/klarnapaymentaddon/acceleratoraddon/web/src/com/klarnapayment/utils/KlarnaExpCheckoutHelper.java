@@ -1,6 +1,7 @@
 package com.klarnapayment.utils;
 
 import de.hybris.platform.commercefacades.order.CartFacade;
+import de.hybris.platform.commerceservices.config.SiteConfigService;
 import de.hybris.platform.servicelayer.session.SessionService;
 
 import javax.annotation.Resource;
@@ -120,5 +121,4 @@ public class KlarnaExpCheckoutHelper
 		}
 		return null;
 	}
-
 }

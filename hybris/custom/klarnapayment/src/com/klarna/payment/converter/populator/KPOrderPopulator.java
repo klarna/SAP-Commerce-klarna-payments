@@ -6,6 +6,8 @@ import de.hybris.platform.core.model.order.AbstractOrderModel;
 import de.hybris.platform.servicelayer.dto.converter.ConversionException;
 import de.hybris.platform.servicelayer.dto.converter.Converter;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.klarna.payment.data.KPPaymentInfoData;
 import com.klarna.payment.model.KPPaymentInfoModel;
 
@@ -20,7 +22,7 @@ public class KPOrderPopulator extends AbstractOrderPopulator<AbstractOrderModel,
 		if (source.getPaymentInfo() instanceof KPPaymentInfoModel)
 		{
 			target.setKpOrderId(source.getKpOrderId());
-			target.setKpFraudStatus(source.getKpFraudStatus().toString());
+			target.setKpFraudStatus((source.getKpFraudStatus() != null) ? source.getKpFraudStatus().toString() : StringUtils.EMPTY);
 			target.setKpIsPendingOrder(source.getIsKpPendingOrder());
 			target.setKpIdentifier(source.getKpIdentifier());
 			if (source.getPaymentAddress() != null)

@@ -403,10 +403,14 @@ public class KlarnaExpCheckoutController extends AbstractPageController
 				LOG.error("Cart couldnot be updated for Checkout. Cannot proceed with order placement");
 				return getResponseForPaymentUpdate(KlarnapaymentaddonWebConstants.KLARNA_RESPONSE_STATUS_ERROR, null);
 			}
-			LogHelper.debugLog(LOG, "Cart updated successfully for checkout");
-			getSessionService().setAttribute(KlarnapaymentaddonWebConstants.IS_PAYMENT_BEING_PROCESSED, Boolean.FALSE);
-			return getResponseForPaymentUpdate(KlarnapaymentaddonWebConstants.KLARNA_RESPONSE_STATUS_SUCCESS,
-					KlarnapaymentaddonWebConstants.KLARNA_PLACE_ORDER_PATH);
+
+			if (klarnaExpCheckoutFacade.createKlarnaOrder())
+			{
+				LogHelper.debugLog(LOG, "Klarna order created. Redirect to order placement.");
+				return getResponseForPaymentUpdate(KlarnapaymentaddonWebConstants.KLARNA_RESPONSE_STATUS_SUCCESS,
+						klarnaExpCheckoutFacade.getPlaceOrderURL());
+			}
+			LOG.error("Klarna order creation failed.");
 		}
 		catch (Exception e)
 		{
@@ -461,9 +465,13 @@ public class KlarnaExpCheckoutController extends AbstractPageController
 				LOG.error("Error! Cart couldnot be updated for Checkout. Cannot proceed with order placement");
 				return getResponseForPaymentUpdate(KlarnapaymentaddonWebConstants.KLARNA_RESPONSE_STATUS_ERROR, null);
 			}
-			LogHelper.debugLog(LOG, "Cart updated successfully for checkout");
-			return getResponseForPaymentUpdate(KlarnapaymentaddonWebConstants.KLARNA_RESPONSE_STATUS_SUCCESS,
-					KlarnapaymentaddonWebConstants.KLARNA_PLACE_ORDER_PATH);
+			if (klarnaExpCheckoutFacade.createKlarnaOrder())
+			{
+				LogHelper.debugLog(LOG, "Klarna order created. Redirect to order placement.");
+				return getResponseForPaymentUpdate(KlarnapaymentaddonWebConstants.KLARNA_RESPONSE_STATUS_SUCCESS,
+						klarnaExpCheckoutFacade.getPlaceOrderURL());
+			}
+			LOG.error("Klarna order creation failed.");
 		}
 		catch (Exception e)
 		{

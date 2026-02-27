@@ -2,7 +2,10 @@ package com.klarna.payment.facades;
 
 import de.hybris.platform.commercefacades.user.data.AddressData;
 
+import java.io.IOException;
+
 import com.klarna.api.expcheckout.model.KlarnaExpCheckoutAuthorizationResponse;
+import com.klarna.api.model.ApiException;
 import com.klarna.api.payments.model.PaymentsSession;
 import com.klarna.payment.data.KlarnaAddressData;
 import com.klarna.payment.data.KlarnaRequestData;
@@ -44,5 +47,9 @@ public interface KlarnaExpCheckoutFacade
 	boolean setBillingAddress(final KlarnaRequestData requestData);
 
 	boolean updateCartWithWebhookData(final KlarnaWebhookData webhookData);
+
+	boolean createKlarnaOrder() throws ApiException, IOException;
+
+	String getPlaceOrderURL();
 
 }

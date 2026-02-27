@@ -1,5 +1,6 @@
 package com.klarna.payment.facades.impl;
 
+import de.hybris.platform.acceleratorservices.config.SiteConfigService;
 import de.hybris.platform.commercefacades.address.AddressVerificationFacade;
 import de.hybris.platform.commercefacades.address.data.AddressVerificationErrorField;
 import de.hybris.platform.commercefacades.address.data.AddressVerificationResult;
@@ -20,6 +21,8 @@ import de.hybris.platform.servicelayer.model.ModelService;
 import de.hybris.platform.servicelayer.user.UserService;
 import de.hybris.platform.store.services.BaseStoreService;
 
+import java.io.IOException;
+
 import javax.annotation.Resource;
 
 import org.apache.commons.collections4.MapUtils;
@@ -27,14 +30,18 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.klarna.api.expcheckout.model.KlarnaExpCheckoutAuthorizationResponse;
+import com.klarna.api.model.ApiException;
+import com.klarna.api.payments.model.PaymentsOrder;
 import com.klarna.api.payments.model.PaymentsSession;
 import com.klarna.integration.dto.KlarnaAddressDTO;
+import com.klarna.payment.constants.KlarnapaymentConstants;
 import com.klarna.payment.data.KlarnaAddressData;
 import com.klarna.payment.data.KlarnaPaymentRequestData;
 import com.klarna.payment.data.KlarnaRequestData;
 import com.klarna.payment.data.KlarnaShippingChangeResponseData;
 import com.klarna.payment.data.KlarnaShippingOptionData;
 import com.klarna.payment.data.KlarnaWebhookData;
+import com.klarna.payment.facades.KPPaymentCheckoutFacade;
 import com.klarna.payment.facades.KPPaymentFacade;
 import com.klarna.payment.facades.KlarnaExpCheckoutFacade;
 import com.klarna.payment.model.KPPaymentInfoModel;
@@ -89,6 +96,12 @@ public class DefaultKlarnaExpCheckoutFacade implements KlarnaExpCheckoutFacade
 
 	@Resource(name = "kpPaymentFacade")
 	private KPPaymentFacade kpPaymentFacade;
+
+	@Resource(name = "kpPaymentCheckoutFacade")
+	private KPPaymentCheckoutFacade kpPaymentCheckoutFacade;
+
+	@Resource(name = "siteConfigService")
+	private SiteConfigService siteConfigService;
 
 	@Resource
 	private Converter<KlarnaAddressData, AddressData> klarnaAddressReverseConverter;
@@ -385,10 +398,18 @@ public class DefaultKlarnaExpCheckoutFacade implements KlarnaExpCheckoutFacade
 		AddressData billingAddress = getAddressData(klarnaBillingAddressData);
 		if (billingAddress != null)
 		{
-			billingAddress.setFirstName(
-					requestData.getPaymentRequest().getStateContext().getKlarnaCustomer().getCustomerProfile().getGivenName());
-			billingAddress.setLastName(
-					requestData.getPaymentRequest().getStateContext().getKlarnaCustomer().getCustomerProfile().getFamilyName());
+			if (StringUtils.isNotEmpty(
+					requestData.getPaymentRequest().getStateContext().getKlarnaCustomer().getCustomerProfile().getFamilyName()))
+			{
+				billingAddress.setFirstName(
+						requestData.getPaymentRequest().getStateContext().getKlarnaCustomer().getCustomerProfile().getGivenName());
+				billingAddress.setLastName(
+						requestData.getPaymentRequest().getStateContext().getKlarnaCustomer().getCustomerProfile().getFamilyName());
+			}
+			else
+			{
+				addRecipientNameToAddress(billingAddress, requestData.getPaymentRequest());
+			}
 		}
 		else
 		{
@@ -401,6 +422,11 @@ public class DefaultKlarnaExpCheckoutFacade implements KlarnaExpCheckoutFacade
 		addressModel.setOwner(kpPaymentInfoModel);
 		kpPaymentInfoModel.setBillingAddress(addressModel);
 		cartModel.setPaymentAddress(addressModel);
+		cartModel.setKpIdentifier(KLARNA_PREFIX + cartModel.getCode());
+		if (userService.isAnonymousUser(userService.getCurrentUser()))
+		{
+			cartModel.setKpAnonymousGUID(cartModel.getUser().getUid());
+		}
 		calculateCart(cartModel);
 		modelService.saveAll(addressModel, kpPaymentInfoModel, cartModel);
 		modelService.refresh(kpPaymentInfoModel);
@@ -426,6 +452,26 @@ public class DefaultKlarnaExpCheckoutFacade implements KlarnaExpCheckoutFacade
 			return false;
 		}
 		return setBillingAddressWithWebhookData(webhookData);
+	}
+
+	@Override
+	public boolean createKlarnaOrder() throws ApiException, IOException
+	{
+		final PaymentsOrder authorizationResponse = kpPaymentFacade.getPaymentAuthorization(null);
+		if (authorizationResponse == null)
+		{
+			return false;
+		}
+		kpPaymentCheckoutFacade.saveKlarnaOrderId(authorizationResponse);
+		return true;
+	}
+
+	public String getPlaceOrderURL()
+	{
+		final StringBuilder placeOrderUrl = new StringBuilder(
+				siteConfigService.getProperty(KlarnapaymentConstants.KP_MERCHANT_URL_CONFIRMATION));
+		placeOrderUrl.append("/?kid=KLARNA_").append(cartFacade.getSessionCart().getCode());
+		return placeOrderUrl.toString();
 	}
 
 	protected boolean setShippingAddressWithWebhookData(final KlarnaWebhookData webhookData)
@@ -514,6 +560,11 @@ public class DefaultKlarnaExpCheckoutFacade implements KlarnaExpCheckoutFacade
 		addressModel.setOwner(kpPaymentInfoModel);
 		kpPaymentInfoModel.setBillingAddress(addressModel);
 		cartModel.setPaymentAddress(addressModel);
+		cartModel.setKpIdentifier(KLARNA_PREFIX + cartModel.getCode());
+		if (userService.isAnonymousUser(userService.getCurrentUser()))
+		{
+			cartModel.setKpAnonymousGUID(cartModel.getUser().getUid());
+		}
 		calculateCart(cartModel);
 		modelService.saveAll(addressModel, kpPaymentInfoModel, cartModel);
 		modelService.refresh(kpPaymentInfoModel);

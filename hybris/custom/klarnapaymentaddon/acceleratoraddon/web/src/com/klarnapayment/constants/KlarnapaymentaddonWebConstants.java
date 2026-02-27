@@ -36,7 +36,6 @@ public final class KlarnapaymentaddonWebConstants // NOSONAR
 	public static final String KLARNA_RESPONSE_STATUS_ERROR = "ERROR";
 	public static final String KLARNA_RESPONSE_STATUS_NOT_READY = "NOT_READY";
 
-	public static final String KLARNA_PLACE_ORDER_PATH = "/checkout/multi/summary/klarna/placeOrder";
 	public static final String IS_PAYMENT_BEING_PROCESSED = "isPaymentBeingProcessed";
 
 }

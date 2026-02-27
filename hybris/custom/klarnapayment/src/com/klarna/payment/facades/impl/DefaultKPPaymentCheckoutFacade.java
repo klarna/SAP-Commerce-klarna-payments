@@ -459,7 +459,7 @@ public class DefaultKPPaymentCheckoutFacade implements KPPaymentCheckoutFacade
 			//else if autocapture, do catpure
 
 			/* Creating settlement request only when fraud status is accepted or FRAUD_RISK_ACCEPTED */
-			if (fraudStatus.equals(KlarnaFraudStatusEnum.ACCEPTED.getValue())
+			if (fraudStatus == null || fraudStatus.equals(KlarnaFraudStatusEnum.ACCEPTED.getValue())
 					|| fraudStatus.equals(KlarnaFraudStatusEnum.FRAUD_RISK_ACCEPTED.getValue()))
 			{
 
@@ -559,24 +559,28 @@ public class DefaultKPPaymentCheckoutFacade implements KPPaymentCheckoutFacade
 			}
 			return false;
 		}
-		final HashMap<String, Long> productMap = new HashMap<String, Long>();
-		for (final OrderManagementOrderLine orderLine : orderData.getOrderLines())
+		final KlarnaConfigData klarnaConfig = getklarnaConfigFacade().getKlarnaConfig();
+		if (klarnaConfig.getKecConfig() == null || !Boolean.TRUE.equals(klarnaConfig.getKecConfig().getOneStepCheckout()))
 		{
-			if (KlarnaOrderTypeEnum.PHYSICAL.getValue().equals(orderLine.getType()))
+			final HashMap<String, Long> productMap = new HashMap<String, Long>();
+			for (final OrderManagementOrderLine orderLine : orderData.getOrderLines())
 			{
-				productMap.put(orderLine.getReference(), orderLine.getQuantity());
-			}
-		}
-		for (final OrderEntryData orderEntry : cartData.getEntries())
-		{
-			if (!(productMap.containsKey(orderEntry.getProduct().getCode())
-					&& productMap.get(orderEntry.getProduct().getCode()).equals(orderEntry.getQuantity())))
-			{
-				if (LOG.isWarnEnabled())
+				if (KlarnaOrderTypeEnum.PHYSICAL.getValue().equals(orderLine.getType()))
 				{
-					LOG.warn("Cart is not In Synch");
+					productMap.put(orderLine.getReference(), orderLine.getQuantity());
 				}
-				return false;
+			}
+			for (final OrderEntryData orderEntry : cartData.getEntries())
+			{
+				if (!(productMap.containsKey(orderEntry.getProduct().getCode())
+						&& productMap.get(orderEntry.getProduct().getCode()).equals(orderEntry.getQuantity())))
+				{
+					if (LOG.isWarnEnabled())
+					{
+						LOG.warn("Cart is not In Synch");
+					}
+					return false;
+				}
 			}
 		}
 		return true;
@@ -794,7 +798,7 @@ public class DefaultKPPaymentCheckoutFacade implements KPPaymentCheckoutFacade
 		init_pay_method = init_pay_method == null || init_pay_method.equals("null") ? "" : init_pay_method;
 		description = description == null || description.equals("null") ? "" : description;
 		installments = installments == null || installments.equals("null") ? "" : installments;
-		final String finalPaymentOption = currPaymentOption
+		final String finalPaymentOption = (StringUtils.isNotEmpty(currPaymentOption) ? currPaymentOption : "KLARNA")
 				.concat(pay_separator + init_pay_method + pay_separator + description + pay_separator + installments);
 		kpPaymentInfoModel.setPaymentOption(finalPaymentOption);
 		cartModel.setPaymentInfo(kpPaymentInfoModel);

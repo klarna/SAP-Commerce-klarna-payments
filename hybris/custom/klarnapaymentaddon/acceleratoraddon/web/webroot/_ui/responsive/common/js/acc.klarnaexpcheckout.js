@@ -184,7 +184,7 @@ ACC.klarnaexpcheckout = {
 					else {
 						if(paymentCompleteResponse.status === "SUCCESS") {
 							// Redirect to placeOrder
-							window.location = ACC.config.encodedContextPath + paymentCompleteResponse.redirectUrl;
+							window.location = paymentCompleteResponse.redirectUrl;
 						}
 						else {
 							ACC.klarnaexpcheckout.showMessage('Klarna Express Checkout Failed. Please try again later.');
@@ -316,7 +316,7 @@ ACC.klarnaexpcheckout = {
 		ACC.klarnaexpcheckout.checkPaymentStatus(paymentRequestId).done(function(response) {
 		    console.log("Payment status:", response); // "SUCCESS"
 		    if(response.status === 'SUCCESS') {
-				window.location = ACC.config.encodedContextPath + response.redirectUrl;
+				window.location = response.redirectUrl;
 			}
 			else if(response.status === 'NOT_READY') {
 				if (keepPolling) {
