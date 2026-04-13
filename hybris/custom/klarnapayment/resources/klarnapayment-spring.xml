@@ -132,6 +132,17 @@
     <alias name="defaultKlarnaCredentialPopulator" alias="klarnaCredentialPopulator"/>
     <bean id="defaultKlarnaCredentialPopulator" class="com.klarna.converter.populator.KlarnaCredentialPopulator">
     </bean>
+   	
+	<bean id="klarnaCredentialValidateInterceptor"
+      	class="com.klarna.payment.interceptors.KlarnaCredentialValidateInterceptor" >
+    </bean>
+    <bean id="klarnaCredentialValidateMapping" class="de.hybris.platform.servicelayer.interceptor.impl.InterceptorMapping">
+        <property name="interceptor" ref="klarnaCredentialValidateInterceptor"/>
+        <property name="typeCode" value="KlarnaCredential"/>
+    </bean>	
+    <bean depends-on="exceptionTranslationForInterceptors" parent="listMergeDirective">
+        <property name="add" value="KlarnaCredentialValidateInterceptor"/>
+	</bean>
     
     <!-- KPConfig -->
    	<alias name="defaultKlarnaKPConfigConverter" alias="klarnaKPConfigConverter"/>
