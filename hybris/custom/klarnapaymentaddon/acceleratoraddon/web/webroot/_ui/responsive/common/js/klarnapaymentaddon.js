@@ -53,12 +53,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 		        }
 		        	        
 		        // Loading Klana sign in Component
-		        // placement Flags
-		        
-		        const $loadsiwkV1Div = $('#loadsiwkV1Div');
-				const siwkV1Enabled = $loadsiwkV1Div.length > 0 && $loadsiwkV1Div.data('enabled') === true;
-			   
-		    	if (!siwkV1Enabled) {
+		        const $siwkDiv = $("#siwkDiv");
+				if($siwkDiv.length > 0) {
 			    	var currentURL = window.location.href;
 			    	var showInLoginPage = $("#showSIWKInLoginPage").val();
 			    	var showInRegisterPage = $("#showSIWKInRegisterPage").val();
@@ -72,12 +68,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 			    	{
 			    		showSignInButton = true;
 			    	}
-		
 			    	if(showSignInButton){
-			    		ACC.signin.initiateSigninButton(window.KlarnaV2.initializedKlarnaSDK);
+			    		ACC.klarnasignin.initiateSigninButton(window.KlarnaV2.initializedKlarnaSDK);
 			    	}
-		    	}
-		                
+		        }       
 		    } catch (error) {
 		        console.error("Failed to load Klarna SDK", error);
 		    }	    	   

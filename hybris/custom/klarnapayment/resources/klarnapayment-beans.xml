@@ -157,9 +157,9 @@
 		<property name="dateOfBirth" type="java.util.Date"/>
 	</bean>
 	<bean class="com.klarna.payment.data.KPPaymentInfoData" extends="de.hybris.platform.commercefacades.order.data.CCPaymentInfoData">
-		<property name="id" type="String"/>  
+		<property name="id" type="String"/>
 		<property name="authToken" type="String"/>
-		<property name="billingAddress" type="de.hybris.platform.commercefacades.user.data.AddressData"/>   
+		<property name="billingAddress" type="de.hybris.platform.commercefacades.user.data.AddressData"/>
 		<property name="paymentOption" type="String"/>
 		<property name="finalizeRequired" type="Boolean"/>
 		<property name="description" type="String"/>
@@ -258,6 +258,9 @@
 		<import type="com.fasterxml.jackson.annotation.JsonProperty" />
 		<property name="customerProfile" type="com.klarna.payment.data.KlarnaCustomerProfileData">
 			<annotations>@JsonProperty("customerProfile")</annotations>
+		</property>
+		<property name="idToken" type="String">
+			<annotations>@JsonProperty("idToken")</annotations>
 		</property>
 	</bean>
 	

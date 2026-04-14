@@ -477,8 +477,8 @@ public class DefaultKPPaymentFacade implements KPPaymentFacade
 			{
 				klarnaCreditSessionData = getKlarnaCreditSessionInitialConverter().convert(cart);
 			}
-			// Set Access token for Auto login for Klarna Sign In customers
-			setAccessTokenForAutoLogin(klarnaCreditSessionData);
+			// Set Access token for Auto login for Klarna Sign In customers. Available only in SIWK version 1.
+			// setAccessTokenForAutoLogin(klarnaCreditSessionData);
 
 			LogHelper.debugLog(LOG, "Going to create Session ... . ");
 			final PaymentsMerchantSession sessionResponse = creditSession.create(klarnaCreditSessionData);

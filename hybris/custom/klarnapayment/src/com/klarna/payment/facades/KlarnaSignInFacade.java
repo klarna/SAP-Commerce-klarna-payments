@@ -29,5 +29,5 @@ public interface KlarnaSignInFacade
 
 	void updateCustomer(CustomerModel customer, final KlarnaCustomerProfileData customerProfile);
 
-	//boolean validateSigninToken(KlarnaCustomerData klarnaCustomerData, String environment);
+	boolean validateSigninToken(KlarnaCustomerData klarnaCustomerData, String environment);
 }

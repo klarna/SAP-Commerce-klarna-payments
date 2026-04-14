@@ -11,9 +11,6 @@
  */
 package com.klarna.payment.facades.impl;
 
-//import de.hybris.platform.acceleratorstorefrontcommons.security.GUIDCookieStrategy;
-//import de.hybris.platform.acceleratorstorefrontcommons.strategy.CartRestorationStrategy;
-//import de.hybris.platform.commercefacades.consent.CustomerConsentDataStrategy;
 import de.hybris.platform.commercefacades.customer.CustomerFacade;
 import de.hybris.platform.commercefacades.user.data.AddressData;
 import de.hybris.platform.commerceservices.customer.CustomerAccountService;
@@ -27,7 +24,6 @@ import de.hybris.platform.servicelayer.dto.converter.Converter;
 import de.hybris.platform.servicelayer.exceptions.UnknownIdentifierException;
 import de.hybris.platform.servicelayer.i18n.CommonI18NService;
 import de.hybris.platform.servicelayer.model.ModelService;
-//import de.hybris.platform.servicelayer.security.spring.HybrisSessionFixationProtectionStrategy;
 import de.hybris.platform.servicelayer.user.UserService;
 import de.hybris.platform.site.BaseSiteService;
 import de.hybris.platform.store.services.BaseStoreService;
@@ -45,6 +41,7 @@ import com.klarna.payment.data.KlarnaCustomerProfileData;
 import com.klarna.payment.enums.KlarnaSigninProfileStatus;
 import com.klarna.payment.facades.KlarnaSignInFacade;
 import com.klarna.payment.model.KlarnaCustomerProfileModel;
+import com.klarna.payment.util.KlarnaTokenUtils;
 
 
 
@@ -83,29 +80,8 @@ public class DefaultKlarnaSignInFacade implements KlarnaSignInFacade
 	@Resource(name = "customerFacade")
 	private CustomerFacade customerFacade;
 
-	//	@Resource(name = "guidCookieStrategy")
-	//	private GUIDCookieStrategy guidCookieStrategy;
-
-	//	@Resource(name = "cartRestorationStrategy")
-	//	private CartRestorationStrategy cartRestorationStrategy;
-
-	//	@Resource(name = "rememberMeServices")
-	//	private RememberMeServices rememberMeServices;
-
 	@Resource(name = "baseSiteService")
 	private BaseSiteService baseSiteService;
-
-	//@Resource(name = "cookieGenerator")
-	//private CookieGenerator cookieGenerator;
-
-	//@Resource(name = "userDetailsService")
-	//private UserDetailsService userDetailsService;
-
-	//@Resource(name = "sessionFixationStrategy")
-	//private HybrisSessionFixationProtectionStrategy sessionFixationStrategy;
-
-	//@Resource(name = "customerConsentDataStrategy")
-	//private CustomerConsentDataStrategy customerConsentDataStrategy;
 
 	private static final Logger LOG = Logger.getLogger(DefaultKlarnaSignInFacade.class);
 
@@ -201,11 +177,6 @@ public class DefaultKlarnaSignInFacade implements KlarnaSignInFacade
 				updateCustomerName(klarnaCustomerProfileModel, klarnaCustomerProfileData, customer);
 
 				klarnaCustomerProfileReverseConverter.convert(klarnaCustomerProfileData, klarnaCustomerProfileModel);
-				/*
-				 * if (klarnaSigninUserAccountLinking != null) {
-				 * klarnaCustomerProfileModel.setRefreshToken(klarnaSigninUserAccountLinking.
-				 * getUserAccountLinkingRefreshToken()); }
-				 */
 				modelService.save(klarnaCustomerProfileModel);
 				customer.setKlarnaCustomerProfile(klarnaCustomerProfileModel);
 				customer.setDefaultPaymentAddress(klarnaCustomerProfileModel.getBillingAddress());
@@ -238,14 +209,18 @@ public class DefaultKlarnaSignInFacade implements KlarnaSignInFacade
 		}
 	}
 
-	/*
-	 * @Override public boolean validateSigninToken(final KlarnaCustomerData klarnaCustomerData, String environment) {
-	 * if(klarnaSigninResponse != null && klarnaSigninResponse.getUserAccountLinking() != null &&
-	 * StringUtils.isNotBlank(klarnaSigninResponse.getUserAccountLinking().getUserAccountLinkingIdToken())) { final
-	 * boolean isValidIdToken =
-	 * KlarnaTokenUtils.validateJWTToken(klarnaSigninResponse.getUserAccountLinking().getUserAccountLinkingIdToken(),
-	 * environment); return isValidIdToken; } else { LOG.error("ID Token Not Found :: " +
-	 * klarnaSigninResponse.getUserAccountLinking().getUserAccountLinkingIdToken()); } return false; }
-	 */
+	@Override
+	public boolean validateSigninToken(final KlarnaCustomerData klarnaCustomerData, final String environment)
+	{
+		if (klarnaCustomerData != null && StringUtils.isNotBlank(klarnaCustomerData.getIdToken()))
+		{
+			return KlarnaTokenUtils.validateJWTToken(klarnaCustomerData.getIdToken(), environment);
+		}
+		else
+		{
+			LOG.error("Invalid SIWK Request. ID Token Not Found.");
+		}
+		return false;
+	}
 
 }

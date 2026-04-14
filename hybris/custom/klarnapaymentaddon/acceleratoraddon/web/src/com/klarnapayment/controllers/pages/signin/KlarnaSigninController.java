@@ -108,25 +108,25 @@ public class KlarnaSigninController extends AbstractPageController
 			KlarnaSigninProfileStatus profileStatus = KlarnaSigninProfileStatus.LOGIN_FAILED;
 			if (klarnaCustomerData != null)
 			{
-				//if(klarnaSignInFacade.validateSigninToken(klarnaCustomerData, klarnaConfig.getEnvironment())) {
-
-				profileStatus = klarnaSignInFacade.checkAndUpdateProfile(klarnaCustomerData);
-				if (profileStatus.equals(KlarnaSigninProfileStatus.ACCOUNT_UPDATED)
-						&& klarnaCustomerData.getCustomerProfile() != null)
+				if (klarnaSignInFacade.validateSigninToken(klarnaCustomerData, klarnaConfig.getEnvironment()))
 				{
-					redirectURL = authenticateAndLogin(klarnaCustomerData.getCustomerProfile().getEmail(), request, response,
-							redirectAttr, prevPage);
-					return redirectURL;
+					profileStatus = klarnaSignInFacade.checkAndUpdateProfile(klarnaCustomerData);
+					if (profileStatus.equals(KlarnaSigninProfileStatus.ACCOUNT_UPDATED)
+							&& klarnaCustomerData.getCustomerProfile() != null)
+					{
+						redirectURL = authenticateAndLogin(klarnaCustomerData.getCustomerProfile().getEmail(), request, response,
+								redirectAttr, prevPage);
+						return redirectURL;
+					}
+					else if (profileStatus.equals(KlarnaSigninProfileStatus.LOGIN_FAILED))
+					{
+						return redirectURL;
+					}
+					else
+					{
+						return KLARNA_SIGNIN_CONSENT_URL + REQ_PARAM_PROFILE_STATUS + profileStatus;
+					}
 				}
-				else if (profileStatus.equals(KlarnaSigninProfileStatus.LOGIN_FAILED))
-				{
-					return redirectURL;
-				}
-				else
-				{
-					return KLARNA_SIGNIN_CONSENT_URL + REQ_PARAM_PROFILE_STATUS + profileStatus;
-				}
-				//}
 			}
 		}
 		return redirectURL;

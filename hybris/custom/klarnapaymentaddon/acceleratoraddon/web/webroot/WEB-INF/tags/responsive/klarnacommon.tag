@@ -64,20 +64,14 @@
 	</c:if>
 	
 	<c:if test="${klarnaConfig.siwkConfig != null}">
-		<c:choose>
-			<c:when test="${siwkV1Enabled}">
-				<c:set var="baseUrl" value="/klarna/signin/v1" />
-			</c:when>
-			<c:otherwise>
-				<c:set var="baseUrl" value="/klarna/signin" />
-			</c:otherwise>
-		</c:choose>
 		<c:set var="loadWebSDKv2" value="true" />
-		<spring:url value="${baseUrl}/initiate" var="initiateSignInResponseUrl"/>
+	    <div id="siwkDiv"></div>
+		<c:set var="siwkBaseUrl" value="/klarna/signin" />
+		<spring:url value="${siwkBaseUrl}/initiate" var="initiateSignInResponseUrl"/>
 		<input type="hidden" id="initiateSignInResponseUrl" name="initiateSignInResponseUrl"  value="${initiateSignInResponseUrl}"/>
-		<spring:url value="${baseUrl}/consent" var="userConsentPageURL"/>
+		<spring:url value="${siwkBaseUrl}/consent" var="userConsentPageURL"/>
 		<input type="hidden" id="userConsentPageURL" name="userConsentPageURL"  value="${userConsentPageURL}"/>
-		<spring:url value="${baseUrl}/login" var="loginURL"/>
+		<spring:url value="${siwkBaseUrl}/login" var="loginURL"/>
 		<input type="hidden" id="loginURL" name="loginURL"  value="${loginURL}"/>
 		<input type="hidden" id="klarnaLocale"		name="klarnaLocale"		value="${klarnaLocale}" >
 		<input type="hidden" id="klarnaEnv"			name="klarnaEnv"			value="${klarnaConfig.environment}"/>
@@ -96,10 +90,10 @@
 		<script id="klarna-v1-sdk" src="https://x.klarnacdn.net/kp/lib/v1/api.js" ></script> 
 		<div id="loadWebSDKv1Div" data-enabled="true"></div>
 	</c:if>
-	<c:if test="${siwkV1Enabled}">
+	<%-- <c:if test="${siwkV1Enabled}">
 		<div id="loadsiwkV1Div" data-enabled="true"></div>
 		<script id="klarna-siwk-v1-sdk" src="https://js.klarna.com/web-sdk/v1/klarna.js" ></script> 
-	</c:if>
+	</c:if> --%>
 	
 	<c:if test="${loadWebSDKv2}">
 		<%-- <script defer src="${fn:escapeXml(klarnaWebSDKv2Url)}" ></script> --%>
