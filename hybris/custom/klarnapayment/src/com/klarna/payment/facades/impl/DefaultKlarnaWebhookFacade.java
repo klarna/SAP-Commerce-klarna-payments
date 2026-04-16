@@ -1,7 +1,9 @@
 package com.klarna.payment.facades.impl;
 
 import de.hybris.platform.basecommerce.model.site.BaseSiteModel;
+import de.hybris.platform.commercefacades.order.CartFacade;
 import de.hybris.platform.servicelayer.model.ModelService;
+import de.hybris.platform.servicelayer.session.SessionService;
 import de.hybris.platform.site.BaseSiteService;
 
 import javax.annotation.Resource;
@@ -13,6 +15,7 @@ import com.klarna.data.KlarnaConfigData;
 import com.klarna.integration.dto.KlarnaCreateWebhookResponseDTO;
 import com.klarna.integration.dto.KlarnaSigningKeyResponseDTO;
 import com.klarna.model.KlarnaWebhookModel;
+import com.klarna.payment.constants.KlarnapaymentConstants;
 import com.klarna.payment.data.KlarnaWebhookData;
 import com.klarna.payment.facades.KlarnaConfigFacade;
 import com.klarna.payment.facades.KlarnaWebhookFacade;
@@ -41,6 +44,11 @@ public class DefaultKlarnaWebhookFacade implements KlarnaWebhookFacade
 	@Resource
 	private KlarnaValidationUtil klarnaValidationUtil;
 
+	@Resource(name = "cartFacade")
+	private CartFacade cartFacade;
+
+	@Resource(name = "sessionService")
+	private SessionService sessionService;
 
 	@Override
 	public boolean createWebhook(final BaseSiteModel baseSite)
@@ -180,6 +188,12 @@ public class DefaultKlarnaWebhookFacade implements KlarnaWebhookFacade
 			return false;
 		}
 		LogHelper.debugLog(LOG, "Webhook request is valid.");
+
+		final KlarnaConfigData klarnaConfig = klarnaConfigFacade.getKlarnaConfig();
+		if (Boolean.TRUE.equals(klarnaConfig.getIntegratedViaPSP()))
+		{
+			return handleOneStepKECForPSPIntegration(webhookData);
+		}
 		return klarnaWebhookService.saveWebhookNotification(webhookData);
 	}
 
@@ -208,4 +222,25 @@ public class DefaultKlarnaWebhookFacade implements KlarnaWebhookFacade
 		return null;
 	}
 
+	protected boolean handleOneStepKECForPSPIntegration(final KlarnaWebhookData webhookData)
+	{
+		if (StringUtils.isNotEmpty(webhookData.getPayload().getInteroperabilityToken()))
+		{
+			sessionService.setAttribute(KlarnapaymentConstants.KLARNA_INTEROPERABILITY_TOKEN,
+					webhookData.getPayload().getInteroperabilityToken());
+			LogHelper.debugLog(LOG, "Interoperability Token for Cart Id " + cartFacade.getSessionCart().getCode()
+					+ " saved to session:: " + webhookData.getPayload().getInteroperabilityToken());
+			return true;
+		}
+		else if (StringUtils.isNotEmpty(webhookData.getPayload().getKlarnaNetworkSessionToken()))
+		{
+			sessionService.setAttribute(KlarnapaymentConstants.KLARNA_NETWORK_SESSION_TOKEN,
+					webhookData.getPayload().getKlarnaNetworkSessionToken());
+			LogHelper.debugLog(LOG, "Klarna Network Session Token for Cart Id " + cartFacade.getSessionCart().getCode()
+					+ " saved to session:: " + webhookData.getPayload().getKlarnaNetworkSessionToken());
+			return true;
+		}
+		LOG.error("Klarna network token not available in the webhook request.");
+		return false;
+	}
 }

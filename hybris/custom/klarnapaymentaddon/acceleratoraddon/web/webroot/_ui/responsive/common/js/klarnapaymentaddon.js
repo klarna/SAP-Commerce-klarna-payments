@@ -78,39 +78,38 @@ document.addEventListener("DOMContentLoaded", async () => {
 		}
 		const pspIntegration = $klarnaDiv.data("psp-integration");
 		if(pspIntegration === true) {
-			ACC.klarnapaymentaddon.initInteroperabilityCallback(window.KlarnaV2.initializedKlarnaSDK);
+			ACC.klarnapaymentaddon.initNetworkSessionCallback(window.KlarnaV2.initializedKlarnaSDK);
 		}
 	}	    
     
 });
 
 ACC.klarnapaymentaddon = {
-	
-	initInteroperabilityCallback: function(Klarna) {
-	    if (typeof Klarna !== 'undefined' && Klarna.Interoperability) {
-	        // If Klarna.Interoperability is available, listen for the 'tokenupdate' event
-	        Klarna.Interoperability.on('tokenupdate', (interoperabilityToken) => {
-	            // When the token update event is fired, send the updated token to the server via an AJAX POST request to save in sfcc session
-	            ACC.klarnapaymentaddon.saveInteroperabilityToken(interoperabilityToken);
+	initNetworkSessionCallback: function(Klarna) {
+	    if (typeof Klarna !== 'undefined' && Klarna.Network.Session) {
+	        // If Klarna.Network.Session is available, listen for the 'tokenupdate' event
+	        Klarna.Network.Session.on('tokenupdate', (klarnaNetworkSessionToken) => {
+	            // When the token update event is fired, send the updated token to the server via an AJAX POST request
+	            ACC.klarnapaymentaddon.saveKlarnaNetworkSessionToken(klarnaNetworkSessionToken);
 	        });
 	        // Reset the retry count after successful initialization
 	        retryCount = 0;
 	    } else {
-	        // Retry initializing token update callback if Klarna.Interoperability event is not yet available and if the retry count is less than or equal to 10
-	        retryCount++; // eslint-disable-line no-plusplus
+	        // Retry initializing if Klarna.Network.Session event is not yet available and if the retry count is less than or equal to 10
+	        retryCount++; 
 	        if (retryCount <= 10) {
-	            setTimeout(initInteroperabilityCallback(Klarna), 500);
+	            setTimeout(initKlarnaNetworkSessionCallback(Klarna), 500);
 	        }
 	    }
 	},
 	
-	saveInteroperabilityToken: function(interoperabilityToken) {
-		var saveKlarnaInteropTokenUrl = $("#saveKlarnaInteropTokenUrl").val();
+	saveKlarnaNetworkSessionToken: function(klarnaNetworkSessionToken) {
+		var saveTokenUrl = $("#saveKlarnaNetworkSessionTokenUrl").val();
 		return $.ajax({
-			url: saveKlarnaInteropTokenUrl,
-			data: {
-                interoperabilityToken: interoperabilityToken
-            },
+			url: saveTokenUrl,
+			data: JSON.stringify({
+                klarnaNetworkSessionToken: klarnaNetworkSessionToken
+            }),
 			method: 'POST',
 			dataType: 'json',
 			contentType: 'application/json'

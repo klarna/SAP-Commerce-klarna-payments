@@ -383,7 +383,9 @@ public class DefaultKlarnaExpCheckoutFacade implements KlarnaExpCheckoutFacade
 		{
 			kpPaymentInfoModel = (KPPaymentInfoModel) cartModel.getPaymentInfo();
 		}
-		kpPaymentInfoModel.setAuthToken(requestData.getPaymentRequest().getStateContext().getPaymentToken());
+		// KLARNAPII-2754: Use Klarna Network Session Token instead of Payment Token
+		//kpPaymentInfoModel.setAuthToken(requestData.getPaymentRequest().getStateContext().getPaymentToken());
+		kpPaymentInfoModel.setAuthToken(requestData.getPaymentRequest().getStateContext().getKlarnaNetworkSessionToken());
 		if(setPaymentInfoInCart(cartModel, kpPaymentInfoModel)) {
 			kpPaymentFacade.createPaymentTransaction();
 			return true;
@@ -527,7 +529,9 @@ public class DefaultKlarnaExpCheckoutFacade implements KlarnaExpCheckoutFacade
 		{
 			kpPaymentInfoModel = (KPPaymentInfoModel) cartModel.getPaymentInfo();
 		}
-		kpPaymentInfoModel.setAuthToken(webhookData.getPayload().getPaymentToken());
+		// KLARNAPII-2754: Use Klarna Network Session Token instead of Payment Token
+		//kpPaymentInfoModel.setAuthToken(webhookData.getPayload().getPaymentToken());
+		kpPaymentInfoModel.setAuthToken(webhookData.getPayload().getKlarnaNetworkSessionToken());
 		if (setPaymentInfoInCart(cartModel, kpPaymentInfoModel))
 		{
 			kpPaymentFacade.createPaymentTransaction();

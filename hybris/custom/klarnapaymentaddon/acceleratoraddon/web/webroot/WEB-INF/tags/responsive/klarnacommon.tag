@@ -103,7 +103,7 @@
 		</script>				
 	</c:if>
 	
-	<spring:url value="/klarna/interoperability/token" var="saveKlarnaInteropTokenUrl"/>
-	<input type="hidden" name="saveKlarnaInteropTokenUrl" id="saveKlarnaInteropTokenUrl" value="${saveKlarnaInteropTokenUrl}"/>
+	<spring:url value="/klarna/token/network-session" var="saveKlarnaNetworkSessionTokenUrl"/>
+	<input type="hidden" name="saveKlarnaNetworkSessionTokenUrl" id="saveKlarnaNetworkSessionTokenUrl" value="${saveKlarnaNetworkSessionTokenUrl}"/>
 	
 </c:if>	
