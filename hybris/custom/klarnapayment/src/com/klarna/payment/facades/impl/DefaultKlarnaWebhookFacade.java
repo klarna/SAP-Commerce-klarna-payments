@@ -224,15 +224,14 @@ public class DefaultKlarnaWebhookFacade implements KlarnaWebhookFacade
 
 	protected boolean handleOneStepKECForPSPIntegration(final KlarnaWebhookData webhookData)
 	{
-		if (StringUtils.isNotEmpty(webhookData.getPayload().getInteroperabilityToken()))
-		{
-			sessionService.setAttribute(KlarnapaymentConstants.KLARNA_INTEROPERABILITY_TOKEN,
-					webhookData.getPayload().getInteroperabilityToken());
-			LogHelper.debugLog(LOG, "Interoperability Token for Cart Id " + cartFacade.getSessionCart().getCode()
-					+ " saved to session:: " + webhookData.getPayload().getInteroperabilityToken());
-			return true;
-		}
-		else if (StringUtils.isNotEmpty(webhookData.getPayload().getKlarnaNetworkSessionToken()))
+		/*
+		 * if (StringUtils.isNotEmpty(webhookData.getPayload().getInteroperabilityToken())) {
+		 * sessionService.setAttribute(KlarnapaymentConstants.KLARNA_INTEROPERABILITY_TOKEN,
+		 * webhookData.getPayload().getInteroperabilityToken()); LogHelper.debugLog(LOG,
+		 * "Interoperability Token for Cart Id " + cartFacade.getSessionCart().getCode() + " saved to session:: " +
+		 * webhookData.getPayload().getInteroperabilityToken()); return true; }
+		 */
+		if (StringUtils.isNotEmpty(webhookData.getPayload().getKlarnaNetworkSessionToken()))
 		{
 			sessionService.setAttribute(KlarnapaymentConstants.KLARNA_NETWORK_SESSION_TOKEN,
 					webhookData.getPayload().getKlarnaNetworkSessionToken());

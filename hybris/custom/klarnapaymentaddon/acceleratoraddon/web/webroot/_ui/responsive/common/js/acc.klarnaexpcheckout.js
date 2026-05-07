@@ -127,7 +127,7 @@ ACC.klarnaexpcheckout = {
 	                const shippingAddressResponse = await ACC.klarnaexpcheckout.updateShippingAddress(paymentRequest, shippingAddress);
 	                if (shippingAddressResponse.status === "success") {
 						console.log('Shipping change response: '+JSON.stringify(shippingAddressResponse.successResponse));
-						return JSON.stringify(shippingAddressResponse.successResponse);
+						return shippingAddressResponse.successResponse;
 					}
 					if(shippingAddressResponse.rejectionResponse && shippingAddressResponse.rejectionResponse.rejectionReason) {
 						 var rejectionMap = {

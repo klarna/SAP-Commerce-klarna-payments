@@ -340,27 +340,28 @@ public class DefaultKlarnaExpCheckoutFacade implements KlarnaExpCheckoutFacade
 	@Override
 	public boolean setShippingOption(final KlarnaRequestData requestData)
 	{
-		boolean isShippingOptionSet = false;
+		final boolean isShippingOptionSet = false;
+		final String currentShippingOption = (cartFacade.getSessionCart().getDeliveryMode() != null)
+				? cartFacade.getSessionCart().getDeliveryMode().getCode()
+				: null;
 		if (requestData.getShippingOption() != null
 				&& StringUtils.isNotEmpty(requestData.getShippingOption().getShippingOptionReference()))
 		{
-			if (cartFacade.getSessionCart().getDeliveryMode() != null
-					&& StringUtils.equalsIgnoreCase(cartFacade.getSessionCart().getDeliveryMode().getCode(),
-							requestData.getShippingOption().getShippingOptionReference()))
+			if (!StringUtils.equalsIgnoreCase(currentShippingOption, requestData.getShippingOption().getShippingOptionReference()))
 			{
-				isShippingOptionSet = true;
-			}
-			else
-			{
-				isShippingOptionSet = checkoutFacade.setDeliveryMode(requestData.getShippingOption().getShippingOptionReference());
+				if (!checkoutFacade.setDeliveryMode(requestData.getShippingOption().getShippingOptionReference()))
+				{
+					LOG.error("Error! Could not set delivery mode :: " + requestData.getShippingOption().getShippingOptionReference());
+					return false;
+				}
 			}
 		}
-		if (!isShippingOptionSet)
+		if (StringUtils.isEmpty(currentShippingOption))
 		{
 			LogHelper.debugLog(LOG, "Shipping option not available in the request. Setting cheapest delivery mode..");
 			if (!checkoutFacade.setCheapestDeliveryModeForCheckout())
 			{
-				LOG.error("Shipping option couldnot be set. Cannot proceed with order placement");
+				LOG.error("Delivery mode could not be set. Cannot proceed with order placement");
 				return false;
 			}
 		}
@@ -383,9 +384,9 @@ public class DefaultKlarnaExpCheckoutFacade implements KlarnaExpCheckoutFacade
 		{
 			kpPaymentInfoModel = (KPPaymentInfoModel) cartModel.getPaymentInfo();
 		}
-		// KLARNAPII-2754: Use Klarna Network Session Token instead of Payment Token
-		//kpPaymentInfoModel.setAuthToken(requestData.getPaymentRequest().getStateContext().getPaymentToken());
-		kpPaymentInfoModel.setAuthToken(requestData.getPaymentRequest().getStateContext().getKlarnaNetworkSessionToken());
+		// KLARNAPII-2754: Use Klarna Network Session Token instead of Payment Token - reverted
+		kpPaymentInfoModel.setAuthToken(requestData.getPaymentRequest().getStateContext().getPaymentToken());
+		//kpPaymentInfoModel.setAuthToken(requestData.getPaymentRequest().getStateContext().getKlarnaNetworkSessionToken());
 		if(setPaymentInfoInCart(cartModel, kpPaymentInfoModel)) {
 			kpPaymentFacade.createPaymentTransaction();
 			return true;
@@ -529,9 +530,9 @@ public class DefaultKlarnaExpCheckoutFacade implements KlarnaExpCheckoutFacade
 		{
 			kpPaymentInfoModel = (KPPaymentInfoModel) cartModel.getPaymentInfo();
 		}
-		// KLARNAPII-2754: Use Klarna Network Session Token instead of Payment Token
-		//kpPaymentInfoModel.setAuthToken(webhookData.getPayload().getPaymentToken());
-		kpPaymentInfoModel.setAuthToken(webhookData.getPayload().getKlarnaNetworkSessionToken());
+		// KLARNAPII-2754: Use Klarna Network Session Token instead of Payment Token - reverted
+		kpPaymentInfoModel.setAuthToken(webhookData.getPayload().getPaymentToken());
+		//kpPaymentInfoModel.setAuthToken(webhookData.getPayload().getKlarnaNetworkSessionToken());
 		if (setPaymentInfoInCart(cartModel, kpPaymentInfoModel))
 		{
 			kpPaymentFacade.createPaymentTransaction();

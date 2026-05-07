@@ -6,7 +6,6 @@ import de.hybris.platform.commercefacades.order.CartFacade;
 import de.hybris.platform.commercefacades.order.CheckoutFacade;
 import de.hybris.platform.commercefacades.order.data.CartModificationData;
 import de.hybris.platform.commercefacades.user.data.AddressData;
-import de.hybris.platform.commerceservices.customer.DuplicateUidException;
 import de.hybris.platform.commerceservices.order.CommerceCartModificationStatus;
 import de.hybris.platform.order.CartService;
 
@@ -163,7 +162,8 @@ public class KlarnaExpCheckoutController extends AbstractPageController
 				}
 				else
 				{
-					boolean isValidCheckoutUser = prepareCheckoutUser(authorizationResponse.getCollectedShippingAddress().getEmail(),
+					boolean isValidCheckoutUser = klarnaExpCheckoutHelper
+							.prepareCheckoutUser(authorizationResponse.getCollectedShippingAddress().getEmail(),
 							request, response);
 					// Prepare checkout user
 					if (isValidCheckoutUser)
@@ -276,7 +276,8 @@ public class KlarnaExpCheckoutController extends AbstractPageController
 			{
 				return getErrorResponseForShippingAddressChangeUpdate();
 			}
-			if (!prepareCheckoutUser(klarnaExpCheckoutHelper.getEmailIdFromPaymentRequest(requestData.getPaymentRequest()), request,
+			if (!klarnaExpCheckoutHelper.prepareCheckoutUser(
+					klarnaExpCheckoutHelper.getEmailIdFromPaymentRequest(requestData.getPaymentRequest()), request,
 					response))
 			{
 				LOG.error("Invalid checkout user.");
@@ -310,7 +311,7 @@ public class KlarnaExpCheckoutController extends AbstractPageController
 	@RequestMapping(value = "/update-shipping-method", method = RequestMethod.POST)
 	@ResponseBody
 	public Map<String, Object> updateShippingMethod(@RequestBody
-	final KlarnaRequestData requestData)
+	final KlarnaRequestData requestData, final HttpServletRequest request, final HttpServletResponse response)
 	{
 		try
 		{
@@ -325,9 +326,10 @@ public class KlarnaExpCheckoutController extends AbstractPageController
 			{
 				return getErrorResponseForShippingOptionUpdate();
 			}
-			if (getUserFacade().isAnonymousUser())
+			if (!klarnaExpCheckoutHelper.prepareCheckoutUser(
+					klarnaExpCheckoutHelper.getEmailIdFromPaymentRequest(requestData.getPaymentRequest()), request, response))
 			{
-				LOG.error("Anonymous User.");
+				LOG.error("Invalid checkout user.");
 				return getErrorResponseForShippingOptionUpdate();
 			}
 			if (cartFacade.getSessionCart().getDeliveryAddress() == null)
@@ -337,8 +339,8 @@ public class KlarnaExpCheckoutController extends AbstractPageController
 			}
 			final KlarnaShippingChangeResponseData shippingOptionChangeResponse = klarnaExpCheckoutFacade
 					.setDeliveryMode(requestData.getShippingOption());
-			shippingOptionChangeResponse.setSelectedShippingOptionReference(null);
-			shippingOptionChangeResponse.setShippingOptions(null);
+			//shippingOptionChangeResponse.setSelectedShippingOptionReference(null);
+			//shippingOptionChangeResponse.setShippingOptions(null);
 			Map<String, Object> successResponse = new HashMap<>();
 			successResponse.put("status", "success");
 			successResponse.put("successResponse", shippingOptionChangeResponse);
@@ -391,7 +393,8 @@ public class KlarnaExpCheckoutController extends AbstractPageController
 			{
 				return handleOneStepKECForPSPIntegration(requestData.getPaymentRequest());
 			}
-			if (!prepareCheckoutUser(klarnaExpCheckoutHelper.getEmailIdFromPaymentRequest(requestData.getPaymentRequest()), request,
+			if (!klarnaExpCheckoutHelper.prepareCheckoutUser(
+					klarnaExpCheckoutHelper.getEmailIdFromPaymentRequest(requestData.getPaymentRequest()), request,
 					response))
 			{
 				LOG.error("Invalid checkout user. Cannot proceed with order placement");
@@ -414,7 +417,7 @@ public class KlarnaExpCheckoutController extends AbstractPageController
 		}
 		catch (Exception e)
 		{
-			LOG.error("Exception occured during shipping address update :: ", e);
+			LOG.error("Exception occured during checkout :: ", e);
 		}
 		return getResponseForPaymentUpdate(KlarnapaymentaddonWebConstants.KLARNA_RESPONSE_STATUS_ERROR, null);
 	}
@@ -455,7 +458,8 @@ public class KlarnaExpCheckoutController extends AbstractPageController
 				LOG.error("Error! Invalid Cart!");
 				return getResponseForPaymentUpdate(KlarnapaymentaddonWebConstants.KLARNA_RESPONSE_STATUS_ERROR, null);
 			}
-			if (!prepareCheckoutUser(klarnaExpCheckoutHelper.getEmailIdFromWebhookData(webhookData), request, response))
+			if (!klarnaExpCheckoutHelper.prepareCheckoutUser(klarnaExpCheckoutHelper.getEmailIdFromWebhookData(webhookData), request,
+					response))
 			{
 				LOG.error("Error! Invalid checkout user. Cannot proceed with order placement");
 				return getResponseForPaymentUpdate(KlarnapaymentaddonWebConstants.KLARNA_RESPONSE_STATUS_ERROR, null);
@@ -475,47 +479,9 @@ public class KlarnaExpCheckoutController extends AbstractPageController
 		}
 		catch (Exception e)
 		{
-			LOG.error("Exception occured during shipping address update :: ", e);
+			LOG.error("Exception occured during checkout :: ", e);
 		}
 		return getResponseForPaymentUpdate(KlarnapaymentaddonWebConstants.KLARNA_RESPONSE_STATUS_ERROR, null);
-	}
-
-	private boolean prepareCheckoutUser(final String emailId,
-			final HttpServletRequest request, final HttpServletResponse response)
-	{
-		// Prepare checkout user
-		if (getUserFacade().isAnonymousUser())
-		{
-			if (StringUtils.isEmpty(emailId))
-			{
-				LOG.error("Customer email id not availalbe. Guest chekcout user will be created with dummy email id :: "
-						+ KlarnapaymentaddonWebConstants.KLARNA_GUEST_TEMP_EMAIL_ID);
-			}
-			try
-			{
-				getCustomerFacade().createGuestUserForAnonymousCheckout(
-						(StringUtils.isNotEmpty(emailId) ? emailId : KlarnapaymentaddonWebConstants.KLARNA_GUEST_TEMP_EMAIL_ID),
-						getMessageSource().getMessage("text.guest.customer", null, getI18nService().getCurrentLocale()));
-
-				// TODO set the real email id later
-				//customer.setContactEmail(realEmail);
-				//customer.setUid(customer.getUid().split("\\|")[0] + "|" + realEmail);
-				//modelService.save(customer);
-
-				final String anonymousUserGuid = StringUtils.substringBefore(cartService.getSessionCart().getUser().getUid(), "|");
-				klarnaPaymentHelper.updateAnonymousCookie(anonymousUserGuid, request, response);
-				return true;
-			}
-			catch (final DuplicateUidException e)
-			{
-				LOG.error("Guest user creation failed. Cannot proceed with express checkout!");
-			}
-		}
-		else
-		{
-			return klarnaExpCheckoutFacade.isValidSessionUserCart();
-		}
-		return false;
 	}
 
 	private boolean setDeliveryDetails(final AddressData addressData)
@@ -593,14 +559,14 @@ public class KlarnaExpCheckoutController extends AbstractPageController
 
 	private ResponseEntity<Map<String, Object>> handleOneStepKECForPSPIntegration(final KlarnaPaymentRequestData paymentRequest)
 	{
-		if (StringUtils.isNotEmpty(paymentRequest.getStateContext().getInteroperabilityToken()))
-		{
-			getSessionService().setAttribute(KlarnapaymentaddonWebConstants.KLARNA_INTEROPERABILITY_TOKEN,
-					paymentRequest.getStateContext().getInteroperabilityToken());
-			LogHelper.debugLog(LOG, "Interoperability Token for Cart Id " + cartFacade.getSessionCart().getCode()
-					+ " saved to session:: " + paymentRequest.getStateContext().getInteroperabilityToken());
-		}
-		else if (StringUtils.isNotEmpty(paymentRequest.getStateContext().getKlarnaNetworkSessionToken()))
+		/*
+		 * if (StringUtils.isNotEmpty(paymentRequest.getStateContext().getInteroperabilityToken())) {
+		 * getSessionService().setAttribute(KlarnapaymentaddonWebConstants.KLARNA_INTEROPERABILITY_TOKEN,
+		 * paymentRequest.getStateContext().getInteroperabilityToken()); LogHelper.debugLog(LOG,
+		 * "Interoperability Token for Cart Id " + cartFacade.getSessionCart().getCode() + " saved to session:: " +
+		 * paymentRequest.getStateContext().getInteroperabilityToken()); }
+		 */
+		if (StringUtils.isNotEmpty(paymentRequest.getStateContext().getKlarnaNetworkSessionToken()))
 		{
 			getSessionService().setAttribute(KlarnapaymentaddonWebConstants.KLARNA_NETWORK_SESSION_TOKEN,
 					paymentRequest.getStateContext().getKlarnaNetworkSessionToken());

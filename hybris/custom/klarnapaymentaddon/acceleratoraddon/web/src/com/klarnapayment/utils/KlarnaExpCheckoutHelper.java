@@ -1,20 +1,31 @@
 package com.klarnapayment.utils;
 
+import de.hybris.platform.commercefacades.customer.CustomerFacade;
 import de.hybris.platform.commercefacades.order.CartFacade;
-import de.hybris.platform.commerceservices.config.SiteConfigService;
+import de.hybris.platform.commercefacades.user.UserFacade;
+import de.hybris.platform.commerceservices.customer.DuplicateUidException;
+import de.hybris.platform.core.model.order.CartModel;
+import de.hybris.platform.order.CartService;
+import de.hybris.platform.servicelayer.i18n.I18NService;
+import de.hybris.platform.servicelayer.model.ModelService;
 import de.hybris.platform.servicelayer.session.SessionService;
+import de.hybris.platform.servicelayer.user.UserService;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.codehaus.plexus.util.StringUtils;
+import org.springframework.context.MessageSource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.klarna.api.expcheckout.model.KlarnaExpCheckoutAuthorizationResponse;
 import com.klarna.payment.data.KlarnaPaymentRequestData;
 import com.klarna.payment.data.KlarnaShippingOptionData;
 import com.klarna.payment.data.KlarnaWebhookData;
+import com.klarna.payment.facades.KlarnaExpCheckoutFacade;
 import com.klarnapayment.constants.KlarnapaymentaddonWebConstants;
 
 
@@ -27,6 +38,33 @@ public class KlarnaExpCheckoutHelper
 
 	@Resource(name = "cartFacade")
 	private CartFacade cartFacade;
+
+	@Resource(name = "userFacade")
+	private UserFacade userFacade;
+
+	@Resource(name = "customerFacade")
+	private CustomerFacade customerFacade;
+
+	@Resource(name = "klarnaExpCheckoutFacade")
+	private KlarnaExpCheckoutFacade klarnaExpCheckoutFacade;
+
+	@Resource(name = "klarnaPaymentHelper")
+	private KlarnaPaymentHelper klarnaPaymentHelper;
+
+	@Resource(name = "cartService")
+	private CartService cartService;
+
+	@Resource(name = "modelService")
+	private ModelService modelService;
+
+	@Resource(name = "userService")
+	private UserService userService;
+
+	@Resource(name = "i18nService")
+	private I18NService i18nService;
+
+	@Resource(name = "messageSource")
+	private MessageSource messageSource;
 
 	@Resource(name = "klarnaObjectMapper")
 	protected ObjectMapper objectMapper;
@@ -99,6 +137,55 @@ public class KlarnaExpCheckoutHelper
 		}
 		LOG.error("Customer Email Id not available in Payment Request object");
 		return null;
+	}
+
+	public boolean prepareCheckoutUser(final String emailId, final HttpServletRequest request, final HttpServletResponse response)
+	{
+		// Prepare checkout user
+		final CartModel cartModel = cartService.getSessionCart();
+		if (userService.isAnonymousUser(cartModel.getUser()))
+		{
+			if (userFacade.isAnonymousUser())
+			{
+				try
+				{
+					// Create guest user for checkout. Use dummy email id if user email id is not available
+					customerFacade.createGuestUserForAnonymousCheckout(
+							(StringUtils.isNotEmpty(emailId) ? emailId : KlarnapaymentaddonWebConstants.KLARNA_GUEST_TEMP_EMAIL_ID),
+							messageSource.getMessage("text.guest.customer", null, i18nService.getCurrentLocale()));
+					final String anonymousUserGuid = StringUtils.substringBefore(cartModel.getUser().getUid(), "|");
+					klarnaPaymentHelper.updateAnonymousCookie(anonymousUserGuid, request, response);
+					return true;
+				}
+				catch (final DuplicateUidException e)
+				{
+					LOG.error("Guest user creation failed. Cannot proceed with express checkout!");
+					return false;
+				}
+			}
+			else
+			{
+				cartService.changeCurrentCartUser(userService.getCurrentUser());
+				return true;
+			}
+		}
+		else if (userFacade.isAnonymousUser())
+		{
+			if (StringUtils.contains(cartModel.getUser().getUid(), KlarnapaymentaddonWebConstants.KLARNA_GUEST_TEMP_EMAIL_ID)
+					&& StringUtils.isNotEmpty(emailId))
+			{
+				// Replace the dummy email id with actual email id of the user
+				cartModel.getUser().setUid(StringUtils.replace(cartModel.getUser().getUid(),
+						KlarnapaymentaddonWebConstants.KLARNA_GUEST_TEMP_EMAIL_ID, emailId));
+				modelService.save(cartModel.getUser());
+			}
+			return true;
+		}
+		else
+		{
+			// Registered customer. Check if the cart belongs to the same customer.
+			return klarnaExpCheckoutFacade.isValidSessionUserCart();
+		}
 	}
 
 	public String getEmailIdFromWebhookData(final KlarnaWebhookData webhookData)
