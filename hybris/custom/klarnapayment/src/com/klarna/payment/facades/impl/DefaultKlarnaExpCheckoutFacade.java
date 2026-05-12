@@ -287,10 +287,9 @@ public class DefaultKlarnaExpCheckoutFacade implements KlarnaExpCheckoutFacade
 	}
 
 	@Override
-	public KlarnaShippingChangeResponseData setDeliveryMode(final KlarnaShippingOptionData shippingOptionData)
+	public boolean setDeliveryMode(final KlarnaShippingOptionData shippingOptionData)
 	{
-		checkoutFacade.setDeliveryMode(shippingOptionData.getShippingOptionReference());
-		return klarnaShippingChangeResponseConverter.convert(cartService.getSessionCart());
+		return checkoutFacade.setDeliveryMode(shippingOptionData.getShippingOptionReference());
 	}
 
 	@Override
@@ -340,7 +339,6 @@ public class DefaultKlarnaExpCheckoutFacade implements KlarnaExpCheckoutFacade
 	@Override
 	public boolean setShippingOption(final KlarnaRequestData requestData)
 	{
-		final boolean isShippingOptionSet = false;
 		final String currentShippingOption = (cartFacade.getSessionCart().getDeliveryMode() != null)
 				? cartFacade.getSessionCart().getDeliveryMode().getCode()
 				: null;

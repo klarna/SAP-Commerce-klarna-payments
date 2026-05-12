@@ -227,7 +227,7 @@ ACC.klarnaexpcheckout = {
 				if(integratedViaPSP == "false") {
 					keepPolling = true;
 					pollStartTime = Date.now();
-					//ACC.klarnaexpcheckout.pollPaymentStatus(paymentResponse.payment_request_id);
+					ACC.klarnaexpcheckout.pollPaymentStatus(paymentResponse.payment_request_id);
 				}	
 				var paymentRequestId = { paymentRequestId: paymentResponse.payment_request_id };
 	            return paymentRequestId;

@@ -34,7 +34,7 @@ public interface KlarnaExpCheckoutFacade
 
 	KlarnaShippingChangeResponseData getShippingChangeResponse();
 
-	KlarnaShippingChangeResponseData setDeliveryMode(final KlarnaShippingOptionData shippingOptionData);
+	boolean setDeliveryMode(final KlarnaShippingOptionData shippingOptionData);
 
 	boolean updateCartForCheckout(final KlarnaRequestData requestData);
 
