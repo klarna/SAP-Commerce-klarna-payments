@@ -118,7 +118,7 @@ public class KlarnaExpCheckoutHelper
 	{
 		// Check if the session cart is same as the express checkout cart
 		final String expCheckoutCartId = sessionService.getAttribute(KlarnapaymentaddonWebConstants.KLARNA_EXP_CHECKOUT_CART_ID);
-		if (cartFacade.getSessionCart() == null
+		if (StringUtils.isEmpty(expCheckoutCartId) || cartFacade.getSessionCart() == null
 				|| !StringUtils.equalsIgnoreCase(expCheckoutCartId, cartFacade.getSessionCart().getGuid()))
 		{
 			LOG.error("Session Cart not matching Express Checkout Cart.");

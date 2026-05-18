@@ -8,6 +8,7 @@ import de.hybris.platform.commercefacades.order.data.CartModificationData;
 import de.hybris.platform.commercefacades.user.data.AddressData;
 import de.hybris.platform.commerceservices.order.CommerceCartModificationStatus;
 import de.hybris.platform.order.CartService;
+import de.hybris.platform.servicelayer.model.ModelService;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -100,9 +101,11 @@ public class KlarnaExpCheckoutController extends AbstractPageController
 	@Resource
 	private KlarnaWebhookFacade klarnaWebhookFacade;
 
-
 	@Resource
 	private KlarnaPaymentRequestFacade klarnaPaymentRequestFacade;
+
+	@Resource
+	private ModelService modelService;
 
 
 	@RequestMapping(value = "/create-authorize-payload", method = RequestMethod.GET, produces = "application/json")
@@ -265,6 +268,8 @@ public class KlarnaExpCheckoutController extends AbstractPageController
 	final KlarnaRequestData requestData, final HttpServletRequest request, final HttpServletResponse response)
 	{
 		LogHelper.debugLog(LOG, "Inside updateShippingAddress method");
+		LOG.debug("1. DEBUG: session=" + request.getSession().getId() + " kecCart="
+				+ getSessionService().getAttribute(KlarnapaymentaddonWebConstants.KLARNA_EXP_CHECKOUT_CART_ID));
 		try
 		{
 			// Check if the response object is valid
@@ -315,6 +320,11 @@ public class KlarnaExpCheckoutController extends AbstractPageController
 	final KlarnaRequestData requestData, final HttpServletRequest request, final HttpServletResponse response)
 	{
 		LogHelper.debugLog(LOG, "Inside updateShippingMethod method");
+		LogHelper.debugLog(LOG, "2. DEBUG: session=" + request.getSession().getId() + " kecCart="
+				+ getSessionService().getAttribute(KlarnapaymentaddonWebConstants.KLARNA_EXP_CHECKOUT_CART_ID));
+		modelService.refresh(cartService.getSessionCart());
+		LogHelper.debugLog(LOG, "3. DEBUG: session=" + request.getSession().getId() + " kecCart="
+				+ getSessionService().getAttribute(KlarnapaymentaddonWebConstants.KLARNA_EXP_CHECKOUT_CART_ID));
 		try
 		{
 			// Check if the response object is valid
