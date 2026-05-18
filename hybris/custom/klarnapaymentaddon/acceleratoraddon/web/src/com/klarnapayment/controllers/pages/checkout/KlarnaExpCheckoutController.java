@@ -344,7 +344,7 @@ public class KlarnaExpCheckoutController extends AbstractPageController
 				LOG.error("Invalid checkout user.");
 				return getErrorResponseForShippingOptionUpdate();
 			}
-			if (cartFacade.getSessionCart().getDeliveryAddress() == null)
+			if (cartService.getSessionCart().getDeliveryAddress() == null)
 			{
 				LOG.error("Delivery Address is not available.");
 				return getErrorResponseForShippingOptionUpdate();
