@@ -4,7 +4,6 @@ import de.hybris.platform.acceleratorservices.config.SiteConfigService;
 import de.hybris.platform.commercefacades.address.AddressVerificationFacade;
 import de.hybris.platform.commercefacades.address.data.AddressVerificationErrorField;
 import de.hybris.platform.commercefacades.address.data.AddressVerificationResult;
-import de.hybris.platform.commercefacades.order.CartFacade;
 import de.hybris.platform.commercefacades.order.CheckoutFacade;
 import de.hybris.platform.commercefacades.user.UserFacade;
 import de.hybris.platform.commercefacades.user.data.AddressData;
@@ -90,9 +89,6 @@ public class DefaultKlarnaExpCheckoutFacade implements KlarnaExpCheckoutFacade
 
 	@Resource(name = "addressVerificationFacade")
 	private AddressVerificationFacade addressVerificationFacade;
-
-	@Resource(name = "cartFacade")
-	private CartFacade cartFacade;
 
 	@Resource(name = "kpPaymentFacade")
 	private KPPaymentFacade kpPaymentFacade;
@@ -339,8 +335,8 @@ public class DefaultKlarnaExpCheckoutFacade implements KlarnaExpCheckoutFacade
 	@Override
 	public boolean setShippingOption(final KlarnaRequestData requestData)
 	{
-		final String currentShippingOption = (cartFacade.getSessionCart().getDeliveryMode() != null)
-				? cartFacade.getSessionCart().getDeliveryMode().getCode()
+		final String currentShippingOption = (cartService.getSessionCart().getDeliveryMode() != null)
+				? cartService.getSessionCart().getDeliveryMode().getCode()
 				: null;
 		if (requestData.getShippingOption() != null
 				&& StringUtils.isNotEmpty(requestData.getShippingOption().getShippingOptionReference()))
@@ -471,7 +467,7 @@ public class DefaultKlarnaExpCheckoutFacade implements KlarnaExpCheckoutFacade
 	{
 		final StringBuilder placeOrderUrl = new StringBuilder(
 				siteConfigService.getProperty(KlarnapaymentConstants.KP_MERCHANT_URL_CONFIRMATION));
-		placeOrderUrl.append("/?kid=KLARNA_").append(cartFacade.getSessionCart().getCode());
+		placeOrderUrl.append("/?kid=KLARNA_").append(cartService.getSessionCart().getCode());
 		return placeOrderUrl.toString();
 	}
 

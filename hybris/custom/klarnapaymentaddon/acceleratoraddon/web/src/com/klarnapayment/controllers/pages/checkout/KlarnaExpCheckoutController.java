@@ -268,8 +268,6 @@ public class KlarnaExpCheckoutController extends AbstractPageController
 	final KlarnaRequestData requestData, final HttpServletRequest request, final HttpServletResponse response)
 	{
 		LogHelper.debugLog(LOG, "Inside updateShippingAddress method");
-		LOG.debug("1. DEBUG: session=" + request.getSession().getId() + " kecCart="
-				+ getSessionService().getAttribute(KlarnapaymentaddonWebConstants.KLARNA_EXP_CHECKOUT_CART_ID));
 		try
 		{
 			// Check if the response object is valid
@@ -294,17 +292,26 @@ public class KlarnaExpCheckoutController extends AbstractPageController
 			{
 				LogHelper.debugLog(LOG, "Shipping address set successfully!");
 				// Set cheapest delivery method available
-				checkoutFacade.setCheapestDeliveryModeForCheckout();
-				final KlarnaShippingChangeResponseData shippingAddressChangeResponse = klarnaExpCheckoutFacade
-						.getShippingChangeResponse();
-				Map<String, Object> successResponse = new HashMap<>();
-				successResponse.put("status", "success");
-				successResponse.put("successResponse", shippingAddressChangeResponse);
-				return successResponse;
+				boolean setDefaultShippingMethod = checkoutFacade.setCheapestDeliveryModeForCheckout();
+				if (setDefaultShippingMethod)
+				{
+					LogHelper.debugLog(LOG, "Shipping method set successfully!");
+					// Set cheapest delivery method available
+					final KlarnaShippingChangeResponseData shippingAddressChangeResponse = klarnaExpCheckoutFacade
+							.getShippingChangeResponse();
+					Map<String, Object> successResponse = new HashMap<>();
+					successResponse.put("status", "success");
+					successResponse.put("successResponse", shippingAddressChangeResponse);
+					return successResponse;
+				}
+				else
+				{
+					LOG.error("Default shipping method could not be set.");
+				}
 			}
 			else
 			{
-				LOG.error("Shipping details could not be set.");
+				LOG.error("Shipping address could not be set.");
 			}
 		}
 		catch (Exception e)
@@ -320,11 +327,6 @@ public class KlarnaExpCheckoutController extends AbstractPageController
 	final KlarnaRequestData requestData, final HttpServletRequest request, final HttpServletResponse response)
 	{
 		LogHelper.debugLog(LOG, "Inside updateShippingMethod method");
-		LogHelper.debugLog(LOG, "2. DEBUG: session=" + request.getSession().getId() + " kecCart="
-				+ getSessionService().getAttribute(KlarnapaymentaddonWebConstants.KLARNA_EXP_CHECKOUT_CART_ID));
-		modelService.refresh(cartService.getSessionCart());
-		LogHelper.debugLog(LOG, "3. DEBUG: session=" + request.getSession().getId() + " kecCart="
-				+ getSessionService().getAttribute(KlarnapaymentaddonWebConstants.KLARNA_EXP_CHECKOUT_CART_ID));
 		try
 		{
 			// Check if the response object is valid
