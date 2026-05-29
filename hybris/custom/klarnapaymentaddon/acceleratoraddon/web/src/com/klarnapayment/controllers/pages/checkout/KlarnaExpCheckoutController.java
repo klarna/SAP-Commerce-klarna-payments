@@ -462,9 +462,7 @@ public class KlarnaExpCheckoutController extends AbstractPageController
 			{
 				// Return as payment is already being processed (by on-payment-complete callback)
 				LogHelper.debugLog(LOG, "Exiting as payment is already being procssed");
-				Map<String, Object> responseBody = Map.of(KlarnapaymentaddonWebConstants.KLARNA_RESPONSE_STATUS,
-						KlarnapaymentaddonWebConstants.KLARNA_RESPONSE_STATUS_NOT_READY);
-				return ResponseEntity.ok().body(responseBody);
+				return getResponseForPaymentUpdate(KlarnapaymentaddonWebConstants.KLARNA_RESPONSE_STATUS_SUCCESS, null);
 			}
 			else
 			{
@@ -475,6 +473,19 @@ public class KlarnaExpCheckoutController extends AbstractPageController
 			{
 				LOG.error("Error! Invalid Cart!");
 				return getResponseForPaymentUpdate(KlarnapaymentaddonWebConstants.KLARNA_RESPONSE_STATUS_ERROR, null);
+			}
+			final KlarnaConfigData klarnaConfig = klarnaConfigFacade.getKlarnaConfig();
+			if (Boolean.TRUE.equals(klarnaConfig.getIntegratedViaPSP()))
+			{
+				if (StringUtils
+						.isNotEmpty(getSessionService().getAttribute(KlarnapaymentaddonWebConstants.KLARNA_NETWORK_SESSION_TOKEN)))
+				{
+					return getResponseForPaymentUpdate(KlarnapaymentaddonWebConstants.KLARNA_RESPONSE_STATUS_SUCCESS, null);
+				}
+				else {
+					LOG.error("Error! Klarna network session token not availabe in the session.");
+					return getResponseForPaymentUpdate(KlarnapaymentaddonWebConstants.KLARNA_RESPONSE_STATUS_ERROR, null);
+				}
 			}
 			if (!klarnaExpCheckoutHelper.prepareCheckoutUser(klarnaExpCheckoutHelper.getEmailIdFromWebhookData(webhookData), request,
 					response))

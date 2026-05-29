@@ -126,7 +126,7 @@ ACC.klarnaexpcheckout = {
 	            try {
 	                const shippingAddressResponse = await ACC.klarnaexpcheckout.updateShippingAddress(paymentRequest, shippingAddress);
 	                if (shippingAddressResponse.status === "success") {
-						console.log('Shipping change response: '+JSON.stringify(shippingAddressResponse.successResponse));
+						//console.log('Shipping change response: '+JSON.stringify(shippingAddressResponse.successResponse));
 						return shippingAddressResponse.successResponse;
 					}
 					if(shippingAddressResponse.rejectionResponse && shippingAddressResponse.rejectionResponse.rejectionReason) {
@@ -168,18 +168,16 @@ ACC.klarnaexpcheckout = {
 				             || paymentRequest?.paymentRequestReference
 				             || JSON.stringify(paymentRequest);				
 			    if (window.KlarnaV2._completedRequests.has(key)) {
-			        console.debug("Duplicate complete suppressed:", key);
+			        //console.debug("Duplicate complete suppressed:", key);
 			        return false;
 			    }			
 			    window.KlarnaV2._completedRequests.add(key);					    
 		        if (paymentRequest) {
-					console.log("Payment Request: ", JSON.stringify(paymentRequest)); 
+					//console.log("Payment Request: ", JSON.stringify(paymentRequest)); 
 		            const paymentCompleteResponse = await ACC.klarnaexpcheckout.onPaymentComplete(paymentRequest);
-		            console.log("Payment Response: ", JSON.stringify(paymentCompleteResponse)); 
 		            if(integratedViaPSP === true) {
-						// Redirect to PSP specific checkout
-						// Returning false to prevent redirection temporarily
-						return false;
+						// Redirect to PSP specific checkout URL
+						return true;
 					}
 					else {
 						if(paymentCompleteResponse.status === "SUCCESS") {
@@ -312,11 +310,18 @@ ACC.klarnaexpcheckout = {
 	        pollStartTime = null;
 	        ACC.klarnaexpcheckout.showMessage('Klarna Express Checkout Failed. Please try again later.');
 	        return;
-	    }	
-		ACC.klarnaexpcheckout.checkPaymentStatus(paymentRequestId).done(function(response) {
-		    console.log("Payment status:", response); // "SUCCESS"
+	    }
+	    ACC.klarnaexpcheckout.checkPaymentStatus(paymentRequestId).done(function(response) {
+		    //console.log("Payment status:", response); // "SUCCESS"
 		    if(response.status === 'SUCCESS') {
-				window.location = response.redirectUrl;
+				if(response.redirectUrl == null) {
+					// Payment is already under processing with on-complete callback
+					console.log("Payment is already under processing");
+				}
+				else {
+					// Redirect to place order
+					window.location = response.redirectUrl;
+				}		
 			}
 			else if(response.status === 'NOT_READY') {
 				if (keepPolling) {

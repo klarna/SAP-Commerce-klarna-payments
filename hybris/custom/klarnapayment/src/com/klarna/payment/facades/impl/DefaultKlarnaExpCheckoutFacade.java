@@ -316,20 +316,30 @@ public class DefaultKlarnaExpCheckoutFacade implements KlarnaExpCheckoutFacade
 		{
 			klarnaShippingAddressData = requestData.getPaymentRequest().getStateContext().getShipping().getAddress();
 		}
-		final AddressData shippingAddress = getAddressData(klarnaShippingAddressData);
-		addRecipientNameToAddress(shippingAddress, requestData.getPaymentRequest());
-		if (!isValidAddress(shippingAddress))
+		if (klarnaShippingAddressData != null)
 		{
-			LOG.error("Invalid shipping address. Cannot proceed with order placement");
-			return false;
+			final AddressData shippingAddress = getAddressData(klarnaShippingAddressData);
+			addRecipientNameToAddress(shippingAddress, requestData.getPaymentRequest());
+			if (!isValidAddress(shippingAddress))
+			{
+				LOG.error("Invalid shipping address. Cannot proceed with order placement");
+				return false;
+			}
+			userFacade.addAddress(shippingAddress);
+			if (!checkoutFacade.setDeliveryAddress(shippingAddress))
+			{
+				LOG.error("Shipping address couldnot be set. Cannot proceed with order placement");
+				return false;
+			}
+			LogHelper.debugLog(LOG, "Shipping Address updated.");
+			return true;
 		}
-		userFacade.addAddress(shippingAddress);
-		if (!checkoutFacade.setDeliveryAddress(shippingAddress))
+		else if (cartService.getSessionCart().getDeliveryAddress() != null)
 		{
-			LOG.error("Shipping address couldnot be set. Cannot proceed with order placement");
-			return false;
+			return true;
 		}
-		return true;
+		LOG.error("Shipping address not available. Cannot proceed with order placement");
+		return false;
 	}
 
 	@Override
@@ -358,6 +368,10 @@ public class DefaultKlarnaExpCheckoutFacade implements KlarnaExpCheckoutFacade
 				LOG.error("Delivery mode could not be set. Cannot proceed with order placement");
 				return false;
 			}
+			else
+			{
+				LogHelper.debugLog(LOG, "Shipping Option updated.");
+			}
 		}
 		return true;
 	}
@@ -383,8 +397,10 @@ public class DefaultKlarnaExpCheckoutFacade implements KlarnaExpCheckoutFacade
 		//kpPaymentInfoModel.setAuthToken(requestData.getPaymentRequest().getStateContext().getKlarnaNetworkSessionToken());
 		if(setPaymentInfoInCart(cartModel, kpPaymentInfoModel)) {
 			kpPaymentFacade.createPaymentTransaction();
+			LogHelper.debugLog(LOG, "Payment Info updated.");
 			return true;
 		}
+		LOG.error("Payment Info could not be set. Cannot proceed with order placement");
 		return false;
 	}
 
@@ -428,6 +444,7 @@ public class DefaultKlarnaExpCheckoutFacade implements KlarnaExpCheckoutFacade
 		modelService.saveAll(addressModel, kpPaymentInfoModel, cartModel);
 		modelService.refresh(kpPaymentInfoModel);
 		modelService.refresh(cartModel);
+		LogHelper.debugLog(LOG, "Billing Address updated.");
 		return true;
 	}
 
@@ -476,8 +493,15 @@ public class DefaultKlarnaExpCheckoutFacade implements KlarnaExpCheckoutFacade
 		if (webhookData.getPayload() == null || webhookData.getPayload().getShipping() == null
 				|| webhookData.getPayload().getShipping().getAddress() == null)
 		{
-			LOG.error("Shipping address not available in webhook data");
-			return false;
+			if (cartService.getSessionCart().getDeliveryAddress() != null)
+			{
+				return true;
+			}
+			else
+			{
+				LOG.error("Shipping address not available in webhook data");
+				return false;
+			}
 		}
 		final KlarnaAddressDTO shippingAddressDTO = webhookData.getPayload().getShipping().getAddress();
 		final AddressData shippingAddress = klarnaAddressDTOReverseConverter.convert(shippingAddressDTO);
@@ -497,16 +521,35 @@ public class DefaultKlarnaExpCheckoutFacade implements KlarnaExpCheckoutFacade
 			LOG.error("Shipping address couldnot be set. Cannot proceed with order placement");
 			return false;
 		}
+		LogHelper.debugLog(LOG, "Shipping address updated with webhook data");
 		return true;
 	}
 
 	protected boolean setShippingOptionWithWebhookData(final KlarnaWebhookData webhookData)
 	{
-		if (StringUtils.isNotEmpty(webhookData.getPayload().getShipping().getShippingReference()))
+		final String currentShippingOption = (cartService.getSessionCart().getDeliveryMode() != null)
+				? cartService.getSessionCart().getDeliveryMode().getCode()
+				: null;
+		if (StringUtils.isNotEmpty(webhookData.getPayload().getShipping().getShippingReference()) && !StringUtils
+				.equalsIgnoreCase(currentShippingOption, webhookData.getPayload().getShipping().getShippingReference()))
 		{
-			return checkoutFacade.setDeliveryMode(webhookData.getPayload().getShipping().getShippingReference());
+			if (checkoutFacade.setDeliveryMode(webhookData.getPayload().getShipping().getShippingReference()))
+			{
+				LogHelper.debugLog(LOG, "Shipping option updated with webhook data");
+				return true;
+			}
+			else
+			{
+				LOG.error("Shipping option couldnot be set. Cannot proceed with order placement");
+				return false;
+			}
 		}
-		return false;
+		else if (StringUtils.isEmpty(currentShippingOption))
+		{
+			LOG.error("Shipping option not available. Cannot proceed with order placement");
+			return false;
+		}
+		return true;
 	}
 
 	protected boolean setPaymentInfoWithWebhookData(final KlarnaWebhookData webhookData)
@@ -530,8 +573,10 @@ public class DefaultKlarnaExpCheckoutFacade implements KlarnaExpCheckoutFacade
 		if (setPaymentInfoInCart(cartModel, kpPaymentInfoModel))
 		{
 			kpPaymentFacade.createPaymentTransaction();
+			LogHelper.debugLog(LOG, "Payment Info updated with webhook data");
 			return true;
 		}
+		LOG.error("Payment Info couldnot be set. Cannot proceed with order placement");
 		return false;
 	}
 
@@ -568,6 +613,7 @@ public class DefaultKlarnaExpCheckoutFacade implements KlarnaExpCheckoutFacade
 		modelService.saveAll(addressModel, kpPaymentInfoModel, cartModel);
 		modelService.refresh(kpPaymentInfoModel);
 		modelService.refresh(cartModel);
+		LogHelper.debugLog(LOG, "Billing Address updated successfully.");
 		return true;
 	}
 

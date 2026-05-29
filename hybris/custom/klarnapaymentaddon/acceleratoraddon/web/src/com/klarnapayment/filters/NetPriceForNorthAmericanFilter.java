@@ -35,10 +35,9 @@ public class NetPriceForNorthAmericanFilter extends OncePerRequestFilter
 	{
 		final String requestURL = request.getServletPath();
 
-		if (LOG.isDebugEnabled())
-		{
-			LOG.debug("Filter on: [" + requestURL + "]");
-		}
+		/*
+		 * if (LOG.isDebugEnabled()) { LOG.debug("Filter on: [" + requestURL + "]"); }
+		 */
 		if (requestURL.contains(KLARNA_CHECKOUT_URL) && !validBaseStoreConfiguration())
 		{
 			throw new IllegalArgumentException("Price config for this store invalid!");

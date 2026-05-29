@@ -86,7 +86,7 @@ public class KPCreditSessionInitialPopulator implements Populator<AbstractOrderM
 	private void addKlarnaCommon(final AbstractOrderModel source, final PaymentsSession target,
 			final KlarnaConfigData klarnaConfig)
 	{
-		LogHelper.debugLog(LOG, "entering KPCreditSessionInitialPopulator.addKlarnaCommon ... ");
+		//LogHelper.debugLog(LOG, "entering KPCreditSessionInitialPopulator.addKlarnaCommon ... ");
 		if (source.getDeliveryAddress() != null)
 		{
 			target.setPurchaseCountry(source.getDeliveryAddress().getCountry().getIsocode());
@@ -98,7 +98,7 @@ public class KPCreditSessionInitialPopulator implements Populator<AbstractOrderM
 
 	private void addKlarnaOrder(final AbstractOrderModel source, final PaymentsSession target, final KlarnaConfigData klarnaConfig)
 	{
-		LogHelper.debugLog(LOG, "entering KPCreditSessionInitialPopulator.addKlarnaOrder ... ");
+		//LogHelper.debugLog(LOG, "entering KPCreditSessionInitialPopulator.addKlarnaOrder ... ");
 		final List<PaymentsOrderLine> orderLines = new ArrayList<>();
 		if (CollectionUtils.isNotEmpty(source.getEntries()))
 		{
@@ -124,7 +124,7 @@ public class KPCreditSessionInitialPopulator implements Populator<AbstractOrderM
 
 	private PaymentsOrderLine getKlarnaShipping(final AbstractOrderModel order)
 	{
-		LogHelper.debugLog(LOG, "entering KPCreditSessionInitialPopulator.getKlarnaShipping ... ");
+		//LogHelper.debugLog(LOG, "entering KPCreditSessionInitialPopulator.getKlarnaShipping ... ");
 		final PaymentsOrderLine orderLine = new PaymentsOrderLine();
 		orderLine.setType(KlarnaOrderTypeEnum.SHIPPING_FEE.getValue());
 		if (StringUtils.isNotEmpty(order.getDeliveryMode().getName()))
@@ -157,7 +157,7 @@ public class KPCreditSessionInitialPopulator implements Populator<AbstractOrderM
 
 	private PaymentsOptions getCheckoutOptions(final String customStyle)
 	{
-		LogHelper.debugLog(LOG, "Entering getCheckoutOptions ");
+		//LogHelper.debugLog(LOG, "Entering getCheckoutOptions ");
 		PaymentsOptions checkoutOption = new PaymentsOptions();
 		final ObjectMapper obejectMapper = new DefaultMapper();
 		try
@@ -170,7 +170,7 @@ public class KPCreditSessionInitialPopulator implements Populator<AbstractOrderM
 			LOG.warn("Klarna Payment :: Parsing of Custom style failed with error " + e.getMessage() + " for the below content \n"
 					+ customStyle);
 		}
-		LOG.info("checkoutOption " + checkoutOption);
+		//LOG.info("checkoutOption " + checkoutOption);
 		//checkoutOption =om.convertValue(customStyle, checkoutOption);
 		//			checkoutOption.setColorBorder(klarnaConfig.getColorBorder());
 		//			checkoutOption.setColorBorderSelected(klarnaConfig.getColorBorderSelected());
@@ -188,7 +188,7 @@ public class KPCreditSessionInitialPopulator implements Populator<AbstractOrderM
 
 	private PaymentsOrderLine getGlobalDiscount(final AbstractOrderModel source)
 	{
-		LogHelper.debugLog(LOG, "entering KPCreditSessionInitialPopulator.getGlobalDiscount ... ");
+		//LogHelper.debugLog(LOG, "entering KPCreditSessionInitialPopulator.getGlobalDiscount ... ");
 		final Double discountValue = getGlobalDiscountValue(source);
 		final PaymentsOrderLine orderLine = new PaymentsOrderLine();
 		orderLine.setType(KlarnaOrderTypeEnum.DISCOUNT.getValue());
@@ -219,7 +219,7 @@ public class KPCreditSessionInitialPopulator implements Populator<AbstractOrderM
 
 	protected String getCouponCodes(final AbstractOrderModel source)
 	{
-		LogHelper.debugLog(LOG, "entering KPCreditSessionInitialPopulator.getCouponCodes ... ");
+		//LogHelper.debugLog(LOG, "entering KPCreditSessionInitialPopulator.getCouponCodes ... ");
 		final Collection<String> coupons = source.getAppliedCouponCodes();
 		String couponCodes = "";
 		if (coupons != null && !coupons.isEmpty())
@@ -236,7 +236,7 @@ public class KPCreditSessionInitialPopulator implements Populator<AbstractOrderM
 
 	protected Double getGlobalDiscountValue(final AbstractOrderModel source)
 	{
-		LogHelper.debugLog(LOG, "entering KPCreditSessionInitialPopulator.getGlobalDiscountValue ... ");
+		//LogHelper.debugLog(LOG, "entering KPCreditSessionInitialPopulator.getGlobalDiscountValue ... ");
 		final List<DiscountValue> discounts = source.getGlobalDiscountValues();
 		double discountValue = 0.0;
 		for (final DiscountValue discount : discounts)
@@ -250,7 +250,7 @@ public class KPCreditSessionInitialPopulator implements Populator<AbstractOrderM
 
 	private Long calculateGlobalTotalTaxAmount(final AbstractOrderModel source)
 	{
-		LogHelper.debugLog(LOG, "entering KPCreditSessionInitialPopulator.calculateGlobalTotalTaxAmount ... ");
+		//LogHelper.debugLog(LOG, "entering KPCreditSessionInitialPopulator.calculateGlobalTotalTaxAmount ... ");
 		final Long totalDiscount = KlarnaConversionUtils.getKlarnaLongValue(getGlobalDiscountValue(source));
 		final Long taxRate = getTaxRate(getTaxValue(source.getTotalTaxValues()));
 		if (klarnaConfigFacade.isNorthAmerianKlarnaPayment())
@@ -266,7 +266,7 @@ public class KPCreditSessionInitialPopulator implements Populator<AbstractOrderM
 
 	private PaymentsOrderLine getKlarnaOrderLine(final AbstractOrderEntryModel entry, final KlarnaConfigData klarnaConfig)
 	{
-		LogHelper.debugLog(LOG, "entering KPCreditSessionInitialPopulator.getKlarnaOrderLine ... ");
+		//LogHelper.debugLog(LOG, "entering KPCreditSessionInitialPopulator.getKlarnaOrderLine ... ");
 		final ProductModel product = entry.getProduct();
 		final Double promotionEntryValue = getPromotionEntryValue(entry);
 		final PaymentsOrderLine orderLine = new PaymentsOrderLine();
@@ -312,7 +312,7 @@ public class KPCreditSessionInitialPopulator implements Populator<AbstractOrderM
 
 	private String getImageURL(final ProductModel product)
 	{
-		LogHelper.debugLog(LOG, "entering KPCreditSessionInitialPopulator.getImageURL ... ");
+		//LogHelper.debugLog(LOG, "entering KPCreditSessionInitialPopulator.getImageURL ... ");
 		String imageURL = null;
 		final ProductData productData = new ProductData();
 		getProductPrimaryImagePopulator().populate(product, productData);
@@ -338,7 +338,7 @@ public class KPCreditSessionInitialPopulator implements Populator<AbstractOrderM
 	 */
 	private PaymentsProductIdentifiers getProductIdentifiers(final ProductModel product)
 	{
-		LogHelper.debugLog(LOG, "entering KPCreditSessionInitialPopulator.getProductIdentifiers ... ");
+		//LogHelper.debugLog(LOG, "entering KPCreditSessionInitialPopulator.getProductIdentifiers ... ");
 		final PaymentsProductIdentifiers productIdentifiers = new PaymentsProductIdentifiers();
 		productIdentifiers.setGlobalTradeItemNumber(product.getEan());
 		productIdentifiers.setBrand(product.getManufacturerName());
@@ -351,7 +351,7 @@ public class KPCreditSessionInitialPopulator implements Populator<AbstractOrderM
 
 	protected Double getPromotionEntryValue(final AbstractOrderEntryModel entry)
 	{
-		LogHelper.debugLog(LOG, "entering KPCreditSessionInitialPopulator.getPromotionEntryValue ... ");
+		//LogHelper.debugLog(LOG, "entering KPCreditSessionInitialPopulator.getPromotionEntryValue ... ");
 		final double acctualPrice = entry.getBasePrice().doubleValue() * entry.getQuantity().intValue();
 		final double promotionValue = acctualPrice - entry.getTotalPrice().doubleValue();
 		return convertToPurchaseCurrencyPrice(Double.valueOf(promotionValue));
@@ -359,7 +359,7 @@ public class KPCreditSessionInitialPopulator implements Populator<AbstractOrderM
 
 	protected PaymentsOrderLine getKlarnaSalesTaxLine(final AbstractOrderModel order)
 	{
-		LogHelper.debugLog(LOG, "entering KPCreditSessionInitialPopulator.getKlarnaSalesTaxLine ... ");
+		//LogHelper.debugLog(LOG, "entering KPCreditSessionInitialPopulator.getKlarnaSalesTaxLine ... ");
 		final PaymentsOrderLine orderLine = new PaymentsOrderLine();
 		orderLine.setType(KlarnaOrderTypeEnum.SALES_TAX.getValue());
 		orderLine.setReference(KlarnaOrderTypeEnum.SALES_TAX.getValue());
@@ -375,7 +375,7 @@ public class KPCreditSessionInitialPopulator implements Populator<AbstractOrderM
 
 	private void addKlarnOrderTotal(final AbstractOrderModel source, final PaymentsSession target)
 	{
-		LogHelper.debugLog(LOG, "entering KPCreditSessionInitialPopulator.addKlarnOrderTotal ... ");
+		//LogHelper.debugLog(LOG, "entering KPCreditSessionInitialPopulator.addKlarnOrderTotal ... ");
 		if (CollectionUtils.isNotEmpty(source.getEntries()))
 		{
 			target.setOrderAmount(calculateTotalAmount(source));
@@ -390,14 +390,14 @@ public class KPCreditSessionInitialPopulator implements Populator<AbstractOrderM
 
 	private String getLocale(final String purchaseCountry)
 	{
-		LogHelper.debugLog(LOG, "entering KPCreditSessionInitialPopulator.getLocale ... ");
+		//LogHelper.debugLog(LOG, "entering KPCreditSessionInitialPopulator.getLocale ... ");
 		final Locale currentLocale = commonI18NService.getLocaleForLanguage(commonI18NService.getCurrentLanguage());
 		return currentLocale.getLanguage() + "-" + purchaseCountry;
 	}
 
 	private TaxValue getTaxValue(final Collection<TaxValue> taxes)
 	{
-		LogHelper.debugLog(LOG, "entering KPCreditSessionInitialPopulator.getTaxValue ... ");
+		//LogHelper.debugLog(LOG, "entering KPCreditSessionInitialPopulator.getTaxValue ... ");
 		final KlarnaConfigData klarnaConfig = klarnaConfigFacade.getKlarnaConfig();
 		if (taxes != null)
 		{
@@ -406,7 +406,7 @@ public class KPCreditSessionInitialPopulator implements Populator<AbstractOrderM
 				final TaxValue tax = taxes.iterator().next();
 				if (tax.isAbsolute())
 				{
-					LogHelper.debugLog(LOG, "System does not accept absolute tax for the order");
+					//LogHelper.debugLog(LOG, "System does not accept absolute tax for the order");
 					throw new IllegalArgumentException("System does not accept absolute tax for the order");
 				}
 				return tax;
@@ -414,7 +414,7 @@ public class KPCreditSessionInitialPopulator implements Populator<AbstractOrderM
 			}
 			if (taxes.size() > 1)
 			{
-				LogHelper.debugLog(LOG, "System does not accept multiple tax for the order");
+				//LogHelper.debugLog(LOG, "System does not accept multiple tax for the order");
 
 				throw new IllegalArgumentException("System does not accept multiple tax for the order");
 			}
@@ -425,13 +425,13 @@ public class KPCreditSessionInitialPopulator implements Populator<AbstractOrderM
 
 	private Long getTaxRate(final TaxValue tax)
 	{
-		LogHelper.debugLog(LOG, "entering KPCreditSessionInitialPopulator.getTaxRate ... ");
+		//LogHelper.debugLog(LOG, "entering KPCreditSessionInitialPopulator.getTaxRate ... ");
 		return KlarnaConversionUtils.getKlarnaIntValue(Double.valueOf(tax.getValue()));
 	}
 
 	private Long calculateOrderEntryTaxAmount(final AbstractOrderEntryModel entry)
 	{
-		LogHelper.debugLog(LOG, "entering KPCreditSessionInitialPopulator.calculateOrderEntryTaxAmount ... ");
+		//LogHelper.debugLog(LOG, "entering KPCreditSessionInitialPopulator.calculateOrderEntryTaxAmount ... ");
 		final TaxValue tax = getTaxValue(entry.getTaxValues());
 		final Double appliedValue = Double.valueOf(tax.getAppliedValue());
 		return KlarnaConversionUtils.getKlarnaLongValue(convertToPurchaseCurrencyPrice(appliedValue));
@@ -439,7 +439,7 @@ public class KPCreditSessionInitialPopulator implements Populator<AbstractOrderM
 
 	private Long calculateTotalAmount(final AbstractOrderModel source)
 	{
-		LogHelper.debugLog(LOG, "entering KPCreditSessionInitialPopulator.calculateTotalAmount ... ");
+		//LogHelper.debugLog(LOG, "entering KPCreditSessionInitialPopulator.calculateTotalAmount ... ");
 		if (klarnaConfigFacade.isNorthAmerianKlarnaPayment())
 		{
 			final double grandTotalPrice = convertToPurchaseCurrencyPrice(source.getTotalPrice()).doubleValue()
@@ -457,13 +457,13 @@ public class KPCreditSessionInitialPopulator implements Populator<AbstractOrderM
 
 	private Long calculateTotalTaxAmount(final AbstractOrderModel source)
 	{
-		LogHelper.debugLog(LOG, "entering KPCreditSessionInitialPopulator.calculateTotalTaxAmount ... ");
+		//LogHelper.debugLog(LOG, "entering KPCreditSessionInitialPopulator.calculateTotalTaxAmount ... ");
 		return KlarnaConversionUtils.getKlarnaLongValue(convertToPurchaseCurrencyPrice(source.getTotalTax()));
 	}
 
 	private Long calculateDeliveryTaxAmount(final AbstractOrderModel order)
 	{
-		LogHelper.debugLog(LOG, "entering KPCreditSessionInitialPopulator.calculateDeliveryTaxAmount ... ");
+		//LogHelper.debugLog(LOG, "entering KPCreditSessionInitialPopulator.calculateDeliveryTaxAmount ... ");
 		final TaxValue tax = getTaxValue(order.getTotalTaxValues());
 		final Long taxRate = getTaxRate(tax);
 		final Long deliveryCost = KlarnaConversionUtils.getKlarnaLongValue(convertToPurchaseCurrencyPrice(order.getDeliveryCost()));
