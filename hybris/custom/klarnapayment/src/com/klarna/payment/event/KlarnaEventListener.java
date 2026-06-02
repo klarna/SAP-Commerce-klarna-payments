@@ -1,15 +1,13 @@
-package com.klarnapayment.listeners;
+package com.klarna.payment.event;
 
 import java.beans.PropertyChangeEvent;
 
 import org.apache.log4j.Logger;
 import org.springframework.context.event.EventListener;
-import org.springframework.stereotype.Component;
 
 import com.klarna.payment.util.LogHelper;
 
 
-@Component
 public class KlarnaEventListener
 {
 	private static final Logger LOG = Logger.getLogger(KlarnaEventListener.class);

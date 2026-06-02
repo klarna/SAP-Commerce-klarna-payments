@@ -810,4 +810,7 @@
     <bean id="klarnaEventPublisher" class="com.klarna.payment.event.KlarnaEventPublisher">
     </bean>
     
+    <bean id="klarnaEventListener" class="com.klarna.payment.event.KlarnaEventListener">
+    </bean>
+    
 </beans>
