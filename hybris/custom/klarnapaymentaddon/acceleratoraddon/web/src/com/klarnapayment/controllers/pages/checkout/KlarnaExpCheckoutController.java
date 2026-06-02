@@ -43,6 +43,7 @@ import com.klarna.payment.data.KlarnaRejectionResponseData;
 import com.klarna.payment.data.KlarnaRequestData;
 import com.klarna.payment.data.KlarnaShippingChangeResponseData;
 import com.klarna.payment.data.KlarnaWebhookData;
+import com.klarna.payment.event.KlarnaEventPublisher;
 import com.klarna.payment.facades.KPPaymentCheckoutFacade;
 import com.klarna.payment.facades.KPPaymentFacade;
 import com.klarna.payment.facades.KlarnaConfigFacade;
@@ -106,6 +107,9 @@ public class KlarnaExpCheckoutController extends AbstractPageController
 
 	@Resource
 	private ModelService modelService;
+
+	@Resource
+	private KlarnaEventPublisher klarnaEventPublisher;
 
 
 	@RequestMapping(value = "/create-authorize-payload", method = RequestMethod.GET, produces = "application/json")
@@ -238,6 +242,7 @@ public class KlarnaExpCheckoutController extends AbstractPageController
 	final String productQty) throws ApiException, IOException
 	{
 		LogHelper.debugLog(LOG, "Entering createPaymentRequest method");
+		getSessionService().setAttribute(KlarnapaymentaddonWebConstants.IS_PAYMENT_BEING_PROCESSED, Boolean.FALSE);
 		try
 		{
 			if (StringUtils.isNotEmpty(productCode))
@@ -381,9 +386,7 @@ public class KlarnaExpCheckoutController extends AbstractPageController
 			{
 				// Return as payment is already being processed (by webhook polling process)
 				LogHelper.debugLog(LOG, "Exiting as payment is already being procssed");
-				Map<String, Object> responseBody = Map.of(KlarnapaymentaddonWebConstants.KLARNA_RESPONSE_STATUS,
-						KlarnapaymentaddonWebConstants.KLARNA_RESPONSE_STATUS_ERROR);
-				return ResponseEntity.ok().body(responseBody);
+				return getResponseForPaymentUpdate(KlarnapaymentaddonWebConstants.KLARNA_RESPONSE_STATUS_PROCESSING, null);
 			}
 			else
 			{
@@ -447,6 +450,12 @@ public class KlarnaExpCheckoutController extends AbstractPageController
 		LogHelper.debugLog(LOG, "Inside checkPaymentStatus method");
 		try
 		{
+			if (BooleanUtils.isTrue(getSessionService().getAttribute(KlarnapaymentaddonWebConstants.IS_PAYMENT_BEING_PROCESSED)))
+			{
+				// Return as payment is already being processed (by on-payment-complete callback)
+				LogHelper.debugLog(LOG, "Exiting as payment is already being processed");
+				return getResponseForPaymentUpdate(KlarnapaymentaddonWebConstants.KLARNA_RESPONSE_STATUS_PROCESSING, null);
+			}
 			final String paymentRequestId = paymentRequest.get("paymentRequestId");
 			if (StringUtils.isEmpty(paymentRequestId))
 			{
@@ -458,12 +467,6 @@ public class KlarnaExpCheckoutController extends AbstractPageController
 			{
 				return getResponseForPaymentUpdate(KlarnapaymentaddonWebConstants.KLARNA_RESPONSE_STATUS_NOT_READY, null);
 			}
-			if (BooleanUtils.isTrue(getSessionService().getAttribute(KlarnapaymentaddonWebConstants.IS_PAYMENT_BEING_PROCESSED)))
-			{
-				// Return as payment is already being processed (by on-payment-complete callback)
-				LogHelper.debugLog(LOG, "Exiting as payment is already being procssed");
-				return getResponseForPaymentUpdate(KlarnapaymentaddonWebConstants.KLARNA_RESPONSE_STATUS_SUCCESS, null);
-			}
 			else
 			{
 				getSessionService().setAttribute(KlarnapaymentaddonWebConstants.IS_PAYMENT_BEING_PROCESSED, Boolean.TRUE);
@@ -473,19 +476,6 @@ public class KlarnaExpCheckoutController extends AbstractPageController
 			{
 				LOG.error("Error! Invalid Cart!");
 				return getResponseForPaymentUpdate(KlarnapaymentaddonWebConstants.KLARNA_RESPONSE_STATUS_ERROR, null);
-			}
-			final KlarnaConfigData klarnaConfig = klarnaConfigFacade.getKlarnaConfig();
-			if (Boolean.TRUE.equals(klarnaConfig.getIntegratedViaPSP()))
-			{
-				if (StringUtils
-						.isNotEmpty(getSessionService().getAttribute(KlarnapaymentaddonWebConstants.KLARNA_NETWORK_SESSION_TOKEN)))
-				{
-					return getResponseForPaymentUpdate(KlarnapaymentaddonWebConstants.KLARNA_RESPONSE_STATUS_SUCCESS, null);
-				}
-				else {
-					LOG.error("Error! Klarna network session token not availabe in the session.");
-					return getResponseForPaymentUpdate(KlarnapaymentaddonWebConstants.KLARNA_RESPONSE_STATUS_ERROR, null);
-				}
 			}
 			if (!klarnaExpCheckoutHelper.prepareCheckoutUser(klarnaExpCheckoutHelper.getEmailIdFromWebhookData(webhookData), request,
 					response))
@@ -590,12 +580,15 @@ public class KlarnaExpCheckoutController extends AbstractPageController
 	{
 		if (StringUtils.isNotEmpty(paymentRequest.getStateContext().getKlarnaNetworkSessionToken()))
 		{
+			final String oldToken = getSessionService().getAttribute(KlarnapaymentaddonWebConstants.KLARNA_NETWORK_SESSION_TOKEN);
 			getSessionService().setAttribute(KlarnapaymentaddonWebConstants.KLARNA_NETWORK_SESSION_TOKEN,
 					paymentRequest.getStateContext().getKlarnaNetworkSessionToken());
 			LogHelper.debugLog(LOG, "Klarna Network Session Token for Cart Id " + cartFacade.getSessionCart().getCode()
 					+ " saved to session:: " + paymentRequest.getStateContext().getKlarnaNetworkSessionToken());
+			klarnaEventPublisher.publishProperyChangeEvent(KlarnapaymentaddonWebConstants.KLARNA_NETWORK_SESSION_TOKEN, oldToken,
+					paymentRequest.getStateContext().getKlarnaNetworkSessionToken());
 		}
-		return getResponseForPaymentUpdate(KlarnapaymentaddonWebConstants.KLARNA_RESPONSE_STATUS_SUCCESS, null);
+		return getResponseForPaymentUpdate(KlarnapaymentaddonWebConstants.KLARNA_RESPONSE_STATUS_PROCESSING, null);
 	}
 
 	private Map<String, Object> getErrorResponseForShippingAddressChangeUpdate()
@@ -620,11 +613,14 @@ public class KlarnaExpCheckoutController extends AbstractPageController
 
 	private ResponseEntity<Map<String, Object>> getResponseForPaymentUpdate(final String status, final String redirectUrl)
 	{
-		getSessionService().setAttribute(KlarnapaymentaddonWebConstants.IS_PAYMENT_BEING_PROCESSED, Boolean.FALSE);
 		Map<String, Object> responseBody = new HashMap<>();
 		if (StringUtils.isNotEmpty(status))
 		{
 			responseBody.put(KlarnapaymentaddonWebConstants.KLARNA_RESPONSE_STATUS, status);
+			if (!StringUtils.equalsIgnoreCase(KlarnapaymentaddonWebConstants.KLARNA_RESPONSE_STATUS_PROCESSING, status))
+			{
+				getSessionService().setAttribute(KlarnapaymentaddonWebConstants.IS_PAYMENT_BEING_PROCESSED, Boolean.FALSE);
+			}
 		}
 		if (StringUtils.isNotEmpty(redirectUrl))
 		{

@@ -807,4 +807,7 @@
     <bean id="defaultKlarnaAddressDTOReversePopulator" class="com.klarna.payment.converter.populator.KlarnaAddressDTOReversePopulator">
     </bean>
     
+    <bean id="klarnaEventPublisher" class="com.klarna.payment.event.KlarnaEventPublisher">
+    </bean>
+    
 </beans>

@@ -17,6 +17,7 @@ import com.klarna.integration.dto.KlarnaSigningKeyResponseDTO;
 import com.klarna.model.KlarnaWebhookModel;
 import com.klarna.payment.constants.KlarnapaymentConstants;
 import com.klarna.payment.data.KlarnaWebhookData;
+import com.klarna.payment.event.KlarnaEventPublisher;
 import com.klarna.payment.facades.KlarnaConfigFacade;
 import com.klarna.payment.facades.KlarnaWebhookFacade;
 import com.klarna.payment.services.KlarnaWebhookService;
@@ -49,6 +50,9 @@ public class DefaultKlarnaWebhookFacade implements KlarnaWebhookFacade
 
 	@Resource(name = "sessionService")
 	private SessionService sessionService;
+
+	@Resource
+	private KlarnaEventPublisher klarnaEventPublisher;
 
 	@Override
 	public boolean createWebhook(final BaseSiteModel baseSite)
@@ -226,13 +230,17 @@ public class DefaultKlarnaWebhookFacade implements KlarnaWebhookFacade
 	{
 		if (StringUtils.isNotEmpty(webhookData.getPayload().getKlarnaNetworkSessionToken()))
 		{
+			final String oldToken = sessionService.getAttribute(KlarnapaymentConstants.KLARNA_NETWORK_SESSION_TOKEN);
 			sessionService.setAttribute(KlarnapaymentConstants.KLARNA_NETWORK_SESSION_TOKEN,
 					webhookData.getPayload().getKlarnaNetworkSessionToken());
 			LogHelper.debugLog(LOG, "Klarna Network Session Token for Cart Id " + cartFacade.getSessionCart().getCode()
 					+ " saved to session:: " + webhookData.getPayload().getKlarnaNetworkSessionToken());
+			klarnaEventPublisher.publishProperyChangeEvent(KlarnapaymentConstants.KLARNA_NETWORK_SESSION_TOKEN, oldToken,
+					webhookData.getPayload().getKlarnaNetworkSessionToken());
 			return true;
 		}
 		LOG.error("Klarna network token not available in the webhook request.");
 		return false;
 	}
+
 }

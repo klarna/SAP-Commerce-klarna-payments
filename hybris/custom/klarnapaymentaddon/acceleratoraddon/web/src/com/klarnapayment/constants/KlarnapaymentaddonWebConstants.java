@@ -35,6 +35,7 @@ public final class KlarnapaymentaddonWebConstants // NOSONAR
 	public static final String KLARNA_RESPONSE_STATUS_SUCCESS = "SUCCESS";
 	public static final String KLARNA_RESPONSE_STATUS_ERROR = "ERROR";
 	public static final String KLARNA_RESPONSE_STATUS_NOT_READY = "NOT_READY";
+	public static final String KLARNA_RESPONSE_STATUS_PROCESSING = "PROCESSING";
 
 	public static final String IS_PAYMENT_BEING_PROCESSED = "isPaymentBeingProcessed";
 

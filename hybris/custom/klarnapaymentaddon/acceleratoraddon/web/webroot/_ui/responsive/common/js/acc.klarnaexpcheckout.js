@@ -181,11 +181,21 @@ ACC.klarnaexpcheckout = {
 					}
 					else {
 						if(paymentCompleteResponse.status === "SUCCESS") {
-							// Redirect to placeOrder
-							window.location = paymentCompleteResponse.redirectUrl;
+							if(paymentCompleteResponse.redirectUrl == null) {
+								return true;
+							}
+							else {
+								// Redirect to placeOrder
+								window.location = paymentCompleteResponse.redirectUrl;								
+							}
+						}
+						else if(paymentCompleteResponse.status === "PROCESSING") {
+							console.log("The order is already being processed with webhook polling."); 
+							return false;
 						}
 						else {
 							ACC.klarnaexpcheckout.showMessage('Klarna Express Checkout Failed. Please try again later.');
+							return false;
 						}
 					}
 					return false;
@@ -222,7 +232,7 @@ ACC.klarnaexpcheckout = {
 	            }
 	            // console.log("paymentResponse.paymentRequestId:: "+paymentResponse.payment_request_id);
 				// Start Polling
-				if(integratedViaPSP == "false") {
+				if(integratedViaPSP != "true") {
 					keepPolling = true;
 					pollStartTime = Date.now();
 					ACC.klarnaexpcheckout.pollPaymentStatus(paymentResponse.payment_request_id);
@@ -315,8 +325,7 @@ ACC.klarnaexpcheckout = {
 		    //console.log("Payment status:", response); // "SUCCESS"
 		    if(response.status === 'SUCCESS') {
 				if(response.redirectUrl == null) {
-					// Payment is already under processing with on-complete callback
-					console.log("Payment is already under processing");
+					return;
 				}
 				else {
 					// Redirect to place order
@@ -327,6 +336,11 @@ ACC.klarnaexpcheckout = {
 				if (keepPolling) {
 		            setTimeout(function () { ACC.klarnaexpcheckout.pollPaymentStatus(paymentRequestId); }, 2000);
 		        }
+			} 
+			else if(response.status === 'PROCESSING') {
+				// Payment is already under processing with on-complete callback
+				console.log("The order is already being processed with on-complete callback."); 
+				return;
 			} else {
 	            keepPolling = false;
 	            pollStartTime = null;
