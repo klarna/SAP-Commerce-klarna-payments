@@ -14,7 +14,7 @@ public class KlarnaEventListener
 {
 	private static final Logger LOG = Logger.getLogger(KlarnaEventListener.class);
 
-	@EventListener(condition = "#evt.propertyName == 'klarnaNetworkSessionToken'")
+	@EventListener(condition = "#event.propertyName == 'klarnaNetworkSessionToken'")
 	public void onNetworkSessionTokenUpdate(final PropertyChangeEvent event)
 	{
 		// This is a sample event listener

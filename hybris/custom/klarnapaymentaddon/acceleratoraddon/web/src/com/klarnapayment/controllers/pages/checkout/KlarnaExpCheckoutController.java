@@ -469,7 +469,15 @@ public class KlarnaExpCheckoutController extends AbstractPageController
 			}
 			else
 			{
-				getSessionService().setAttribute(KlarnapaymentaddonWebConstants.IS_PAYMENT_BEING_PROCESSED, Boolean.TRUE);
+				if (BooleanUtils.isTrue(getSessionService().getAttribute(KlarnapaymentaddonWebConstants.IS_PAYMENT_BEING_PROCESSED)))
+				{
+					// Return as payment is already being processed (by on-payment-complete callback)
+					LogHelper.debugLog(LOG, "Exiting as payment is already being processed");
+					return getResponseForPaymentUpdate(KlarnapaymentaddonWebConstants.KLARNA_RESPONSE_STATUS_PROCESSING, null);
+				}
+				else {
+					getSessionService().setAttribute(KlarnapaymentaddonWebConstants.IS_PAYMENT_BEING_PROCESSED, Boolean.TRUE);
+				}
 			}
 			// Update Cart with Webhook data
 			if (!klarnaExpCheckoutHelper.validateExpressCheckoutCart())
@@ -617,10 +625,6 @@ public class KlarnaExpCheckoutController extends AbstractPageController
 		if (StringUtils.isNotEmpty(status))
 		{
 			responseBody.put(KlarnapaymentaddonWebConstants.KLARNA_RESPONSE_STATUS, status);
-			if (!StringUtils.equalsIgnoreCase(KlarnapaymentaddonWebConstants.KLARNA_RESPONSE_STATUS_PROCESSING, status))
-			{
-				getSessionService().setAttribute(KlarnapaymentaddonWebConstants.IS_PAYMENT_BEING_PROCESSED, Boolean.FALSE);
-			}
 		}
 		if (StringUtils.isNotEmpty(redirectUrl))
 		{

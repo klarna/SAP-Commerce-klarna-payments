@@ -45,7 +45,8 @@ public class KlarnaNetworkController
 		Map<String, Object> responseBody = new HashMap<>();
 		try
 		{
-			if (MapUtils.isNotEmpty(requestMap) && StringUtils.isNotEmpty(requestMap.get("networkSessionToken")))
+			if (MapUtils.isNotEmpty(requestMap)
+					&& StringUtils.isNotEmpty(requestMap.get(KlarnapaymentaddonWebConstants.KLARNA_NETWORK_SESSION_TOKEN)))
 			{
 				sessionService.setAttribute(KlarnapaymentaddonWebConstants.KLARNA_NETWORK_SESSION_TOKEN,
 						requestMap.get(KlarnapaymentaddonWebConstants.KLARNA_NETWORK_SESSION_TOKEN));

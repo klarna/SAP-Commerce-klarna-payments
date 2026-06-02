@@ -175,9 +175,9 @@ ACC.klarnaexpcheckout = {
 		        if (paymentRequest) {
 					//console.log("Payment Request: ", JSON.stringify(paymentRequest)); 
 		            const paymentCompleteResponse = await ACC.klarnaexpcheckout.onPaymentComplete(paymentRequest);
-		            if(integratedViaPSP === true) {
-						// Redirect to PSP specific checkout URL
-						return true;
+		            if(integratedViaPSP === "true") {
+						// Won't redirect to PSP specific checkout URL as it needs to be handled by event listener
+						return false;
 					}
 					else {
 						if(paymentCompleteResponse.status === "SUCCESS") {
@@ -190,7 +190,7 @@ ACC.klarnaexpcheckout = {
 							}
 						}
 						else if(paymentCompleteResponse.status === "PROCESSING") {
-							console.log("The order is already being processed with webhook polling."); 
+							//console.log("The order is already being processed with webhook polling."); 
 							return false;
 						}
 						else {
@@ -339,7 +339,7 @@ ACC.klarnaexpcheckout = {
 			} 
 			else if(response.status === 'PROCESSING') {
 				// Payment is already under processing with on-complete callback
-				console.log("The order is already being processed with on-complete callback."); 
+				//console.log("The order is already being processed with on-complete callback."); 
 				return;
 			} else {
 	            keepPolling = false;
