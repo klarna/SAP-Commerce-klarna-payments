@@ -514,4 +514,15 @@
 		</property> -->
 	</bean>
 	
+	<bean class="com.klarna.payment.data.KlarnaEventData">
+		<import	type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
+		<import type="com.fasterxml.jackson.annotation.JsonProperty" />
+		<property name="klarnaNetworkSessionToken" type="String">
+			<annotations>@JsonProperty("klarnaNetworkSessionToken")</annotations>
+		</property>
+		<property name="klarnaPaymentState" type="String">
+			<annotations>@JsonProperty("klarnaPaymentState")</annotations>
+		</property>
+	</bean>
+	
 </beans>

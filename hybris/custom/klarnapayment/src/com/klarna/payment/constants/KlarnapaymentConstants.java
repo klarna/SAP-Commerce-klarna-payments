@@ -53,5 +53,7 @@ public final class KlarnapaymentConstants extends GeneratedKlarnapaymentConstant
 
 	public static final String KLARNA_INTEROPERABILITY_TOKEN = "klarnaInteroperabilityToken";
 	public static final String KLARNA_NETWORK_SESSION_TOKEN = "klarnaNetworkSessionToken";
+	public static final String KLARNA_PAYMENT_STATE = "klarnaPaymentState";
+	public static final String KLARNA_EVENT_DATA = "klarnaEventData";
 
 }

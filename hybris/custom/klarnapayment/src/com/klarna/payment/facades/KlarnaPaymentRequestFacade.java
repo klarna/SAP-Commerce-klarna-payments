@@ -8,4 +8,7 @@ public interface KlarnaPaymentRequestFacade
 	KlarnaPaymentResponsePayloadDTO createPaymentRequest();
 
 	void createKlarnaInteroperabilityData();
+
+	boolean handlePaymentUpdateForPSPIntegration(String networkSessionToken, String paymentState);
+
 }

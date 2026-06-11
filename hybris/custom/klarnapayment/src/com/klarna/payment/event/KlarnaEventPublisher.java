@@ -14,7 +14,7 @@ public class KlarnaEventPublisher
 	@Autowired
 	private ApplicationEventPublisher applicationEventPublisher;
 
-	public void publishProperyChangeEvent(final String propertyName, final String oldValue, final String newValue)
+	public void publishProperyChangeEvent(final String propertyName, final Object oldValue, final Object newValue)
 	{
 		LogHelper.debugLog(LOG, "Publishing PropertyChangeEvent for the property :: " + propertyName);
 		try

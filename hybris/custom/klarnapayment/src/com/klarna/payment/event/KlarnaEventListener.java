@@ -12,11 +12,11 @@ public class KlarnaEventListener
 {
 	private static final Logger LOG = Logger.getLogger(KlarnaEventListener.class);
 
-	@EventListener(condition = "#event.propertyName == 'klarnaNetworkSessionToken'")
+	@EventListener(condition = "#event.propertyName == 'klarnaEventData'")
 	public void onNetworkSessionTokenUpdate(final PropertyChangeEvent event)
 	{
 		// This is a sample event listener
-		LogHelper.debugLog(LOG, "Klarna Network Session Token has been updated. Old Value: " + event.getOldValue() + ", New Value: "
+		LogHelper.debugLog(LOG, "Klarna Event Data: "
 				+ event.getNewValue());
 	}
 }

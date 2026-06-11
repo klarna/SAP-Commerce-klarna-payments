@@ -38,12 +38,10 @@ import com.klarna.api.payments.model.PaymentsSession;
 import com.klarna.data.KlarnaConfigData;
 import com.klarna.integration.dto.KlarnaPaymentResponsePayloadDTO;
 import com.klarna.payment.constants.KlarnapaymentConstants;
-import com.klarna.payment.data.KlarnaPaymentRequestData;
 import com.klarna.payment.data.KlarnaRejectionResponseData;
 import com.klarna.payment.data.KlarnaRequestData;
 import com.klarna.payment.data.KlarnaShippingChangeResponseData;
 import com.klarna.payment.data.KlarnaWebhookData;
-import com.klarna.payment.event.KlarnaEventPublisher;
 import com.klarna.payment.facades.KPPaymentCheckoutFacade;
 import com.klarna.payment.facades.KPPaymentFacade;
 import com.klarna.payment.facades.KlarnaConfigFacade;
@@ -107,9 +105,6 @@ public class KlarnaExpCheckoutController extends AbstractPageController
 
 	@Resource
 	private ModelService modelService;
-
-	@Resource
-	private KlarnaEventPublisher klarnaEventPublisher;
 
 
 	@RequestMapping(value = "/create-authorize-payload", method = RequestMethod.GET, produces = "application/json")
@@ -411,7 +406,10 @@ public class KlarnaExpCheckoutController extends AbstractPageController
 			final KlarnaConfigData klarnaConfig = klarnaConfigFacade.getKlarnaConfig();
 			if (Boolean.TRUE.equals(klarnaConfig.getIntegratedViaPSP()))
 			{
-				return handleOneStepKECForPSPIntegration(requestData.getPaymentRequest());
+				klarnaPaymentRequestFacade.handlePaymentUpdateForPSPIntegration(
+						requestData.getPaymentRequest().getStateContext().getKlarnaNetworkSessionToken(),
+						requestData.getPaymentRequest().getState());
+				return getResponseForPaymentUpdate(KlarnapaymentaddonWebConstants.KLARNA_RESPONSE_STATUS_PROCESSING, null);
 			}
 			if (!klarnaExpCheckoutHelper.prepareCheckoutUser(
 					klarnaExpCheckoutHelper.getEmailIdFromPaymentRequest(requestData.getPaymentRequest()), request,
@@ -582,21 +580,6 @@ public class KlarnaExpCheckoutController extends AbstractPageController
 						authorizationResponse.getPaymentMethodCategories().get(0).getIdentifier());
 			}
 		}
-	}
-
-	private ResponseEntity<Map<String, Object>> handleOneStepKECForPSPIntegration(final KlarnaPaymentRequestData paymentRequest)
-	{
-		if (StringUtils.isNotEmpty(paymentRequest.getStateContext().getKlarnaNetworkSessionToken()))
-		{
-			final String oldToken = getSessionService().getAttribute(KlarnapaymentaddonWebConstants.KLARNA_NETWORK_SESSION_TOKEN);
-			getSessionService().setAttribute(KlarnapaymentaddonWebConstants.KLARNA_NETWORK_SESSION_TOKEN,
-					paymentRequest.getStateContext().getKlarnaNetworkSessionToken());
-			LogHelper.debugLog(LOG, "Klarna Network Session Token for Cart Id " + cartFacade.getSessionCart().getCode()
-					+ " saved to session:: " + paymentRequest.getStateContext().getKlarnaNetworkSessionToken());
-			klarnaEventPublisher.publishProperyChangeEvent(KlarnapaymentaddonWebConstants.KLARNA_NETWORK_SESSION_TOKEN, oldToken,
-					paymentRequest.getStateContext().getKlarnaNetworkSessionToken());
-		}
-		return getResponseForPaymentUpdate(KlarnapaymentaddonWebConstants.KLARNA_RESPONSE_STATUS_PROCESSING, null);
 	}
 
 	private Map<String, Object> getErrorResponseForShippingAddressChangeUpdate()
