@@ -52,4 +52,6 @@ public interface KlarnaExpCheckoutFacade
 
 	String getPlaceOrderURL();
 
+	boolean handlePaymentUpdateForPSPIntegration(final String networkSessionToken, final String paymentState);
+
 }

@@ -1648,7 +1648,7 @@
 		</property>
 	</bean>
 		
-	<bean class="com.klarna.integration.dto.KlarnaInteroperabilityDataDTO" >
+	<bean class="com.klarna.integration.dto.KlarnaNetworkSessionDataDTO" >
 		<import	type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
 		<import type="com.fasterxml.jackson.annotation.JsonProperty" />
 		<property name="contentType" type="String">
@@ -2040,5 +2040,19 @@
 			<annotations>@JsonProperty("error_message")</annotations>
 		</property>
 	</bean>	
+		
+	<bean class="com.klarna.payment.data.KlarnaEventDTO">
+		<import	type="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
+		<import type="com.fasterxml.jackson.annotation.JsonProperty" />
+		<property name="klarnaNetworkSessionToken" type="String">
+			<annotations>@JsonProperty("klarna_network_session_token")</annotations>
+		</property>
+		<property name="klarnaNetworkData" type="com.klarna.integration.dto.KlarnaNetworkSessionDataDTO">
+			<annotations>@JsonProperty("klarna_network_data")</annotations>
+		</property>
+		<property name="klarnaNetworkPaymentState" type="String">
+			<annotations>@JsonProperty("klarna_network_payment_state")</annotations>
+		</property>
+	</bean>
 	
 </beans>

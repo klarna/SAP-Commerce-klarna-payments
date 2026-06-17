@@ -736,18 +736,18 @@
     <bean id="defaultKlarnaSupplementaryPurchaseDataPopulator" class="com.klarna.payment.converter.populator.KlarnaSupplementaryPurchaseDataPopulator">
     </bean>
     
-    <alias name="defaultKlarnaInteroperabilityDataConverter" alias="klarnaInteroperabilityDataConverter"/>
-     <bean id="defaultKlarnaInteroperabilityDataConverter" parent="abstractPopulatingConverter">
-        <property name="targetClass" value="com.klarna.integration.dto.KlarnaInteroperabilityDataDTO"/>
+    <alias name="defaultKlarnaNetworkSessionDataConverter" alias="klarnaNetworkSessionDataConverter"/>
+     <bean id="defaultKlarnaNetworkSessionDataConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.klarna.integration.dto.KlarnaNetworkSessionDataDTO"/>
         <property name="populators">
             <list>
-                <ref bean="klarnaInteroperabilityDataPopulator"/>
+                <ref bean="klarnaNetworkSessionDataPopulator"/>
             </list>
         </property>
     </bean>
 
-    <alias name="defaultKlarnaInteroperabilityDataPopulator" alias="klarnaInteroperabilityDataPopulator"/>
-    <bean id="defaultKlarnaInteroperabilityDataPopulator" class="com.klarna.payment.converter.populator.KlarnaInteroperabilityDataPopulator">
+    <alias name="defaultKlarnaNetworkSessionDataPopulator" alias="klarnaNetworkSessionDataPopulator"/>
+    <bean id="defaultKlarnaNetworkSessionDataPopulator" class="com.klarna.payment.converter.populator.KlarnaNetworkSessionDataPopulator">
     </bean>
     
     <alias name="defaultKlarnaLineItemConverter" alias="klarnaLineItemConverter"/>
@@ -811,6 +811,14 @@
     </bean>
     
     <bean id="klarnaEventListener" class="com.klarna.payment.event.KlarnaEventListener">
+    </bean>
+    
+    <alias name="defaultKlarnaNetworkSessionFacade" alias="klarnaNetworkSessionFacade"/>
+    <bean id="defaultKlarnaNetworkSessionFacade" class="com.klarna.payment.facades.impl.DefaultKlarnaNetworkSessionFacade">
+    </bean>
+    
+    <alias name="defaultKlarnaNetworkSessionService" alias="klarnaNetworkSessionService"/>
+    <bean id="defaultKlarnaNetworkSessionService" class="com.klarna.payment.services.impl.DefaultKlarnaNetworkSessionService">
     </bean>
     
 </beans>

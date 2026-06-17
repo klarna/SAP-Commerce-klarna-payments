@@ -6,9 +6,4 @@ import com.klarna.integration.dto.KlarnaPaymentResponsePayloadDTO;
 public interface KlarnaPaymentRequestFacade
 {
 	KlarnaPaymentResponsePayloadDTO createPaymentRequest();
-
-	void createKlarnaInteroperabilityData();
-
-	boolean handlePaymentUpdateForPSPIntegration(String networkSessionToken, String paymentState);
-
 }

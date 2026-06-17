@@ -195,13 +195,6 @@ public class DefaultKlarnaWebhookFacade implements KlarnaWebhookFacade
 			return false;
 		}
 		LogHelper.debugLog(LOG, "Webhook request is valid.");
-
-		final KlarnaConfigData klarnaConfig = klarnaConfigFacade.getKlarnaConfig();
-		if (Boolean.TRUE.equals(klarnaConfig.getIntegratedViaPSP()))
-		{
-			return klarnaPaymentRequestFacade.handlePaymentUpdateForPSPIntegration(
-					webhookData.getPayload().getKlarnaNetworkSessionToken(), webhookData.getPayload().getState());
-		}
 		return klarnaWebhookService.saveWebhookNotification(webhookData);
 	}
 

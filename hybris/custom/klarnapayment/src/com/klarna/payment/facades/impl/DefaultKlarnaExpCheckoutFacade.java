@@ -43,6 +43,7 @@ import com.klarna.payment.data.KlarnaWebhookData;
 import com.klarna.payment.facades.KPPaymentCheckoutFacade;
 import com.klarna.payment.facades.KPPaymentFacade;
 import com.klarna.payment.facades.KlarnaExpCheckoutFacade;
+import com.klarna.payment.facades.KlarnaNetworkSessionFacade;
 import com.klarna.payment.model.KPPaymentInfoModel;
 import com.klarna.payment.util.LogHelper;
 
@@ -107,6 +108,9 @@ public class DefaultKlarnaExpCheckoutFacade implements KlarnaExpCheckoutFacade
 
 	@Resource
 	private Converter<KlarnaAddressDTO, AddressData> klarnaAddressDTOReverseConverter;
+
+	@Resource
+	private KlarnaNetworkSessionFacade klarnaNetworkSessionFacade;
 
 
 	@Override
@@ -480,12 +484,19 @@ public class DefaultKlarnaExpCheckoutFacade implements KlarnaExpCheckoutFacade
 		return true;
 	}
 
+	@Override
 	public String getPlaceOrderURL()
 	{
 		final StringBuilder placeOrderUrl = new StringBuilder(
 				siteConfigService.getProperty(KlarnapaymentConstants.KP_MERCHANT_URL_CONFIRMATION));
 		placeOrderUrl.append("/?kid=KLARNA_").append(cartService.getSessionCart().getCode());
 		return placeOrderUrl.toString();
+	}
+
+	@Override
+	public boolean handlePaymentUpdateForPSPIntegration(final String networkSessionToken, final String paymentState)
+	{
+		return klarnaNetworkSessionFacade.updateNetworkSession(networkSessionToken, paymentState);
 	}
 
 	protected boolean setShippingAddressWithWebhookData(final KlarnaWebhookData webhookData)

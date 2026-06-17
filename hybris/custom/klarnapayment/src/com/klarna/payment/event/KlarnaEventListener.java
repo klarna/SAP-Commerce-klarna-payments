@@ -12,7 +12,7 @@ public class KlarnaEventListener
 {
 	private static final Logger LOG = Logger.getLogger(KlarnaEventListener.class);
 
-	@EventListener(condition = "#event.propertyName == 'klarnaEventData'")
+	@EventListener(condition = "#event.propertyName == 'klarna_event_data'")
 	public void onNetworkSessionTokenUpdate(final PropertyChangeEvent event)
 	{
 		// This is a sample event listener

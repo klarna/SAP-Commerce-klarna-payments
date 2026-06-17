@@ -24,6 +24,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.klarna.integration.dto.KlarnaClientSystemDTO;
 import com.klarna.integration.dto.KlarnaIntegrationMetaDataDTO;
+import com.klarna.payment.constants.KlarnapaymentConstants;
 import com.klarna.payment.facades.KlarnaConfigFacade;
 
 public final class KlarnaServicesUtil
@@ -50,15 +51,15 @@ public final class KlarnaServicesUtil
 		final KlarnaIntegrationMetaDataDTO metaData = new KlarnaIntegrationMetaDataDTO();
 
 		final KlarnaClientSystemDTO integrator = new KlarnaClientSystemDTO();
-		integrator.setName(Config.getParameter("klarna.integrator.name"));
-		integrator.setModuleName(Config.getParameter("klarna.integrator.module.name"));
-		integrator.setModuleVersion(Config.getParameter("klarna.integrator.module.version"));
+		integrator.setName(Config.getParameter(KlarnapaymentConstants.KLARNA_INTEGRATOR_NAME_KEY));
+		integrator.setModuleName(Config.getParameter(KlarnapaymentConstants.KLARNA_INTEGRATOR_MODULE_NAME_KEY));
+		integrator.setModuleVersion(Config.getParameter(KlarnapaymentConstants.KLARNA_INTEGRATOR_MODULE_VERSION_KEY));
 		metaData.setIntegrator(integrator);
 
 		final KlarnaClientSystemDTO originator = new KlarnaClientSystemDTO();
-		originator.setName(Config.getParameter("klarna.originator.name"));
-		originator.setModuleName(Config.getParameter("klarna.originator.module.name"));
-		originator.setModuleVersion(Config.getParameter("klarna.originator.module.version"));
+		originator.setName(Config.getParameter(KlarnapaymentConstants.KLARNA_ORIGINATOR_NAME_KEY));
+		originator.setModuleName(Config.getParameter(KlarnapaymentConstants.KLARNA_ORIGINATOR_MODULE_NAME_KEY));
+		originator.setModuleVersion(Config.getParameter(KlarnapaymentConstants.KLARNA_ORIGINATOR_MODULE_VERSION_KEY));
 		metaData.setOriginators(Arrays.asList(originator));
 
 		return metaData;
@@ -108,7 +109,6 @@ public final class KlarnaServicesUtil
 
 	public Long calculateDeliveryTaxAmount(final AbstractOrderModel order)
 	{
-		LogHelper.debugLog(LOG, "entering KPCreditSessionInitialPopulator.calculateDeliveryTaxAmount ... ");
 		final TaxValue tax = getTaxValue(order.getTotalTaxValues());
 		final Long taxRate = getTaxRate(tax);
 		final Long deliveryCost = KlarnaConversionUtils.getKlarnaLongValue(order.getDeliveryCost());
@@ -126,7 +126,6 @@ public final class KlarnaServicesUtil
 
 	public TaxValue getTaxValue(final Collection<TaxValue> taxes)
 	{
-		LogHelper.debugLog(LOG, "entering KPCreditSessionInitialPopulator.getTaxValue ... ");
 		if (taxes != null)
 		{
 			if (taxes.size() == 1)
@@ -153,7 +152,6 @@ public final class KlarnaServicesUtil
 
 	private Long getTaxRate(final TaxValue tax)
 	{
-		LogHelper.debugLog(LOG, "entering KPCreditSessionInitialPopulator.getTaxRate ... ");
 		return KlarnaConversionUtils.getKlarnaIntValue(Double.valueOf(tax.getValue()));
 	}
 

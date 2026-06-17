@@ -8,22 +8,18 @@ import de.hybris.platform.servicelayer.dto.converter.Converter;
 
 import javax.annotation.Resource;
 
-import org.apache.log4j.Logger;
 import org.springframework.util.Assert;
 
 import com.klarna.integration.dto.KlarnaContentDTO;
-import com.klarna.integration.dto.KlarnaInteroperabilityDataDTO;
+import com.klarna.integration.dto.KlarnaNetworkSessionDataDTO;
 import com.klarna.integration.dto.KlarnaShareRequestDTO;
 import com.klarna.integration.dto.KlarnaSupplementaryPurchaseDataDTO;
 import com.klarna.payment.constants.KlarnapaymentConstants;
 import com.klarna.payment.util.KlarnaServicesUtil;
-import com.klarna.payment.util.LogHelper;
 
 
-public class KlarnaInteroperabilityDataPopulator implements Populator<AbstractOrderModel, KlarnaInteroperabilityDataDTO>
+public class KlarnaNetworkSessionDataPopulator implements Populator<AbstractOrderModel, KlarnaNetworkSessionDataDTO>
 {
-
-	private static final Logger LOG = Logger.getLogger(KlarnaInteroperabilityDataPopulator.class.getName());
 
 	@Resource(name = "configurationService")
 	private ConfigurationService configurationService;
@@ -35,7 +31,7 @@ public class KlarnaInteroperabilityDataPopulator implements Populator<AbstractOr
 	private Converter<AbstractOrderModel, KlarnaSupplementaryPurchaseDataDTO> klarnaSupplementaryPurchaseDataConverter;
 
 	@Override
-	public void populate(final AbstractOrderModel source, final KlarnaInteroperabilityDataDTO target) throws ConversionException
+	public void populate(final AbstractOrderModel source, final KlarnaNetworkSessionDataDTO target) throws ConversionException
 	{
 		Assert.notNull(source, "Parameter source cannot be null.");
 		Assert.notNull(target, "Parameter target cannot be null.");
@@ -45,15 +41,14 @@ public class KlarnaInteroperabilityDataPopulator implements Populator<AbstractOr
 		request.setSupplementaryPurchaseData(klarnaSupplementaryPurchaseDataConverter.convert(source));
 		request.setAmount(klarnaServicesUtil.calculateTotalAmount(source));
 		content.setOperation(
-				configurationService.getConfiguration().getString(KlarnapaymentConstants.KLARNA_INTEROPERABILITY_DATA_OPERATION));
+				configurationService.getConfiguration().getString(KlarnapaymentConstants.KLARNA_NETWORK_SESSION_DATA_OPERATION_KEY));
 		content.setRequest(request);
 
 		target.setContent(content);
 		target.setContentType(
-				configurationService.getConfiguration().getString(KlarnapaymentConstants.KLARNA_INTEROPERABILITY_DATA_CONTENT_TYPE));
+				configurationService.getConfiguration()
+						.getString(KlarnapaymentConstants.KLARNA_NETWORK_SESSION_DATA_CONTENT_TYPE_KEY));
 
-		// TODO Remove after testing
-		LogHelper.debugLog(LOG, "Interoperability Data:: " + klarnaServicesUtil.convertRequestDtoToString(target));
 	}
 
 }

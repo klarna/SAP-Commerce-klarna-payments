@@ -27,9 +27,6 @@ public final class KlarnapaymentaddonWebConstants // NOSONAR
 	public static final String KLARNA_ADDRESS_NOT_SUPPORTED_ERROR = "ADDRESS_NOT_SUPPORTED";
 	public static final String KLARNA_INVALID_OPTION_ERROR = "INVALID_OPTION";
 
-	public static final String KLARNA_INTEROPERABILITY_TOKEN = "klarnaInteroperabilityToken";
-	public static final String KLARNA_NETWORK_SESSION_TOKEN = "klarnaNetworkSessionToken";
-
 	public static final String KLARNA_RESPONSE_STATUS = "status";
 	public static final String KLARNA_RESPONSE_REDIRECT_URL = "redirectUrl";
 	public static final String KLARNA_RESPONSE_STATUS_SUCCESS = "SUCCESS";
@@ -38,5 +35,7 @@ public final class KlarnapaymentaddonWebConstants // NOSONAR
 	public static final String KLARNA_RESPONSE_STATUS_PROCESSING = "PROCESSING";
 
 	public static final String IS_PAYMENT_BEING_PROCESSED = "isPaymentBeingProcessed";
+
+	public static final String KLARNA_NETWORK_SESSION_TOKEN = "klarnaNetworkSessionToken";
 
 }

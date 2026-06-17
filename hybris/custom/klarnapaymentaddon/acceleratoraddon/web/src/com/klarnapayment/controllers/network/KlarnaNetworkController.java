@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.klarna.payment.util.LogHelper;
+import com.klarna.payment.facades.KlarnaNetworkSessionFacade;
 import com.klarnapayment.constants.KlarnapaymentaddonWebConstants;
 
 
@@ -36,6 +36,9 @@ public class KlarnaNetworkController
 	@Resource(name = "sessionService")
 	private SessionService sessionService;
 
+	@Resource
+	private KlarnaNetworkSessionFacade klarnaNetworkSessionFacade;
+
 	@RequestMapping(value = "/update-session", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Map<String, Object>> updateSession(@RequestBody
@@ -48,10 +51,8 @@ public class KlarnaNetworkController
 			if (MapUtils.isNotEmpty(requestMap)
 					&& StringUtils.isNotEmpty(requestMap.get(KlarnapaymentaddonWebConstants.KLARNA_NETWORK_SESSION_TOKEN)))
 			{
-				sessionService.setAttribute(KlarnapaymentaddonWebConstants.KLARNA_NETWORK_SESSION_TOKEN,
-						requestMap.get(KlarnapaymentaddonWebConstants.KLARNA_NETWORK_SESSION_TOKEN));
-				LogHelper.debugLog(LOG, "Stored Klarna Network Session Token:: "
-						+ requestMap.get(KlarnapaymentaddonWebConstants.KLARNA_NETWORK_SESSION_TOKEN));
+				klarnaNetworkSessionFacade
+						.storeNetworkSessionToken(requestMap.get(KlarnapaymentaddonWebConstants.KLARNA_NETWORK_SESSION_TOKEN));
 				responseBody.put(KlarnapaymentaddonWebConstants.KLARNA_RESPONSE_STATUS,
 						KlarnapaymentaddonWebConstants.KLARNA_RESPONSE_STATUS_SUCCESS);
 				return ResponseEntity.ok().body(responseBody);

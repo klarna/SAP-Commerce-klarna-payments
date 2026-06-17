@@ -82,7 +82,7 @@ public class KlarnaAttachmentPopulator implements Populator<AbstractOrderModel, 
 			}
 			target.setBody(klarnaServicesUtil.convertRequestDtoToString(extraMerchantDataBody));
 			target.setContentType(configurationService.getConfiguration()
-					.getString(KlarnapaymentConstants.KLARNA_INTEROPERABILITY_DATA_CONTENT_TYPE));
+					.getString(KlarnapaymentConstants.KLARNA_NETWORK_SESSION_DATA_CONTENT_TYPE_KEY));
 		}
 	}
 

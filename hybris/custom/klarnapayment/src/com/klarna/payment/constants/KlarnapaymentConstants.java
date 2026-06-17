@@ -22,8 +22,6 @@ public final class KlarnapaymentConstants extends GeneratedKlarnapaymentConstant
 		//empty to avoid instantiating this constant class
 	}
 
-	// implement here constants used by this extension
-
 	public static final String PLATFORM_LOGO_CODE = "klarnapaymentPlatformLogo";
 
 	public static final String KLARNA_MARKET_COUNTRY_FOR_SITE = "klarna.market.country";
@@ -46,14 +44,20 @@ public final class KlarnapaymentConstants extends GeneratedKlarnapaymentConstant
 	public static final String KLARNA_PRODUCT_PAYMENT = "PAYMENT";
 	public static final String KLARNA_PRODUCT_MESSAGING = "MESSAGING";
 	public static final String KLARNA_PRODUCT_IDENTITY = "IDENTITY";
-	public static final String KLARNA_INTEROPERABILITY_DATA_CONTENT_TYPE = "klarna.interoperability.data.content.type";
-	public static final String KLARNA_INTEROPERABILITY_DATA_OPERATION = "klarna.interoperability.data.operation";
-	public static final String KLARNA_INTEROPERABILITY_DATA = "klarnaInteroperabilityData";
 	public static final String KLARNA_PAYMENT_STATUS_COMPLETED = "COMPLETED";
 
-	public static final String KLARNA_INTEROPERABILITY_TOKEN = "klarnaInteroperabilityToken";
-	public static final String KLARNA_NETWORK_SESSION_TOKEN = "klarnaNetworkSessionToken";
-	public static final String KLARNA_PAYMENT_STATE = "klarnaPaymentState";
-	public static final String KLARNA_EVENT_DATA = "klarnaEventData";
+	public static final String KLARNA_NETWORK_SESSION_DATA_CONTENT_TYPE_KEY = "klarna.network.session.data.content.type";
+	public static final String KLARNA_NETWORK_SESSION_DATA_OPERATION_KEY = "klarna.network.session.data.operation";
+
+	public static final String KLARNA_INTEGRATOR_NAME_KEY = "klarna.integrator.name";
+	public static final String KLARNA_INTEGRATOR_MODULE_NAME_KEY = "klarna.integrator.module.name";
+	public static final String KLARNA_INTEGRATOR_MODULE_VERSION_KEY = "klarna.integrator.module.version";
+	public static final String KLARNA_ORIGINATOR_NAME_KEY = "klarna.originator.name";
+	public static final String KLARNA_ORIGINATOR_MODULE_NAME_KEY = "klarna.originator.module.name";
+	public static final String KLARNA_ORIGINATOR_MODULE_VERSION_KEY = "klarna.originator.module.version";
+
+	public static final String KLARNA_NETWORK_DATA = "klarna_network_data";
+	public static final String KLARNA_NETWORK_SESSION_TOKEN = "klarna_network_session_token";
+	public static final String KLARNA_EVENT_DATA = "klarna_event_data";
 
 }

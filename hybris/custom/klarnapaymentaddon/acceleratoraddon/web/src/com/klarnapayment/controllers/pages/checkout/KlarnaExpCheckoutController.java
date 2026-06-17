@@ -406,10 +406,18 @@ public class KlarnaExpCheckoutController extends AbstractPageController
 			final KlarnaConfigData klarnaConfig = klarnaConfigFacade.getKlarnaConfig();
 			if (Boolean.TRUE.equals(klarnaConfig.getIntegratedViaPSP()))
 			{
-				klarnaPaymentRequestFacade.handlePaymentUpdateForPSPIntegration(
+				if (klarnaExpCheckoutFacade.handlePaymentUpdateForPSPIntegration(
 						requestData.getPaymentRequest().getStateContext().getKlarnaNetworkSessionToken(),
-						requestData.getPaymentRequest().getState());
-				return getResponseForPaymentUpdate(KlarnapaymentaddonWebConstants.KLARNA_RESPONSE_STATUS_PROCESSING, null);
+						requestData.getPaymentRequest().getState()))
+				{
+					return getResponseForPaymentUpdate(KlarnapaymentaddonWebConstants.KLARNA_RESPONSE_STATUS_PROCESSING, null);
+				}
+				else
+				{
+					LOG.error("Error in storing/publishing network session token.");
+					return getResponseForPaymentUpdate(KlarnapaymentaddonWebConstants.KLARNA_RESPONSE_STATUS_ERROR, null);
+				}
+
 			}
 			if (!klarnaExpCheckoutHelper.prepareCheckoutUser(
 					klarnaExpCheckoutHelper.getEmailIdFromPaymentRequest(requestData.getPaymentRequest()), request,
@@ -482,6 +490,21 @@ public class KlarnaExpCheckoutController extends AbstractPageController
 			{
 				LOG.error("Error! Invalid Cart!");
 				return getResponseForPaymentUpdate(KlarnapaymentaddonWebConstants.KLARNA_RESPONSE_STATUS_ERROR, null);
+			}
+			final KlarnaConfigData klarnaConfig = klarnaConfigFacade.getKlarnaConfig();
+			if (Boolean.TRUE.equals(klarnaConfig.getIntegratedViaPSP()))
+			{
+				if (klarnaExpCheckoutFacade.handlePaymentUpdateForPSPIntegration(
+						webhookData.getPayload().getKlarnaNetworkSessionToken(), webhookData.getPayload().getState()))
+				{
+					return getResponseForPaymentUpdate(KlarnapaymentaddonWebConstants.KLARNA_RESPONSE_STATUS_PROCESSING, null);
+				}
+				else
+				{
+					LOG.error("Error in storing/publishing network session token.");
+					return getResponseForPaymentUpdate(KlarnapaymentaddonWebConstants.KLARNA_RESPONSE_STATUS_ERROR, null);
+				}
+
 			}
 			if (!klarnaExpCheckoutHelper.prepareCheckoutUser(klarnaExpCheckoutHelper.getEmailIdFromWebhookData(webhookData), request,
 					response))
