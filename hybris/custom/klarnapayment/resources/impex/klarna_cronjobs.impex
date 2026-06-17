@@ -1,0 +1,19 @@
+
+# Impex to create service layer Job for Klarna Webhook creation
+INSERT_UPDATE ServicelayerJob; code[unique=true]; springId
+; klarnaWebhookJob ; klarnaWebhookJob
+
+# Sample impex to create Klarna Webhook Job instance. Update with your base site id before uncommenting and executing the below impex
+#INSERT_UPDATE KlarnaWebhookCronJob; code[unique=true]; job(code); baseSite(uid); sessionLanguage(isocode); action
+#; klarnaWebhookCronJob_electronics; klarnaWebhookJob; electronics; en; CREATE
+#; klarnaWebhookCronJob_apparel_uk; klarnaWebhookJob; apparel-uk; en; CREATE
+
+# Impex to create Cronjob to remove all webhook notifications older than 90 days
+INSERT_UPDATE FlexibleSearchRetentionRule;code[unique=true];searchQuery;actionReference;retentionTimeSeconds
+;klarnaWebhookRetentionRule;SELECT {pk}, {itemtype} FROM {KlarnaWebhookNotification} WHERE {creationtime} < ?CALC_RETIREMENT_TIME;basicRemoveCleanupAction;7776000
+
+INSERT_UPDATE RetentionJob;code[unique=true];retentionRule(code);batchSize[default=100]
+;klarnaWebhookRetentionJob;klarnaWebhookRetentionRule;
+
+INSERT_UPDATE CronJob;code[unique=true];job(code)[unique=true];sessionLanguage(isoCode)[default=en]
+;klarnaWebhookRetentionCronJob;klarnaWebhookRetentionJob;
