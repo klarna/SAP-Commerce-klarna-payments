@@ -415,6 +415,8 @@ public class DefaultKlarnaExpCheckoutFacade implements KlarnaExpCheckoutFacade
 		AddressData billingAddress = getAddressData(klarnaBillingAddressData);
 		if (billingAddress != null)
 		{
+			billingAddress
+					.setEmail(requestData.getPaymentRequest().getStateContext().getKlarnaCustomer().getCustomerProfile().getEmail());
 			if (StringUtils.isNotEmpty(
 					requestData.getPaymentRequest().getStateContext().getKlarnaCustomer().getCustomerProfile().getFamilyName()))
 			{
@@ -601,6 +603,7 @@ public class DefaultKlarnaExpCheckoutFacade implements KlarnaExpCheckoutFacade
 			final KlarnaAddressDTO billingAddressDTO = webhookData.getPayload().getKlarnaCustomer().getCustomerProfile()
 					.getAddress();
 			billingAddress = klarnaAddressDTOReverseConverter.convert(billingAddressDTO);
+			billingAddress.setEmail(webhookData.getPayload().getKlarnaCustomer().getCustomerProfile().getEmail());
 			billingAddress.setFirstName(webhookData.getPayload().getKlarnaCustomer().getCustomerProfile().getGivenName());
 			billingAddress.setLastName(webhookData.getPayload().getKlarnaCustomer().getCustomerProfile().getFamilyName());
 		}

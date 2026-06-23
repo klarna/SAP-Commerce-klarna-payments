@@ -60,11 +60,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 			    	var showInRegisterPage = $("#showSIWKInRegisterPage").val();
 			    	var showInCheckoutLoginPage = $("#showSIWKInCheckoutLoginPage").val();
 			    	var showSignInButton = false;
-			    	if(currentURL.endsWith("/login/checkout") && (showInCheckoutLoginPage == "true") )
+			    	if(currentURL.toLowerCase().includes("/login/checkout") && (showInCheckoutLoginPage == "true") )
 			    	{
 			    		showSignInButton = true;
 			    	}
-			    	else if(currentURL.endsWith("/login") && (showInLoginPage == "true" || showInRegisterPage == "true") )
+			    	else if(currentURL.toLowerCase().includes("/login") && (showInLoginPage == "true" || showInRegisterPage == "true") )
 			    	{
 			    		showSignInButton = true;
 			    	}
