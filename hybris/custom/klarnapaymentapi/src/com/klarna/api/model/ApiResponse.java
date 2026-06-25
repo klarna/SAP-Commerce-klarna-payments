@@ -16,7 +16,7 @@
 
 package com.klarna.api.model;
 
-import static javax.ws.rs.core.Response.Status.Family.SUCCESSFUL;
+import static jakarta.ws.rs.core.Response.Status.Family.SUCCESSFUL;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -24,8 +24,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.core.Response.Status.Family;
+import jakarta.ws.rs.core.Response.Status;
+import jakarta.ws.rs.core.Response.Status.Family;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.klarna.api.DefaultMapper;

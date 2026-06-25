@@ -5,5 +5,5 @@ description=klarnapaymentbackoffice
 name=klarnapaymentbackoffice
 releasedate=20161216 2030
 vendor=hybris
-version=6.3.0.9
-version.api=6.3.0
+version=2211-jdk21.14
+version.2211

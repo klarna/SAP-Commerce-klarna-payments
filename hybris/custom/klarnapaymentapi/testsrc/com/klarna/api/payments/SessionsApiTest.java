@@ -16,6 +16,7 @@
 
 package com.klarna.api.payments;
 
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -25,14 +26,14 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-import javax.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.MediaType;
 
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.klarna.api.Client;
@@ -54,7 +55,6 @@ public class SessionsApiTest extends TestCase
 
 	private FakeHttpUrlConnectionTransport transport;
 
-	@Override
 	@Before
 	public void setUp()
 	{

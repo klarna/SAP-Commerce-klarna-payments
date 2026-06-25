@@ -28,11 +28,11 @@ import static org.mockito.Mockito.when;
 /**
  * Base test class.
  */
-public abstract class TestCase extends junit.framework.TestCase {
+public abstract class TestCase {
 
     @Before
     public void initMocks() {
-        MockitoAnnotations.initMocks(this.getClass());
+        MockitoAnnotations.openMocks(this);
     }
 
     public InputStream makeInputStream(String payload) throws IOException {

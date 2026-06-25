@@ -16,7 +16,6 @@ import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Required;
 
 import com.klarna.api.service.KlarnapaymentapiService;
 
@@ -77,19 +76,16 @@ public class DefaultKlarnapaymentapiService implements KlarnapaymentapiService
 		return DefaultKlarnapaymentapiService.class.getResourceAsStream("/klarnapaymentapi/sap-hybris-platform.png");
 	}
 
-	@Required
 	public void setMediaService(final MediaService mediaService)
 	{
 		this.mediaService = mediaService;
 	}
 
-	@Required
 	public void setModelService(final ModelService modelService)
 	{
 		this.modelService = modelService;
 	}
 
-	@Required
 	public void setFlexibleSearchService(final FlexibleSearchService flexibleSearchService)
 	{
 		this.flexibleSearchService = flexibleSearchService;

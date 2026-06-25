@@ -19,8 +19,8 @@ package com.klarna.api.order_management;
 import java.io.IOException;
 import java.util.List;
 
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response.Status;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response.Status;
 
 import com.klarna.api.BaseApi;
 import com.klarna.api.HttpTransport;

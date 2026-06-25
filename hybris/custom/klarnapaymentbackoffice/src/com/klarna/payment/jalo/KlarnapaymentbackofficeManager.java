@@ -15,7 +15,8 @@ import de.hybris.platform.util.JspContext;
 
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.klarna.payment.constants.KlarnapaymentbackofficeConstants;
 
@@ -27,7 +28,7 @@ import com.klarna.payment.constants.KlarnapaymentbackofficeConstants;
 public class KlarnapaymentbackofficeManager extends GeneratedKlarnapaymentbackofficeManager
 {
 	/** Edit the local|project.properties to change logging behavior (properties 'log4j.*'). */
-	private static final Logger LOG = Logger.getLogger(KlarnapaymentbackofficeManager.class.getName());
+	private static final Logger LOG = LoggerFactory.getLogger(KlarnapaymentbackofficeManager.class.getName());
 
 	/*
 	 * Some important tips for development:

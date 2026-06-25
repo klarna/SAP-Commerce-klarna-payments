@@ -29,9 +29,10 @@ import java.net.Proxy;
 import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.Map;
 
-import javax.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.MediaType;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -560,7 +561,7 @@ public class HttpUrlConnectionTransport implements HttpTransport
 	private void setBase64Auth(final HttpURLConnection conn, final String username, final String password) throws IOException
 	{
 		final byte[] message = (username + ":" + password).getBytes(StandardCharsets.UTF_8);
-		final String encoded = javax.xml.bind.DatatypeConverter.printBase64Binary(message);
+		final String encoded = Base64.getEncoder().encodeToString(message);
 
 		conn.setRequestProperty("Authorization", "Basic " + encoded);
 	}

@@ -14,7 +14,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
 import com.klarna.api.model.ApiException;
@@ -30,7 +31,7 @@ import com.klarna.api.payments.model.PaymentsSession;
  */
 public class KlarnaClientConnectionTest implements InitializingBean
 {
-	private static final Logger LOG = Logger.getLogger(KlarnaClientConnectionTest.class);
+	private static final Logger LOG = LoggerFactory.getLogger(KlarnaClientConnectionTest.class);
 	private FlexibleSearchService flexibleSearchService;
 
 	/**
