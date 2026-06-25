@@ -1,9 +1,9 @@
 #Ant properties
-#Tue May 07 23:17:02 CEST 2019
-builddate=20190507 2315
+#Thu Jun 05 09:00:00 CEST 2026
+builddate=20260605 0900
 description=klarnaosmaddon
 name=klarnaosmaddon
 releasedate=20181129 1417
 vendor=hybris
-version=1811.6
-version.api=1811
+version=2211-jdk21.14
+version.api=2211

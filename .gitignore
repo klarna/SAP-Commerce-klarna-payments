@@ -11,11 +11,11 @@ Generated*.java
 
 **/jalo/**
 hybris/**/Generated*
-*/platformhome.properties
+**/platformhome.properties
 
 # Generated source
 gensrc/
-**/gensrc/
+**/gensrc/**
 
 # XSDs and generated artifacts
 *.xsd
@@ -27,6 +27,7 @@ dist/
 
 # Compiled Java class files
 *.class
+**/classes/**
 
 # Compiled Python bytecode
 *.py[cod]

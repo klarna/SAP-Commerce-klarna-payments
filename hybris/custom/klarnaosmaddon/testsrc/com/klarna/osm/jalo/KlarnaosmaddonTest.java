@@ -14,7 +14,8 @@ import static org.junit.Assert.assertTrue;
 
 import de.hybris.platform.testframework.HybrisJUnit4TransactionalTest;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,7 +28,7 @@ public class KlarnaosmaddonTest extends HybrisJUnit4TransactionalTest
 {
 	/** Edit the local|project.properties to change logging behaviour (properties log4j.*). */
 	@SuppressWarnings("unused")
-	private static final Logger LOG = Logger.getLogger(KlarnaosmaddonTest.class.getName());
+	private static final Logger LOG = LoggerFactory.getLogger(KlarnaosmaddonTest.class.getName());
 
 	@Before
 	public void setUp()

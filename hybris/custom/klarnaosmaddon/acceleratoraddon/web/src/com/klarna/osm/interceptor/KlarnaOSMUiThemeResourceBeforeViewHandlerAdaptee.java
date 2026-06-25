@@ -5,11 +5,12 @@ import de.hybris.platform.addonsupport.interceptors.BeforeViewHandlerAdaptee;
 import de.hybris.platform.servicelayer.config.ConfigurationService;
 import de.hybris.platform.servicelayer.i18n.I18NService;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.ui.ModelMap;
 
 import com.klarna.data.KlarnaConfigData;
@@ -20,7 +21,7 @@ import com.klarna.payment.facades.KlarnaConfigFacade;
 
 public class KlarnaOSMUiThemeResourceBeforeViewHandlerAdaptee implements BeforeViewHandlerAdaptee
 {
-	private static final Logger LOG = Logger.getLogger(KlarnaOSMUiThemeResourceBeforeViewHandlerAdaptee.class);
+	private static final Logger LOG = LoggerFactory.getLogger(KlarnaOSMUiThemeResourceBeforeViewHandlerAdaptee.class);
 
 	@Resource(name = "klarnaConfigFacade")
 	KlarnaConfigFacade klarnaConfigFacade;

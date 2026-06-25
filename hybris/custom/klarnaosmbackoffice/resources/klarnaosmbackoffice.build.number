@@ -5,5 +5,5 @@ description=klarnaosmbackoffice
 name=klarnaosmbackoffice
 releasedate=20181129 1417
 vendor=hybris
-version=1811.6
-version.api=1811
+version=2211-jdk21.14
+version.api=2211

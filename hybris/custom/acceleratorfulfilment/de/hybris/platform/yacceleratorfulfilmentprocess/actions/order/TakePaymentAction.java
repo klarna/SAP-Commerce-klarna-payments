@@ -18,8 +18,8 @@ import de.hybris.platform.servicelayer.dto.converter.Converter;
 
 import java.util.Iterator;
 
-import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Required;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.klarna.api.order_management.OrderManagementCapturesApi;
 import com.klarna.api.order_management.model.OrderManagementCaptureObject;
@@ -35,7 +35,7 @@ import com.klarna.payment.model.KlarnaPayConfigModel;
  */
 public class TakePaymentAction extends AbstractSimpleDecisionAction<OrderProcessModel>
 {
-	private static final Logger LOG = Logger.getLogger(TakePaymentAction.class);
+	private static final Logger LOG = LoggerFactory.getLogger(TakePaymentAction.class);
 
 	private PaymentService paymentService;
 
@@ -214,7 +214,6 @@ public class TakePaymentAction extends AbstractSimpleDecisionAction<OrderProcess
 		return paymentService;
 	}
 
-	@Required
 	public void setPaymentService(final PaymentService paymentService)
 	{
 		this.paymentService = paymentService;
