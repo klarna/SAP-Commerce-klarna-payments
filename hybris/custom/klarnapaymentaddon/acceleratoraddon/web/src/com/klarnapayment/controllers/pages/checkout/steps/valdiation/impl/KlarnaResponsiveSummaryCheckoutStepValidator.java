@@ -15,7 +15,8 @@ import de.hybris.platform.acceleratorstorefrontcommons.checkout.steps.validation
 import de.hybris.platform.acceleratorstorefrontcommons.controllers.util.GlobalMessages;
 import de.hybris.platform.commercefacades.order.data.CartData;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.klarna.payment.facades.KPPaymentCheckoutFacade;
@@ -23,7 +24,7 @@ import com.klarna.payment.facades.KPPaymentCheckoutFacade;
 
 public class KlarnaResponsiveSummaryCheckoutStepValidator extends AbstractCheckoutStepValidator
 {
-	private static final Logger LOG = Logger.getLogger(KlarnaResponsiveSummaryCheckoutStepValidator.class);
+	private static final Logger LOG = LoggerFactory.getLogger(KlarnaResponsiveSummaryCheckoutStepValidator.class);
 
 	private KPPaymentCheckoutFacade kpPaymentCheckoutFacade;
 

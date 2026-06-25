@@ -18,9 +18,9 @@ import de.hybris.platform.yacceleratorstorefront.security.impl.DefaultAutoLoginS
 import java.util.ArrayList;
 import java.util.Collection;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

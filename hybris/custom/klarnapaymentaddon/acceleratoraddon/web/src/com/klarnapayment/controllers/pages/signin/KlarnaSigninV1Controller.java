@@ -16,13 +16,14 @@ import de.hybris.platform.core.model.user.CustomerModel;
 import de.hybris.platform.servicelayer.session.SessionService;
 import de.hybris.platform.servicelayer.user.UserService;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -52,7 +53,7 @@ import com.klarnapayment.strategy.impl.DefaultKlarnaSignInLoginStrategy;
 public class KlarnaSigninV1Controller extends AbstractPageController
 {
 
-	private static final Logger LOG = Logger.getLogger(KlarnaSigninController.class);
+	private static final Logger LOG = LoggerFactory.getLogger(KlarnaSigninController.class);
 
 	@Resource(name = "klarnaSignInV1Facade")
 	private KlarnaSignInV1Facade klarnaSignInV1Facade;
@@ -153,7 +154,7 @@ public class KlarnaSigninV1Controller extends AbstractPageController
 		}
 		catch (CMSItemNotFoundException ex)
 		{
-			LOG.error(ex);
+			LOG.error(ex.getMessage(), ex);
 		}
 		return new ModelAndView(KlarnapaymentaddonControllerConstants.Views.Pages.Signin.KlarnaSigninConsentPage,
 				"klarnaSigninResponse", klarnaSigninResponse);
@@ -176,7 +177,7 @@ public class KlarnaSigninV1Controller extends AbstractPageController
 		}
 		catch (Exception e)
 		{
-			LOG.error(e);
+			LOG.error(e.getMessage(), e);
 			reqMapping = getRedirectURlOnError(prevPage);
 			GlobalMessages.addFlashMessage(redirectAttr, GlobalMessages.ERROR_MESSAGES_HOLDER,
 					"klarna.signin.create.customer.failure");
@@ -207,7 +208,7 @@ public class KlarnaSigninV1Controller extends AbstractPageController
 			}
 			catch (Exception e)
 			{
-				LOG.error(e);
+				LOG.error(e.getMessage(), e);
 				reqMapping = getRedirectURlOnError(prevPage);
 				GlobalMessages.addFlashMessage(redirectAttr, GlobalMessages.ERROR_MESSAGES_HOLDER,
 						"klarna.signin.merge.account.failure");

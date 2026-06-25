@@ -4,10 +4,11 @@ import de.hybris.platform.acceleratorstorefrontcommons.controllers.pages.Abstrac
 
 import java.util.Map;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StreamUtils;
@@ -25,7 +26,7 @@ import com.klarna.payment.util.LogHelper;
 public class KlarnaWebhookController extends AbstractPageController
 {
 
-	private static final Logger LOG = Logger.getLogger(KlarnaWebhookController.class);
+	private static final Logger LOG = LoggerFactory.getLogger(KlarnaWebhookController.class);
 
 	@Resource
 	private KlarnaWebhookFacade klarnaWebhookFacade;

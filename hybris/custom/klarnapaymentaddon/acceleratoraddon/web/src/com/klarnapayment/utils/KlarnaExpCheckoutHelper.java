@@ -11,13 +11,14 @@ import de.hybris.platform.servicelayer.model.ModelService;
 import de.hybris.platform.servicelayer.session.SessionService;
 import de.hybris.platform.servicelayer.user.UserService;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.MessageSource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -31,7 +32,7 @@ import com.klarnapayment.constants.KlarnapaymentaddonWebConstants;
 
 public class KlarnaExpCheckoutHelper
 {
-	protected static final Logger LOG = Logger.getLogger(KlarnaExpCheckoutHelper.class);
+	protected static final Logger LOG = LoggerFactory.getLogger(KlarnaExpCheckoutHelper.class);
 
 	@Resource
 	private SessionService sessionService;

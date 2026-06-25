@@ -5,13 +5,14 @@ import de.hybris.platform.store.services.BaseStoreService;
 
 import java.io.IOException;
 
-import javax.annotation.Resource;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.annotation.Resource;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.klarna.payment.facades.KlarnaConfigFacade;
@@ -19,7 +20,7 @@ import com.klarna.payment.facades.KlarnaConfigFacade;
 
 public class NetPriceForNorthAmericanFilter extends OncePerRequestFilter
 {
-	private static final Logger LOG = Logger.getLogger(NetPriceForNorthAmericanFilter.class.getName());
+	private static final Logger LOG = LoggerFactory.getLogger(NetPriceForNorthAmericanFilter.class.getName());
 
 	public final static String KLARNA_CHECKOUT_URL = "/klarna/";
 

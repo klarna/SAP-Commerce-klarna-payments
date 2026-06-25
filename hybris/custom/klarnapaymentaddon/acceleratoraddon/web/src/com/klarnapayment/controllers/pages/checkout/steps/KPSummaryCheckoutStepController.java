@@ -35,12 +35,13 @@ import de.hybris.platform.payment.AdapterException;
 import java.io.IOException;
 import java.util.Arrays;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpSession;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpSession;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.BooleanUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -64,7 +65,7 @@ import com.klarnapayment.controllers.KlarnapaymentaddonControllerConstants;
 @RequestMapping(value = "/checkout/multi/summary/klarna")
 public class KPSummaryCheckoutStepController extends AbstractCheckoutStepController
 {
-	private static final Logger LOG = Logger.getLogger(KPSummaryCheckoutStepController.class);
+	private static final Logger LOG = LoggerFactory.getLogger(KPSummaryCheckoutStepController.class);
 
 	private static final String SUMMARY = "summary";
 	public static final String AUTHORIZATION_FAILED = "checkout.error.authorization.failed";

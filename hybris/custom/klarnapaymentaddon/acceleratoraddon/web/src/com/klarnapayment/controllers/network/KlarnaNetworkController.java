@@ -8,11 +8,12 @@ import de.hybris.platform.servicelayer.session.SessionService;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
-import org.apache.commons.collections.MapUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.klarna.payment.util.LogHelper;
 import com.klarna.payment.facades.KlarnaNetworkSessionFacade;
 import com.klarnapayment.constants.KlarnapaymentaddonWebConstants;
 
@@ -31,7 +33,7 @@ import com.klarnapayment.constants.KlarnapaymentaddonWebConstants;
 @RequestMapping(value = "/klarna/network")
 public class KlarnaNetworkController
 {
-	private static final Logger LOG = Logger.getLogger(KlarnaNetworkController.class);
+	private static final Logger LOG = LoggerFactory.getLogger(KlarnaNetworkController.class);
 
 	@Resource(name = "sessionService")
 	private SessionService sessionService;

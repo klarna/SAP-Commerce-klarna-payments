@@ -5,9 +5,10 @@ package com.klarnapayment.controllers.pages.checkout;
 
 import java.io.IOException;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -38,7 +39,7 @@ public class KPCheckoutController
 	private KPOrderFacade kpOrderFacade;
 	@Resource(name = "kpPaymentFacade")
 	private KPPaymentFacade kpPaymentFacade;
-	protected static final Logger LOG = Logger.getLogger(KPCheckoutController.class);
+	protected static final Logger LOG = LoggerFactory.getLogger(KPCheckoutController.class);
 
 	@RequestMapping(value = "/pending-update", method = RequestMethod.POST)
 	public @ResponseBody ResponseEntity<String> pendingOrder(@RequestBody final FraudNotification fraudNotification)
