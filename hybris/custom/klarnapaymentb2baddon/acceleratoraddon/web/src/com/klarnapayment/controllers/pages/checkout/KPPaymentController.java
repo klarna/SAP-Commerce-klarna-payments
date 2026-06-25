@@ -12,11 +12,12 @@ import de.hybris.platform.order.CartService;
 
 import java.io.IOException;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpSession;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpSession;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -42,7 +43,7 @@ import com.klarnapayment.forms.KPAddressForm;
 @RequestMapping(value = "/klarna/payment")
 public class KPPaymentController extends AbstractPageController
 {
-	private static final Logger LOG = Logger.getLogger(KPPaymentController.class);
+	private static final Logger LOG = LoggerFactory.getLogger(KPPaymentController.class);
 
 	@Resource(name = "kpPaymentFacade")
 	private KPPaymentFacade kpPaymentFacade;

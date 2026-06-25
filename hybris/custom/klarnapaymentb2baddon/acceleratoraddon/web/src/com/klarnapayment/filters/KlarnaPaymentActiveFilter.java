@@ -2,15 +2,16 @@ package com.klarnapayment.filters;
 
 import java.io.IOException;
 
-import javax.annotation.Resource;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
+import jakarta.annotation.Resource;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.log4j.Logger;
+import org.apache.commons.lang3.BooleanUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.klarna.data.KlarnaConfigData;
@@ -26,7 +27,7 @@ import com.klarna.payment.util.LogHelper;
 public class KlarnaPaymentActiveFilter extends OncePerRequestFilter
 {
 
-	private static final Logger LOG = Logger.getLogger(KlarnaPaymentActiveFilter.class.getName());
+	private static final Logger LOG = LoggerFactory.getLogger(KlarnaPaymentActiveFilter.class.getName());
 
 
 	public final static String KLARNA_PAYMENT = "/klarna/payment";

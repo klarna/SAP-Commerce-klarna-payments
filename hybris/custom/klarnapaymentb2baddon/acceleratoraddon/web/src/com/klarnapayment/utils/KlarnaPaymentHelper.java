@@ -4,16 +4,17 @@ import de.hybris.platform.acceleratorstorefrontcommons.constants.WebConstants;
 import de.hybris.platform.acceleratorstorefrontcommons.security.GUIDCookieStrategy;
 import de.hybris.platform.servicelayer.session.SessionService;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class KlarnaPaymentHelper
 {
-	protected static final Logger LOG = Logger.getLogger(KlarnaPaymentHelper.class);
+	protected static final Logger LOG = LoggerFactory.getLogger(KlarnaPaymentHelper.class);
 
 	@Resource(name = "guidCookieStrategy")
 	private GUIDCookieStrategy guidCookieStrategy;

@@ -15,7 +15,8 @@ import de.hybris.platform.util.JspContext;
 
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.klarnapayment.constants.Klarnapaymentb2baddonConstants;
 
@@ -27,7 +28,7 @@ import com.klarnapayment.constants.Klarnapaymentb2baddonConstants;
 public class Klarnapaymentb2baddonManager extends GeneratedKlarnapaymentb2baddonManager
 {
 	/** Edit the local|project.properties to change logging behavior (properties 'log4j.*'). */
-	private static final Logger LOG = Logger.getLogger(Klarnapaymentb2baddonManager.class.getName());
+	private static final Logger LOG = LoggerFactory.getLogger(Klarnapaymentb2baddonManager.class.getName());
 
 	/*
 	 * Some important tips for development:

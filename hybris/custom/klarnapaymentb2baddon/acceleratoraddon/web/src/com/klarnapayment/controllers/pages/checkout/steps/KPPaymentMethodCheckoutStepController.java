@@ -31,12 +31,13 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpSession;
-import javax.validation.Valid;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -64,7 +65,7 @@ import com.klarnapayment.forms.KlarnaPaymentDetailsForm;
 @RequestMapping(value = "/checkout/multi/klarna-payment-method")
 public class KPPaymentMethodCheckoutStepController extends PaymentMethodCheckoutStepController
 {
-	private static final Logger LOG = Logger.getLogger(KPPaymentMethodCheckoutStepController.class);
+	private static final Logger LOG = LoggerFactory.getLogger(KPPaymentMethodCheckoutStepController.class);
 	private static final String PAYMENT_OPTION = "paymentOption";
 	private static final String KLARNA_LOGO = "klarna_logo";
 	private static final String KLARNA_DISPLAYNAME = "klarna_displayname";
