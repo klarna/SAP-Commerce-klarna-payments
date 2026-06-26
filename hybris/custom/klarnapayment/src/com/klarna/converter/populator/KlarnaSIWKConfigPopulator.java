@@ -16,25 +16,27 @@ import de.hybris.platform.servicelayer.dto.converter.ConversionException;
 
 import java.util.List;
 
+import javax.annotation.Resource;
+
 import org.apache.commons.collections4.CollectionUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.klarna.data.KlarnaSIWKConfigData;
 import com.klarna.model.KlarnaSIWKConfigModel;
-import com.klarna.payment.constants.GeneratedKlarnapaymentConstants.Enumerations.KlarnaButtonLogoAlignment;
-import com.klarna.payment.constants.GeneratedKlarnapaymentConstants.Enumerations.KlarnaButtonShape;
-import com.klarna.payment.constants.GeneratedKlarnapaymentConstants.Enumerations.KlarnaButtonTheme;
+import com.klarna.payment.enums.KlarnaButtonLogoAlignment;
+import com.klarna.payment.enums.KlarnaButtonShape;
+import com.klarna.payment.enums.KlarnaButtonTheme;
 import com.klarna.payment.enums.KlarnaSIWKPlacement;
 import com.klarna.payment.enums.KlarnaSigninDataScope;
+import com.klarna.payment.util.KlarnaServicesUtil;
 
 
 public class KlarnaSIWKConfigPopulator implements Populator<KlarnaSIWKConfigModel, KlarnaSIWKConfigData>
 {
-	private static Logger LOG = LoggerFactory.getLogger(KlarnaSIWKConfigPopulator.class);
-
 	private static final String DELIMITER = "__";
 	private static final String DELIMITER_COLON = ":";
+
+	@Resource
+	private KlarnaServicesUtil klarnaServicesUtil;
 
 	@Override
 	public void populate(final KlarnaSIWKConfigModel source, final KlarnaSIWKConfigData target) throws ConversionException
@@ -42,12 +44,14 @@ public class KlarnaSIWKConfigPopulator implements Populator<KlarnaSIWKConfigMode
 		target.setCode(source.getCode());
 		target.setActive(source.getActive());
 		setSIWKPlacements(source.getPlacements(), target);
-		target.setRedirectUri(source.getRedirectUri());
+		target.setRedirectUri(klarnaServicesUtil.getAbsoluteUrl(source.getRedirectUri()));
 		setScopeParameters(source, target);
-		target.setButtonShape(source.getButtonShape() != null ? source.getButtonShape().getCode() : KlarnaButtonShape.DEFAULT);
-		target.setButtonTheme(source.getButtonTheme() != null ? source.getButtonTheme().getCode() : KlarnaButtonTheme.DEFAULT);
+		target.setButtonShape(
+				source.getButtonShape() != null ? source.getButtonShape().getCode() : KlarnaButtonShape.DEFAULT.getCode());
+		target.setButtonTheme(
+				source.getButtonTheme() != null ? source.getButtonTheme().getCode() : KlarnaButtonTheme.DEFAULT.getCode());
 		target.setButtonLogoAlignment(source.getButtonLogoAlignment() != null ? source.getButtonLogoAlignment().getCode()
-				: KlarnaButtonLogoAlignment.CENTER);
+				: KlarnaButtonLogoAlignment.CENTER.getCode());
 	}
 
 	private void setScopeParameters(final KlarnaSIWKConfigModel source, final KlarnaSIWKConfigData target)

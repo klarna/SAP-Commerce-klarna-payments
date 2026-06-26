@@ -1,5 +1,7 @@
 package com.klarna.payment.util;
 
+import de.hybris.platform.acceleratorservices.urlresolver.SiteBaseUrlResolutionService;
+import de.hybris.platform.basecommerce.model.site.BaseSiteModel;
 import de.hybris.platform.commercefacades.product.data.ImageData;
 import de.hybris.platform.commercefacades.product.data.ProductData;
 import de.hybris.platform.converters.Populator;
@@ -8,14 +10,16 @@ import de.hybris.platform.core.model.order.AbstractOrderEntryModel;
 import de.hybris.platform.core.model.order.AbstractOrderModel;
 import de.hybris.platform.core.model.product.ProductModel;
 import de.hybris.platform.servicelayer.i18n.CommonI18NService;
+import de.hybris.platform.site.BaseSiteService;
 import de.hybris.platform.util.Config;
 import de.hybris.platform.util.TaxValue;
 
+import java.net.URI;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 
-import jakarta.annotation.Resource;
+import javax.annotation.Resource;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -46,6 +50,12 @@ public final class KlarnaServicesUtil
 
 	@Resource(name = "commonI18NService")
 	private CommonI18NService commonI18NService;
+
+	@Resource(name = "baseSiteService")
+	protected BaseSiteService baseSiteService;
+
+	@Resource(name = "siteBaseUrlResolutionService")
+	protected SiteBaseUrlResolutionService siteBaseUrlResolutionService;
 
 	public KlarnaIntegrationMetaDataDTO getKlarnaMetaData()
 	{
@@ -226,6 +236,32 @@ public final class KlarnaServicesUtil
 		catch (final Exception e)
 		{
 			LOG.error("Exception in parsing response string to DTO class " + dtoClass.getName() + " ::", e);
+		}
+		return null;
+	}
+
+	public String getAbsoluteUrl(final String url)
+	{
+		try
+		{
+			if (new URI(url).isAbsolute())
+			{
+				LOG.debug("The URL is already absolute :: " + url);
+				return url;
+			}
+			final BaseSiteModel baseSite = baseSiteService.getCurrentBaseSite();
+			if (baseSite != null)
+			{
+				return siteBaseUrlResolutionService.getWebsiteUrlForSite(baseSite, true, url);
+			}
+			else
+			{
+				LOG.debug("Error! Current Base Site is NOT available. Cannot get absolute path for url " + url);
+			}
+		}
+		catch (final Exception e)
+		{
+			LOG.error("Error getting absolute path for url " + url + " ", e);
 		}
 		return null;
 	}
