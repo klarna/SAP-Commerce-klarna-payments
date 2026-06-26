@@ -113,7 +113,7 @@ public class KPOrderConfirmationController
 
 		if (!validateKid(kid, checkoutFacade.getCheckoutCart()))
 		{
-			LOG.warn("KID validation failed for kid={} — redirecting to cart", kid);
+			LOG.warn("KID validation failed for kid={} - redirecting to cart", kid);
 			kpPaymentCheckoutFacade.removePaymentInfo();
 			httpSession.removeAttribute(SESSIONID);
 			httpSession.removeAttribute(CLIENTTOKEN);
@@ -132,13 +132,13 @@ public class KPOrderConfirmationController
 		{
 			if (kpCustomerFacade.isAnonymousCheckout())
 			{
-				LOG.debug("Anonymous checkout — updating cart and anonymous cookie for klarnaOrderId={}", klarnaOrderId);
+				LOG.debug("Anonymous checkout - updating cart and anonymous cookie for klarnaOrderId={}", klarnaOrderId);
 				kpPaymentCheckoutFacade.updateCart(klarnaOrderData);
 				klarnaPaymentHelper.updateAnonymousCookie(kpPaymentCheckoutFacade.getUserGUID(), request, response);
 			}
 			if (!kpPaymentCheckoutFacade.isCartSynchronization(checkoutFacade.getCheckoutCart(), klarnaOrderData))
 			{
-				LOG.warn("Cart synchronization mismatch for klarnaOrderId={} — cancelling Klarna order and redirecting to cart",
+				LOG.warn("Cart synchronization mismatch for klarnaOrderId={} - cancelling Klarna order and redirecting to cart",
 						klarnaOrderId);
 				kpPaymentCheckoutFacade.removePaymentInfo();
 				klarnaOrder.cancelOrder(klarnaOrderId);
@@ -153,7 +153,7 @@ public class KPOrderConfirmationController
 			kpPaymentCheckoutFacade.updatePaymentInfo(klarnaOrderData);
 
 			hybrisOrderId = placeOrder(klarnaOrderId, klarnaOrder, redirectModel);
-			LOG.info("Order placed successfully — klarnaOrderId={}, hybrisOrderId={}", klarnaOrderId, hybrisOrderId);
+			LOG.info("Order placed successfully - klarnaOrderId={}, hybrisOrderId={}", klarnaOrderId, hybrisOrderId);
 			httpSession.removeAttribute(SESSIONID);
 			httpSession.removeAttribute(CLIENTTOKEN);
 			if (hybrisOrderId != null)
@@ -163,7 +163,7 @@ public class KPOrderConfirmationController
 		}
 		catch (Exception e)
 		{
-			LOG.error("Exception during order confirmation for klarnaOrderId={} — sending failure notification", klarnaOrderId, e);
+			LOG.error("Exception during order confirmation for klarnaOrderId={} - sending failure notification", klarnaOrderId, e);
 			kpPaymentCheckoutFacade.sendFailedNotification(e.getMessage());
 			httpSession.removeAttribute(SESSIONID);
 			httpSession.removeAttribute(CLIENTTOKEN);
@@ -173,7 +173,7 @@ public class KPOrderConfirmationController
 		getSessionService().removeAttribute(CLIENT_TOKEN);
 		if (StringUtils.isEmpty(hybrisOrderId))
 		{
-			LOG.error("Place order returned no order ID for klarnaOrderId={} — redirecting to cart", klarnaOrderId);
+			LOG.error("Place order returned no order ID for klarnaOrderId={} - redirecting to cart", klarnaOrderId);
 			kpPaymentCheckoutFacade.sendFailedNotification("Place Order Failed");
 			return REDIRECT_URL_CART;
 		}

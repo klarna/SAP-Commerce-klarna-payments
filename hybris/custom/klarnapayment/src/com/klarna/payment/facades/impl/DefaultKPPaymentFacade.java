@@ -38,8 +38,8 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
-import jakarta.annotation.Resource;
-import jakarta.servlet.http.HttpSession;
+import javax.annotation.Resource;
+import javax.servlet.http.HttpSession;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -381,12 +381,16 @@ public class DefaultKPPaymentFacade implements KPPaymentFacade
 				final String sharedSecret = credentialData.getApiPassword();
 				final URI endpoint = getKlarnaEnpoint(klarnConfigData, credentialData);
 
-				final String shoporplatform = Config.getParameter("shoporplatform") != null ? Config.getParameter("shoporplatform")
+				final String shoporplatform = Config.getParameter("klarna.shoporplatform") != null
+						? Config.getParameter("klarna.shoporplatform")
 						: "Hybris_SAPCom";
-				final String platformversion = Config.getParameter("platformversion") != null ? Config.getParameter("platformversion")
+				final String platformversion = Config.getParameter("klarna.platformversion") != null
+						? Config.getParameter("klarna.platformversion")
 						: "1905";
-				final String modulename = Config.getParameter("modulename") != null ? Config.getParameter("modulename") : "KP";
-				final String moduleversion = Config.getParameter("moduleversion") != null ? Config.getParameter("moduleversion")
+				final String modulename = Config.getParameter("klarna.modulename") != null ? Config.getParameter("klarna.modulename")
+						: "KP";
+				final String moduleversion = Config.getParameter("klarna.moduleversion") != null
+						? Config.getParameter("klarna.moduleversion")
 						: "6.0";
 
 				final String userAgent = String.format(
@@ -770,27 +774,8 @@ public class DefaultKPPaymentFacade implements KPPaymentFacade
 	private Client getKlarnaLoginClient(final KlarnaConfigData klarnaConfigData)
 	{
 		LogHelper.debugLog(LOG, "Getting klarna login client.. ");
-
-		//final String merchanId = klarnConfig.getMerchantID();
-		//final String sharedSecret = klarnConfig.getSharedSecret();
 		final URI endpoint = getKlarnaLoginEndpoint(klarnaConfigData);
-
-		//final String shoporplatform = Config.getParameter("shoporplatform") != null ? Config.getParameter("shoporplatform")
-		//		: "Hybris_SAPCom";
-		//final String platformversion = Config.getParameter("platformversion") != null ? Config.getParameter("platformversion")
-		//		: "2211";
-		//final String modulename = Config.getParameter("modulename") != null ? Config.getParameter("modulename") : "KP";
-		//final String moduleversion = Config.getParameter("moduleversion") != null ? Config.getParameter("moduleversion") : "6.0";
-
-		//final String USER_AGENT = String.format(
-		//		"Language/Java_%s (Vendor/%s; VM/%s) Module-name-and-version/%s OS/%s Shop-name-and-version/%s",
-		//		getProperty("java.version"), getProperty("java.vendor"), getProperty("java.vm.name"),
-		//		modulename + "_" + moduleversion, getProperty("os.name") + "_" + getProperty("os.version"),
-		//		shoporplatform + "_" + platformversion);
-
-		//LOG.warn(USER_AGENT.toString());
 		return (new Client(endpoint));
-		//return (new Client(merchanId, sharedSecret, endpoint));
 	}
 
 	private URI getKlarnaLoginEndpoint(final KlarnaConfigData klarnaConfigData)

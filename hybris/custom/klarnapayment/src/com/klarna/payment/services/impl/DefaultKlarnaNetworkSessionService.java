@@ -8,8 +8,9 @@ import de.hybris.platform.servicelayer.session.SessionService;
 
 import javax.annotation.Resource;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.klarna.integration.dto.KlarnaNetworkSessionDataDTO;
 import com.klarna.payment.constants.KlarnapaymentConstants;
@@ -21,7 +22,7 @@ import com.klarna.payment.util.LogHelper;
 public class DefaultKlarnaNetworkSessionService implements KlarnaNetworkSessionService
 {
 
-	private static final Logger LOG = Logger.getLogger(DefaultKlarnaNetworkSessionService.class);
+	private static final Logger LOG = LoggerFactory.getLogger(DefaultKlarnaNetworkSessionService.class);
 
 	@Resource
 	private Converter<AbstractOrderModel, KlarnaNetworkSessionDataDTO> klarnaNetworkSessionDataConverter;

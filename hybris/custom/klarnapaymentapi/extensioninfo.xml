@@ -25,7 +25,7 @@
         <coremodule generated="true" manager="com.klarna.api.jalo.KlarnapaymentapiManager" packageroot="com.klarna.api"/>
                       
         
-        <webmodule jspcompile="false" webroot="/klarnapaymentapi"/>
+        <!-- <webmodule jspcompile="false" webroot="/klarnapaymentapi"/> -->
                 					
 	
         

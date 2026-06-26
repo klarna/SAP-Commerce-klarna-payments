@@ -25,7 +25,7 @@ import de.hybris.platform.util.Config;
 import java.io.IOException;
 import java.net.URI;
 
-import jakarta.annotation.Resource;
+import javax.annotation.Resource;
 
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -546,12 +546,16 @@ public class DefaultKPOrderFacade implements KPOrderFacade
 				final String sharedSecret = credentialData.getApiPassword();
 				final URI endpoint = getKlarnaEnpoint(klarnConfigData, credentialData);
 
-				final String shoporplatform = Config.getParameter("shoporplatform") != null ? Config.getParameter("shoporplatform")
+				final String shoporplatform = Config.getParameter("klarna.shoporplatform") != null
+						? Config.getParameter("klarna.shoporplatform")
 						: "Hybris_SAPCom";
-				final String platformversion = Config.getParameter("platformversion") != null ? Config.getParameter("platformversion")
+				final String platformversion = Config.getParameter("klarna.platformversion") != null
+						? Config.getParameter("klarna.platformversion")
 						: "1905";
-				final String modulename = Config.getParameter("modulename") != null ? Config.getParameter("modulename") : "KP";
-				final String moduleversion = Config.getParameter("moduleversion") != null ? Config.getParameter("moduleversion")
+				final String modulename = Config.getParameter("klarna.modulename") != null ? Config.getParameter("klarna.modulename")
+						: "KP";
+				final String moduleversion = Config.getParameter("klarna.moduleversion") != null
+						? Config.getParameter("klarna.moduleversion")
 						: "6.0";
 				//final String sdkVesrion = Config.getParameter("sdkversion") != null ? Config.getParameter("sdkversion") : "4.0.1";
 
