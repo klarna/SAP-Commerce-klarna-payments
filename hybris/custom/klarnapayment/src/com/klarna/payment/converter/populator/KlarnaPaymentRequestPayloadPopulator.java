@@ -15,10 +15,11 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
 
 import com.klarna.api.payments.model.PaymentsAttachment;
@@ -32,7 +33,7 @@ import com.klarna.payment.util.KlarnaServicesUtil;
 public class KlarnaPaymentRequestPayloadPopulator implements Populator<AbstractOrderModel, KlarnaPaymentRequestPayloadDTO>
 {
 
-	protected static final Logger LOG = Logger.getLogger(KlarnaPaymentRequestPayloadPopulator.class);
+	protected static final Logger LOG = LoggerFactory.getLogger(KlarnaPaymentRequestPayloadPopulator.class);
 
 
 	@Resource

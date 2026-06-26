@@ -13,7 +13,8 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -30,7 +31,7 @@ import com.klarna.payment.facades.KlarnaConfigFacade;
 public class KPCreditSessionAttPopulator implements Populator<AbstractOrderModel, PaymentsSession>
 {
 
-	protected static final Logger LOG = Logger.getLogger(KPCreditSessionAttPopulator.class);
+	protected static final Logger LOG = LoggerFactory.getLogger(KPCreditSessionAttPopulator.class);
 
 	private KlarnaConfigFacade klarnaConfigFacade;
 

@@ -15,7 +15,7 @@ import de.hybris.platform.acceleratorservices.config.SiteConfigService;
 import de.hybris.platform.converters.Populator;
 import de.hybris.platform.servicelayer.dto.converter.ConversionException;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 import com.klarna.data.KlarnaCredentialData;
 import com.klarna.model.KlarnaCredentialModel;

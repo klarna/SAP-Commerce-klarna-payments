@@ -42,7 +42,7 @@ public class DefaultKlarnaConfigFacadeUnitTest
 	@Before
 	public void setUp()
 	{
-		MockitoAnnotations.initMocks(this);
+		MockitoAnnotations.openMocks(this);
 		config.setActive(true);
 		config.setCode("KLARNA_UK");
 		config.getCredential().setApiUserName(("ABCD"));

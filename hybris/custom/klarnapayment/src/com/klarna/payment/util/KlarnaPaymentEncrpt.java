@@ -25,7 +25,8 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.klarna.api.merchant_card_service.model.CardServiceCard;
 
@@ -33,7 +34,7 @@ import com.klarna.api.merchant_card_service.model.CardServiceCard;
 
 public class KlarnaPaymentEncrpt
 {
-	protected static final Logger LOG = Logger.getLogger(KlarnaPaymentEncrpt.class);
+	protected static final Logger LOG = LoggerFactory.getLogger(KlarnaPaymentEncrpt.class);
 
 	public static String getDecrypted(final CardServiceCard data, final String Key) throws Exception
 	{

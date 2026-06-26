@@ -23,9 +23,10 @@ import de.hybris.platform.servicelayer.model.ModelService;
 import de.hybris.platform.servicelayer.user.AddressService;
 import de.hybris.platform.servicelayer.user.UserService;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.klarna.payment.data.KlarnaCustomerProfileData;
 import com.klarna.payment.model.KlarnaCustomerProfileModel;
@@ -36,7 +37,7 @@ import com.klarna.payment.model.KlarnaCustomerProfileModel;
  */
 public class KlarnaCustomerProfileReversePopulator implements Populator<KlarnaCustomerProfileData, KlarnaCustomerProfileModel>
 {
-	public static Logger LOG = Logger.getLogger(KlarnaCustomerProfileReversePopulator.class);
+	public static Logger LOG = LoggerFactory.getLogger(KlarnaCustomerProfileReversePopulator.class);
 
 	@Resource(name = "klarnaCustomerAddressReverseConverter")
 	private Converter<KlarnaCustomerProfileData, AddressData> klarnaCustomerAddressReverseConverter;

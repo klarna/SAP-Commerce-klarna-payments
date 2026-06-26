@@ -22,11 +22,12 @@ import de.hybris.platform.store.services.BaseStoreService;
 
 import java.io.IOException;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 import org.apache.commons.collections4.MapUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.klarna.api.expcheckout.model.KlarnaExpCheckoutAuthorizationResponse;
 import com.klarna.api.model.ApiException;
@@ -51,7 +52,7 @@ import com.klarna.payment.util.LogHelper;
 public class DefaultKlarnaExpCheckoutFacade implements KlarnaExpCheckoutFacade
 {
 
-	private static final Logger LOG = Logger.getLogger(DefaultKlarnaExpCheckoutFacade.class);
+	private static final Logger LOG = LoggerFactory.getLogger(DefaultKlarnaExpCheckoutFacade.class);
 
 	private static final String KLARNA_PREFIX = "KLARNA_";
 
@@ -491,7 +492,7 @@ public class DefaultKlarnaExpCheckoutFacade implements KlarnaExpCheckoutFacade
 	{
 		final StringBuilder placeOrderUrl = new StringBuilder(
 				siteConfigService.getProperty(KlarnapaymentConstants.KP_MERCHANT_URL_CONFIRMATION));
-		placeOrderUrl.append("/?kid=KLARNA_").append(cartService.getSessionCart().getCode());
+		placeOrderUrl.append("?kid=KLARNA_").append(cartService.getSessionCart().getCode());
 		return placeOrderUrl.toString();
 	}
 

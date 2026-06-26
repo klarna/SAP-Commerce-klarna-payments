@@ -12,8 +12,9 @@ import de.hybris.platform.servicelayer.dto.converter.Converter;
 import de.hybris.platform.servicelayer.model.ModelService;
 import de.hybris.platform.servicelayer.user.UserService;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
 
 import com.klarna.api.payments.model.PaymentsAddress;
@@ -33,7 +34,7 @@ import com.klarna.payment.util.LogHelper;
 public class KPCreditSessionPopulator implements Populator<AbstractOrderModel, PaymentsSession>
 {
 
-	protected static final Logger LOG = Logger.getLogger(KPCreditSessionPopulator.class);
+	protected static final Logger LOG = LoggerFactory.getLogger(KPCreditSessionPopulator.class);
 
 	private KlarnaConfigFacade klarnaConfigFacade;
 

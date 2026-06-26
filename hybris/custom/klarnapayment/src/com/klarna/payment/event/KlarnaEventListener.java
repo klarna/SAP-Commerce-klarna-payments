@@ -2,7 +2,8 @@ package com.klarna.payment.event;
 
 import java.beans.PropertyChangeEvent;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
 
 import com.klarna.payment.util.LogHelper;
@@ -10,7 +11,7 @@ import com.klarna.payment.util.LogHelper;
 
 public class KlarnaEventListener
 {
-	private static final Logger LOG = Logger.getLogger(KlarnaEventListener.class);
+	private static final Logger LOG = LoggerFactory.getLogger(KlarnaEventListener.class);
 
 	@EventListener(condition = "#event.propertyName == 'klarna_event_data'")
 	public void onNetworkSessionTokenUpdate(final PropertyChangeEvent event)

@@ -26,10 +26,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.text.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -50,7 +51,7 @@ import com.klarna.payment.util.LogHelper;
 public class KPCreditSessionInitialPopulator implements Populator<AbstractOrderModel, PaymentsSession>
 {
 
-	protected static final Logger LOG = Logger.getLogger(KPCreditSessionInitialPopulator.class);
+	protected static final Logger LOG = LoggerFactory.getLogger(KPCreditSessionInitialPopulator.class);
 
 	private static final String SALES_TAX = "Sales Tax";
 	private static final String GLOBAL_DISCOUNT = "Global Discount";
@@ -344,7 +345,7 @@ public class KPCreditSessionInitialPopulator implements Populator<AbstractOrderM
 		productIdentifiers.setBrand(product.getManufacturerName());
 		productIdentifiers.setManufacturerPartNumber(product.getManufacturerAID());
 		final String productPath = StringEscapeUtils
-				.unescapeHtml(getPageTitleResolver().resolveProductPageTitle(product.getCode()));
+				.unescapeHtml4(getPageTitleResolver().resolveProductPageTitle(product.getCode()));
 		productIdentifiers.setCategoryPath(StringUtils.replace(productPath, "|", ">"));
 		return productIdentifiers;
 	}

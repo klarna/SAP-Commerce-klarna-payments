@@ -25,11 +25,12 @@ import de.hybris.platform.util.Config;
 import java.io.IOException;
 import java.net.URI;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -68,7 +69,7 @@ import com.klarna.payment.util.LogHelper;
 
 public class DefaultKPOrderFacade implements KPOrderFacade
 {
-	protected static final Logger LOG = Logger.getLogger(DefaultKPOrderFacade.class);
+	protected static final Logger LOG = LoggerFactory.getLogger(DefaultKPOrderFacade.class);
 	private static final String ENDMODE_TEST = "TEST";
 	private static final String EVENT = "_waitKlarnaFraudRiskEvent";
 	private static final String ALLOWED_ORDER_STATUS = "orderstatus_suspension_allowed";

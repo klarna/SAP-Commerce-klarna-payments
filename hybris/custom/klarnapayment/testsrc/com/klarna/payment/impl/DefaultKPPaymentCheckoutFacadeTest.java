@@ -89,7 +89,7 @@ public class DefaultKPPaymentCheckoutFacadeTest
 	@Before
 	public void setUp()
 	{
-		MockitoAnnotations.initMocks(this);
+		MockitoAnnotations.openMocks(this);
 		defaultKPPaymentCheckoutFacade = Mockito.spy(new DefaultKPPaymentCheckoutFacade());
 		Mockito.doReturn(cartService).when(defaultKPPaymentCheckoutFacade).getCartService();
 		Mockito.doReturn(commerceCheckoutService).when(defaultKPPaymentCheckoutFacade).getCommerceCheckoutService();

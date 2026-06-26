@@ -15,8 +15,8 @@ import de.hybris.platform.order.events.SubmitOrderEvent;
 import de.hybris.platform.order.strategies.SubmitOrderStrategy;
 import de.hybris.platform.servicelayer.event.EventService;
 
-import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Required;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.klarna.payment.enums.KlarnaFraudStatusEnum;
 import com.klarna.payment.util.LogHelper;
@@ -27,7 +27,7 @@ import com.klarna.payment.util.LogHelper;
  */
 public class KlarnaEventPublishingSubmitOrderStrategy implements SubmitOrderStrategy
 {
-	protected static final Logger LOG = Logger.getLogger(KlarnaEventPublishingSubmitOrderStrategy.class);
+	protected static final Logger LOG = LoggerFactory.getLogger(KlarnaEventPublishingSubmitOrderStrategy.class);
 	private EventService eventService;
 
 	@Override
@@ -41,7 +41,6 @@ public class KlarnaEventPublishingSubmitOrderStrategy implements SubmitOrderStra
 		}
 	}
 
-	@Required
 	public void setEventService(final EventService eventService)
 	{
 		this.eventService = eventService;

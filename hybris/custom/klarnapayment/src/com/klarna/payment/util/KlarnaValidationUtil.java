@@ -10,14 +10,15 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.commons.codec.binary.Hex;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.microsoft.sqlserver.jdbc.StringUtils;
 
 
 public final class KlarnaValidationUtil
 {
-	private static final Logger LOG = Logger.getLogger(KlarnaValidationUtil.class);
+	private static final Logger LOG = LoggerFactory.getLogger(KlarnaValidationUtil.class);
 	private static final String HMAC_SHA_256 = "HmacSHA256";
 	private static final String KLARNA_WEBHOOK_SIGNATURE_VERIFICATION_FLAG = "klarna.webhook.signature.verification.enabled";
 

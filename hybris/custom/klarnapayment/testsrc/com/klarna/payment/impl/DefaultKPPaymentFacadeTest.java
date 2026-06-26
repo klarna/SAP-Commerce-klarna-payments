@@ -27,7 +27,7 @@ import de.hybris.platform.servicelayer.user.UserService;
 
 import java.io.IOException;
 
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpSession;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -91,7 +91,7 @@ public class DefaultKPPaymentFacadeTest
 	@Before
 	public void setUp()
 	{
-		MockitoAnnotations.initMocks(this);
+		MockitoAnnotations.openMocks(this);
 		defaultKPPaymentFacade = Mockito.spy(new DefaultKPPaymentFacade());
 		Mockito.doReturn(cartService).when(defaultKPPaymentFacade).getCartService();
 		Mockito.doReturn(klarnaCreditSessionConverter).when(defaultKPPaymentFacade).getKlarnaCreditSessionConverter();

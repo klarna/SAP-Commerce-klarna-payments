@@ -21,15 +21,15 @@ import de.hybris.platform.servicelayer.search.FlexibleSearchService;
 import java.io.InputStream;
 import java.util.Optional;
 
-import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Required;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.klarna.payment.services.KlarnapaymentService;
 
 
 public class DefaultKlarnapaymentService implements KlarnapaymentService
 {
-	private static final Logger LOG = Logger.getLogger(DefaultKlarnapaymentService.class);
+	private static final Logger LOG = LoggerFactory.getLogger(DefaultKlarnapaymentService.class);
 
 	private MediaService mediaService;
 	private ModelService modelService;
@@ -86,19 +86,16 @@ public class DefaultKlarnapaymentService implements KlarnapaymentService
 		return DefaultKlarnapaymentService.class.getResourceAsStream("/klarnapayment/sap-hybris-platform.png");
 	}
 
-	@Required
 	public void setMediaService(final MediaService mediaService)
 	{
 		this.mediaService = mediaService;
 	}
 
-	@Required
 	public void setModelService(final ModelService modelService)
 	{
 		this.modelService = modelService;
 	}
 
-	@Required
 	public void setFlexibleSearchService(final FlexibleSearchService flexibleSearchService)
 	{
 		this.flexibleSearchService = flexibleSearchService;

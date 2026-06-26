@@ -38,12 +38,13 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpSession;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpSession;
 
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.klarna.api.Client;
 import com.klarna.api.HttpTransport;
@@ -79,7 +80,7 @@ import com.klarna.payment.util.LogHelper;
 
 public class DefaultKPPaymentFacade implements KPPaymentFacade
 {
-	private static final Logger LOG = Logger.getLogger(DefaultKPPaymentFacade.class);
+	private static final Logger LOG = LoggerFactory.getLogger(DefaultKPPaymentFacade.class);
 
 	private static final String GRANT_TYPE_REFRESH_TOKEN = "refresh_token";
 	public static final String KLARNA_LOGIN_BASE_URL = "https://login.klarna.com";

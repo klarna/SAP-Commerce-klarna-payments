@@ -10,7 +10,6 @@
  */
 package com.klarna.payment.jalo;
 
-import static org.fest.assertions.Assertions.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import de.hybris.platform.testframework.HybrisJUnit4TransactionalTest;
@@ -50,6 +49,6 @@ public class KlarnapaymentTest extends HybrisJUnit4TransactionalTest
 	public void testKlarnapayment()
 	{
 		final boolean testTrue = true;
-        assertThat(testTrue).isTrue();
+        assertTrue(testTrue);
 	}
 }

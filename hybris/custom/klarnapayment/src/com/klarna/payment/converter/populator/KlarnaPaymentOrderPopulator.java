@@ -14,7 +14,7 @@ package com.klarna.payment.converter.populator;
 import de.hybris.platform.converters.Populator;
 import de.hybris.platform.servicelayer.dto.converter.ConversionException;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 import com.klarna.api.payments.model.PaymentsCreateOrderRequest;
 import com.klarna.api.payments.model.PaymentsSession;

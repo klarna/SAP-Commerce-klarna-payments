@@ -30,12 +30,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.text.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
 
 import com.klarna.api.payments.model.PaymentsAddress;
@@ -52,7 +53,7 @@ import com.klarna.payment.util.KlarnaConversionUtils;
 public class KlarnaExpCheckoutAuthPayloadPopulator implements Populator<AbstractOrderModel, PaymentsSession>
 {
 
-	protected static final Logger LOG = Logger.getLogger(KlarnaExpCheckoutAuthPayloadPopulator.class);
+	protected static final Logger LOG = LoggerFactory.getLogger(KlarnaExpCheckoutAuthPayloadPopulator.class);
 
 	private static final String INTENT_BUY = "buy";
 	private static final String KLARNA_EXPCHECKOUT_AUTHORIZE_CALLBACK_URL = "klarna.expcheckout.authorize.callback.url";
@@ -344,7 +345,7 @@ public class KlarnaExpCheckoutAuthPayloadPopulator implements Populator<Abstract
 		productIdentifiers.setGlobalTradeItemNumber(product.getEan());
 		productIdentifiers.setBrand(product.getManufacturerName());
 		productIdentifiers.setManufacturerPartNumber(product.getManufacturerAID());
-		final String productPath = StringEscapeUtils.unescapeHtml(pageTitleResolver.resolveProductPageTitle(product.getCode()));
+		final String productPath = StringEscapeUtils.unescapeHtml4(pageTitleResolver.resolveProductPageTitle(product.getCode()));
 		productIdentifiers.setCategoryPath(StringUtils.replace(productPath, "|", ">"));
 		return productIdentifiers;
 	}

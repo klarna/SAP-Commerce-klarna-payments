@@ -12,10 +12,11 @@ import de.hybris.platform.servicelayer.session.SessionService;
 import de.hybris.platform.servicelayer.user.UserService;
 import de.hybris.platform.site.BaseSiteService;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.klarna.payment.facades.KlarnaWebhookFacade;
 import com.klarna.payment.model.KlarnaWebhookCronJobModel;
@@ -26,7 +27,7 @@ import com.klarna.payment.model.KlarnaWebhookCronJobModel;
  */
 public class KlarnaWebhookJob extends AbstractJobPerformable<KlarnaWebhookCronJobModel>
 {
-	private static final Logger LOG = Logger.getLogger(KlarnaWebhookJob.class);
+	private static final Logger LOG = LoggerFactory.getLogger(KlarnaWebhookJob.class);
 
 	private static final String CREATE_WEBHOOK_ACTION = "CREATE";
 	//private static final String UPDATE_WEBHOOK_ACTION = "UPDATE";

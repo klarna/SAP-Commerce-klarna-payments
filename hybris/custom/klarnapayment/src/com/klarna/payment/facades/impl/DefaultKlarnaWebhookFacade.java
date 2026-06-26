@@ -6,10 +6,11 @@ import de.hybris.platform.servicelayer.model.ModelService;
 import de.hybris.platform.servicelayer.session.SessionService;
 import de.hybris.platform.site.BaseSiteService;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.klarna.data.KlarnaConfigData;
 import com.klarna.integration.dto.KlarnaCreateWebhookResponseDTO;
@@ -28,7 +29,7 @@ import com.klarna.payment.util.LogHelper;
 public class DefaultKlarnaWebhookFacade implements KlarnaWebhookFacade
 {
 
-	private static final Logger LOG = Logger.getLogger(DefaultKlarnaWebhookFacade.class);
+	private static final Logger LOG = LoggerFactory.getLogger(DefaultKlarnaWebhookFacade.class);
 
 	@Resource
 	private KlarnaWebhookService klarnaWebhookService;

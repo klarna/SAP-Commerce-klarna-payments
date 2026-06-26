@@ -17,7 +17,7 @@ import de.hybris.platform.payment.model.PaymentTransactionModel;
 
 import java.io.IOException;
 
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpSession;
 
 import com.klarna.api.Client;
 import com.klarna.api.merchant_card_service.model.CardServiceSettlementRequest;

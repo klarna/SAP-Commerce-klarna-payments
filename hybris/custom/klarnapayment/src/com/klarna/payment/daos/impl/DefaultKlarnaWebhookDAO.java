@@ -6,7 +6,7 @@ import de.hybris.platform.servicelayer.search.FlexibleSearchService;
 
 import java.util.List;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 import com.klarna.model.KlarnaWebhookModel;
 import com.klarna.model.KlarnaWebhookNotificationModel;

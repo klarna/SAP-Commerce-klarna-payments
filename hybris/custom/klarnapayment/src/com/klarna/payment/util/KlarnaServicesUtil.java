@@ -15,10 +15,11 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -30,7 +31,7 @@ import com.klarna.payment.facades.KlarnaConfigFacade;
 public final class KlarnaServicesUtil
 {
 
-	protected static final Logger LOG = Logger.getLogger(KlarnaServicesUtil.class);
+	protected static final Logger LOG = LoggerFactory.getLogger(KlarnaServicesUtil.class);
 
 	private static final int TAX_FACTOR = 10000;
 

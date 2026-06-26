@@ -17,7 +17,8 @@ import de.hybris.platform.servicelayer.dto.converter.ConversionException;
 import java.util.List;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.klarna.data.KlarnaSIWKConfigData;
 import com.klarna.model.KlarnaSIWKConfigModel;
@@ -30,7 +31,7 @@ import com.klarna.payment.enums.KlarnaSigninDataScope;
 
 public class KlarnaSIWKConfigPopulator implements Populator<KlarnaSIWKConfigModel, KlarnaSIWKConfigData>
 {
-	private static Logger LOG = Logger.getLogger(KlarnaSIWKConfigPopulator.class);
+	private static Logger LOG = LoggerFactory.getLogger(KlarnaSIWKConfigPopulator.class);
 
 	private static final String DELIMITER = "__";
 	private static final String DELIMITER_COLON = ":";

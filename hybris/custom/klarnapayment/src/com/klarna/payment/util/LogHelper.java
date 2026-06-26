@@ -3,7 +3,8 @@
  */
 package com.klarna.payment.util;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class LogHelper

@@ -8,7 +8,7 @@ import de.hybris.platform.core.model.order.AbstractOrderEntryModel;
 import de.hybris.platform.core.model.product.ProductModel;
 import de.hybris.platform.servicelayer.dto.converter.ConversionException;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 import org.springframework.util.Assert;
 

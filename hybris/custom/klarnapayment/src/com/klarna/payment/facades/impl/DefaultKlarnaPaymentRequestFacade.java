@@ -5,9 +5,10 @@ import de.hybris.platform.commerceservices.service.data.CommerceCheckoutParamete
 import de.hybris.platform.core.model.order.CartModel;
 import de.hybris.platform.order.CartService;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.klarna.data.KlarnaConfigData;
 import com.klarna.integration.dto.KlarnaCreatePaymentResponseDTO;
@@ -21,7 +22,7 @@ import com.klarna.payment.services.KlarnaPaymentRequestService;
 public class DefaultKlarnaPaymentRequestFacade implements KlarnaPaymentRequestFacade
 {
 
-	private static final Logger LOG = Logger.getLogger(DefaultKlarnaPaymentRequestFacade.class);
+	private static final Logger LOG = LoggerFactory.getLogger(DefaultKlarnaPaymentRequestFacade.class);
 
 	@Resource(name = "cartService")
 	private CartService cartService;

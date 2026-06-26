@@ -7,10 +7,11 @@ import de.hybris.platform.site.BaseSiteService;
 import de.hybris.platform.store.BaseStoreModel;
 import de.hybris.platform.store.services.BaseStoreService;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.klarna.data.KlarnaConfigData;
 import com.klarna.model.KlarnaConfigModel;
@@ -20,7 +21,7 @@ import com.klarna.payment.facades.KlarnaConfigFacade;
 
 public class DefaultKlarnaConfigFacade implements KlarnaConfigFacade
 {
-	private static Logger LOG = Logger.getLogger(DefaultKlarnaConfigFacade.class);
+	private static Logger LOG = LoggerFactory.getLogger(DefaultKlarnaConfigFacade.class);
 
 	private BaseStoreService baseStoreService;
 

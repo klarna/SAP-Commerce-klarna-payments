@@ -14,7 +14,8 @@ package com.klarna.converter.populator;
 import de.hybris.platform.converters.Populator;
 import de.hybris.platform.servicelayer.dto.converter.ConversionException;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.klarna.data.KlarnaKPConfigData;
 import com.klarna.model.KlarnaKPConfigModel;
@@ -25,7 +26,7 @@ import com.klarna.model.KlarnaKPConfigModel;
  */
 public class KlarnaKPConfigPopulator implements Populator<KlarnaKPConfigModel, KlarnaKPConfigData>
 {
-	private static Logger LOG = Logger.getLogger(KlarnaKPConfigPopulator.class);
+	private static Logger LOG = LoggerFactory.getLogger(KlarnaKPConfigPopulator.class);
 
 	@Override
 	public void populate(final KlarnaKPConfigModel source, final KlarnaKPConfigData target) throws ConversionException

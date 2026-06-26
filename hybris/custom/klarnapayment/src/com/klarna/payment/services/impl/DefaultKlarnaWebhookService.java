@@ -8,11 +8,12 @@ import de.hybris.platform.util.Config;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.klarna.data.KlarnaConfigData;
 import com.klarna.integration.dto.KlarnaCreateWebhookPayloadDTO;
@@ -35,7 +36,7 @@ import com.klarna.payment.util.LogHelper;
 
 public class DefaultKlarnaWebhookService implements KlarnaWebhookService
 {
-	private static final Logger LOG = Logger.getLogger(DefaultKlarnaWebhookService.class);
+	private static final Logger LOG = LoggerFactory.getLogger(DefaultKlarnaWebhookService.class);
 
 	@Resource
 	private KlarnaWebhookDAO klarnaWebhookDAO;

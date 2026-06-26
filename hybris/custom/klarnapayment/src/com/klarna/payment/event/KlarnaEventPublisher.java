@@ -1,6 +1,7 @@
 package com.klarna.payment.event;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 
@@ -9,7 +10,7 @@ import com.klarna.payment.util.LogHelper;
 
 public class KlarnaEventPublisher
 {
-	protected static final Logger LOG = Logger.getLogger(KlarnaEventPublisher.class);
+	protected static final Logger LOG = LoggerFactory.getLogger(KlarnaEventPublisher.class);
 
 	@Autowired
 	private ApplicationEventPublisher applicationEventPublisher;

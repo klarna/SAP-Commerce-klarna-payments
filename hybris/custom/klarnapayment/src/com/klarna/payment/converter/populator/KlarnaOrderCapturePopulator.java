@@ -100,7 +100,7 @@ public class KlarnaOrderCapturePopulator implements Populator<AbstractOrderModel
 
 
 
-		final long totalPrice = new Double(KlarnaConversionUtils.getKlarnaIntValue(grandTotalPrice)).longValue();
+		final long totalPrice = (long) KlarnaConversionUtils.getKlarnaIntValue(grandTotalPrice);
 		target.setCapturedAmount(totalPrice);
 		target.setShippingInfo(getKlarnaCaptureShippingInfoConverter().convert(source));
 

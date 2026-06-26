@@ -10,7 +10,8 @@
  */
 package com.klarna.payment.service.impl;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static com.klarna.payment.constants.KlarnapaymentConstants.PLATFORM_LOGO_CODE;
 
 import de.hybris.bootstrap.annotations.IntegrationTest;
@@ -19,7 +20,7 @@ import de.hybris.platform.servicelayer.ServicelayerBaseTest;
 import de.hybris.platform.servicelayer.search.FlexibleSearchQuery;
 import de.hybris.platform.servicelayer.search.FlexibleSearchService;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -58,8 +59,8 @@ public class DefaultKlarnapaymentServiceIntegrationTest extends ServicelayerBase
 		final String logoUrl = klarnapaymentService.getHybrisLogoUrl(logoCode);
 
 		// then
-		assertThat(logoUrl).isNotNull();
-		assertThat(logoUrl).isEqualTo(findLogoMedia(logoCode).getURL());
+		assertNotNull(logoUrl);
+		assertEquals(findLogoMedia(logoCode).getURL(), logoUrl);
 	}
 
 	private MediaModel findLogoMedia(final String logoCode)

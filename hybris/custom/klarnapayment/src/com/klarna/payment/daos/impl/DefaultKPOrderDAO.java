@@ -14,7 +14,8 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.klarna.api.custom.model.PaymentHistoryFull;
 import com.klarna.payment.daos.KPOrderDAO;
@@ -25,7 +26,7 @@ import com.klarna.payment.util.LogHelper;
 public class DefaultKPOrderDAO implements KPOrderDAO
 {
 
-	private static final Logger LOG = Logger.getLogger(DefaultKPOrderDAO.class);
+	private static final Logger LOG = LoggerFactory.getLogger(DefaultKPOrderDAO.class);
 
 	private static final String ORDER_HISTORY_QUERY = "SELECT COUNT({o:" + OrderModel.PK + "}) AS orderCount, " + " SUM({o:"
 			+ OrderModel.TOTALPRICE + "} + {o:" + OrderModel.TOTALTAX + "} + COALESCE({o:" + OrderModel.DELIVERYCOST

@@ -42,9 +42,10 @@ import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -79,7 +80,7 @@ import com.klarna.payment.util.KlarnaConversionUtils;
 
 public class DefaultKPPaymentCheckoutFacade implements KPPaymentCheckoutFacade
 {
-	protected static final Logger LOG = Logger.getLogger(DefaultKPPaymentCheckoutFacade.class);
+	protected static final Logger LOG = LoggerFactory.getLogger(DefaultKPPaymentCheckoutFacade.class);
 	private static final String KLARNA_PAYMENT_CODE = "klarnapayment";
 	private static final String KLARNA = "KLARNA_";
 

@@ -4,12 +4,13 @@ import de.hybris.platform.jalo.Item;
 import de.hybris.platform.jalo.JaloBusinessException;
 import de.hybris.platform.jalo.SessionContext;
 import de.hybris.platform.jalo.type.ComposedType;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RBGColor extends GeneratedRBGColor
 {
 	@SuppressWarnings("unused")
-	private final static Logger LOG = Logger.getLogger( RBGColor.class.getName() );
+	private final static Logger LOG = LoggerFactory.getLogger( RBGColor.class.getName() );
 	
 	@Override
 	protected Item createItem(final SessionContext ctx, final ComposedType type, final ItemAttributeMap allAttributes) throws JaloBusinessException

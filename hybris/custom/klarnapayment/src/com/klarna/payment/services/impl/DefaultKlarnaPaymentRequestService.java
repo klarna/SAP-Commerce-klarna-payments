@@ -3,9 +3,10 @@ package com.klarna.payment.services.impl;
 import de.hybris.platform.core.model.order.AbstractOrderModel;
 import de.hybris.platform.servicelayer.dto.converter.Converter;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.klarna.data.KlarnaConfigData;
 import com.klarna.integration.dto.KlarnaCreatePaymentRequestDTO;
@@ -21,7 +22,7 @@ import com.klarna.payment.util.LogHelper;
 public class DefaultKlarnaPaymentRequestService implements KlarnaPaymentRequestService
 {
 
-	private static final Logger LOG = Logger.getLogger(DefaultKlarnaPaymentRequestService.class);
+	private static final Logger LOG = LoggerFactory.getLogger(DefaultKlarnaPaymentRequestService.class);
 
 
 	@Resource

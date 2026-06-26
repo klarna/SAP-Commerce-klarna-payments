@@ -6,7 +6,8 @@ import de.hybris.platform.servicelayer.exceptions.AmbiguousIdentifierException;
 
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.klarna.payment.daos.KPOrderDAO;
 import com.klarna.payment.services.KPOrderService;
@@ -14,7 +15,7 @@ import com.klarna.payment.services.KPOrderService;
 
 public class DefaultKPOrderService implements KPOrderService
 {
-	private static final Logger LOG = Logger.getLogger(DefaultKlarnapaymentService.class);
+	private static final Logger LOG = LoggerFactory.getLogger(DefaultKlarnapaymentService.class);
 
 	private KPOrderDAO kpOrderDAO;
 

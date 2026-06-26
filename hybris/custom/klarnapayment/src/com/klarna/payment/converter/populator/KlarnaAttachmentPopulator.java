@@ -14,9 +14,10 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
 
 import com.klarna.api.checkout.model.emd.CustomerAccountInformation;
@@ -34,7 +35,7 @@ import com.klarna.payment.util.KlarnaServicesUtil;
 public class KlarnaAttachmentPopulator implements Populator<AbstractOrderModel, PaymentsAttachment>
 {
 
-	protected static final Logger LOG = Logger.getLogger(KlarnaAttachmentPopulator.class);
+	protected static final Logger LOG = LoggerFactory.getLogger(KlarnaAttachmentPopulator.class);
 
 	@Resource(name = "configurationService")
 	private ConfigurationService configurationService;

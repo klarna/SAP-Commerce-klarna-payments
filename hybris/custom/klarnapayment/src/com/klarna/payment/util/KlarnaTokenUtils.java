@@ -1,10 +1,12 @@
 package com.klarna.payment.util;
 
 import java.io.IOException;
+import java.net.URI;
 import java.net.URL;
 import java.text.ParseException;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.klarna.payment.constants.GeneratedKlarnapaymentConstants.Enumerations.KlarnaEnv;
 import com.nimbusds.jose.JOSEException;
@@ -16,18 +18,18 @@ import com.nimbusds.jwt.SignedJWT;
 
 public final class KlarnaTokenUtils
 {
-	private static final Logger LOG = Logger.getLogger(KlarnaTokenUtils.class);
+	private static final Logger LOG = LoggerFactory.getLogger(KlarnaTokenUtils.class);
 
 	public static boolean validateJWTToken(final String token, String environment)
 	{
 		try {
 			URL url = null;
 			if(environment.equalsIgnoreCase(KlarnaEnv.PRODUCTION)) {
-				url = new URL("https://login.klarna.com/eu/lp/idp/.well-known/jwks.json");
+				url = URI.create("https://login.klarna.com/eu/lp/idp/.well-known/jwks.json").toURL();
 			}
 			else
 			{
-				url = new URL("https://login.playground.klarna.com/eu/lp/idp/.well-known/jwks.json");
+				url = URI.create("https://login.playground.klarna.com/eu/lp/idp/.well-known/jwks.json").toURL();
 			}
 			
 			final JWKSet jwkSet = JWKSet.load(url);

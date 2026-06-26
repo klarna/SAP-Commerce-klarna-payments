@@ -30,10 +30,11 @@ import de.hybris.platform.store.services.BaseStoreService;
 
 import java.util.UUID;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
 import com.klarna.payment.data.KlarnaCustomerData;
@@ -83,7 +84,7 @@ public class DefaultKlarnaSignInFacade implements KlarnaSignInFacade
 	@Resource(name = "baseSiteService")
 	private BaseSiteService baseSiteService;
 
-	private static final Logger LOG = Logger.getLogger(DefaultKlarnaSignInFacade.class);
+	private static final Logger LOG = LoggerFactory.getLogger(DefaultKlarnaSignInFacade.class);
 
 	private static final String CUSTOMER_GROUP = "customergroup";
 

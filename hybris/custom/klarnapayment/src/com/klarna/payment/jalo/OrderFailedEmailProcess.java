@@ -4,12 +4,13 @@ import de.hybris.platform.jalo.Item;
 import de.hybris.platform.jalo.JaloBusinessException;
 import de.hybris.platform.jalo.SessionContext;
 import de.hybris.platform.jalo.type.ComposedType;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class OrderFailedEmailProcess extends GeneratedOrderFailedEmailProcess
 {
 	@SuppressWarnings("unused")
-	private static final Logger LOG = Logger.getLogger( OrderFailedEmailProcess.class.getName() );
+	private static final Logger LOG = LoggerFactory.getLogger( OrderFailedEmailProcess.class.getName() );
 	
 	@Override
 	protected Item createItem(final SessionContext ctx, final ComposedType type, final ItemAttributeMap allAttributes) throws JaloBusinessException
