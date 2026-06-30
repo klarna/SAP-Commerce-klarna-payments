@@ -89,7 +89,7 @@ public class KPCreditSessionPopulator implements Populator<AbstractOrderModel, P
 
 	private void updatedAddressFromCartModel(final AbstractOrderModel source, final PaymentsSession target)
 	{
-		LogHelper.debugLog(LOG, "Entering updatedAddressFromCartModel ");
+		//LogHelper.debugLog(LOG, "Entering updatedAddressFromCartModel ");
 		if (source.getPaymentAddress() != null)
 		{
 			target.setBillingAddress(getKlarnaAddress(addressConverter.convert(source.getPaymentAddress())));
@@ -107,7 +107,7 @@ public class KPCreditSessionPopulator implements Populator<AbstractOrderModel, P
 
 	private PaymentsCustomer getCustomer(final AddressModel addressModel)
 	{
-		LogHelper.debugLog(LOG, "Entering getCustomer ");
+		//LogHelper.debugLog(LOG, "Entering getCustomer ");
 		PaymentsCustomer customer = null;
 		final String dobStr = getDateOfBirth(addressModel);
 		if (StringUtils.isNotEmpty(dobStr))
@@ -121,7 +121,7 @@ public class KPCreditSessionPopulator implements Populator<AbstractOrderModel, P
 
 	private PaymentsMerchantUrls getMerchantUrl(final String kid)
 	{
-		LogHelper.debugLog(LOG, "Entering getMerchantUrl ");
+		//LogHelper.debugLog(LOG, "Entering getMerchantUrl ");
 		final KlarnaMerchantURLs merchantUrl = createMerchantURLs();
 		final PaymentsMerchantUrls urls = new PaymentsMerchantUrls();
 
@@ -172,7 +172,7 @@ public class KPCreditSessionPopulator implements Populator<AbstractOrderModel, P
 
 	private PaymentsAddress getKlarnaAddress(final AddressData addressData)
 	{
-		LogHelper.debugLog(LOG, "Entering getKlarnaAddress ");
+		//LogHelper.debugLog(LOG, "Entering getKlarnaAddress ");
 		final PaymentsAddress klarnaAddress = new PaymentsAddress();
 
 		klarnaAddress.setTitle(addressData.getTitle() != null ? addressData.getTitle().replace(".", "") : "");
@@ -224,7 +224,7 @@ public class KPCreditSessionPopulator implements Populator<AbstractOrderModel, P
 
 	private String getDateOfBirth(final AddressModel addressModel)
 	{
-		LogHelper.debugLog(LOG, "Entering getDateOfBirth ");
+		//LogHelper.debugLog(LOG, "Entering getDateOfBirth ");
 
 		if (addressModel != null && addressModel.getDateOfBirth() != null)
 		{

@@ -9,6 +9,18 @@ custom/yb2bacceleratorstorefront
 # Generated files
 Generated*.java
 
+**/jalo/**
+hybris/**/Generated*
+*/platformhome.properties
+
+# Generated source
+gensrc/
+**/gensrc/
+
+# XSDs and generated artifacts
+*.xsd
+*.xjb
+
 # Node artifact files
 node_modules/
 dist/

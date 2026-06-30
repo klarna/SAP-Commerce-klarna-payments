@@ -20,5 +20,22 @@ public final class KlarnapaymentaddonWebConstants // NOSONAR
 		//empty to avoid instantiating this constant class
 	}
 
-	// implement here constants used by this extension
+	public static final String KLARNA_EXP_CHECKOUT_CART_ID = "klarnaExpCheckoutCartId";
+	public static final String KLARNA_SELECTED_PAYMENT_METHOD = "klarnaSelectedPaymentMethod";
+
+	public static final String KLARNA_GUEST_TEMP_EMAIL_ID = "tempuser@sap.kec";
+	public static final String KLARNA_ADDRESS_NOT_SUPPORTED_ERROR = "ADDRESS_NOT_SUPPORTED";
+	public static final String KLARNA_INVALID_OPTION_ERROR = "INVALID_OPTION";
+
+	public static final String KLARNA_RESPONSE_STATUS = "status";
+	public static final String KLARNA_RESPONSE_REDIRECT_URL = "redirectUrl";
+	public static final String KLARNA_RESPONSE_STATUS_SUCCESS = "SUCCESS";
+	public static final String KLARNA_RESPONSE_STATUS_ERROR = "ERROR";
+	public static final String KLARNA_RESPONSE_STATUS_NOT_READY = "NOT_READY";
+	public static final String KLARNA_RESPONSE_STATUS_PROCESSING = "PROCESSING";
+
+	public static final String IS_PAYMENT_BEING_PROCESSED = "isPaymentBeingProcessed";
+
+	public static final String KLARNA_NETWORK_SESSION_TOKEN = "klarnaNetworkSessionToken";
+
 }

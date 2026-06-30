@@ -33,7 +33,6 @@ public class KlarnaKPConfigPopulator implements Populator<KlarnaKPConfigModel, K
 		target.setCode(source.getCode());
 		target.setActive(source.getActive());
 		target.setAutoCapture(source.getAutoCapture());
-		target.setSendEMD(source.getSendEMD());
 		target.setMerchantEmail(source.getMerchantEmail());
 		target.setMerchantReference2(source.getMerchantReference2());
 		target.setCustomStyle(source.getCustomStyle());

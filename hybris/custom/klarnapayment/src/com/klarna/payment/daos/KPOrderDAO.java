@@ -2,8 +2,12 @@ package com.klarna.payment.daos;
 
 import de.hybris.platform.core.model.order.AbstractOrderModel;
 import de.hybris.platform.core.model.order.OrderModel;
+import de.hybris.platform.core.model.user.UserModel;
+import de.hybris.platform.store.BaseStoreModel;
 
 import java.util.List;
+
+import com.klarna.api.custom.model.PaymentHistoryFull;
 
 
 public interface KPOrderDAO
@@ -23,5 +27,7 @@ public interface KPOrderDAO
 	 * @return AbstractOrderModel
 	 */
 	List<AbstractOrderModel> findOrderByKid(final String kid);
+
+	PaymentHistoryFull getAggregatePaymentHistory(final UserModel user, final BaseStoreModel baseStore);
 
 }

@@ -1,5 +1,6 @@
 package com.klarna.payment.facades;
 
+import de.hybris.platform.basecommerce.model.site.BaseSiteModel;
 import de.hybris.platform.store.BaseStoreModel;
 
 import com.klarna.data.KlarnaConfigData;
@@ -26,4 +27,6 @@ public interface KlarnaConfigFacade
 	//	String getDisplayName();
 
 	boolean isNLKlarnaPayment();
+
+	KlarnaConfigData getKlarnaConfigForBaseSite(final BaseSiteModel baseSite);
 }

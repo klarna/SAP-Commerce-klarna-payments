@@ -66,13 +66,14 @@ import com.klarna.api.signin.model.KlarnaSigninTokenResponse;
 import com.klarna.data.KlarnaConfigData;
 import com.klarna.data.KlarnaCredentialData;
 import com.klarna.data.KlarnaKPConfigData;
+import com.klarna.integration.util.KlarnaIntegrationUtil;
 import com.klarna.payment.constants.KlarnapaymentConstants;
 import com.klarna.payment.enums.KlarnaEnv;
 import com.klarna.payment.facades.KPPaymentFacade;
 import com.klarna.payment.facades.KlarnaConfigFacade;
-import com.klarna.payment.facades.KlarnaSignInFacade;
 import com.klarna.payment.model.KPPaymentInfoModel;
 import com.klarna.payment.services.KPOrderService;
+import com.klarna.payment.util.KlarnaServicesUtil;
 import com.klarna.payment.util.LogHelper;
 
 
@@ -86,12 +87,6 @@ public class DefaultKPPaymentFacade implements KPPaymentFacade
 
 	public static final String KLARNA_MARKET_EU = "/eu";
 	public static final String KLARNA_MARKET_NA = "/na";
-
-	@Resource(name = "klarnaSignInFacade")
-	private KlarnaSignInFacade klarnaSignInFacade;
-
-	@Resource(name = "klarnaCustomerProfileReverseConverter")
-	private Converter klarnaCustomerProfileReverseConverter;
 
 	private KlarnaConfigFacade klarnaConfigFacade;
 	private CartService cartService;
@@ -164,6 +159,45 @@ public class DefaultKPPaymentFacade implements KPPaymentFacade
 	private UserService userService;
 	private CommerceCartCalculationStrategy commerceCartCalculationStrategy;
 	private CommerceCartService commerceCartService;
+	@Resource
+	private KlarnaServicesUtil klarnaServicesUtil;
+
+	/**
+	 * @return the klarnaServicesUtil
+	 */
+	public KlarnaServicesUtil getKlarnaServicesUtil()
+	{
+		return klarnaServicesUtil;
+	}
+
+	/**
+	 * @param klarnaServicesUtil
+	 *           the klarnaServicesUtil to set
+	 */
+	public void setKlarnaServicesUtil(final KlarnaServicesUtil klarnaServicesUtil)
+	{
+		this.klarnaServicesUtil = klarnaServicesUtil;
+	}
+
+	/**
+	 * @return the klarnaIntegrationUtil
+	 */
+	public KlarnaIntegrationUtil getKlarnaIntegrationUtil()
+	{
+		return klarnaIntegrationUtil;
+	}
+
+	/**
+	 * @param klarnaIntegrationUtil
+	 *           the klarnaIntegrationUtil to set
+	 */
+	public void setKlarnaIntegrationUtil(final KlarnaIntegrationUtil klarnaIntegrationUtil)
+	{
+		this.klarnaIntegrationUtil = klarnaIntegrationUtil;
+	}
+
+	@Resource
+	private KlarnaIntegrationUtil klarnaIntegrationUtil;
 
 	/**
 	 * @return the commerceCartCalculationStrategy
@@ -354,14 +388,18 @@ public class DefaultKPPaymentFacade implements KPPaymentFacade
 				final String moduleversion = Config.getParameter("moduleversion") != null ? Config.getParameter("moduleversion")
 						: "6.0";
 
-				final String USER_AGENT = String.format(
+				final String userAgent = String.format(
 						"Language/Java_%s (Vendor/%s; VM/%s) Module-name-and-version/%s OS/%s Shop-name-and-version/%s",
 						getProperty("java.version"), getProperty("java.vendor"), getProperty("java.vm.name"),
 						modulename + "_" + moduleversion, getProperty("os.name") + "_" + getProperty("os.version"),
 						shoporplatform + "_" + platformversion);
 
-				LOG.warn(USER_AGENT.toString());
-				return (new Client(merchanId, sharedSecret, endpoint, USER_AGENT.toString()));
+				final String integrationMetaData = klarnaIntegrationUtil
+						.convertRequestDtoToString(klarnaServicesUtil.getKlarnaMetaData());
+
+				LOG.debug("User Agent :: " + userAgent);
+				LOG.debug("Integration Metadata :: " + integrationMetaData);
+				return (new Client(merchanId, sharedSecret, endpoint, userAgent, integrationMetaData));
 			}
 		}
 		return null;
@@ -439,8 +477,8 @@ public class DefaultKPPaymentFacade implements KPPaymentFacade
 			{
 				klarnaCreditSessionData = getKlarnaCreditSessionInitialConverter().convert(cart);
 			}
-			// Set Access token for Auto login for Klarna Sign In customers
-			setAccessTokenForAutoLogin(klarnaCreditSessionData);
+			// Set Access token for Auto login for Klarna Sign In customers. Available only in SIWK version 1.
+			// setAccessTokenForAutoLogin(klarnaCreditSessionData);
 
 			LogHelper.debugLog(LOG, "Going to create Session ... . ");
 			final PaymentsMerchantSession sessionResponse = creditSession.create(klarnaCreditSessionData);
@@ -586,8 +624,8 @@ public class DefaultKPPaymentFacade implements KPPaymentFacade
 	{
 		final CartModel cart = getCartService().getSessionCart();
 		final KPPaymentInfoModel kpPaymentInfo = (KPPaymentInfoModel) cart.getPaymentInfo();
-		List<PaymentTransactionModel>  transactions = cart.getPaymentTransactions();
-		if(CollectionUtils.isEmpty(transactions))
+		final List<PaymentTransactionModel> transactions = cart.getPaymentTransactions();
+		if (CollectionUtils.isEmpty(transactions))
 		{
 			final PaymentTransactionModel transaction = modelService.create(PaymentTransactionModel.class);
 			//final PaymentTransactionType paymentTransactionType = PaymentTransactionType.CREATE_SUBSCRIPTION;
@@ -605,9 +643,9 @@ public class DefaultKPPaymentFacade implements KPPaymentFacade
 		}
 		else
 		{
-			for(PaymentTransactionModel transaction : transactions)
+			for (final PaymentTransactionModel transaction : transactions)
 			{
-				if(kpPaymentInfo != null && StringUtils.equals(KP_PAYMENT_PROVIDER, transaction.getPaymentProvider()))
+				if (kpPaymentInfo != null && StringUtils.equals(KP_PAYMENT_PROVIDER, transaction.getPaymentProvider()))
 				{
 					transaction.setRequestToken(kpPaymentInfo.getAuthToken());
 					modelService.save(transaction);

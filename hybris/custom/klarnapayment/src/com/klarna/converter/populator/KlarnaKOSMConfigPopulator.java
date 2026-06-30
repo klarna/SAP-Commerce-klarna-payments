@@ -16,9 +16,12 @@ import de.hybris.platform.servicelayer.dto.converter.ConversionException;
 
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.klarna.data.KlarnaKOSMConfigData;
 import com.klarna.osm.model.KlarnaKOSMConfigModel;
 import com.klarna.payment.enums.KlarnaOSMPlacement;
+import com.klarna.payment.enums.OsmTheme;
 
 
 public class KlarnaKOSMConfigPopulator implements Populator<KlarnaKOSMConfigModel, KlarnaKOSMConfigData>
@@ -34,13 +37,13 @@ public class KlarnaKOSMConfigPopulator implements Populator<KlarnaKOSMConfigMode
 		target.setCode(source.getCode());
 		target.setActive(source.getActive());
 		setKOSMPlacements(source.getPlacements(), target);
-		if (null != source.getTheme())
+		if (source.getTheme() != null && StringUtils.isNotEmpty(source.getTheme().getCode()))
 		{
-			target.setTheme(source.getTheme().getCode());
+			target.setTheme(StringUtils.lowerCase(source.getTheme().getCode()));
 		}
 		else
 		{
-			target.setTheme(source.getTheme().DEFAULT.getCode());
+			target.setTheme(StringUtils.lowerCase(OsmTheme.DEFAULT.getCode()));
 		}
 		target.setCustomStyle(source.getCustomStyle());
 

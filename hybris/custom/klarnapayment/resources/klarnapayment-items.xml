@@ -845,6 +845,30 @@
 							<description>Determines the environment of the merchant</description>
 							<modifiers read="true" write="true" search="true" optional="false" initial="true"/>
 							<persistence type="property" />
+					</attribute>				
+					<attribute qualifier="integratedViaPSP" type="java.lang.Boolean">
+						<defaultvalue>Boolean.FALSE</defaultvalue>
+						<description>Indicates if Klarna is integrated via external Payment Service Provider</description>
+						<modifiers read="true" write="true" search="true" optional="false"/>
+						<persistence type="property" />
+					</attribute>								
+					<attribute qualifier="shareShoppingData" type="java.lang.Boolean">
+						<defaultvalue>Boolean.TRUE</defaultvalue>
+						<description>Indicates if shopping data should be shared with Klarna in the case of integration via external PSP</description>
+						<modifiers read="true" write="true" optional="false"/>
+						<persistence type="property" />
+					</attribute>
+					<attribute qualifier="sendEMD" type="java.lang.Boolean">
+						<defaultvalue>Boolean.FALSE</defaultvalue>
+						<description>send EMD</description>
+						<modifiers write="true" read="true" optional="true" initial="true" />
+						<persistence type="property" />
+					</attribute>
+					<attribute qualifier="sendOrderHistory" type="java.lang.Boolean">
+						<defaultvalue>Boolean.FALSE</defaultvalue>
+						<description>Indicates if order history should be sent as part of EMD</description>
+						<modifiers write="true" read="true" optional="true" />
+						<persistence type="property" />
 					</attribute>
 					<attribute qualifier="kpConfig" type="KlarnaKPConfig">
 							<description>Determines the Klarna Payment Config</description>
@@ -993,12 +1017,6 @@
 						<modifiers write="true" read="true" optional="true" initial="true" />
 						<persistence type="property" />
 					</attribute>
-					<attribute qualifier="sendEMD" type="java.lang.Boolean">
-						<defaultvalue>Boolean.FALSE</defaultvalue>
-						<description>send EMD</description>
-						<modifiers write="true" read="true" optional="true" initial="true" />
-						<persistence type="property" />
-					</attribute>
 					<attribute qualifier="autoCapture" type="java.lang.Boolean">
 						<defaultvalue>Boolean.FALSE</defaultvalue>
 						<description>Payment capture automatically</description>
@@ -1058,6 +1076,12 @@
 						<defaultvalue>em().getEnumerationValue("KlarnaButtonShape", "default")</defaultvalue>
 						<description>Determines the button shape</description>
 						<modifiers write="true" read="true"/>
+						<persistence type="property" />
+					</attribute>				
+					<attribute qualifier="oneStepCheckout" type="java.lang.Boolean">
+						<defaultvalue>Boolean.FALSE</defaultvalue>
+						<description>Indicates if one-step or multi-step checkout flow should be used</description>
+						<modifiers read="true" write="true" optional="false"/>
 						<persistence type="property" />
 					</attribute>
 				</attributes>
@@ -1163,7 +1187,103 @@
 					</attribute>
 				</attributes>
 			</itemtype>
-			
 		</typegroup>
+		
+		<typegroup name="KlarnaWebhooks">
+			<itemtype code="KlarnaWebhook" generate="true" autocreate="true" jaloclass="com.klarna.jalo.KlarnaWebhook">
+	            <description>Holds the details of the Webhooks created in Klarna </description>
+				<deployment table="KlarnaWebhooks" typecode="12115" />
+	            <attributes>
+					<attribute qualifier="webhookId" type="java.lang.String">
+						<description>Webhook Id</description>
+						<modifiers read="true" write="true" search="true" optional="false" unique="true"/>
+						<persistence type="property" />
+					</attribute>
+					<attribute qualifier="signingKeyId" type="java.lang.String">
+						<description>Signing Key Id</description>
+						<modifiers read="true" write="true" optional="true"/>
+						<persistence type="property" />
+					</attribute>
+					<attribute qualifier="signingKey" type="java.lang.String">
+						<description>Signing Key</description>
+						<modifiers read="true" write="true" optional="true"/>
+						<persistence type="property" />
+					</attribute>
+					<attribute qualifier="status" type="java.lang.String">
+						<description>Webhook Status</description>
+						<modifiers read="true" write="true" optional="true"/>
+						<persistence type="property" />
+					</attribute>
+		            <attribute qualifier="baseSite" type="BaseSite">
+		                <description>Base Site</description>
+		                <modifiers read="true" write="true" optional="false"/>
+						<persistence type="property" />
+		            </attribute>			
+	            </attributes>
+        	</itemtype>
+			<itemtype code="KlarnaWebhookCronJob" extends="CronJob" generate="true" autocreate="true" >
+				<description>Create, Get, Update, Delete, Simulate Webhooks</description>
+				<attributes>
+		            <attribute qualifier="baseSite" type="BaseSite">
+		                <description>BaseSite on which the job runs</description>
+		                <modifiers read="true" write="true" optional="false"/>
+						<persistence type="property" />
+		            </attribute>
+		            <attribute qualifier="action" type="java.lang.String">
+		                <description>Action: CREATE or UPDATE or DELETE or SIMULATE </description>
+		                <modifiers read="true" write="true" optional="false"/>
+						<persistence type="property" />
+		            </attribute>
+				</attributes>
+			</itemtype>	
+			<itemtype code="KlarnaWebhookNotification" generate="true" autocreate="true" jaloclass="com.klarna.jalo.KlarnaWebhookNotification">
+	            <description>Holds the details of the Webhooks created in Klarna </description>
+				<deployment table="KlarnaNotification" typecode="12116" />
+	            <attributes>
+					<attribute qualifier="id" type="java.lang.String">
+						<description>Unique id of the webhook </description>
+						<modifiers read="true" write="true" optional="false" unique="true"/>
+						<persistence type="property" />
+					</attribute>
+					<attribute qualifier="eventId" type="java.lang.String">
+						<description>Notification Id</description>
+						<modifiers read="true" write="true" search="true" optional="true"/>
+						<persistence type="property" />
+					</attribute>
+					<attribute qualifier="eventType" type="java.lang.String">
+						<description>Notification Type</description>
+						<modifiers read="true" write="true" optional="true"/>
+						<persistence type="property" />
+					</attribute>
+					<attribute qualifier="eventStatus" type="java.lang.String">
+						<description>Notification Status</description>
+						<modifiers read="true" write="true" optional="true"/>
+						<persistence type="property" />
+					</attribute>
+					<attribute qualifier="payload" type="java.lang.String">
+						<description>Notification request payload</description>
+						<modifiers write="true" read="true" optional="true" />
+						<persistence type="property">
+							<columntype database="oracle">
+								<value>CLOB</value>
+							</columntype>
+							<columntype database="sap">
+								<value>NCLOB</value>
+							</columntype>
+							<columntype database="mysql">
+								<value>TEXT</value>
+							</columntype>
+							<columntype database="sqlserver">
+								<value>TEXT</value>
+							</columntype>
+							<columntype>
+								<value>HYBRIS.LONG_STRING</value>
+							</columntype>
+						</persistence>
+					</attribute>			
+	            </attributes>
+        	</itemtype>	
+		</typegroup>
+		
 	</itemtypes>
 </items>

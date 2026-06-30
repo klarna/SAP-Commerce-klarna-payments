@@ -50,7 +50,6 @@ public class KlarnaPaymentOrderPopulator implements Populator<PaymentsSession, P
 		}
 		target.setCustomer(source.getCustomer());
 		target.setOptions(source.getOptions());
-		target.setAttachment(source.getAttachment());
 		final KlarnaConfigData klarnaConfig = klarnaConfigFacade.getKlarnaConfig();
 		target.setAutoCapture(klarnaConfig.getKpConfig() != null ? klarnaConfig.getKpConfig().getAutoCapture() : Boolean.FALSE);
 	}

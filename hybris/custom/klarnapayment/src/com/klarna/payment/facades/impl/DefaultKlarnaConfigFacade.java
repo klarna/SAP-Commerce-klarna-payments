@@ -1,5 +1,6 @@
 package com.klarna.payment.facades.impl;
 
+import de.hybris.platform.basecommerce.model.site.BaseSiteModel;
 import de.hybris.platform.servicelayer.config.ConfigurationService;
 import de.hybris.platform.servicelayer.dto.converter.Converter;
 import de.hybris.platform.site.BaseSiteService;
@@ -119,6 +120,20 @@ public class DefaultKlarnaConfigFacade implements KlarnaConfigFacade
 			return null;
 		}
 		return model;
+	}
+
+	@Override
+	public KlarnaConfigData getKlarnaConfigForBaseSite(final BaseSiteModel baseSite)
+	{
+		final BaseStoreModel baseStore = baseSite.getStores().get(0);
+		final KlarnaConfigModel klarnaConfigModel = baseStore.getKlarnaConfig();
+
+		if (klarnaConfigModel == null || !Boolean.TRUE.equals(klarnaConfigModel.getActive())
+				|| CollectionUtils.isEmpty(klarnaConfigModel.getCredentials()))
+		{
+			return null;
+		}
+		return (KlarnaConfigData) getKlarnaConfigConverter().convert(klarnaConfigModel);
 	}
 
 

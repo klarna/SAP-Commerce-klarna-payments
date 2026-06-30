@@ -21,7 +21,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.klarna.api.DefaultMapper;
 import com.klarna.api.checkout.model.emd.CustomerAccountInformation;
 import com.klarna.api.checkout.model.emd.ExtraMerchantDataBody;
-import com.klarna.api.payments.model.PaymentsAttachment;
 import com.klarna.api.payments.model.PaymentsSession;
 import com.klarna.data.KlarnaConfigData;
 import com.klarna.payment.facades.KPCustomerFacade;
@@ -33,14 +32,9 @@ public class KPCreditSessionAttPopulator implements Populator<AbstractOrderModel
 
 	protected static final Logger LOG = Logger.getLogger(KPCreditSessionAttPopulator.class);
 
-
 	private KlarnaConfigFacade klarnaConfigFacade;
 
-
 	private KPCreditSessionPopulator kpCreditSessionPopulator;
-	private KPCustomerFacade kpCustomerFacade;
-	private CustomerFacade customerFacade;
-	private UserService userService;
 
 
 	/**
@@ -77,57 +71,6 @@ public class KPCreditSessionAttPopulator implements Populator<AbstractOrderModel
 		this.kpCreditSessionPopulator = kpCreditSessionPopulator;
 	}
 
-	/**
-	 * @return the kpCustomerFacade
-	 */
-	public KPCustomerFacade getKpCustomerFacade()
-	{
-		return kpCustomerFacade;
-	}
-
-	/**
-	 * @param kpCustomerFacade
-	 *           the kpCustomerFacade to set
-	 */
-	public void setKpCustomerFacade(final KPCustomerFacade kpCustomerFacade)
-	{
-		this.kpCustomerFacade = kpCustomerFacade;
-	}
-
-	/**
-	 * @return the customerFacade
-	 */
-	public CustomerFacade getCustomerFacade()
-	{
-		return customerFacade;
-	}
-
-	/**
-	 * @param customerFacade
-	 *           the customerFacade to set
-	 */
-	public void setCustomerFacade(final CustomerFacade customerFacade)
-	{
-		this.customerFacade = customerFacade;
-	}
-
-	/**
-	 * @return the userService
-	 */
-	public UserService getUserService()
-	{
-		return userService;
-	}
-
-	/**
-	 * @param userService
-	 *           the userService to set
-	 */
-	public void setUserService(final UserService userService)
-	{
-		this.userService = userService;
-	}
-
 	@Override
 	public void populate(final AbstractOrderModel source, final PaymentsSession target) throws ConversionException
 	{
@@ -135,50 +78,7 @@ public class KPCreditSessionAttPopulator implements Populator<AbstractOrderModel
 		Assert.notNull(target, "Parameter target cannot be null.");
 		final KlarnaConfigData klarnaConfig = klarnaConfigFacade.getKlarnaConfig();
 		kpCreditSessionPopulator.populate(source, target);
-		addAttachment(target, klarnaConfig);
 
 	}
-
-	private void addAttachment(final PaymentsSession target, final KlarnaConfigData klarnaConfig)
-	{
-		if (klarnaConfig != null && klarnaConfig.getKpConfig() != null
-				&& Boolean.TRUE.equals(klarnaConfig.getKpConfig().getSendEMD()))
-		{
-			final CustomerAccountInformation customerAccountInformation = new CustomerAccountInformation();
-
-			if (!kpCustomerFacade.isAnonymousCheckout())
-
-			{
-				final List<CustomerAccountInformation> custmerInfoList = new ArrayList();
-				final CustomerData customerData = customerFacade.getCurrentCustomer();
-				final String customerUid = customerData.getUid();
-				final CustomerModel customerModel = (CustomerModel) userService.getUserForUID(customerUid);
-
-				customerAccountInformation.setUniqueAccountIdentifier(customerModel.getCustomerID());
-
-				customerAccountInformation.setAccountLastModified(
-						OffsetDateTime.ofInstant(customerModel.getModifiedtime().toInstant(), ZoneId.systemDefault()));
-				customerAccountInformation.setAccountRegistrationDate(
-						OffsetDateTime.ofInstant(customerModel.getCreationtime().toInstant(), ZoneId.systemDefault()));
-				custmerInfoList.add(customerAccountInformation);
-				final ExtraMerchantDataBody extraMerchantDataBody = new ExtraMerchantDataBody();
-				extraMerchantDataBody.setCustomerAccountInfo(custmerInfoList);
-				final PaymentsAttachment paymentsAttachment = new PaymentsAttachment();
-				paymentsAttachment.setContentType("application/vnd.klarna.internal.emd-v2+json");
-				final ObjectMapper om = new DefaultMapper();
-				try
-				{
-					paymentsAttachment.setBody(om.writeValueAsString(extraMerchantDataBody));
-				}
-				catch (final JsonProcessingException e1)
-				{
-					LOG.error(e1);
-				}
-				target.setAttachment(paymentsAttachment);
-			}
-		}
-
-	}
-
 
 }

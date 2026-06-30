@@ -1,71 +1,51 @@
-window.onload = async function() {
 
-	// placement Flags
-	var currentURL = window.location.href;
-	var showInLoginPage = $("#showSIWKInLoginPage").val();
-	var showInRegisterPage = $("#showSIWKInRegisterPage").val();
-	var showInCheckoutLoginPage = $("#showSIWKInCheckoutLoginPage").val();
-	var showSignInButton = false;
-	if(currentURL.endsWith("/login/checkout") && (showInCheckoutLoginPage == "true") )
-	{
-		showSignInButton = true;
-	}
-	else if(currentURL.endsWith("/login") && (showInLoginPage == "true" || showInRegisterPage == "true") )
-	{
-		showSignInButton = true;
-	}
+ACC.klarnasignin = {
+	initiateSigninButton: function (klarna) {
+		console.debug("Entering initiateSigninButton")
+		ACC.klarnasignin.initiateSigninData(klarna);
+	},
+	initiateSigninData: function (klarna) {
+		var scopeData			= $("#siwkScopeData").val();
+		var redirectUri			= $("#siwkRedirectUri").val();
+		var buttonTheme			= $("#siwkButtonTheme").val();
+		var buttonShape			= $("#siwkButtonShape").val();
+		var buttonLogoAlignment	= $("#siwkButtonLogoAlignment").val();
+		var klarnaCountry 			= $("#klarnaCountry").val();
 
-	if(showSignInButton){
-	var clientId			= $("#klarnaClientId").val();
-	var environment			= $("#klarnaEnv").val();
-	var klarnaLocale		= $("#klarnaLocale").val();
+		const siwkButton = klarna.Identity.button({
+			scope:				scopeData+" customer:login",
+			redirectUri:		redirectUri,
+			interactionMode:	"DEVICE_BEST",
+			shape:				buttonShape,
+			theme:				buttonTheme,
+			logoAlignment:		buttonLogoAlignment,
+			market:				klarnaCountry,
+		})
+		siwkButton.mount("#klarna-signin-container");
 
-	const klarna = await Klarna.init({
-		clientId:		clientId,
-		environment:	environment,
-		locale:			klarnaLocale
-	});
+		//klarna.Identity.handleRedirect();
 
-	var scopeData			= $("#siwkScopeData").val();
-	var redirectUri			= $("#siwkRedirectUri").val();
-	var buttonTheme			= $("#siwkButtonTheme").val();
-	var buttonShape			= $("#siwkButtonShape").val();
-	var buttonLogoAlignment	= $("#siwkButtonLogoAlignment").val();
-	var klarnaCountry 			= $("#klarnaCountry").val();
-
-	const siwkButton = klarna.Identity.button({
-		scope:				scopeData+" customer:login",
-		redirectUri:		redirectUri,
-		interactionMode:	"DEVICE_BEST",
-		shape:				buttonShape,
-		theme:				buttonTheme,
-		logoAlignment:		buttonLogoAlignment,
-		market:				klarnaCountry,
-	})
-	siwkButton.mount("#klarna-signin-container");
-
-	//klarna.Identity.handleRedirect();
-
-	klarna.Identity.on("signin",
-		(data) => {
-		ACC.signin.initiateSignInResponse(data);
-		},
-		(error) =>{
-		var message = $('#signinErrHidden').val();
-		ACC.signin.showErrorMessage(message);
-		console.log("signin error" + JSON.stringify(error));
+		klarna.Identity.on("signin", (data) => {
+			console.log("Signin success response:", JSON.stringify(data));
+			ACC.klarnasignin.initiateSignInResponse(data);
+			},
+			(error) =>{
+			var message = $('#signinErrHidden').val();
+			ACC.klarnasignin.showErrorMessage(message);
+			console.log("signin error" + JSON.stringify(error));
 		});
 
-	klarna.Identity.on("error", (data) => {
-		var message = $('#signinErrHidden').val();
-		ACC.signin.showErrorMessage(message);
-		console.log("error " + JSON.stringify(data));
+		klarna.Identity.on("error", (data) => {
+			console.debug("Signin error response:", JSON.stringify(data));
+			var message = $('#signinErrHidden').val();
+			ACC.klarnasignin.showErrorMessage(message);
+			console.log("error " + JSON.stringify(data));
 		});
-	}
-};
-ACC.signin = {
+		
+	
+	},
 	initiateSignInResponse: function (authResponse){
-	console.log("initiateSignInResponse"+authResponse);
+	console.debug("initiateSignInResponse"+authResponse);
 	var initiateSignInResponseUrl = $("#initiateSignInResponseUrl").val();
 		$.ajax(initiateSignInResponseUrl, {
 		        data: JSON.stringify(authResponse),
@@ -74,11 +54,11 @@ ACC.signin = {
 		        type: "post"
 		}).done(function(url) {
 		if(url != null){
-			ACC.signin.loginRedirect(url);
+			ACC.klarnasignin.loginRedirect(url);
 		}
 		else{
 			var message = $('#signinErrHidden').val();
-			ACC.signin.showErrorMessage(message);
+			ACC.klarnasignin.showErrorMessage(message);
 		}
 		}).fail(function (error) {
 		console.log("Authorize reponse error:", JSON.stringify(error));

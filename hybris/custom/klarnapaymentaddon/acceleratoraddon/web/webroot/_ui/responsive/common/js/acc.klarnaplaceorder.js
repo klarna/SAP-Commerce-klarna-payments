@@ -27,7 +27,8 @@ ACC.klarnaplaceorder = {
 				if(isExpCheckout) {
 					ACC.klarnaexpcheckout.getOrderPayload().done(function(payLoadResult) {
 						//console.log("Payload: ", JSON.stringify(payLoadResult));
-						ACC.klarnaplaceorder.finalizePayment(clientToken, null, payLoadResult);
+						const klarnaSelectedPaymentMethod = $("#klarnaSelectedPaymentMethod").val();
+						ACC.klarnaplaceorder.finalizePayment(clientToken, klarnaSelectedPaymentMethod, payLoadResult);
 					}).fail(function() {
 				    	//console.log("Error in getting order payload");
 				    	ACC.klarnaexpcheckout.showMessage($("#klarnaExpCheckoutErrorMessage").val());

@@ -5,10 +5,13 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:aop="http://www.springframework.org/schema/aop"
+    xmlns:util="http://www.springframework.org/schema/util"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
            http://www.springframework.org/schema/beans/spring-beans.xsd
            http://www.springframework.org/schema/aop
-           http://www.springframework.org/schema/aop/spring-aop.xsd">
+           http://www.springframework.org/schema/aop/spring-aop.xsd
+           http://www.springframework.org/schema/util
+           http://www.springframework.org/schema/util/spring-util.xsd">
 	
     <bean id="klarnapaymentapiSystemSetup" class="com.klarna.api.setup.KlarnapaymentapiSystemSetup">
         <!-- constructor arg injection example -->
@@ -26,5 +29,80 @@
 	<bean id="defaultKlarnaClientConnection" class="com.klarna.api.KlarnaClientConnectionTest">
 	<property name="flexibleSearchService" ref="flexibleSearchService"/>
 	</bean>
+	
+	<bean id="klarnaObjectMapper" class="com.fasterxml.jackson.databind.ObjectMapper" >
+	</bean>
+	
+	<bean id="klarnaObjectMapperConfigure" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+	    <property name="targetObject" ref="klarnaObjectMapper" />
+	    <property name="targetMethod" value="configure" />
+	    <property name="arguments"> 
+	        <list>
+	            <value type="com.fasterxml.jackson.databind.DeserializationFeature">FAIL_ON_UNKNOWN_PROPERTIES</value>
+	            <value>false</value>
+	        </list>   
+	    </property>
+	</bean>	
+	
+	<bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+        <property name="targetObject" ref="klarnaObjectMapper"/>
+        <property name="targetMethod" value="registerModule"/>
+        <property name="arguments">
+            <list>
+                <bean class="com.fasterxml.jackson.datatype.jsr310.JavaTimeModule"/>
+            </list>
+        </property>
+    </bean> 	
+    
+    
+	<bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+        <property name="targetObject" ref="klarnaObjectMapper"/>
+        <property name="targetMethod" value="disable"/>
+        <property name="arguments">
+            <list>
+                <util:constant static-field="com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS"/>
+            </list>
+        </property>
+    </bean>
+    
+    	    
+	<bean id="httpRequestFactory" class="org.springframework.http.client.HttpComponentsClientHttpRequestFactory">
+	    <property name="connectTimeout" value="10000"/>
+	    <property name="readTimeout" value="10000"/>
+	</bean>
+	
+	<bean id="klarnaRestTemplate" class="org.springframework.web.client.RestTemplate">
+	    <constructor-arg ref="httpRequestFactory"/>
+	</bean>   
+    
+	<alias name="defaultKlarnaRestClientService" alias="klarnaRestClientService"/>
+	<bean id="defaultKlarnaRestClientService" class="com.klarna.integration.service.impl.DefaultKlarnaRestClientService">
+		<property name="restTemplate" ref="klarnaRestTemplate"/>
+	</bean>	    
+	
+	<alias name="defaultKlarnaIntegrationService" alias="klarnaIntegrationService"/>
+    <bean id="defaultKlarnaIntegrationService"
+          class="com.klarna.integration.service.impl.DefaultKlarnaIntegrationService">
+    </bean>
+	
+	<bean id="klarnaLoggerUtil" class="com.klarna.integration.util.KlarnaLoggerUtil">
+    </bean>
+    
+    <bean id="klarnaIntegrationUtil" class="com.klarna.integration.util.KlarnaIntegrationUtil">
+    </bean>
+    
+    <alias name="defaultKlarnaAPIRequestConverter" alias="klarnaAPIRequestConverter"/>
+    <bean id="defaultKlarnaAPIRequestConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.klarna.integration.dto.KlarnaAPIRequestDTO"/>
+        <property name="populators">
+            <list>
+                <ref bean="klarnaAPIRequestPopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <alias name="defaultKlarnaAPIRequestPopulator" alias="klarnaAPIRequestPopulator"/>
+    <bean id="defaultKlarnaAPIRequestPopulator" class="com.klarna.integration.populator.KlarnaAPIRequestPopulator">
+    </bean>
 			
 </beans>

@@ -27,21 +27,19 @@ import javax.annotation.Resource;
 
 import org.apache.log4j.Logger;
 
-import com.klarna.api.payments.model.PaymentsAddress;
-import com.klarna.api.signin.model.KlarnaSigninUserAccountProfile;
+import com.klarna.payment.data.KlarnaCustomerProfileData;
 import com.klarna.payment.model.KlarnaCustomerProfileModel;
 
 
 /**
  *
  */
-public class KlarnaCustomerProfileReversePopulator
-		implements Populator<KlarnaSigninUserAccountProfile, KlarnaCustomerProfileModel>
+public class KlarnaCustomerProfileReversePopulator implements Populator<KlarnaCustomerProfileData, KlarnaCustomerProfileModel>
 {
 	public static Logger LOG = Logger.getLogger(KlarnaCustomerProfileReversePopulator.class);
 
-	@Resource(name = "klarnaPaymentsAddressReverseConverter")
-	private Converter<PaymentsAddress, AddressData> klarnaPaymentsAddressReverseConverter;
+	@Resource(name = "klarnaCustomerAddressReverseConverter")
+	private Converter<KlarnaCustomerProfileData, AddressData> klarnaCustomerAddressReverseConverter;
 
 	@Resource(name = "addressReverseConverter")
 	private Converter<AddressData, AddressModel> addressReverseConverter;
@@ -59,7 +57,7 @@ public class KlarnaCustomerProfileReversePopulator
 	private CommonI18NService commonI18NService;
 
 	@Override
-	public void populate(final KlarnaSigninUserAccountProfile source, final KlarnaCustomerProfileModel target)
+	public void populate(final KlarnaCustomerProfileData source, final KlarnaCustomerProfileModel target)
 			throws ConversionException
 	{
 		target.setEmail(source.getEmail());
@@ -68,15 +66,15 @@ public class KlarnaCustomerProfileReversePopulator
 		target.setGivenName(source.getGivenName());
 		target.setPhone(source.getPhone());
 		target.setPhoneVerified(source.getPhoneVerified());
-		target.setNationalId(source.getNationalId());
-		if (source.getBillingAddress() != null)
+		//target.setNationalId(source.getNationalId());
+		if (source.getAddress() != null)
 		{
 			try
 			{
-				final PaymentsAddress billingAddress = source.getBillingAddress();
+
 				final AddressData addressData = new AddressData();
 				// Converting the JSON response to addressData
-				klarnaPaymentsAddressReverseConverter.convert(billingAddress, addressData);
+				klarnaCustomerAddressReverseConverter.convert(source, addressData);
 				final CustomerModel customer = (CustomerModel) userService.getUserForUID(source.getEmail());
 				AddressModel addressModel = null;
 				// updating address for the first time

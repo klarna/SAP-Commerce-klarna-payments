@@ -65,6 +65,13 @@ public class Client
 		this.transport = new HttpUrlConnectionTransport(merchantId, sharedSecret, baseUri, userAgent);
 	}
 
+	public Client(final String merchantId, final String sharedSecret, final URI baseUri, final String userAgent,
+			final String integrationMetaData)
+	{
+
+		this.transport = new HttpUrlConnectionTransport(merchantId, sharedSecret, baseUri, userAgent, integrationMetaData);
+	}
+
 	public Client(final URI baseUri)
 	{
 

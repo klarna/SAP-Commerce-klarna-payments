@@ -11,9 +11,6 @@
  */
 package com.klarna.payment.facades.impl;
 
-//import de.hybris.platform.acceleratorstorefrontcommons.security.GUIDCookieStrategy;
-//import de.hybris.platform.acceleratorstorefrontcommons.strategy.CartRestorationStrategy;
-//import de.hybris.platform.commercefacades.consent.CustomerConsentDataStrategy;
 import de.hybris.platform.commercefacades.customer.CustomerFacade;
 import de.hybris.platform.commercefacades.user.data.AddressData;
 import de.hybris.platform.commerceservices.customer.CustomerAccountService;
@@ -27,7 +24,6 @@ import de.hybris.platform.servicelayer.dto.converter.Converter;
 import de.hybris.platform.servicelayer.exceptions.UnknownIdentifierException;
 import de.hybris.platform.servicelayer.i18n.CommonI18NService;
 import de.hybris.platform.servicelayer.model.ModelService;
-//import de.hybris.platform.servicelayer.security.spring.HybrisSessionFixationProtectionStrategy;
 import de.hybris.platform.servicelayer.user.UserService;
 import de.hybris.platform.site.BaseSiteService;
 import de.hybris.platform.store.services.BaseStoreService;
@@ -40,9 +36,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.google.common.collect.Sets;
-import com.klarna.api.signin.model.KlarnaSigninResponse;
-import com.klarna.api.signin.model.KlarnaSigninUserAccountLinking;
-import com.klarna.api.signin.model.KlarnaSigninUserAccountProfile;
+import com.klarna.payment.data.KlarnaCustomerData;
+import com.klarna.payment.data.KlarnaCustomerProfileData;
 import com.klarna.payment.enums.KlarnaSigninProfileStatus;
 import com.klarna.payment.facades.KlarnaSignInFacade;
 import com.klarna.payment.model.KlarnaCustomerProfileModel;
@@ -85,42 +80,21 @@ public class DefaultKlarnaSignInFacade implements KlarnaSignInFacade
 	@Resource(name = "customerFacade")
 	private CustomerFacade customerFacade;
 
-	//	@Resource(name = "guidCookieStrategy")
-	//	private GUIDCookieStrategy guidCookieStrategy;
-
-	//	@Resource(name = "cartRestorationStrategy")
-	//	private CartRestorationStrategy cartRestorationStrategy;
-
-	//	@Resource(name = "rememberMeServices")
-	//	private RememberMeServices rememberMeServices;
-
 	@Resource(name = "baseSiteService")
 	private BaseSiteService baseSiteService;
-
-	//@Resource(name = "cookieGenerator")
-	//private CookieGenerator cookieGenerator;
-
-	//@Resource(name = "userDetailsService")
-	//private UserDetailsService userDetailsService;
-
-	//@Resource(name = "sessionFixationStrategy")
-	//private HybrisSessionFixationProtectionStrategy sessionFixationStrategy;
-
-	//@Resource(name = "customerConsentDataStrategy")
-	//private CustomerConsentDataStrategy customerConsentDataStrategy;
 
 	private static final Logger LOG = Logger.getLogger(DefaultKlarnaSignInFacade.class);
 
 	private static final String CUSTOMER_GROUP = "customergroup";
 
 	@Override
-	public KlarnaSigninProfileStatus checkAndUpdateProfile(final KlarnaSigninResponse klarnaSigninResponse)
+	public KlarnaSigninProfileStatus checkAndUpdateProfile(final KlarnaCustomerData klarnaCustomerData)
 	{
-		final KlarnaSigninUserAccountProfile klarnaSigninUserAccountProfile = klarnaSigninResponse.getUserAccountProfile();
-		if (klarnaSigninUserAccountProfile != null)
+		final KlarnaCustomerProfileData klarnaCustomerProfileData = klarnaCustomerData.getCustomerProfile();
+		if (klarnaCustomerProfileData != null)
 		{
-			final String useremail = StringUtils.isNotEmpty(klarnaSigninUserAccountProfile.getEmail())
-					? klarnaSigninUserAccountProfile.getEmail()
+			final String useremail = StringUtils.isNotEmpty(klarnaCustomerProfileData.getEmail())
+					? klarnaCustomerProfileData.getEmail()
 					: null;
 			if (useremail != null)
 			{
@@ -141,7 +115,7 @@ public class DefaultKlarnaSignInFacade implements KlarnaSignInFacade
 				else if (user instanceof CustomerModel)
 				{
 					final CustomerModel customer = (CustomerModel) user;
-					updateCustomer(customer, klarnaSigninUserAccountProfile, klarnaSigninResponse.getUserAccountLinking());
+					updateCustomer(customer, klarnaCustomerProfileData);
 					return KlarnaSigninProfileStatus.ACCOUNT_UPDATED;
 				}
 			}
@@ -150,18 +124,18 @@ public class DefaultKlarnaSignInFacade implements KlarnaSignInFacade
 	}
 
 	@Override
-	public boolean createNewCustomer(final KlarnaSigninResponse klarnaSigninResponse)
+	public boolean createNewCustomer(final KlarnaCustomerData klarnaCustomerData)
 	{
-		final KlarnaSigninUserAccountProfile klarnaSigninUserAccountProfile = klarnaSigninResponse.getUserAccountProfile();
-		if (klarnaSigninUserAccountProfile != null)
+		final KlarnaCustomerProfileData klarnaCustomerProfileData = klarnaCustomerData.getCustomerProfile();
+		if (klarnaCustomerProfileData != null)
 		{
 			try
 			{
 				final CustomerModel customer = modelService.create(CustomerModel.class);
-				customer.setUid(klarnaSigninUserAccountProfile.getEmail());
-				customer.setName(customerNameStrategy.getName(klarnaSigninUserAccountProfile.getGivenName(),
-						klarnaSigninUserAccountProfile.getFamilyName()));
-				customer.setOriginalUid(klarnaSigninUserAccountProfile.getEmail());
+				customer.setUid(klarnaCustomerProfileData.getEmail());
+				customer.setName(customerNameStrategy.getName(klarnaCustomerProfileData.getGivenName(),
+						klarnaCustomerProfileData.getFamilyName()));
+				customer.setOriginalUid(klarnaCustomerProfileData.getEmail());
 				customer.setSessionLanguage(commonI18NService.getCurrentLanguage());
 				customer.setSessionCurrency(commonI18NService.getCurrentCurrency());
 				customer.setCustomerID(UUID.randomUUID().toString());
@@ -176,13 +150,12 @@ public class DefaultKlarnaSignInFacade implements KlarnaSignInFacade
 				}
 				customerAccountService.register(customer, null);
 				modelService.save(customer);
-				updateCustomer(customer, klarnaSigninUserAccountProfile, klarnaSigninResponse.getUserAccountLinking());
+				updateCustomer(customer, klarnaCustomerProfileData);
 				return true;
 			}
 			catch (final Exception e)
 			{
-				LOG.error("Error creating new customer account for email id " + klarnaSigninUserAccountProfile.getEmail() + " :: ",
-						e);
+				LOG.error("Error creating new customer account for email id " + klarnaCustomerProfileData.getEmail() + " :: ", e);
 				return false;
 			}
 		}
@@ -190,8 +163,7 @@ public class DefaultKlarnaSignInFacade implements KlarnaSignInFacade
 	}
 
 	@Override
-	public void updateCustomer(final CustomerModel customer, final KlarnaSigninUserAccountProfile klarnaSigninUserAccountProfile,
-			final KlarnaSigninUserAccountLinking klarnaSigninUserAccountLinking)
+	public void updateCustomer(final CustomerModel customer, final KlarnaCustomerProfileData klarnaCustomerProfileData)
 	{
 		try
 		{
@@ -202,13 +174,9 @@ public class DefaultKlarnaSignInFacade implements KlarnaSignInFacade
 				{
 					klarnaCustomerProfileModel = modelService.create(KlarnaCustomerProfileModel.class);
 				}
-				updateCustomerName(klarnaCustomerProfileModel, klarnaSigninUserAccountProfile, customer);
+				updateCustomerName(klarnaCustomerProfileModel, klarnaCustomerProfileData, customer);
 
-				klarnaCustomerProfileReverseConverter.convert(klarnaSigninUserAccountProfile, klarnaCustomerProfileModel);
-				if (klarnaSigninUserAccountLinking != null)
-				{
-					klarnaCustomerProfileModel.setRefreshToken(klarnaSigninUserAccountLinking.getUserAccountLinkingRefreshToken());
-				}
+				klarnaCustomerProfileReverseConverter.convert(klarnaCustomerProfileData, klarnaCustomerProfileModel);
 				modelService.save(klarnaCustomerProfileModel);
 				customer.setKlarnaCustomerProfile(klarnaCustomerProfileModel);
 				customer.setDefaultPaymentAddress(klarnaCustomerProfileModel.getBillingAddress());
@@ -217,40 +185,40 @@ public class DefaultKlarnaSignInFacade implements KlarnaSignInFacade
 		}
 		catch (final Exception e)
 		{
-			LOG.error("Error updating customer account for email id " + klarnaSigninUserAccountProfile.getEmail() + " :: ", e);
+			LOG.error("Error updating customer account for email id " + klarnaCustomerProfileData.getEmail() + " :: ", e);
 		}
 	}
 
 	void updateCustomerName(final KlarnaCustomerProfileModel klarnaCustomerProfileModel,
-			final KlarnaSigninUserAccountProfile klarnaSigninUserAccountProfile, final CustomerModel customer)
+			final KlarnaCustomerProfileData klarnaCustomerProfileData, final CustomerModel customer)
 	{
 		// Modify account info in customer model only if the current value matches that of Klarna customer profile
 		// If it doesn't match, it means customer has created or updated account info within the site
 		// In such cases, the account info shouldn't be overridden with the values from Klarna
-		if (!StringUtils.equals(klarnaCustomerProfileModel.getFamilyName(), klarnaSigninUserAccountProfile.getFamilyName())
-				|| !StringUtils.equals(klarnaCustomerProfileModel.getGivenName(), klarnaSigninUserAccountProfile.getGivenName()))
+		if (!StringUtils.equals(klarnaCustomerProfileModel.getFamilyName(), klarnaCustomerProfileData.getFamilyName())
+				|| !StringUtils.equals(klarnaCustomerProfileModel.getGivenName(), klarnaCustomerProfileData.getGivenName()))
 		{
 			final String currentCustomerNameInKlarna = customerNameStrategy.getName(klarnaCustomerProfileModel.getGivenName(),
 					klarnaCustomerProfileModel.getFamilyName());
 			if (StringUtils.equals(currentCustomerNameInKlarna, customer.getName()))
 			{
 				// Set new name
-				customer.setName(customerNameStrategy.getName(klarnaSigninUserAccountProfile.getGivenName(),
-						klarnaSigninUserAccountProfile.getFamilyName()));
+				customer.setName(customerNameStrategy.getName(klarnaCustomerProfileData.getGivenName(),
+						klarnaCustomerProfileData.getFamilyName()));
 			}
 		}
 	}
 
 	@Override
-	public boolean validateSigninToken(final KlarnaSigninResponse klarnaSigninResponse, String environment)
+	public boolean validateSigninToken(final KlarnaCustomerData klarnaCustomerData, final String environment)
 	{
-		if(klarnaSigninResponse != null && klarnaSigninResponse.getUserAccountLinking() != null &&  StringUtils.isNotBlank(klarnaSigninResponse.getUserAccountLinking().getUserAccountLinkingIdToken())) {
-   		final boolean isValidIdToken = KlarnaTokenUtils.validateJWTToken(klarnaSigninResponse.getUserAccountLinking().getUserAccountLinkingIdToken(),environment);
-   		return isValidIdToken;
+		if (klarnaCustomerData != null && StringUtils.isNotBlank(klarnaCustomerData.getIdToken()))
+		{
+			return KlarnaTokenUtils.validateJWTToken(klarnaCustomerData.getIdToken(), environment);
 		}
 		else
 		{
-			LOG.error("ID Token Not Found :: " + klarnaSigninResponse.getUserAccountLinking().getUserAccountLinkingIdToken());
+			LOG.error("Invalid SIWK Request. ID Token Not Found.");
 		}
 		return false;
 	}

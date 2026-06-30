@@ -38,6 +38,7 @@ import org.slf4j.LoggerFactory;
 
 import com.klarna.api.model.ApiException;
 import com.klarna.api.model.ApiResponse;
+import com.klarna.integration.constants.KlarnaIntegrationConstants;
 
 
 /**
@@ -82,6 +83,11 @@ public class HttpUrlConnectionTransport implements HttpTransport
 	protected String userAgent;
 
 	/**
+	 * HTTP metadata header.
+	 */
+	protected String integrationMetaDataHeader;
+
+	/**
 	 * HTTP request timeout.
 	 */
 	protected int timeout = DEFAULT_TIMEOUT;
@@ -118,6 +124,7 @@ public class HttpUrlConnectionTransport implements HttpTransport
 		this.merchantId = merchantId;
 		this.sharedSecret = sharedSecret;
 		this.userAgent = HttpTransport.USER_AGENT;
+
 	}
 
 
@@ -128,6 +135,17 @@ public class HttpUrlConnectionTransport implements HttpTransport
 		this.merchantId = merchantId;
 		this.sharedSecret = sharedSecret;
 		this.userAgent = userAgent;
+
+	}
+
+	public HttpUrlConnectionTransport(final String merchantId, final String sharedSecret, final URI baseUri,
+			final String userAgent, final String integrationMetaDataHeader)
+	{
+		this.baseUri = baseUri;
+		this.merchantId = merchantId;
+		this.sharedSecret = sharedSecret;
+		this.userAgent = userAgent;
+		this.integrationMetaDataHeader = integrationMetaDataHeader;
 
 	}
 
@@ -357,6 +375,24 @@ public class HttpUrlConnectionTransport implements HttpTransport
 	}
 
 	/**
+	 * @return the integrationMetaDataHeader
+	 */
+	public String getIntegrationMetaDataHeader()
+	{
+		return integrationMetaDataHeader;
+	}
+
+
+	/**
+	 * @param integrationMetaDataHeader
+	 *           the integrationMetaDataHeader to set
+	 */
+	public void setIntegrationMetaDataHeader(final String integrationMetaDataHeader)
+	{
+		this.integrationMetaDataHeader = integrationMetaDataHeader;
+	}
+
+	/**
 	 * Sets new Proxy settings
 	 *
 	 * @param scheme
@@ -400,6 +436,7 @@ public class HttpUrlConnectionTransport implements HttpTransport
 
 		conn.setRequestProperty("Content-Type", DEFAULT_MEDIA_TYPE);
 		conn.setRequestProperty("User-Agent", this.userAgent);
+		conn.setRequestProperty(KlarnaIntegrationConstants.KLARNA_INTEGRATION_METADATA_HEADER, this.integrationMetaDataHeader);
 		conn.setConnectTimeout(this.timeout);
 		conn.setReadTimeout(this.timeout);
 
